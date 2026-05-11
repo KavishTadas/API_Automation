@@ -1,0 +1,13 @@
+{
+  "_comment": "Postman Monitor config template. Fill UIDs from your Postman workspace.",
+  "name": "API Health Monitor",
+  "schedule": { "cron": "0 * * * *", "timezone": "Asia/Kolkata" },
+  "notifications": {
+    "onFailure": true,
+    "email": ["your-team@example.com"],
+    "slackWebhook": ""
+  },
+  "regions": ["ap-south-1", "us-east-1"],
+  "environmentUid": "",
+  "collectionUid": ""
+}

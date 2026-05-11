@@ -1,0 +1,120 @@
+openapi: 3.1.0
+info:
+  title: API Test Suite
+  version: 1.0.0
+  description: OpenAPI contract used for automated schema validation in the test suite.
+servers:
+  - url: "{BASE_URL}"
+    variables:
+      BASE_URL:
+        default: "http://localhost:3000"
+tags:
+  - name: Authentication
+    description: Authentication endpoints.
+  - name: Users
+    description: User profile endpoints.
+paths:
+  /auth/login:
+    post:
+      operationId: login
+      tags:
+        - Authentication
+      description: Authenticate a user and return an access token.
+      x-qa-notes: "Verify token is returned on valid credentials. Verify 401 on wrong password."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+      responses:
+        "200":
+          description: Successful login.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - token
+                  - user
+                properties:
+                  token:
+                    type: string
+                  user:
+                    type: object
+                    required:
+                      - id
+                      - email
+                    properties:
+                      id:
+                        type: integer
+                      email:
+                        type: string
+        "401":
+          description: Invalid credentials.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                  - message
+                properties:
+                  error:
+                    type: string
+                  message:
+                    type: string
+  /users/me:
+    get:
+      operationId: getCurrentUser
+      tags:
+        - Users
+      description: Return the authenticated user's profile.
+      security:
+        - bearerAuth: []
+      x-qa-notes: "Verify authenticated user profile is returned. Verify 401 when token is missing."
+      responses:
+        "200":
+          description: Authenticated user profile.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - email
+                  - role
+                properties:
+                  id:
+                    type: integer
+                  email:
+                    type: string
+                  role:
+                    type: string
+        "401":
+          description: Missing or invalid token.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - error
+                properties:
+                  error:
+                    type: string
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

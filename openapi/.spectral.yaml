@@ -1,0 +1,6 @@
+extends: ["spectral:oas"]
+rules:
+  operation-operationId: error
+  operation-success-response: warn
+  info-contact: off
+  oas3-api-servers: warn

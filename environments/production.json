@@ -1,9 +1,9 @@
 {
-  "name": "QA",
+  "name": "production",
   "values": [
     {
       "key": "baseUrl",
-      "value": "http://127.0.0.1:5000",
+      "value": "https://api.yourapp.com",
       "type": "default",
       "enabled": true
     }

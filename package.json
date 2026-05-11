@@ -6,7 +6,7 @@
     "test:staging": "cross-env ENV=staging node scripts/run-newman.js",
     "test:production": "cross-env ENV=production node scripts/run-newman.js",
     "test:all": "npm run test:local && npm run test:staging",
-    "lint:spec": "spectral lint openapi/openapi.yaml",
+    "lint:spec": "spectral lint openapi/openapi.yaml --ruleset openapi/.spectral.yaml",
     "report:generate": "allure generate reports/allure-results --clean -o reports/allure-report",
     "report:open": "allure open reports/allure-report",
     "monitor:run": "node monitoring/health-check.js"

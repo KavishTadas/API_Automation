@@ -1,0 +1,12 @@
+{
+  "name": "staging",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "https://staging.api.yourapp.com",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}
