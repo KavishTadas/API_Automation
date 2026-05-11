@@ -1,0 +1,23 @@
+{
+  "name": "fastapi-template",
+  "version": "1.0.0",
+  "scripts": {
+    "test:local": "cross-env ENV=local node scripts/run-newman.js",
+    "test:staging": "cross-env ENV=staging node scripts/run-newman.js",
+    "test:production": "cross-env ENV=production node scripts/run-newman.js",
+    "test:all": "npm run test:local && npm run test:staging",
+    "lint:spec": "spectral lint openapi/openapi.yaml",
+    "report:generate": "allure generate reports/allure-results --clean -o reports/allure-report",
+    "report:open": "allure open reports/allure-report",
+    "monitor:run": "node monitoring/health-check.js"
+  },
+  "devDependencies": {
+    "@stoplight/spectral-cli": "^6.15.1",
+    "allure-commandline": "^2.40.0",
+    "cross-env": "^10.1.0",
+    "dotenv": "^17.4.2",
+    "newman": "^6.2.2",
+    "newman-reporter-allure": "^3.7.2",
+    "newman-reporter-htmlextra": "^1.23.1"
+  }
+}

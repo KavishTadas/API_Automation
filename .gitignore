@@ -1,19 +1,8 @@
-# Environments
+node_modules/
 .env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Byte-compiled / optimized / DLL files
-__pycache__/
-
-.pytest_cache/
-pytest-cache-files-*/
-
-# Node dependencies and generated API automation reports
-API-Automation/node_modules/
-API-Automation/reports/
-API-Automation/allure-results/
+reports/html/
+reports/allure-results/
+reports/allure-report/
+monitoring/logs/
+.DS_Store
+*.log
