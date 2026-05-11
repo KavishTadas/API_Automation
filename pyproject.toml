@@ -1,0 +1,22 @@
+[project]
+name = "FastAPI-app"
+version = "0.1.0"
+description = "A simple FastAPI application."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "httpx"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest"
+]
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests"
+]
+addopts = "-p no:cacheprovider"

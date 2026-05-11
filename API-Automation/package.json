@@ -1,0 +1,14 @@
+{
+  "name": "api-automation",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "node scripts/run-tests.js"
+  },
+  "devDependencies": {
+    "allure-commandline": "^2.40.0",
+    "newman": "^6.2.2",
+    "newman-reporter-allure": "^3.7.2",
+    "newman-reporter-htmlextra": "^1.23.1"
+  }
+}
