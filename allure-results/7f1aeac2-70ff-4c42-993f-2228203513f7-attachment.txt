@@ -1,0 +1,7 @@
+pm.test('status code is 200', function () {
+  pm.response.to.have.status(200);
+});
+
+pm.test('messages collection is returned', function () {
+  pm.expect(pm.response.json()).to.have.property('messages:');
+});

@@ -1,0 +1,26 @@
+{
+  "id": "env-uat",
+  "name": "UAT",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "https://uat_mcdp_be.omfysgroup.com",
+      "enabled": true
+    },
+    {
+      "key": "empCode",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "empPassword",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "enabled": true
+    }
+  ]
+}

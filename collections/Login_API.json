@@ -5,43 +5,133 @@
   },
   "item": [
     {
-      "name": "Login API is not implemented",
+      "name": "TC01 - Valid credentials return token",
       "event": [
         {
           "listen": "test",
           "script": {
+            "type": "text/javascript",
             "exec": [
-              "pm.test('login endpoint is documented as unavailable', function () {",
-              "  pm.response.to.have.status(404);",
-              "});"
-            ],
-            "type": "text/javascript"
+              "const json = pm.response.json();",
+              "",
+              "pm.test('TC01 - Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('TC01 - Response contains token string', function () {",
+              "  pm.expect(json).to.have.property('token');",
+              "  pm.expect(json.token).to.be.a('string').and.to.have.length.above(20);",
+              "});",
+              "",
+              "pm.test('TC01 - empCode in response matches request', function () {",
+              "  pm.expect(json.empCode).to.equal(pm.environment.get('empCode'));",
+              "});",
+              "",
+              "pm.test('TC01 - username is a non-empty string', function () {",
+              "  pm.expect(json.username).to.be.a('string').and.to.have.length.above(0);",
+              "});",
+              "",
+              "pm.test('TC01 - roles is a non-empty array', function () {",
+              "  pm.expect(json.roles).to.be.an('array').and.to.have.length.above(0);",
+              "});",
+              "",
+              "pm.test('TC01 - Response time under 3000ms', function () {",
+              "  pm.expect(pm.response.responseTime).to.be.below(3000);",
+              "});",
+              "",
+              "if (json.token) {",
+              "  pm.environment.set('authToken', json.token);",
+              "  console.log('authToken stored — length: ' + json.token.length);",
+              "}"
+            ]
           }
         }
       ],
       "request": {
         "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"username\": \"qa.user\",\n  \"password\": \"Password123!\"\n}"
+          "raw": "{\n  \"empCode\": \"{{empCode}}\",\n  \"password\": \"{{empPassword}}\"\n}"
         },
         "url": {
-          "raw": "{{baseUrl}}/login",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "login"
-          ]
+          "raw": "{{baseUrl}}/auth/token",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "token"]
         }
-      },
-      "response": []
+      }
+    },
+    {
+      "name": "TC02 - Wrong password returns 401",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const json = pm.response.json();",
+              "",
+              "pm.test('TC02 - Status is 400 or 401 for wrong password', function () {",
+              "  pm.expect(pm.response.code).to.be.oneOf([400, 401]);",
+              "});",
+              "",
+              "pm.test('TC02 - Response body has message field', function () {",
+              "  pm.expect(json).to.have.property('message');",
+              "  pm.expect(json.message).to.be.a('string').and.to.have.length.above(0);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"empCode\": \"{{empCode}}\",\n  \"password\": \"WRONG_PASSWORD\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/token",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "token"]
+        }
+      }
+    },
+    {
+      "name": "TC03 - Missing empCode returns 400",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const json = pm.response.json();",
+              "",
+              "pm.test('TC03 - Status is 400 for missing field', function () {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test('TC03 - Response body has message field', function () {",
+              "  pm.expect(json).to.have.property('message');",
+              "  pm.expect(json.message).to.be.a('string').and.to.have.length.above(0);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"password\": \"{{empPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/token",
+          "host": ["{{baseUrl}}"],
+          "path": ["auth", "token"]
+        }
+      }
     }
   ]
 }
