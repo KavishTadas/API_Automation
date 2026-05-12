@@ -6,3 +6,10 @@ reports/allure-report/
 monitoring/logs/
 .DS_Store
 *.log
+
+# Diagnostic and audit utilities
+scripts/diagnose.js
+scripts/project-audit.js
+
+# OS
+Thumbs.db

@@ -22,6 +22,7 @@ if (collectionFiles.length === 0) {
 }
 
 const results = [];
+const sharedEnvVars = {};
 
 function runCollection(collectionFile) {
   return new Promise((resolve) => {
@@ -41,6 +42,7 @@ function runCollection(collectionFile) {
       collection:   require(collectionPath),
       environment:  require(envFile),
       envVar: [
+        ...Object.entries(sharedEnvVars).map(([key, value]) => ({ key, value })),
         { key: 'empCode',     value: process.env.EMP_CODE     || '' },
         { key: 'empPassword', value: process.env.EMP_PASSWORD || '' }
       ],
@@ -93,6 +95,43 @@ function runCollection(collectionFile) {
         });
       }
 
+      try {
+        const rawValues =
+          summary?.environment?.values?.members ||
+          summary?.environment?.values ||
+          [];
+        const members = Array.isArray(rawValues)
+          ? rawValues
+          : Object.values(rawValues);
+        let carried = 0;
+        members.forEach(v => {
+          if (
+            v?.key &&
+            v.value !== undefined &&
+            v.value !== null &&
+            v.value !== '' &&
+            v.value !== 'undefined'
+          ) {
+            sharedEnvVars[v.key] = v.value;
+            carried++;
+          }
+        });
+        if (carried > 0) {
+          console.log(
+            `  → ${carried} env var(s) carried forward from ${collectionName}`
+          );
+          if (sharedEnvVars.authToken) {
+            console.log(
+              `  → authToken present — length: ${sharedEnvVars.authToken.length}`
+            );
+          }
+        }
+      } catch (e) {
+        console.warn(
+          `  ⚠ Could not carry env vars from ${collectionName}: ${e.message}`
+        );
+      }
+
       results.push({ ...result, _failed: result.Failed > 0 || !!err });
       resolve();
     });
@@ -112,6 +151,24 @@ async function runAll() {
   };
   fs.mkdirSync(path.dirname(executorPath), { recursive: true });
   fs.writeFileSync(executorPath, JSON.stringify(executor, null, 2));
+
+  const envPropsPath = path.join(
+    __dirname, '..', 'reports', 'allure-results',
+    'environment.properties'
+  );
+  const envProps = [
+    `ENV=${ENV}`,
+    `Base URL=${process.env.BASE_URL || process.env.STAGING_BASE_URL || 'not set'}`,
+    `Emp Code=${process.env.EMP_CODE ? '***' + process.env.EMP_CODE.slice(-3) : 'not set'}`,
+    `Node Version=${process.version}`,
+    `Newman Version=6.2.2`,
+    `Platform=${process.platform}`,
+    `Run Date=${new Date().toISOString().slice(0, 10)}`,
+    `Run Time=${new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' })}`
+  ].join('\n');
+  fs.mkdirSync(path.dirname(envPropsPath), { recursive: true });
+  fs.writeFileSync(envPropsPath, envProps);
+  console.log('  ✓ environment.properties written to allure-results');
 
   for (const file of collectionFiles) {
     await runCollection(file);
