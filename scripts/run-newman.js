@@ -22,7 +22,14 @@ if (collectionFiles.length === 0) {
 }
 
 const results = [];
-const sharedEnvVars = {};
+const sharedEnvVars = {
+  baseUrl:      process.env.BASE_URL      ||
+                'https://uat-mcdp-be.omfysgroup.com',
+  empCode:      process.env.EMP_CODE      || '',
+  empPassword:  process.env.EMP_PASSWORD  || '',
+  leaveBaseUrl: process.env.LEAVE_BASE_URL ||
+                'https://uat-mcdp-be.omfysgroup.com'
+};
 
 function runCollection(collectionFile) {
   return new Promise((resolve) => {
@@ -41,11 +48,9 @@ function runCollection(collectionFile) {
     const options = {
       collection:   require(collectionPath),
       environment:  require(envFile),
-      envVar: [
-        ...Object.entries(sharedEnvVars).map(([key, value]) => ({ key, value })),
-        { key: 'empCode',     value: process.env.EMP_CODE     || '' },
-        { key: 'empPassword', value: process.env.EMP_PASSWORD || '' }
-      ],
+      envVar: Object.entries(sharedEnvVars).map(
+        ([key, value]) => ({ key, value })
+      ),
       reporters: ['htmlextra', 'allure', 'cli'],
       reporter: {
         htmlextra: htmlConfig,
