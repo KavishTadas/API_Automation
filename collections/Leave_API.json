@@ -1,0 +1,223 @@
+{
+  "info": {
+    "name": "Leave API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+
+    {
+      "name": "TC01 - Show leave report returns records array",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const json = pm.response.json();",
+              "",
+              "pm.test('TC01 - Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('TC01 - Response has records array', function () {",
+              "  pm.expect(json).to.have.property('records');",
+              "  pm.expect(json.records).to.be.an('array');",
+              "});",
+              "",
+              "pm.test('TC01 - Response time under 5000ms', function () {",
+              "  pm.expect(pm.response.responseTime).to.be.below(5000);",
+              "});",
+              "",
+              "if (json.records && json.records.length > 0) {",
+              "  const r = json.records[0];",
+              "",
+              "  pm.test('TC01 - Record has all required fields', function () {",
+              "    pm.expect(r).to.have.property('lr_no');",
+              "    pm.expect(r).to.have.property('lr_id');",
+              "    pm.expect(r).to.have.property('subject');",
+              "    pm.expect(r).to.have.property('status');",
+              "    pm.expect(r).to.have.property('leave_type');",
+              "    pm.expect(r).to.have.property('emp_name');",
+              "    pm.expect(r).to.have.property('day_type');",
+              "    pm.expect(r).to.have.property('empid');",
+              "  });",
+              "",
+              "  pm.test('TC01 - leave_type is a known value', function () {",
+              "    const validTypes = ['CL','LWP','PL','SL','ML','EL'];",
+              "    pm.expect(validTypes).to.include(r.leave_type);",
+              "  });",
+              "",
+              "  pm.test('TC01 - status is a known value', function () {",
+              "    const validStatuses = [",
+              "      'Pending for AR Approval',",
+              "      'Pending for FR Approval',",
+              "      'Approved', 'Rejected', 'Cancelled'",
+              "    ];",
+              "    pm.expect(validStatuses).to.include(r.status);",
+              "  });",
+              "",
+              "  pm.test('TC01 - lr_no and lr_id are numbers', function () {",
+              "    pm.expect(r.lr_no).to.be.a('number');",
+              "    pm.expect(r.lr_id).to.be.a('number');",
+              "  });",
+              "",
+              "  console.log('Records returned: ' + json.records.length);",
+              "} else {",
+              "  console.log('records array is empty for this date range — skipping field checks');",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"startDate\": \"2020-01-01\",\n  \"endDate\": \"2026-12-31\"\n}"
+        },
+        "url": {
+          "raw": "{{leaveBaseUrl}}/user/leaves/showleavereport",
+          "host": ["{{leaveBaseUrl}}"],
+          "path": ["user", "leaves", "showleavereport"]
+        }
+      }
+    },
+
+    {
+      "name": "TC02 - Show leave report rejects missing auth",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('TC02 - Status is 401 or 403 without token', function () {",
+              "  pm.expect(pm.response.code).to.be.oneOf([401, 403]);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"startDate\": \"2020-01-01\",\n  \"endDate\": \"2026-12-31\"\n}"
+        },
+        "url": {
+          "raw": "{{leaveBaseUrl}}/user/leaves/showleavereport",
+          "host": ["{{leaveBaseUrl}}"],
+          "path": ["user", "leaves", "showleavereport"]
+        }
+      }
+    },
+
+    {
+      "name": "TC03 - Pending approvals returns pendingleavs array",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const json = pm.response.json();",
+              "",
+              "pm.test('TC03 - Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('TC03 - Response has pendingleavs array', function () {",
+              "  pm.expect(json).to.have.property('pendingleavs');",
+              "  pm.expect(json.pendingleavs).to.be.an('array');",
+              "});",
+              "",
+              "pm.test('TC03 - Response time under 5000ms', function () {",
+              "  pm.expect(pm.response.responseTime).to.be.below(5000);",
+              "});",
+              "",
+              "if (json.pendingleavs && json.pendingleavs.length > 0) {",
+              "  const r = json.pendingleavs[0];",
+              "",
+              "  pm.test('TC03 - Record has all required fields', function () {",
+              "    pm.expect(r).to.have.property('lr_id');",
+              "    pm.expect(r).to.have.property('lr_no');",
+              "    pm.expect(r).to.have.property('emp_name');",
+              "    pm.expect(r).to.have.property('leave_type');",
+              "    pm.expect(r).to.have.property('leave_count');",
+              "    pm.expect(r).to.have.property('day_type');",
+              "    pm.expect(r).to.have.property('approver_type');",
+              "    pm.expect(r).to.have.property('startdate');",
+              "    pm.expect(r).to.have.property('enddate');",
+              "  });",
+              "",
+              "  pm.test('TC03 - leave_count is a positive number', function () {",
+              "    pm.expect(r.leave_count).to.be.a('number');",
+              "    pm.expect(r.leave_count).to.be.above(0);",
+              "  });",
+              "",
+              "  pm.test('TC03 - approver_type is Administrative or Functional', function () {",
+              "    pm.expect(['Administrative', 'Functional'])",
+              "      .to.include(r.approver_type);",
+              "  });",
+              "",
+              "  pm.test('TC03 - leave_type is a known value', function () {",
+              "    const validTypes = ['CL','LWP','PL','SL','ML','EL'];",
+              "    pm.expect(validTypes).to.include(r.leave_type);",
+              "  });",
+              "",
+              "  console.log('Pending approvals: ' + json.pendingleavs.length);",
+              "} else {",
+              "  console.log('pendingleavs array is empty — no pending approvals for this user');",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "url": {
+          "raw": "{{leaveBaseUrl}}/user/leaves/approvals",
+          "host": ["{{leaveBaseUrl}}"],
+          "path": ["user", "leaves", "approvals"]
+        }
+      }
+    },
+
+    {
+      "name": "TC04 - Pending approvals rejects missing auth",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('TC04 - Status is 401 or 403 without token', function () {",
+              "  pm.expect(pm.response.code).to.be.oneOf([401, 403]);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{leaveBaseUrl}}/user/leaves/approvals",
+          "host": ["{{leaveBaseUrl}}"],
+          "path": ["user", "leaves", "approvals"]
+        }
+      }
+    }
+
+  ]
+}

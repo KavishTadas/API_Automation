@@ -1,8 +1,8 @@
-name: API automation tests
+﻿name: API automation tests
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, feature/hcm-leave-management-api]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -10,50 +10,79 @@ on:
       environment:
         description: "Target environment"
         required: true
-        default: staging
+        default: uat
         type: choice
-        options: [local, staging, production]
+        options: [uat, staging, production, local]
       collection:
-        description: "Collection name or 'all'"
+        description: "Collection name or all"
         required: false
         default: all
 
 jobs:
   api-tests:
     runs-on: ubuntu-latest
+
     env:
-      API_KEY: ${{ secrets.API_KEY }}
-      BASE_URL: ${{ secrets.BASE_URL }}
-      POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+      EMP_CODE:          ${{ secrets.EMP_CODE }}
+      EMP_PASSWORD:      ${{ secrets.EMP_PASSWORD }}
+      BASE_URL:          ${{ secrets.BASE_URL }}
+      LEAVE_BASE_URL:    ${{ secrets.LEAVE_BASE_URL }}
+      API_KEY:           ${{ secrets.API_KEY }}
+      POSTMAN_API_KEY:   ${{ secrets.POSTMAN_API_KEY }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: npm }
-      - run: npm ci
-      - run: cross-env ENV=${{ inputs.environment || 'staging' }} node scripts/run-newman.js
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run API tests
         id: run-tests
-      - uses: actions/upload-artifact@v4
+        run: npx cross-env ENV=${{ inputs.environment || 'uat' }} node scripts/run-newman.js
+
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v4
         if: always()
-        with: { name: html-report, path: reports/html/, retention-days: 30 }
-      - uses: actions/upload-artifact@v4
+        with:
+          name: html-report-${{ github.run_number }}
+          path: reports/html/
+          retention-days: 30
+
+      - name: Upload Allure results
+        uses: actions/upload-artifact@v4
         if: always()
-        with: { name: allure-results, path: reports/allure-results/, retention-days: 30 }
+        with:
+          name: allure-results-${{ github.run_number }}
+          path: reports/allure-results/
+          retention-days: 30
+
       - name: Write job summary
         if: always()
         run: |
           echo "## API Test Results" >> $GITHUB_STEP_SUMMARY
-          echo "Environment: ${{ inputs.environment || 'staging' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment:** ${{ inputs.environment || 'uat' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Run:** #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+
       - name: Slack alert on failure
-        if: failure() && secrets.SLACK_WEBHOOK_URL != ''
+        if: failure() && env.SLACK_WEBHOOK_URL != ''
         uses: slackapi/slack-github-action@v1.27.0
         with:
-          payload: '{"text":"API tests FAILED on ${{ github.ref }} — ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}'
+          payload: >-
+            {"text":"API tests FAILED on
+            ${{ github.ref_name }} -
+            Run #${{ github.run_number }} -
+            ${{ github.server_url }}/${{ github.repository
+            }}/actions/runs/${{ github.run_id }}"}
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
 
-# Required secrets:
-# API_KEY
-# BASE_URL
-# POSTMAN_API_KEY
-# SLACK_WEBHOOK_URL (optional)
