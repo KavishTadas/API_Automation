@@ -3,6 +3,7 @@ const newman   = require('newman');
 const fs       = require('fs');
 const path     = require('path');
 const reporterConfig = require('./reporter-config');
+const { generateIndex } = require('./generate-html-index');
 
 const ENV     = process.env.ENV || 'local';
 const envFile = path.join(__dirname, '..', 'environments', `${ENV}.json`);
@@ -37,12 +38,13 @@ function runCollection(collectionFile) {
     const collectionPath = path.join(collectionsDir, collectionFile);
     const timestamp      = Date.now();
     const testDataPath   = path.join(__dirname, '..', 'test-data', `${collectionName}.csv`);
+    const htmlReportPath = path.join(
+      __dirname, '..', 'reports', 'html',
+      `report-${collectionName}-${timestamp}.html`
+    );
 
     const htmlConfig = Object.assign({}, reporterConfig, {
-      export: path.join(
-        __dirname, '..', 'reports', 'html',
-        `report-${collectionName}-${timestamp}.html`
-      )
+      export: htmlReportPath
     });
 
     const options = {
@@ -137,7 +139,11 @@ function runCollection(collectionFile) {
         );
       }
 
-      results.push({ ...result, _failed: result.Failed > 0 || !!err });
+      results.push({
+        ...result,
+        reportFile: htmlReportPath,
+        _failed: result.Failed > 0 || !!err
+      });
       resolve();
     });
   });
@@ -181,6 +187,10 @@ async function runAll() {
 
   console.log('\nRun summary:');
   console.table(results.map(({ _failed, ...r }) => r));
+  generateIndex(
+    results.map(({ _failed, reportFile, ...r }) =>
+      ({ ...r, reportFile }))
+  );
 
   if (results.some(r => r._failed)) {
     process.exit(1);

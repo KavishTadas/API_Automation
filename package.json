@@ -9,6 +9,7 @@
     "test:uat": "cross-env ENV=uat node scripts/run-newman.js",
     "lint:spec": "spectral lint openapi/openapi.yaml --ruleset openapi/.spectral.yaml",
     "report:generate": "allure generate reports/allure-results --clean -o reports/allure-report",
+    "report:html": "node scripts/generate-html-index.js",
     "report:open": "allure open reports/allure-report",
     "monitor:run": "node monitoring/health-check.js"
   },
