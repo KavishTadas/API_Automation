@@ -13,3 +13,5 @@ scripts/project-audit.js
 
 # OS
 Thumbs.db
+
+allure-report/
