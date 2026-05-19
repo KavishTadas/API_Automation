@@ -15,3 +15,5 @@ scripts/project-audit.js
 Thumbs.db
 
 allure-report/
+
+allure-results/

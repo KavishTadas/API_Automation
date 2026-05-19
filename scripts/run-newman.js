@@ -14,8 +14,26 @@ if (!fs.existsSync(envFile)) {
 }
 
 const collectionsDir  = path.join(__dirname, '..', 'collections');
-const collectionFiles = fs.readdirSync(collectionsDir)
-  .filter(f => f.endsWith('.json') && !f.includes('.pending.'));
+const RUN_ORDER = [
+  'Login_API.json',
+  'Leave_API.json'
+];
+
+const discovered = fs.readdirSync(collectionsDir)
+  .filter(f =>
+    f.endsWith('.json') &&
+    !f.includes('.pending.')
+  );
+
+const collectionFiles = [
+  ...RUN_ORDER.filter(f => discovered.includes(f)),
+  ...discovered.filter(f => !RUN_ORDER.includes(f))
+];
+
+console.log('\nCollection run order:');
+collectionFiles.forEach((f, i) =>
+  console.log(`  ${i + 1}. ${f}`)
+);
 
 if (collectionFiles.length === 0) {
   console.warn('No collections found in collections/');
@@ -198,6 +216,12 @@ async function runAll() {
 }
 
 const reportsDir = path.join(__dirname, '..', 'reports');
+const allureHistorySource = path.join(
+  reportsDir, 'allure-report', 'history'
+);
+const allureHistoryDest = path.join(
+  reportsDir, 'allure-results', 'history'
+);
 
 const dirsToClear = [
   path.join(reportsDir, 'html'),
@@ -230,8 +254,44 @@ function clearDirectory(dirPath) {
   }
 }
 
+function snapshotDirectory(dirPath, basePath = dirPath) {
+  if (!fs.existsSync(dirPath)) {
+    return [];
+  }
+
+  return fs.readdirSync(dirPath).flatMap(file => {
+    const filePath = path.join(dirPath, file);
+    const stat = fs.statSync(filePath);
+
+    if (stat.isDirectory()) {
+      return snapshotDirectory(filePath, basePath);
+    }
+
+    return [{
+      relativePath: path.relative(basePath, filePath),
+      content: fs.readFileSync(filePath)
+    }];
+  });
+}
+
+function restoreDirectory(dirPath, snapshot) {
+  if (snapshot.length === 0) {
+    return;
+  }
+
+  snapshot.forEach(file => {
+    const filePath = path.join(dirPath, file.relativePath);
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    fs.writeFileSync(filePath, file.content);
+  });
+  console.log('  Allure history carried forward');
+}
+
+const allureHistorySnapshot = snapshotDirectory(allureHistorySource);
+
 console.log('Clearing reports data...\n');
 dirsToClear.forEach(dir => clearDirectory(dir));
+restoreDirectory(allureHistoryDest, allureHistorySnapshot);
 console.log('\n✓ Reports cleared');
 
 const pendingFiles = fs.readdirSync(collectionsDir)

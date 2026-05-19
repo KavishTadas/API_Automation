@@ -1,4 +1,0 @@
-{
-  "empCode": "OMI-0001",
-  "password": "Omfys@123"
-}

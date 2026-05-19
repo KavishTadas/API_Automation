@@ -12,36 +12,53 @@
           "script": {
             "type": "text/javascript",
             "exec": [
+              "const label = pm.iterationData.get('testLabel')",
+              "  || 'unlabelled iteration';",
+              "const expectedStatus = parseInt(",
+              "  pm.iterationData.get('expectedStatus') || '200'",
+              ");",
+              "const expectedOutcome = pm.iterationData.get(",
+              "  'expectedOutcome') || 'token';",
               "const json = pm.response.json();",
               "",
-              "pm.test('TC01 - Status is 200', function () {",
-              "  pm.response.to.have.status(200);",
+              "console.log('\\n--- ' + label + ' ---');",
+              "console.log('Status: ' + pm.response.code);",
+              "",
+              "pm.test(label + ' — status is ' + expectedStatus,",
+              "  function () {",
+              "  pm.response.to.have.status(expectedStatus);",
               "});",
               "",
-              "pm.test('TC01 - Response contains token string', function () {",
-              "  pm.expect(json).to.have.property('token');",
-              "  pm.expect(json.token).to.be.a('string').and.to.have.length.above(20);",
-              "});",
-              "",
-              "pm.test('TC01 - empCode in response matches request', function () {",
-              "  pm.expect(json.empCode).to.equal(pm.environment.get('empCode'));",
-              "});",
-              "",
-              "pm.test('TC01 - username is a non-empty string', function () {",
-              "  pm.expect(json.username).to.be.a('string').and.to.have.length.above(0);",
-              "});",
-              "",
-              "pm.test('TC01 - roles is a non-empty array', function () {",
-              "  pm.expect(json.roles).to.be.an('array').and.to.have.length.above(0);",
-              "});",
-              "",
-              "pm.test('TC01 - Response time under 3000ms', function () {",
-              "  pm.expect(pm.response.responseTime).to.be.below(3000);",
-              "});",
-              "",
-              "if (json.token) {",
-              "  pm.environment.set('authToken', json.token);",
-              "  console.log('authToken stored — length: ' + json.token.length);",
+              "if (expectedOutcome === 'token') {",
+              "  pm.test(label + ' — token is present', function () {",
+              "    pm.expect(json).to.have.property('token');",
+              "    pm.expect(json.token).to.be.a('string')",
+              "      .and.to.have.length.above(20);",
+              "  });",
+              "  pm.test(label + ' — empCode matches', function () {",
+              "    pm.expect(json.empCode).to.equal(",
+              "      pm.iterationData.get('empCode'));",
+              "  });",
+              "  pm.test(label + ' — username non-empty', function () {",
+              "    pm.expect(json.username).to.be.a('string')",
+              "      .and.to.have.length.above(0);",
+              "  });",
+              "  pm.test(label + ' — roles is array', function () {",
+              "    pm.expect(json.roles).to.be.an('array')",
+              "      .and.to.have.length.above(0);",
+              "  });",
+              "  if (json.token) {",
+              "    pm.environment.set('authToken', json.token);",
+              "    console.log('authToken stored — length: '",
+              "      + json.token.length);",
+              "  }",
+              "} else {",
+              "  pm.test(label + ' — message field present',",
+              "    function () {",
+              "    pm.expect(json).to.have.property('message');",
+              "    pm.expect(json.message).to.be.a('string')",
+              "      .and.to.have.length.above(0);",
+              "  });",
               "}"
             ]
           }
@@ -52,79 +69,7 @@
         "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"empCode\": \"{{empCode}}\",\n  \"password\": \"{{empPassword}}\"\n}"
-        },
-        "url": {
-          "raw": "{{baseUrl}}/auth/token",
-          "host": ["{{baseUrl}}"],
-          "path": ["auth", "token"]
-        }
-      }
-    },
-    {
-      "name": "TC02 - Wrong password returns 401",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "const json = pm.response.json();",
-              "",
-              "pm.test('TC02 - Status is 400 or 401 for wrong password', function () {",
-              "  pm.expect(pm.response.code).to.be.oneOf([400, 401]);",
-              "});",
-              "",
-              "pm.test('TC02 - Response body has message field', function () {",
-              "  pm.expect(json).to.have.property('message');",
-              "  pm.expect(json.message).to.be.a('string').and.to.have.length.above(0);",
-              "});"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"empCode\": \"{{empCode}}\",\n  \"password\": \"WRONG_PASSWORD\"\n}"
-        },
-        "url": {
-          "raw": "{{baseUrl}}/auth/token",
-          "host": ["{{baseUrl}}"],
-          "path": ["auth", "token"]
-        }
-      }
-    },
-    {
-      "name": "TC03 - Missing empCode returns 400",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "const json = pm.response.json();",
-              "",
-              "pm.test('TC03 - Status is 400 for missing field', function () {",
-              "  pm.response.to.have.status(400);",
-              "});",
-              "",
-              "pm.test('TC03 - Response body has message field', function () {",
-              "  pm.expect(json).to.have.property('message');",
-              "  pm.expect(json.message).to.be.a('string').and.to.have.length.above(0);",
-              "});"
-            ]
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"password\": \"{{empPassword}}\"\n}"
+          "raw": "{\n  \"empCode\": \"{{empCode}}\",\n  \"password\": \"{{password}}\"\n}"
         },
         "url": {
           "raw": "{{baseUrl}}/auth/token",

@@ -1,0 +1,6 @@
+startDate,endDate,testLabel,expectRecords
+2020-01-01,2026-12-31,TC-DD-01 Full range query,true
+2025-01-01,2025-12-31,TC-DD-02 Calendar year 2025,true
+2099-01-01,2099-12-31,TC-DD-03 Future dates no records,false
+2025-10-01,2025-10-31,TC-DD-04 Single month October 2025,true
+2026-01-01,2025-01-01,TC-DD-05 Inverted date range edge case,false

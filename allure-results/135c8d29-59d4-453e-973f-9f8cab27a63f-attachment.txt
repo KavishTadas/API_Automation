@@ -1,1 +1,0 @@
-pm.variables.set('messageName', `qa-message-${Date.now()}`);
