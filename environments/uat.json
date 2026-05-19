@@ -4,8 +4,15 @@
   "values": [
     {
       "key": "baseUrl",
-      "value": "https://uat_mcdp_be.omfysgroup.com",
-      "enabled": true
+      "value": "https://uat-mcdp-be.omfysgroup.com",
+      "enabled": true,
+      "description": "API base URL — hyphen URL"
+    },
+    {
+      "key": "leaveBaseUrl",
+      "value": "https://uat-mcdp-be.omfysgroup.com",
+      "enabled": true,
+      "description": "Leave Module API — hyphen URL"
     },
     {
       "key": "empCode",
