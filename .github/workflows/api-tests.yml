@@ -48,6 +48,17 @@ jobs:
         id: run-tests
         run: npx cross-env ENV=${{ inputs.environment || 'uat' }} node scripts/run-newman.js
 
+      - name: Setup Java (required for Allure)
+        if: always()
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Generate Allure HTML report
+        if: always()
+        run: npx allure generate reports/allure-results --clean -o reports/allure-report
+
       - name: Upload HTML report
         uses: actions/upload-artifact@v4
         if: always()
@@ -62,6 +73,14 @@ jobs:
         with:
           name: allure-results-${{ github.run_number }}
           path: reports/allure-results/
+          retention-days: 30
+
+      - name: Upload Allure HTML report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-html-report-${{ github.run_number }}
+          path: reports/allure-report/
           retention-days: 30
 
       - name: Write job summary
