@@ -3,9 +3,17 @@
   "values": [
     {
       "key": "baseUrl",
-      "value": "https://uat-mcdp-be.omfysgroup.com",
+      "value": "http://localhost:3000",
       "type": "default",
-      "enabled": true
+      "enabled": true,
+      "description": "Local FastAPI dev server — run: python -m uvicorn main:app --port 3000"
+    },
+    {
+      "key": "leaveBaseUrl",
+      "value": "http://localhost:3000",
+      "type": "default",
+      "enabled": true,
+      "description": "Local FastAPI dev server — run: python -m uvicorn main:app --port 3000"
     }
   ],
   "_postman_variable_scope": "environment"

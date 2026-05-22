@@ -1,63 +1,57 @@
+'use strict';
+require('dotenv').config();
 const https = require('https');
-const process = require('process');
 
-const TOKEN = process.env.LEAVE_BASE_URL_CONFIRMED || '';
-
-const urls = [
-  'https://uat-mcdp-be.omfysgroup.com',
-  'https://uat-mcdp-be.omfysgroup.com'
+const CANDIDATES = [
+  {
+    label: 'Underscore URL (confirmed for /auth/token)',
+    base: 'https://uat_mcdp_be.omfysgroup.com',
+    path: '/auth/token',
+    method: 'POST',
+  },
+  {
+    label: 'Hyphen URL (confirmed for leave endpoints)',
+    base: 'https://uat-mcdp-be.omfysgroup.com',
+    path: '/user/leaves/approvals',
+    method: 'GET',
+  },
 ];
 
-const path = '/user/leaves/approvals';
-
-function probe(baseUrl) {
-  return new Promise((resolve) => {
-    const url = new URL(path, baseUrl);
+function probe(candidate) {
+  return new Promise(resolve => {
+    const url = new URL(candidate.path, candidate.base);
     const req = https.request(
-      {
-        hostname: url.hostname,
-        path: url.pathname,
-        method: 'POST',
-        headers: {
-          Authorization: 'Bearer probe-token',
-          'Content-Length': '0'
-        },
-        timeout: 8000
-      },
-      (res) => {
-        res.resume();
+      { hostname: url.hostname, path: url.pathname,
+        method: candidate.method, timeout: 8000,
+        headers: { 'Authorization': 'Bearer probe-token' } },
+      res => {
+        const reachable = [200,400,401,403,404,422].includes(res.statusCode);
         resolve({
-          url: baseUrl,
+          label: candidate.label,
+          url: candidate.base + candidate.path,
           status: res.statusCode,
-          result: res.statusCode === 401 || res.statusCode === 403
-            ? 'SERVER REACHABLE - returns ' + res.statusCode
-              + ' (expected - probe token is invalid)'
-            : 'SERVER REACHABLE - returns ' + res.statusCode
+          result: reachable ? 'REACHABLE (' + res.statusCode + ')' : 'UNEXPECTED STATUS'
         });
       }
     );
-    req.on('error', (e) => resolve({
-      url: baseUrl,
-      status: null,
-      result: 'UNREACHABLE - ' + e.message
-    }));
-    req.on('timeout', () => {
-      req.destroy();
-      resolve({ url: baseUrl, status: null, result: 'TIMEOUT' });
-    });
+    req.on('error', e => resolve({ label: candidate.label,
+      url: candidate.base + candidate.path, status: null,
+      result: 'UNREACHABLE — ' + e.message }));
+    req.on('timeout', () => { req.destroy();
+      resolve({ label: candidate.label, url: candidate.base + candidate.path,
+        status: null, result: 'TIMEOUT' }); });
     req.end();
   });
 }
 
 async function run() {
-  console.log('Probing both base URL variants for /user/leaves/approvals...\n');
-  for (const url of urls) {
-    const r = await probe(url);
-    console.log(`${r.result}`);
-    console.log(`  URL: ${r.url}`);
-    console.log(`  Status: ${r.status || 'n/a'}\n`);
+  console.log('Probing API endpoint reachability...\n');
+  for (const c of CANDIDATES) {
+    const r = await probe(c);
+    console.log(r.label);
+    console.log('  URL:    ' + r.url);
+    console.log('  Result: ' + r.result + '\n');
   }
-  console.log('USE the URL that shows SERVER REACHABLE in environments/uat.json');
 }
 
 run();

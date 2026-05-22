@@ -1,0 +1,914 @@
+Complete KT Report and Current Project Status
+Last updated: 2026-05-21 14:57 IST
+Workspace: D:\Kavish\API_Automation
+
+Maintenance rule
+- Treat this as the living Knowledge Transfer and current-status document for the project.
+- Whenever project structure, dependencies, configuration, scripts, collections, environments, reports, CI/CD, tests, or known issues change, update this file in the same change set.
+- Secrets must stay redacted. Do not copy real API keys, passwords, tokens, or private credentials into this file.
+
+Current Status Snapshot
+
+| Area | Status |
+|---|---|
+| Primary project type | API automation suite for HCM login and leave-management APIs |
+| Secondary app | Small sample FastAPI app retained from the original template |
+| Main test runner | scripts/run-newman.js |
+| API documentation generator | scripts/generate-api-file.js |
+| Latest generated API file | api-docs/API_File.csv and api-docs/API_File.json with 7 endpoint rows, example payload columns, API identifiers, and dependency links |
+| API file audit history | api-docs/history/ contains timestamped snapshots and API_File_history.json |
+| Generic pytest generator | scripts/generate-generic-tests.py |
+| Latest generated generic tests | tests/auto_generated/ with 7 pytest files and 14 collected tests |
+| Dev branch CI job | GitHub Actions job Generate API File runs on push to dev |
+| Unified HTML report | scripts/generate-html-index.js now includes Auto-generated Test Cases from Allure JSON or JUnit XML |
+| Main API contract | openapi/openapi.yaml |
+| Main environments | environments/local.json, staging.json, production.json, uat.json |
+| Latest local Python validation | python -m pytest -q passed with 2 tests |
+| Latest OpenAPI lint validation | npm run lint:spec completed with 3 warnings and 0 errors |
+| Latest generated Allure report observed | 25 total checks, 15 passed, 10 failed |
+| Main latest report failures | Leave API failures caused by missing/no authToken and JSON parsing errors |
+| Sensitive config handling | .env is ignored; values in this document are redacted |
+| Notable worktree concern | Generated reports and a suspicious group.com-like file were staged before this document was created |
+
+Validation Notes
+- python -m pytest -q: 2 passed.
+- npm run lint:spec: completed with warnings for missing operation descriptions in:
+  - paths./auth/token.post
+  - paths./user/leaves/showleavereport.post
+  - paths./user/leaves/approvals.get
+- Live Newman/UAT tests were not rerun while creating this KT file to avoid hitting external UAT endpoints unnecessarily.
+- node --check scripts/generate-api-file.js: passed.
+- node scripts/generate-api-file.js: generated 7 API endpoint rows, refreshed 7 existing rows, appended 0 new rows, and wrote history snapshots under api-docs/history/.
+- python -B scripts/generate-generic-tests.py --list-only: loaded 7 API rows.
+- python -B scripts/generate-generic-tests.py: generated 7 pytest files under tests/auto_generated/.
+- python -m pytest --collect-only -q tests/auto_generated: collected 14 generated tests.
+- Generated tests were not fully executed because they can call live UAT endpoints.
+- GitHub Actions workflow now includes dev in push branches and a dev-only Generate API File job.
+- node --check scripts/generate-html-index.js: passed.
+- node scripts/generate-html-index.js: generated reports/html/index.html with Newman and Auto-generated Test Cases sections.
+
+1. Project Overview
+
+| Area | Details |
+|---|---|
+| Project names found | fastapi-template in package.json; FastAPI-app in pyproject.toml; OpenAPI title MC HCM Leave Management - API Test Suite |
+| Actual purpose | API automation suite for HCM login and leave-management APIs using Postman/Newman, Bruno, OpenAPI linting, Allure/HTML reporting, and CI pipelines |
+| Secondary app | Small sample FastAPI app in main.py with in-memory message routes |
+| Architecture | Test automation repository that runs local collection files against external UAT APIs at https://uat-mcdp-be.omfysgroup.com |
+| Frontend | No application frontend. Generated HTML and Allure reports live under reports/ |
+| Backend | Sample FastAPI backend only. The external HCM backend is tested but not implemented in this repository |
+| Database | None. The FastAPI sample stores messages in an in-memory Python dictionary |
+| External integrations | UAT HCM APIs, Postman/Newman, Bruno, GitHub Actions, Jenkins, Slack webhook, Allure, optional Datadog log ingestion |
+| Main entry points | scripts/run-newman.js, monitoring/health-check.js, main.py, .github/workflows/api-tests.yml, Jenkinsfile |
+| Main patterns | Data-driven collection testing via CSV, sequential collection execution, shared auth token carry-forward, generated reporting, OpenAPI contract linting |
+
+Main modules and components
+
+| Component | Paths | Responsibility |
+|---|---|---|
+| Newman API automation | collections/, test-data/, environments/, scripts/run-newman.js | Runs API test collections with environment variables and CSV data |
+| Reporting pipeline | scripts/reporter-config.js, scripts/generate-html-index.js, allure.properties, reports/ | Produces htmlextra HTML reports, Allure results, and consolidated report index |
+| API documentation generator | scripts/generate-api-file.js, api-docs/ | Reads Postman and Bruno endpoint definitions and exports API_File.csv/API_File.json |
+| Generic pytest generator | scripts/generate-generic-tests.py, tests/auto_generated/ | Generates httpx-based pytest smoke/schema tests from API_File |
+| API contract | openapi/openapi.yaml, openapi/.spectral.yaml | Defines tested API contract and linting rules |
+| Monitoring | monitoring/health-check.js, monitoring/schedule-config.json, monitoring/README.md | Executes collections as health checks and writes failure logs |
+| CI/CD | .github/workflows/api-tests.yml, Jenkinsfile | Runs automated tests and publishes artifacts in GitHub Actions or Jenkins |
+| Dev branch generated-doc/test CI | .github/workflows/api-tests.yml | On push to dev, generates API_File, uploads it, generates pytest tests, runs them, and uploads HTML/Allure reports |
+| Bruno collection | bruno/ | Alternative manual/CLI request collection |
+| FastAPI sample | main.py, models.py, tests/test_main.py | Original sample app and Python tests |
+
+Design patterns and implementation style
+- Data-driven testing:
+  - CSV files in test-data/ map to collection filenames.
+  - Example: test-data/Login_API.csv feeds collections/Login_API.json.
+- Ordered test execution:
+  - scripts/run-newman.js forces Login_API.json before Leave_API.json so auth can run first.
+- Shared test context:
+  - authToken and other non-empty Newman environment values are carried forward between collection runs.
+- Generated reports:
+  - Per-collection HTML files are generated with htmlextra.
+  - Allure raw results are generated under reports/allure-results.
+  - A consolidated HTML index is generated under reports/html/index.html.
+  - The consolidated index includes Newman collection results plus auto-generated pytest results when Allure JSON or JUnit XML is present.
+- Generated API file:
+  - scripts/generate-api-file.js reads collections/ and bruno/.
+  - It skips .pending. collections and non-request Bruno environment files.
+  - It writes api-docs/API_File.csv and api-docs/API_File.json.
+  - It detects authToken producers/consumers and links dependent APIs to the login/token-producing API.
+  - It includes example request and response payload fields, masking sensitive placeholders such as passwords and tokens.
+  - It preserves existing API row order, refreshes matching rows, and appends newly discovered APIs.
+  - It snapshots previous API_File CSV/JSON versions into api-docs/history/ for audit.
+- Generated generic tests:
+  - scripts/generate-generic-tests.py reads api-docs/API_File.json first, then falls back to CSV.
+  - It writes tests/auto_generated/ pytest files, shared helpers, and fixtures.
+  - Generated tests use httpx, API File method/endpoint/body/parameters, and optional bearer auth when authToken is required.
+  - Rows with missing base URL/endpoint are marked skipped.
+  - Negative/non-200 API rows are marked skipped because they do not document a valid 200 request.
+- Contract-first reference:
+  - openapi/openapi.yaml describes expected endpoint behavior and schemas.
+- CI artifact publishing:
+  - GitHub Actions uploads HTML, Allure results, and Allure HTML report artifacts.
+
+2. Project Structure and Codebase
+
+Full project structure, excluding deep dependency internals:
+
+```text
+.
+|-- .devcontainer/
+|   `-- devcontainer.json
+|-- .github/
+|   `-- workflows/
+|       `-- api-tests.yml
+|-- .vscode/
+|   |-- launch.json
+|   `-- settings.json
+|-- api-docs/
+|   |-- API_File.csv
+|   |-- API_File.json
+|   `-- history/
+|       |-- API_File_history.json
+|       `-- API_File_<timestamp>.csv/json snapshots
+|-- bruno/
+|   |-- bruno.json
+|   |-- README.md
+|   |-- auth/
+|   |   `-- login.bru
+|   |-- environments/
+|   |   |-- local.bru
+|   |   `-- staging.bru
+|   `-- users/
+|       `-- get-profile.bru
+|-- collections/
+|   |-- Leave_API.json
+|   |-- Login_API.json
+|   `-- User_API.pending.json
+|-- environments/
+|   |-- local.json
+|   |-- production.json
+|   |-- staging.json
+|   `-- uat.json
+|-- monitoring/
+|   |-- health-check.js
+|   |-- README.md
+|   `-- schedule-config.json
+|-- openapi/
+|   |-- .spectral.yaml
+|   `-- openapi.yaml
+|-- reports/
+|   |-- allure-html-report/       generated or staged report output
+|   |-- allure-report/            generated Allure HTML output, ignored
+|   |-- allure-results/           generated Allure raw results, ignored
+|   `-- html/                     generated htmlextra reports and index, ignored
+|-- scripts/
+|   |-- collections.conf
+|   |-- diagnose.js
+|   |-- generate-api-file.js
+|   |-- generate-generic-tests.py
+|   |-- generate-html-index.js
+|   |-- postman-cli-run.sh
+|   |-- reporter-config.js
+|   |-- run-newman.js
+|   `-- url-check.js
+|-- test-data/
+|   |-- Leave_API.csv
+|   |-- Login_API.csv
+|   |-- README.md
+|   `-- users.csv
+|-- tests/
+|   |-- auto_generated/
+|   |   |-- __init__.py
+|   |   |-- _api_test_helpers.py
+|   |   |-- conftest.py
+|   |   |-- test_001_post_leave_api_user_leaves_showleavereport.py
+|   |   |-- test_002_post_leave_api_user_leaves_showleavereport.py
+|   |   |-- test_003_get_leave_api_user_leaves_approvals.py
+|   |   |-- test_004_get_leave_api_user_leaves_approvals.py
+|   |   |-- test_005_post_login_api_auth_token.py
+|   |   |-- test_006_post_auth_auth_login.py
+|   |   `-- test_007_get_users_users_me.py
+|   `-- test_main.py
+|-- .env
+|-- .env.example
+|-- .gitattributes
+|-- .gitignore
+|-- allure.properties
+|-- API_Automation.docx
+|-- dev-requirements.txt
+|-- group.com-like staged file
+|-- Jenkinsfile
+|-- KT_Report_and_Current_status.txt
+|-- main.py
+|-- models.py
+|-- package-lock.json
+|-- package.json
+|-- pyproject.toml
+|-- README.md
+`-- requirements.txt
+```
+
+Important source and config files
+
+| Path | Type | Purpose |
+|---|---|---|
+| package.json | Node manifest | Defines Newman, reporting, linting, and monitoring npm scripts |
+| package-lock.json | Node lockfile | Locks Node dependency tree; lockfileVersion is 3 |
+| requirements.txt | Python dependencies | Runtime dependencies for FastAPI sample |
+| dev-requirements.txt | Python dev dependencies | Installs requirements.txt plus pytest |
+| pyproject.toml | Python project config | Project metadata and pytest config |
+| main.py | Python source | FastAPI sample app |
+| models.py | Python source | Pydantic MsgPayload model |
+| tests/test_main.py | Python tests | Tests root and about FastAPI routes |
+| collections/Login_API.json | Postman collection | Login API data-driven tests |
+| collections/Leave_API.json | Postman collection | Leave report and approvals tests |
+| collections/User_API.pending.json | Postman collection | Pending sample FastAPI collection skipped by main runner |
+| environments/*.json | Postman environments | Base URLs and auth variables |
+| test-data/*.csv | Data files | Iteration data for matching collections |
+| openapi/openapi.yaml | API contract | OpenAPI 3.1 contract for auth and leave endpoints |
+| openapi/.spectral.yaml | Lint config | Spectral lint rules |
+| scripts/run-newman.js | Main runner | Executes collections, carries env values, generates reports |
+| scripts/generate-api-file.js | Documentation generator | Extracts endpoint metadata from Postman collections and Bruno files into api-docs/API_File.csv and api-docs/API_File.json |
+| scripts/generate-generic-tests.py | Test generator | Generates httpx-based pytest files from api-docs/API_File.json or CSV |
+| scripts/generate-html-index.js | Report generator | Writes consolidated HTML report index with Newman and auto-generated pytest sections |
+| scripts/reporter-config.js | Reporter config | htmlextra report settings |
+| scripts/postman-cli-run.sh | Bash script | Runs Postman CLI collections by UID |
+| scripts/url-check.js | Diagnostic script | Probes leave approvals endpoint reachability |
+| monitoring/health-check.js | Monitor runner | Runs collections and logs failures |
+| monitoring/schedule-config.json | Monitor config | Cron, notification, region, Postman UID template |
+| .github/workflows/api-tests.yml | GitHub Actions | CI workflow for API tests and report uploads |
+| Jenkinsfile | Jenkins pipeline | CI pipeline for Jenkins |
+| allure.properties | Allure config | Allure result/report directories and link patterns |
+| .env.example | Env template | Local env var template |
+| .gitignore | Ignore rules | Excludes secrets, dependency directories, and generated reports |
+| API_Automation.docx | Documentation | High-level explanation of API automation flow |
+
+Hidden or ignored directories and generated outputs
+
+| Path | Status | Notes |
+|---|---|---|
+| .git/ | Hidden/internal | Git repository metadata |
+| node_modules/ | Ignored | Installed Node dependencies |
+| __pycache__/ | Cache | Python bytecode cache |
+| reports/html/ | Ignored | htmlextra report output |
+| reports/allure-results/ | Ignored | Allure raw output |
+| reports/allure-report/ | Ignored | Allure generated HTML report |
+| monitoring/logs/ | Ignored | Health-check failure logs |
+| reports/allure-html-report/ | Staged/generated | Appears staged; should likely be ignored or removed from staged changes if not intentional |
+| __pycache__/ and **/__pycache__/ | Ignored | Python bytecode caches, including generated-test cache folders |
+
+3. Dependencies and Packages
+
+Node.js dependencies
+
+| Dependency | Version observed in lockfile | Declared range in package.json | Purpose |
+|---|---:|---:|---|
+| @stoplight/spectral-cli | 6.15.1 | ^6.15.1 | Lints OpenAPI spec |
+| allure-commandline | 2.29.0 | 2.29.0 | Generates Allure HTML reports |
+| cross-env | 10.1.0 | ^10.1.0 | Sets ENV cross-platform in npm scripts |
+| dotenv | 17.4.2 | ^17.4.2 | Loads .env into Node scripts |
+| newman | 6.2.2 | 6.2.2 | Runs Postman collections |
+| newman-reporter-allure | 2.15.1 | 2.15.1 | Produces Allure results from Newman |
+| newman-reporter-htmlextra | 1.23.1 | 1.23.1 | Produces rich HTML reports from Newman |
+
+Npm scripts
+
+| Script | Command | Purpose |
+|---|---|---|
+| test:local | cross-env ENV=local node scripts/run-newman.js | Run collections with environments/local.json |
+| test:staging | cross-env ENV=staging node scripts/run-newman.js | Run collections with environments/staging.json |
+| test:production | cross-env ENV=production node scripts/run-newman.js | Run collections with environments/production.json |
+| test:all | npm run test:local && npm run test:staging | Run local and staging suites |
+| test:uat | cross-env ENV=uat node scripts/run-newman.js | Run collections with environments/uat.json |
+| lint:spec | spectral lint openapi/openapi.yaml --ruleset openapi/.spectral.yaml | Lint OpenAPI file |
+| report:generate | allure generate reports/allure-results --clean -o reports/allure-report | Generate Allure HTML report |
+| report:html | node scripts/generate-html-index.js | Generate consolidated HTML index |
+| report:open | allure open reports/allure-report | Open Allure report |
+| monitor:run | node monitoring/health-check.js | Run monitor flow |
+
+Python dependencies
+
+| File | Dependency | Version | Purpose |
+|---|---|---:|---|
+| requirements.txt | fastapi | unpinned | FastAPI sample app framework |
+| requirements.txt | uvicorn | unpinned | ASGI server for FastAPI |
+| requirements.txt | httpx | unpinned | HTTP client/test dependency |
+| dev-requirements.txt | pytest | unpinned | Python tests |
+| dev-requirements.txt | pytest-html | unpinned | HTML report output for generated pytest suite |
+| dev-requirements.txt | allure-pytest | unpinned | Allure result output for generated pytest suite |
+
+Java and other tooling
+
+| Tool | Where used | Purpose |
+|---|---|---|
+| Java 21 | GitHub Actions setup-java step | Required for Allure CLI |
+| Jenkins plugins | Jenkinsfile comment | NodeJS, Allure, HTML Publisher, Email Extension |
+| Bash | scripts/postman-cli-run.sh | Optional Postman CLI execution |
+| Docker/devcontainer | .devcontainer/devcontainer.json | Python 3.11 development container |
+
+4. Configuration and Environment Variables
+
+Configuration files
+
+| File | Purpose |
+|---|---|
+| .env.example | Template for local environment variables |
+| .env | Local real environment values; ignored by Git |
+| environments/local.json | Newman local environment; currently points to UAT URL |
+| environments/staging.json | Newman staging environment; currently points to UAT URL |
+| environments/production.json | Newman production environment; currently points to UAT URL |
+| environments/uat.json | Newman UAT environment with baseUrl, leaveBaseUrl, empCode, empPassword, authToken |
+| allure.properties | Allure output paths and issue/TMS link patterns |
+| openapi/.spectral.yaml | Spectral rules |
+| monitoring/schedule-config.json | Monitor schedule/notifications/regions template |
+| .github/workflows/api-tests.yml | GitHub Actions pipeline configuration |
+| Jenkinsfile | Jenkins pipeline configuration |
+| .devcontainer/devcontainer.json | Dev container image, features, extensions, post-create install |
+| .vscode/launch.json | VS Code FastAPI debug config |
+| .vscode/settings.json | VS Code pytest settings |
+
+Environment variables
+
+| Variable | Default/example | Source | Usage context | Sensitive |
+|---|---|---|---|---|
+| ENV | local | .env.example, npm scripts | Selects environments/{ENV}.json | No |
+| BASE_URL | https://uat-mcdp-be.omfysgroup.com | .env.example, CI secrets | Main API base URL passed to Newman | No |
+| STAGING_BASE_URL | https://uat-mcdp-be.omfysgroup.com | .env.example | Report metadata fallback | No |
+| LEAVE_BASE_URL | https://uat-mcdp-be.omfysgroup.com | .env.example, CI secrets | Leave module base URL | No |
+| API_KEY | placeholder/redacted | .env.example, CI secrets | Present but not directly consumed by current scripts | Yes |
+| USERNAME | testuser@example.com | .env.example, Bruno local env | Bruno login-style requests | Possibly |
+| PASSWORD | placeholder/redacted | .env.example, Bruno local env | Bruno login-style requests | Yes |
+| POSTMAN_API_KEY | placeholder/redacted | .env.example, postman-cli-run.sh, CI | Required for Postman CLI script | Yes |
+| EMP_CODE | example/redacted | .env.example, .env, CI secrets | Employee login code for Newman auth | Possibly |
+| EMP_PASSWORD | placeholder/redacted | .env.example, .env, CI secrets | Employee login password for Newman auth | Yes |
+| SLACK_WEBHOOK_URL | secret | GitHub Actions | Slack failure notification | Yes |
+| POSTMAN_LOCAL_ENV_UID | optional | shell/env | Postman CLI environment UID | No |
+| POSTMAN_STAGING_ENV_UID | optional | shell/env | Postman CLI environment UID | No |
+| POSTMAN_PRODUCTION_ENV_UID | optional | shell/env | Postman CLI environment UID | No |
+| authToken | empty/generated | environments/uat.json, Newman runtime | Bearer token carried from login to leave collection | Yes |
+
+Newman/Postman environment values
+
+| File | Values |
+|---|---|
+| environments/local.json | baseUrl = UAT URL |
+| environments/staging.json | baseUrl = UAT URL |
+| environments/production.json | baseUrl = UAT URL |
+| environments/uat.json | baseUrl = UAT URL, leaveBaseUrl = UAT URL, empCode = empty, empPassword = empty, authToken = empty |
+
+Security notes
+- .env is ignored and should remain uncommitted.
+- .env.example currently includes real-looking UAT credential values in comments/defaults. Treat them as sensitive and rotate if they are valid.
+- Reports can contain request/response bodies. htmlextra is configured with skipSensitiveData enabled, but omitRequestBodies and omitResponseBodies are false, so review report artifacts before sharing externally.
+
+5. Features and Functionality
+
+Implemented features
+
+| Feature | Files | Behavior |
+|---|---|---|
+| Login API testing | collections/Login_API.json, test-data/Login_API.csv | Runs data-driven login tests against POST /auth/token |
+| Auth token carry-forward | scripts/run-newman.js | Stores non-empty environment values from one collection and passes them to later collections |
+| API file generation | scripts/generate-api-file.js, api-docs/ | Generates CSV and JSON endpoint inventory from Postman and Bruno sources |
+| Generic pytest generation | scripts/generate-generic-tests.py, tests/auto_generated/ | Generates status-code and response-schema pytest tests from API_File |
+| Leave report testing | collections/Leave_API.json, test-data/Leave_API.csv | Tests POST /user/leaves/showleavereport with bearer auth and date ranges |
+| Leave approvals testing | collections/Leave_API.json | Tests GET /user/leaves/approvals |
+| Missing-auth negative tests | collections/Leave_API.json | Verifies 401 or 403 without token |
+| Data-driven test data | test-data/*.csv | Newman uses CSV files matching collection names |
+| HTML reporting | newman-reporter-htmlextra, scripts/generate-html-index.js | Generates per-collection reports and consolidated index |
+| Allure reporting | newman-reporter-allure, allure-commandline | Generates raw Allure results and HTML dashboard |
+| OpenAPI linting | openapi/openapi.yaml, openapi/.spectral.yaml | Lints API contract with Spectral |
+| Local API monitor | monitoring/health-check.js | Runs collections and writes failure logs |
+| CI execution | GitHub Actions, Jenkins | Automates install, test execution, report publishing, notifications |
+| Bruno collection | bruno/ | Supports alternative manual/CLI API exploration |
+| FastAPI sample app | main.py, models.py | Provides root/about/message routes |
+
+Backend/API endpoints
+
+| Endpoint | Source | Method | Input summary | Output/assertion summary |
+|---|---|---|---|---|
+| /auth/token | OpenAPI, Login_API.json | POST | JSON body with empCode and password | 200 returns empCode, roles, token, username; 400 returns message |
+| /user/leaves/showleavereport | OpenAPI, Leave_API.json | POST | Bearer auth plus startDate and endDate | 200 returns records array; 401/403 for missing/invalid auth |
+| /user/leaves/approvals | OpenAPI, Leave_API.json | GET | Bearer auth | 200 returns pendingleavs array; validates required fields and enums |
+| / | main.py, User_API.pending.json | GET | None | Returns {"message": "Hello"} |
+| /about | main.py, User_API.pending.json | GET | None | Returns {"message": "This is the about page."} |
+| /messages/{msg_name}/ | main.py, User_API.pending.json | POST | msg_name path variable | Creates in-memory message with msg_id and msg_name |
+| /messages | main.py, User_API.pending.json | GET | None | Returns {"messages:": messages_list} |
+| /auth/login | bruno/auth/login.bru | POST | email and password | Bruno test expects token |
+| /users/me | bruno/users/get-profile.bru | GET | Bearer token | Bruno test expects email string |
+
+Collection run order
+- scripts/run-newman.js discovers JSON files in collections/.
+- It skips filenames containing .pending.
+- It prioritizes this order:
+  1. Login_API.json
+  2. Leave_API.json
+  3. Any other non-pending JSON collection files alphabetically/discovery order after those.
+- Matching CSV data is loaded from test-data/{CollectionName}.csv when present.
+
+Test data
+
+| File | Columns | Purpose |
+|---|---|---|
+| test-data/Login_API.csv | empCode, password, expectedStatus, expectedOutcome, testLabel | Valid and invalid login scenarios |
+| test-data/Leave_API.csv | startDate, endDate, testLabel, expectRecords | Leave report date range scenarios |
+| test-data/users.csv | username, password, email | Sample user data not currently wired into main runner |
+
+Scheduled tasks and monitoring
+- monitoring/schedule-config.json defines a template schedule:
+  - cron: 0 * * * *
+  - timezone: Asia/Kolkata
+  - notification email placeholder: your-team@example.com
+  - Slack webhook placeholder
+  - regions: ap-south-1, us-east-1
+- monitoring/health-check.js:
+  - Discovers JSON collections in collections/.
+  - Runs them with Newman CLI reporter.
+  - Flags degraded responses when any response time exceeds 2000 ms.
+  - Writes failure logs to monitoring/logs/health-YYYY-MM-DD.json.
+  - Exits 0 if no failed collections, 1 if failures exist.
+
+Reports
+
+| Report type | Path | Generated by |
+|---|---|---|
+| Per-collection htmlextra reports | reports/html/report-*.html | scripts/run-newman.js |
+| Consolidated HTML report | reports/html/index.html | scripts/generate-html-index.js; includes Newman Collection Results and Auto-generated Test Cases sections |
+| Raw Allure results | reports/allure-results/ | newman-reporter-allure |
+| Allure HTML report | reports/allure-report/ | allure-commandline |
+| Additional staged Allure HTML report | reports/allure-html-report/ | Generated/staged artifact, likely not intended as source |
+| Generated API inventory | api-docs/API_File.csv, api-docs/API_File.json | Generated by scripts/generate-api-file.js |
+| Generated pytest suite | tests/auto_generated/ | Generated by scripts/generate-generic-tests.py |
+
+6. Build and Run Instructions
+
+Prerequisites
+- Node.js and npm.
+- Python 3.11+ recommended by pyproject.toml and devcontainer.
+- Java 21 when generating Allure HTML in CI or locally.
+- Optional: Docker Desktop and VS Code Dev Containers.
+- Optional: Bruno Desktop or @usebruno/cli.
+- Optional: Postman CLI for scripts/postman-cli-run.sh.
+
+Install dependencies
+
+```powershell
+npm ci
+python -m pip install -r dev-requirements.txt
+```
+
+Set up environment variables
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Then edit .env and fill real values for:
+- BASE_URL
+- LEAVE_BASE_URL
+- EMP_CODE
+- EMP_PASSWORD
+- API_KEY if required
+- POSTMAN_API_KEY if using Postman CLI
+- SLACK_WEBHOOK_URL in CI if Slack notifications are needed
+
+Run API tests
+
+```powershell
+npm run test:uat
+npm run test:local
+npm run test:staging
+npm run test:production
+npm run test:all
+```
+
+Generate and view reports
+
+```powershell
+npm run report:generate
+npm run report:html
+npm run report:open
+```
+
+Run OpenAPI lint
+
+```powershell
+npm run lint:spec
+```
+
+Current observed lint status:
+- 0 errors.
+- 3 warnings for missing operation descriptions.
+
+Generate API file documentation
+
+```powershell
+node scripts/generate-api-file.js
+```
+
+Output:
+- api-docs/API_File.csv
+- api-docs/API_File.json
+- api-docs/history/API_File_<timestamp>.csv and .json when the existing API file changes
+- api-docs/history/API_File_history.json audit index
+
+Current observed API file status:
+- 7 endpoint rows generated.
+- 7 existing API rows refreshed.
+- 0 new API rows appended in the latest run.
+- Existing API file versions were snapshotted in api-docs/history/.
+- API rows now include API Identifier, Example Request Payload, and Example Response Payload columns.
+- collections/User_API.pending.json was skipped because it contains .pending.
+- bruno/environments/*.bru files were skipped because they are environment files, not HTTP request files.
+
+Generate generic pytest API tests
+
+```powershell
+python -B scripts/generate-generic-tests.py
+```
+
+Output:
+- tests/auto_generated/_api_test_helpers.py
+- tests/auto_generated/conftest.py
+- tests/auto_generated/test_*.py
+
+Current observed generated-test status:
+- 7 pytest files generated from the 7 API rows.
+- 14 tests collected with python -m pytest --collect-only -q tests/auto_generated.
+- Full execution can hit live UAT endpoints and requires valid environment values plus AUTH_TOKEN/API_AUTH_TOKEN/authToken for private APIs.
+- CI report dependencies are pytest-html and allure-pytest.
+
+Run monitor
+
+```powershell
+npm run monitor:run
+```
+
+Run FastAPI sample app
+
+```powershell
+python -m uvicorn main:app --reload --port 5000
+```
+
+Sample URLs:
+- http://127.0.0.1:5000/
+- http://127.0.0.1:5000/about
+- http://127.0.0.1:5000/docs
+
+Run Python tests
+
+```powershell
+python -m pytest -q
+```
+
+Current observed Python test status:
+- 2 passed.
+
+Run Bruno collection
+
+```powershell
+cd bruno
+npx @usebruno/cli run . --env local
+```
+
+Run Postman CLI script
+
+```bash
+scripts/postman-cli-run.sh --env staging --collection all
+scripts/postman-cli-run.sh --env staging --collection <collection_uid> --bail
+```
+
+Required:
+- postman CLI installed.
+- POSTMAN_API_KEY environment variable set.
+- scripts/collections.conf populated with collection UIDs for all-mode.
+
+GitHub Actions deployment/test flow
+- Workflow file: .github/workflows/api-tests.yml.
+- Triggers:
+  - Push to main, dev, develop, feature/hcm-leave-management-api.
+  - Pull request targeting main.
+  - Manual workflow_dispatch with environment input.
+- Dev-only Generate API File job:
+  - Runs only when github.event_name is push and github.ref_name is dev.
+  - Checks out code.
+  - Sets up Node.js 24.
+  - Runs npm ci.
+  - Runs node scripts/generate-api-file.js.
+  - Uploads api-docs/API_File.csv and api-docs/API_File.json as artifact api-file-${{ github.run_number }}.
+  - Sets up Python 3.11.
+  - Installs dev-requirements.txt.
+  - Runs python scripts/generate-generic-tests.py.
+  - Runs python -m pytest tests/auto_generated with HTML and Allure output:
+    - --html=reports/html/auto-generated-pytest-report.html
+    - --self-contained-html
+    - --alluredir=reports/allure-results/generated-tests
+  - Runs node scripts/generate-html-index.js to create unified reports/html/index.html.
+  - Sets up Java 21.
+  - Runs npx allure generate reports/allure-results/generated-tests --clean -o reports/allure-report/auto-generated-tests.
+  - Uploads unified HTML index, generated pytest HTML, Allure results, and Allure HTML as artifact auto-generated-api-test-reports-${{ github.run_number }}.
+  - Fails the job at the end if generated pytest tests failed, after artifacts have been uploaded.
+- Main API test job steps:
+  1. Checkout repository.
+  2. Setup Node.js 24 with npm cache.
+  3. npm ci.
+  4. Run npx cross-env ENV=<selected> node scripts/run-newman.js.
+  5. Setup Java 21.
+  6. Generate Allure HTML report.
+  7. Upload HTML, Allure raw, and Allure HTML artifacts.
+  8. Write job summary.
+  9. Send Slack alert on failure if SLACK_WEBHOOK_URL is configured.
+
+Jenkins flow
+- Jenkinsfile parameters:
+  - ENVIRONMENT: staging, production, local.
+  - COLLECTION: collection filename or all.
+  - NOTIFY_EMAIL: optional failure alert recipient.
+- Required credentials:
+  - api-key
+  - postman-api-key
+- Main stages:
+  1. Checkout.
+  2. Install dependencies with npm ci.
+  3. Lint OpenAPI spec.
+  4. Run API tests with cross-env ENV=${ENVIRONMENT} node scripts/run-newman.js.
+  5. Publish Allure report.
+  6. Archive HTML report.
+  7. Email on failure if configured.
+
+Dev container
+- .devcontainer/devcontainer.json uses:
+  - mcr.microsoft.com/devcontainers/python:1-3.11-bullseye.
+  - Redis server feature.
+  - postCreateCommand: pip3 install --user -r dev-requirements.txt.
+  - VS Code extensions for Python, Pylance, Ruff, and debugpy.
+
+7. Known Issues, TODOs, and Notes
+
+Known issues and risks
+
+| Issue | Impact | Recommendation |
+|---|---|---|
+| README.md still describes the original FastAPI template | New contributors may miss the actual API automation purpose | Rewrite README for the Newman/HCM automation suite |
+| Project naming is inconsistent | package.json, pyproject.toml, and OpenAPI imply different projects | Standardize project name across metadata |
+| Python dependencies are unpinned | Reproducibility risk | Pin or use a lock file |
+| .env.example includes real-looking credentials | Secret exposure risk | Replace with placeholders and rotate if valid |
+| local/staging/production environments all point to UAT URL | Environment separation is misleading | Replace with real environment URLs or rename files |
+| Latest generated Allure report has failures | Current test suite is not green against observed UAT report | Investigate authToken carry-forward and Leave API JSON errors |
+| monitoring/health-check.js runs every JSON collection, including pending files | Monitoring can execute unfinished/sample collections | Add same .pending. skip logic as run-newman.js |
+| monitoring/health-check.js does not load environments/*.json or shared env vars | Variable-based collections may fail during monitoring | Pass env file and envVar overrides to Newman |
+| Bruno endpoints differ from Postman/OpenAPI endpoints | Bruno collection may be stale or for a different API | Align Bruno with /auth/token and documented HCM endpoints |
+| scripts/url-check.js probes the same URL twice | Diagnostic output adds little value | Make it probe distinct candidate URLs or remove duplicate |
+| scripts/url-check.js defines unused TOKEN | Dead code | Remove or implement intended behavior |
+| OpenAPI lint warnings exist | Contract quality issue | Add operation description fields |
+| reports/allure-html-report is staged/generated | Generated output may pollute repo history | Decide whether to ignore/remove or intentionally publish |
+| group.com-like staged file exists | Looks accidental and contains stash/log-style text | Review and remove from staging if accidental |
+| Mojibake appears in several files | Readability issue | Normalize files to UTF-8 |
+| GET /messages returns key "messages:" | Odd response shape | Keep if intentional, otherwise rename to "messages" and update tests |
+| No production app deployment exists | Repository tests APIs but does not deploy a service | Document that CI produces reports/artifacts only |
+
+Latest report failure details observed
+
+| Failure group | Symptoms |
+|---|---|
+| TC01 - Show leave report returns records array | Multiple data-driven rows failed with BLOCKED: no authToken |
+| TC03 - Pending approvals returns pendingleavs array | Multiple JSONError failures |
+
+Likely investigation path
+1. Confirm valid EMP_CODE and EMP_PASSWORD are available in .env or CI secrets.
+2. Run Login_API.json alone and confirm a token is returned.
+3. Confirm run-newman.js carries authToken into Leave_API.json.
+4. Inspect raw pending approvals response when JSONError occurs; it may be HTML, empty body, auth error, or gateway error.
+5. Make Leave_API tests parse JSON only after confirming status/content-type when appropriate.
+
+OpenAPI notes
+- x-qa-status is verified for /auth/token.
+- x-qa-status is scaffold for leave report and approvals endpoints.
+- OpenAPI notes mention known UAT data quality issues:
+  - showleavereport can contain end_date with year 0025.
+  - approvals can contain startdate with year 0033.
+- Tests should not hard-assert exact record counts due to UAT data volatility.
+
+CI/CD notes
+- GitHub Actions uses Node.js 24.
+- The Generate API File job uses Python 3.11, pytest-html, and allure-pytest for generated-test reports.
+- The Generate API File job expects optional secrets API_AUTH_TOKEN or AUTH_TOKEN for private generated tests.
+- The Generate API File job can also use USERNAME/PASSWORD secrets for Bruno-derived login tests.
+- Jenkins uses shell steps and expects cross-env to be available from npm dependencies.
+- Jenkins parameter COLLECTION is currently not passed into scripts/run-newman.js, so the parameter is declared but not functionally used by the main runner.
+- GitHub workflow has collection input but current Run API tests step does not use it.
+
+8. File-Level Details
+
+main.py
+- Creates FastAPI app instance.
+- Defines in-memory messages_list dictionary.
+- Routes:
+  - GET / returns {"message": "Hello"}.
+  - GET /about returns {"message": "This is the about page."}.
+  - POST /messages/{msg_name}/ creates MsgPayload with incremental id.
+  - GET /messages returns {"messages:": messages_list}.
+
+models.py
+- Defines MsgPayload Pydantic model:
+  - msg_id: Optional[int]
+  - msg_name: str
+
+tests/test_main.py
+- Uses FastAPI TestClient fixture.
+- Tests:
+  - test_home_route
+  - test_about_route
+
+scripts/run-newman.js
+- Loads dotenv.
+- Reads ENV and resolves environments/{ENV}.json.
+- Fails early if environment file does not exist.
+- Discovers non-pending JSON collections in collections/.
+- Forces Login_API.json and Leave_API.json run order.
+- Builds sharedEnvVars from process env:
+  - baseUrl
+  - empCode
+  - empPassword
+  - leaveBaseUrl
+- For each collection:
+  - Loads matching test-data/{CollectionName}.csv if present.
+  - Runs Newman with htmlextra, allure, and cli reporters.
+  - Exports htmlextra report to reports/html/report-{CollectionName}-{timestamp}.html.
+  - Exports Allure results to reports/allure-results.
+  - Carries non-empty environment values to sharedEnvVars.
+  - Records summary counts.
+- Before running:
+  - Snapshots previous Allure history.
+  - Clears reports/html, reports/allure-results, and reports/allure-report.
+  - Restores Allure history into new results.
+- After running:
+  - Prints console summary.
+  - Generates consolidated HTML index.
+  - Exits 1 when any collection has assertion failures or Newman run errors.
+
+scripts/generate-html-index.js
+- Exports generateIndex(results).
+- Can be run directly with node scripts/generate-html-index.js.
+- Builds a dark themed unified HTML report with:
+  - Overall status.
+  - Collection count.
+  - Newman request count.
+  - Auto-generated pytest test count.
+  - Passed, failed, and skipped counts.
+  - Pass rate.
+  - Newman duration.
+  - Links to per-collection reports.
+- Reads auto-generated pytest result files from:
+  - reports/allure-results/generated-tests/**/*-result.json.
+  - reports/allure-results/**/*-result.json when generated-tests is absent and entries match tests/auto_generated.
+  - reports/**/*.xml JUnit files as a fallback when no Allure JSON is found.
+- Maps auto-generated pytest result names back to tests/auto_generated/test_*.py API metadata.
+- Adds an Auto-generated Test Cases section with API name, test case, status, duration, source, and details.
+
+scripts/reporter-config.js
+- htmlextra configuration:
+  - darkTheme: true.
+  - showOnlyFails: false.
+  - skipSensitiveData: true.
+  - omitRequestBodies: false.
+  - omitResponseBodies: false.
+  - showEnvironmentData: true.
+  - timezone: Asia/Kolkata.
+
+scripts/generate-api-file.js
+- Dependency-free Node.js documentation generator.
+- Reads Postman .json collection files from collections/ recursively.
+- Skips .pending. collection files.
+- Handles nested Postman folders and request items.
+- Reads Bruno .bru HTTP request files from bruno/ recursively.
+- Skips Bruno files that do not contain HTTP request blocks, such as environment files.
+- Extracts:
+  - Sr. No.
+  - Module Name.
+  - Sub-Module Name.
+  - Access.
+  - Functional Purpose.
+  - Base URL.
+  - Endpoint / Path.
+  - HTTP Method.
+  - Request Parameters.
+  - Request Body.
+  - Example Request Payload.
+  - Request Body Schema.
+  - Response (example/200).
+  - Example Response Payload.
+  - Dependent APIs / Services.
+  - Owner / Developer.
+  - API Identifier.
+  - Comments.
+- Creates api-docs/ when missing.
+- Writes api-docs/API_File.csv and api-docs/API_File.json.
+- Maintains api-docs/history/API_File_history.json plus timestamped previous CSV/JSON snapshots.
+- Computes stable API identifiers from method, base URL, endpoint, module, and sub-module.
+- Refreshes existing API rows in place and appends newly discovered API rows to the end of the API file.
+- Automatically detects produced and consumed variables such as authToken, then links consumers to the producing login/token API.
+- Masks sensitive values in example request payloads, including password, token, secret, API key, and authorization placeholders.
+- Infers basic response examples from saved Postman responses or test-script assertions when no saved response is present.
+- Uses git log for file owner/developer when available, with a direct Git HEAD author fallback when child process execution is restricted.
+
+scripts/generate-generic-tests.py
+- Reads api-docs/API_File.json when present.
+- Falls back to api-docs/API_File.csv when JSON is absent.
+- Creates tests/auto_generated/.
+- Generates one pytest module per API row.
+- Generates shared helper and fixture files:
+  - tests/auto_generated/_api_test_helpers.py
+  - tests/auto_generated/conftest.py
+  - tests/auto_generated/__init__.py
+- Each generated endpoint test file includes:
+  - Status-code test expecting HTTP 200 for a valid request.
+  - Response-schema test that validates against a JSON response example/schema when API_File provides one.
+- Uses httpx.Client for requests.
+- Resolves {{variable}} templates from:
+  - OS environment variables.
+  - .env.
+  - environments/{ENV}.json or environments/{API_TEST_ENV}.json, defaulting to uat.
+  - First CSV row from the data file referenced in API_File comments.
+- Adds bearer Authorization header when API_File indicates authToken dependency.
+- Skips private API calls when no AUTH_TOKEN, API_AUTH_TOKEN, or authToken is available.
+- Skips generated tests for rows with missing base URL or endpoint.
+- Marks non-200/negative API rows skipped because they do not represent valid-request checks.
+- The script overwrites existing generated files and tolerates Windows PermissionError during cleanup.
+
+monitoring/health-check.js
+- Discovers JSON collections in collections/.
+- Runs each with Newman CLI reporter.
+- Converts Newman failures into structured log entries.
+- Appends failures to monitoring/logs/health-YYYY-MM-DD.json.
+- Marks collection degraded if any response time exceeds 2000 ms.
+- Prints summary:
+  - HEALTHY count.
+  - DEGRADED count.
+  - FAILED count.
+
+openapi/openapi.yaml
+- OpenAPI version: 3.1.0.
+- Info:
+  - Title: MC HCM Leave Management - API Test Suite.
+  - Version: 2.0.0.
+- Servers:
+  - UAT URL entries.
+- Tags:
+  - Authentication.
+  - Leave Module.
+- Security:
+  - bearerAuth HTTP bearer JWT.
+- Schemas:
+  - LoginRequest.
+  - LoginResponse.
+  - LeaveReportRequest.
+  - LeaveReportResponse.
+  - LeaveRecord.
+  - PendingApprovalsResponse.
+  - PendingLeaveRecord.
+  - ErrorResponse.
+
+bruno/
+- bruno.json names the collection API Automation Suite.
+- local.bru sets:
+  - BASE_URL = UAT URL.
+  - USERNAME = testuser@example.com.
+  - PASSWORD = test1234.
+- staging.bru sets BASE_URL and leaves USERNAME/PASSWORD blank.
+- auth/login.bru:
+  - POST {{BASE_URL}}/auth/login.
+  - Body uses email/password.
+  - Stores authToken.
+- users/get-profile.bru:
+  - GET {{BASE_URL}}/users/me.
+  - Uses bearer authToken.
+
+API_Automation.docx
+- Explains the overall API automation workflow:
+  1. API application under test.
+  2. API exploration tool such as Postman or Bruno.
+  3. OpenAPI/Swagger spec.
+  4. Git versioning.
+  5. VS Code workspace and .env secret management.
+  6. Newman/Postman CLI runner.
+  7. HTML and Allure reporters.
+  8. Generated reports.
+  9. CI/CD pipeline.
+  10. API monitoring.
+
+9. Ownership and Update Checklist
+
+Use this checklist whenever changing the project:
+
+| Change type | KT update needed |
+|---|---|
+| Add/remove/rename collection | Update structure, features, endpoints, run order, known issues |
+| Add/change CSV test data | Update test data table |
+| Add/change env var | Update environment variables and setup instructions |
+| Add/change npm/Python dependency | Update dependencies section |
+| Change runner or reporting logic | Update features, run instructions, file-level details |
+| Change CI workflow or Jenkinsfile | Update CI/CD section |
+| Change OpenAPI contract | Update endpoint/schema/OpenAPI notes |
+| Fix known issue | Remove or revise known issue and current status |
+| Run validation | Update Current Status Snapshot and Validation Notes |
+| Add generated report intentionally | Document location and retention policy |

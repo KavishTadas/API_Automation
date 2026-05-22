@@ -1,0 +1,22 @@
+[
+  {
+    "version": 1,
+    "timestamp": "20260521_145637",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260521_145637.json",
+    "previousCsv": "api-docs/history/API_File_20260521_145637.csv",
+    "newApis": [],
+    "refreshedCount": 7,
+    "missingApis": []
+  },
+  {
+    "version": 2,
+    "timestamp": "20260521_145708",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260521_145708.json",
+    "previousCsv": "api-docs/history/API_File_20260521_145708.csv",
+    "newApis": [],
+    "refreshedCount": 7,
+    "missingApis": []
+  }
+]

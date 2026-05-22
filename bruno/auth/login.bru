@@ -3,16 +3,29 @@ meta {
   type: http
   seq: 1
 }
+
 post {
-  url: {{BASE_URL}}/auth/login
+  url: {{baseUrl}}/auth/token
   body: json
   auth: none
 }
+
 body:json {
-  { "email": "{{USERNAME}}", "password": "{{PASSWORD}}" }
+  {
+    "empCode": "{{empCode}}",
+    "password": "{{empPassword}}"
+  }
 }
+
 tests {
-  test("Status is 200", function() { expect(res.getStatus()).to.equal(200); });
-  test("Token exists", function() { expect(res.getBody().token).to.not.be.undefined; });
+  test("Status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test("Token exists", function() {
+    expect(res.getBody().token).to.not.be.undefined;
+  });
+  test("empCode matches", function() {
+    expect(res.getBody().empCode).to.equal(bru.getEnvVar("empCode"));
+  });
   bru.setVar("authToken", res.getBody().token);
 }

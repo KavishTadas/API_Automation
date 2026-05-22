@@ -30,6 +30,24 @@ const collectionFiles = [
   ...discovered.filter(f => !RUN_ORDER.includes(f))
 ];
 
+const COLLECTION_FILTER = process.env.COLLECTION_FILTER;
+const filteredFiles = (
+  COLLECTION_FILTER && COLLECTION_FILTER !== 'all'
+)
+  ? collectionFiles.filter(f =>
+      f.toLowerCase().includes(
+        COLLECTION_FILTER.toLowerCase().replace('.json','')
+      )
+    )
+  : collectionFiles;
+
+if (COLLECTION_FILTER && COLLECTION_FILTER !== 'all') {
+  console.log('Collection filter applied:', COLLECTION_FILTER);
+  console.log('Running:', filteredFiles.length, 'collection(s)');
+}
+
+const collectionFiles_filtered = filteredFiles;
+
 console.log('\nCollection run order:');
 collectionFiles.forEach((f, i) =>
   console.log(`  ${i + 1}. ${f}`)
@@ -199,7 +217,7 @@ async function runAll() {
   fs.writeFileSync(envPropsPath, envProps);
   console.log('  ✓ environment.properties written to allure-results');
 
-  for (const file of collectionFiles) {
+  for (const file of collectionFiles_filtered) {
     await runCollection(file);
   }
 

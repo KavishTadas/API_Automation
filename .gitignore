@@ -1,5 +1,7 @@
 node_modules/
 .env
+__pycache__/
+**/__pycache__/
 reports/html/
 reports/allure-results/
 reports/allure-report/
@@ -17,3 +19,12 @@ Thumbs.db
 allure-report/
 
 allure-results/
+
+# Generated Allure HTML output directories
+reports/allure-html-report/
+
+# Diagnostic and audit scripts
+scripts/url-check.js
+
+# Accidental files
+group.com*

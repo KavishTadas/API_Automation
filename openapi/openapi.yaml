@@ -27,6 +27,12 @@ paths:
     post:
       tags: [Authentication]
       operationId: loginEmployee
+      description: >
+        Authenticates an employee using empCode and password.
+        Returns a JWT bearer token valid for 2 hours, the
+        employee display name, assigned roles, and empCode.
+        Store the returned token as authToken for all
+        subsequent authenticated requests.
       summary: Authenticate employee and return JWT token
       x-qa-status: verified
       x-qa-notes: >
@@ -73,6 +79,13 @@ paths:
     post:
       tags: [Leave Module]
       operationId: showLeaveReport
+      description: >
+        Returns all leave records within the specified date
+        range for the authenticated employee. Admin users
+        receive records for all employees under them; regular
+        employees receive only their own records. Date format
+        is YYYY-MM-DD. Known UAT data quality issue: some
+        records contain historical dates with year 0025.
       summary: Get leave records filtered by date range
       x-qa-status: scaffold
       x-qa-notes: >
@@ -121,6 +134,13 @@ paths:
     get:
       tags: [Leave Module]
       operationId: getPendingApprovals
+      description: >
+        Returns all pending leave requests awaiting approval
+        by the authenticated Administrative Reviewer (AR).
+        Only leaves where approver_type is Administrative
+        and status is Pending for AR Approval are returned.
+        Known UAT data quality issue: some records contain
+        dates with year 0033.
       summary: Get all pending leave requests for AR to approve
       x-qa-status: scaffold
       x-qa-notes: >

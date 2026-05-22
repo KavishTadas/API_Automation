@@ -26,7 +26,7 @@ pipeline {
       post { failure { unstable('OpenAPI lint warnings found — marking as unstable') } }
     }
     stage('Run API tests') {
-      steps { sh 'cross-env ENV=${ENVIRONMENT} node scripts/run-newman.js' }
+      steps { sh 'cross-env ENV=${ENVIRONMENT} COLLECTION_FILTER=${COLLECTION} node scripts/run-newman.js' }
     }
     stage('Publish Allure report') {
       steps { allure([results: [[path: 'reports/allure-results']]]) }

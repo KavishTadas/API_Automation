@@ -25,7 +25,7 @@ function getDateStamp() {
 function discoverCollections() {
   return fs
     .readdirSync(COLLECTIONS_DIR)
-    .filter((fileName) => fileName.toLowerCase().endsWith('.json'))
+    .filter(f => f.endsWith('.json') && !f.includes('.pending.'))
     .sort()
     .map((fileName) => path.join(COLLECTIONS_DIR, fileName));
 }
@@ -41,6 +41,16 @@ function runCollection(collectionPath) {
     newman.run(
       {
         collection: collectionPath,
+        environment: (() => {
+          const ENV = process.env.ENV || 'uat';
+          const envPath = path.join(__dirname, '..', 'environments', ENV + '.json');
+          return require('fs').existsSync(envPath) ? require(envPath) : undefined;
+        })(),
+        envVar: [
+          { key: 'empCode',      value: process.env.EMP_CODE      || '' },
+          { key: 'empPassword',  value: process.env.EMP_PASSWORD  || '' },
+          { key: 'leaveBaseUrl', value: process.env.LEAVE_BASE_URL || '' },
+        ],
         timeoutRequest: 10000,
         bail: false,
         reporters: ['cli']

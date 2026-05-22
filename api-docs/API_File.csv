@@ -1,0 +1,61 @@
+"Sr. No","Module Name","Sub-Module Name","Access","Functional Purpose","Base URL","Endpoint / Path","HTTP Method","Request Parameters","Request Body","Example Request Payload","Request Body Schema","Response (example/200)","Example Response Payload","Dependent APIs / Services","Owner / Developer","API Identifier","Comments"
+"1","Leave API","TC01 - Show leave report returns records array","private","TC01 - Show leave report returns records array","{{leaveBaseUrl}}","/user/leaves/showleavereport","POST","headers: Content-Type=application/json; Authorization=Bearer {{authToken}}","{""startDate"":""{{startDate}}"",""endDate"":""{{endDate}}""}","{
+  ""startDate"": ""2020-01-01"",
+  ""endDate"": ""2026-12-31""
+}","{""startDate"":""string"",""endDate"":""string""}","Expected status(es): 200
+{
+  ""records"": []
+}","{
+  ""records"": []
+}","Requires authToken from Login API; Depends on Login API POST /auth/token for authToken","KavishTadas <kavish.tadas@omfysgroup.com>","post|{{leavebaseurl}}|/user/leaves/showleavereport|leave api|tc01 - show leave report returns records array","Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
+"2","Leave API","TC02 - Show leave report rejects missing auth","private","TC02 - Status is 401 or 403 without token","{{leaveBaseUrl}}","/user/leaves/showleavereport","POST","headers: Content-Type=application/json","{
+  ""startDate"": ""2020-01-01"",
+  ""endDate"": ""2026-12-31""
+}","{
+  ""startDate"": ""2020-01-01"",
+  ""endDate"": ""2026-12-31""
+}","{""startDate"":""string"",""endDate"":""string""}","Expected status(es): 401, 403","","","KavishTadas <kavish.tadas@omfysgroup.com>","post|{{leavebaseurl}}|/user/leaves/showleavereport|leave api|tc02 - show leave report rejects missing auth","Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
+"3","Leave API","TC03 - Pending approvals returns pendingleavs array","private","TC03 - Status is 200; TC03 - Response has pendingleavs array; TC03 - Response time under 5000ms; TC03 - Record has all required fields; TC03 - leave_count is a positive number; TC03 - approver_type is Administrative or Functional; TC03 - leave_type is a known value","{{leaveBaseUrl}}","/user/leaves/approvals","GET","headers: Authorization=Bearer {{authToken}}","","","","Expected status(es): 200
+{
+  ""pendingleavs"": []
+}","{
+  ""pendingleavs"": []
+}","Requires authToken from Login API; Depends on Login API POST /auth/token for authToken","KavishTadas <kavish.tadas@omfysgroup.com>","get|{{leavebaseurl}}|/user/leaves/approvals|leave api|tc03 - pending approvals returns pendingleavs array","Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
+"4","Leave API","TC04 - Pending approvals rejects missing auth","private","TC04 - Status is 401 or 403 without token","{{leaveBaseUrl}}","/user/leaves/approvals","GET","","","","","Expected status(es): 401, 403","","","KavishTadas <kavish.tadas@omfysgroup.com>","get|{{leavebaseurl}}|/user/leaves/approvals|leave api|tc04 - pending approvals rejects missing auth","Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
+"5","Login API","TC01 - Valid credentials return token","public","TC01 - Valid credentials return token","{{baseUrl}}","/auth/token","POST","headers: Content-Type=application/json","{
+  ""empCode"": ""{{empCode}}"",
+  ""password"": ""{{password}}""
+}","{
+  ""empCode"": ""OMI-0001"",
+  ""password"": ""<password>""
+}","{""empCode"":""string"",""password"":""string""}","Expected status(es): 200
+{
+  ""empCode"": ""<empCode>"",
+  ""roles"": [
+    ""<role>""
+  ],
+  ""token"": ""<jwt-token>"",
+  ""username"": ""<username>""
+}","{
+  ""empCode"": ""<empCode>"",
+  ""roles"": [
+    ""<role>""
+  ],
+  ""token"": ""<jwt-token>"",
+  ""username"": ""<username>""
+}","Produces authToken for downstream APIs","KavishTadas <kavish.tadas@omfysgroup.com>","post|{{baseurl}}|/auth/token|login api|tc01 - valid credentials return token","Source: collections/Login_API.json; Data-driven: test-data/Login_API.csv; No saved response example in source file"
+"6","auth","Login","public","Status is 200; Token exists","{{BASE_URL}}","/auth/login","POST","","{ ""email"": ""{{USERNAME}}"", ""password"": ""{{PASSWORD}}"" }","{
+  ""email"": ""<USERNAME>"",
+  ""password"": ""<PASSWORD>""
+}","{""email"":""string"",""password"":""string""}","Expected status(es): 200
+{
+  ""token"": ""<jwt-token>""
+}","{
+  ""token"": ""<jwt-token>""
+}","Produces authToken for downstream APIs","KavishTadas <kavish.tadas@omfysgroup.com>","post|{{base_url}}|/auth/login|auth|login","Source: bruno/auth/login.bru; No saved response example in source file; Parsed from Bruno file"
+"7","users","Get profile","private","Status is 200; Email is a string","{{BASE_URL}}","/users/me","GET","auth: bearer token={{authToken}}","","","","Expected status(es): 200
+{
+  ""email"": ""<email>""
+}","{
+  ""email"": ""<email>""
+}","Requires authToken from Login API; Depends on Login API POST /auth/token for authToken","KavishTadas <kavish.tadas@omfysgroup.com>","get|{{base_url}}|/users/me|users|get profile","Source: bruno/users/get-profile.bru; No saved response example in source file; Parsed from Bruno file"
