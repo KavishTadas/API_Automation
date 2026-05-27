@@ -1,6 +1,6 @@
 empCode,password,expectedStatus,expectedOutcome,testLabel
-OMI-0001,Omfys@123,200,token,TC-DD-01 Valid employee login
-INVALID-EMP,Omfys@123,400,message,TC-DD-02 Non-existent empCode
-OMI-0001,WrongPass@999,400,message,TC-DD-03 Wrong password
-OMI-0001,,400,message,TC-DD-04 Empty password
-,Omfys@123,400,message,TC-DD-05 Empty empCode
+TEST-EMP-001,DummyPass@2024!,200,token,TC-DD-01 Valid employee login
+NONEXISTENT-999,DummyPass@2024!,400,message,TC-DD-02 Non-existent empCode
+TEST-EMP-001,WrongPassword!,400,message,TC-DD-03 Wrong password
+TEST-EMP-001,,400,message,TC-DD-04 Empty password
+,DummyPass@2024!,400,message,TC-DD-05 Empty empCode
