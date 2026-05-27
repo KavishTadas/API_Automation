@@ -18,5 +18,19 @@
     "newApis": [],
     "refreshedCount": 7,
     "missingApis": []
+  },
+  {
+    "version": 3,
+    "timestamp": "20260526_094404",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260526_094404.json",
+    "previousCsv": "api-docs/history/API_File_20260526_094404.csv",
+    "newApis": [
+      "auth - POST - /auth/token - Login"
+    ],
+    "refreshedCount": 6,
+    "missingApis": [
+      "auth - POST - /auth/login - Login"
+    ]
   }
 ]

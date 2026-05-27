@@ -7,6 +7,12 @@ const newman = require('newman');
 const COLLECTIONS_DIR = 'collections';
 const LOGS_DIR = path.join('monitoring', 'logs');
 const RESPONSE_TIME_DEGRADED_MS = 2000;
+const COLLECTION_RUN_ORDER = [
+  'Login_API.json',
+  'Leave_API.json'
+];
+const ENV = process.env.ENV || 'uat';
+const ENV_FILE = path.join(__dirname, '..', 'environments', `${ENV}.json`);
 
 /**
  * Returns today's date in YYYY-MM-DD format.
@@ -18,16 +24,109 @@ function getDateStamp() {
 }
 
 /**
+ * Loads the selected Newman environment file.
+ *
+ * @returns {object|undefined} Parsed Postman environment.
+ */
+function loadEnvironmentFile() {
+  if (!fs.existsSync(ENV_FILE)) {
+    return undefined;
+  }
+
+  return JSON.parse(fs.readFileSync(ENV_FILE, 'utf8'));
+}
+
+/**
+ * Returns a defensive copy for Newman, which may mutate environment values.
+ *
+ * @param {object|undefined} environment Parsed Postman environment.
+ * @returns {object|undefined} Cloned environment.
+ */
+function cloneEnvironment(environment) {
+  return environment ? JSON.parse(JSON.stringify(environment)) : undefined;
+}
+
+/**
+ * Extracts enabled environment values into a plain object.
+ *
+ * @param {object|undefined} environment Parsed Postman environment.
+ * @returns {object} Environment key/value map.
+ */
+function extractEnvironmentValues(environment) {
+  const rawValues =
+    environment && environment.values && environment.values.members
+      ? environment.values.members
+      : environment && environment.values
+        ? environment.values
+        : [];
+  const values = Array.isArray(rawValues) ? rawValues : Object.values(rawValues);
+
+  return values.reduce((vars, value) => {
+    if (value && value.key && value.enabled !== false) {
+      vars[value.key] = value.value || '';
+    }
+    return vars;
+  }, {});
+}
+
+const baseEnvironment = loadEnvironmentFile();
+const sharedEnvVars = {
+  ...extractEnvironmentValues(baseEnvironment)
+};
+
+sharedEnvVars.baseUrl = process.env.BASE_URL || sharedEnvVars.baseUrl || '';
+sharedEnvVars.empCode = process.env.EMP_CODE || sharedEnvVars.empCode || '';
+sharedEnvVars.empPassword = process.env.EMP_PASSWORD || sharedEnvVars.empPassword || '';
+sharedEnvVars.leaveBaseUrl = process.env.LEAVE_BASE_URL || sharedEnvVars.leaveBaseUrl || '';
+
+/**
  * Discovers JSON collection files in the collections directory.
  *
  * @returns {string[]} Collection file paths.
  */
 function discoverCollections() {
-  return fs
+  const discovered = fs
     .readdirSync(COLLECTIONS_DIR)
     .filter(f => f.endsWith('.json') && !f.includes('.pending.'))
-    .sort()
-    .map((fileName) => path.join(COLLECTIONS_DIR, fileName));
+    .sort();
+
+  return [
+    ...COLLECTION_RUN_ORDER.filter(fileName => discovered.includes(fileName)),
+    ...discovered.filter(fileName => !COLLECTION_RUN_ORDER.includes(fileName))
+  ].map((fileName) => path.join(COLLECTIONS_DIR, fileName));
+}
+
+/**
+ * Carries non-empty environment values from a Newman summary into later runs.
+ *
+ * @param {object} summary Newman summary.
+ * @returns {number} Number of values carried forward.
+ */
+function carryForwardEnvVars(summary) {
+  const rawValues =
+    summary && summary.environment && summary.environment.values && summary.environment.values.members
+      ? summary.environment.values.members
+      : summary && summary.environment && summary.environment.values
+        ? summary.environment.values
+        : [];
+  const values = Array.isArray(rawValues) ? rawValues : Object.values(rawValues);
+  let carried = 0;
+
+  values.forEach((value) => {
+    if (
+      value &&
+      value.key &&
+      value.value !== undefined &&
+      value.value !== null &&
+      value.value !== '' &&
+      value.value !== 'undefined'
+    ) {
+      sharedEnvVars[value.key] = value.value;
+      carried += 1;
+    }
+  });
+
+  return carried;
 }
 
 /**
@@ -41,16 +140,10 @@ function runCollection(collectionPath) {
     newman.run(
       {
         collection: collectionPath,
-        environment: (() => {
-          const ENV = process.env.ENV || 'uat';
-          const envPath = path.join(__dirname, '..', 'environments', ENV + '.json');
-          return require('fs').existsSync(envPath) ? require(envPath) : undefined;
-        })(),
-        envVar: [
-          { key: 'empCode',      value: process.env.EMP_CODE      || '' },
-          { key: 'empPassword',  value: process.env.EMP_PASSWORD  || '' },
-          { key: 'leaveBaseUrl', value: process.env.LEAVE_BASE_URL || '' },
-        ],
+        environment: cloneEnvironment(baseEnvironment),
+        envVar: Object.entries(sharedEnvVars)
+          .filter(([, value]) => value !== undefined && value !== null)
+          .map(([key, value]) => ({ key, value })),
         timeoutRequest: 10000,
         bail: false,
         reporters: ['cli']
@@ -226,6 +319,7 @@ async function main() {
 
   for (const collectionPath of collections) {
     const summary = await runCollection(collectionPath);
+    carryForwardEnvVars(summary);
     const failures = summary.run && Array.isArray(summary.run.failures) ? summary.run.failures : [];
 
     appendFailureLog(failures.map((failure) => createFailureLogEntry(summary, failure)));

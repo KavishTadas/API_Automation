@@ -3,17 +3,17 @@
   "values": [
     {
       "key": "baseUrl",
-      "value": "https://prod.uat_mcdp_be.omfysgroup.com",
+      "value": "https://production-hcm-api.example.com",
       "type": "default",
       "enabled": true,
-      "description": "Production environment — replace with real production URL before use"
+      "description": "Placeholder production URL - replace with the real production URL before use"
     },
     {
       "key": "leaveBaseUrl",
-      "value": "https://prod.uat-mcdp-be.omfysgroup.com",
+      "value": "https://production-hcm-api.example.com",
       "type": "default",
       "enabled": true,
-      "description": "Production environment — replace with real production URL before use"
+      "description": "Placeholder production URL - replace with the real production URL before use"
     }
   ],
   "_postman_variable_scope": "environment"

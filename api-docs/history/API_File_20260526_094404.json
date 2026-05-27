@@ -101,6 +101,26 @@
   },
   {
     "Sr. No": "6",
+    "Module Name": "auth",
+    "Sub-Module Name": "Login",
+    "Access": "public",
+    "Functional Purpose": "Status is 200; Token exists",
+    "Base URL": "{{BASE_URL}}",
+    "Endpoint / Path": "/auth/login",
+    "HTTP Method": "POST",
+    "Request Parameters": "",
+    "Request Body": "{ \"email\": \"{{USERNAME}}\", \"password\": \"{{PASSWORD}}\" }",
+    "Example Request Payload": "{\n  \"email\": \"<USERNAME>\",\n  \"password\": \"<PASSWORD>\"\n}",
+    "Request Body Schema": "{\"email\":\"string\",\"password\":\"string\"}",
+    "Response (example/200)": "Expected status(es): 200\n{\n  \"token\": \"<jwt-token>\"\n}",
+    "Example Response Payload": "{\n  \"token\": \"<jwt-token>\"\n}",
+    "Dependent APIs / Services": "Produces authToken for downstream APIs",
+    "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+    "API Identifier": "post|{{base_url}}|/auth/login|auth|login",
+    "Comments": "Source: bruno/auth/login.bru; No saved response example in source file; Parsed from Bruno file"
+  },
+  {
+    "Sr. No": "7",
     "Module Name": "users",
     "Sub-Module Name": "Get profile",
     "Access": "private",
@@ -118,25 +138,5 @@
     "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
     "API Identifier": "get|{{base_url}}|/users/me|users|get profile",
     "Comments": "Source: bruno/users/get-profile.bru; No saved response example in source file; Parsed from Bruno file"
-  },
-  {
-    "Sr. No": "7",
-    "Module Name": "auth",
-    "Sub-Module Name": "Login",
-    "Access": "public",
-    "Functional Purpose": "Status is 200; Token exists; empCode matches",
-    "Base URL": "{{baseUrl}}",
-    "Endpoint / Path": "/auth/token",
-    "HTTP Method": "POST",
-    "Request Parameters": "",
-    "Request Body": "{\n    \"empCode\": \"{{empCode}}\",\n    \"password\": \"{{empPassword}}\"\n  }",
-    "Example Request Payload": "{\n  \"empCode\": \"<empCode>\",\n  \"password\": \"<empPassword>\"\n}",
-    "Request Body Schema": "{\"empCode\":\"string\",\"password\":\"string\"}",
-    "Response (example/200)": "Expected status(es): 200\n{\n  \"token\": \"<jwt-token>\"\n}",
-    "Example Response Payload": "{\n  \"token\": \"<jwt-token>\"\n}",
-    "Dependent APIs / Services": "Produces authToken for downstream APIs",
-    "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
-    "API Identifier": "post|{{baseurl}}|/auth/token|auth|login",
-    "Comments": "Source: bruno/auth/login.bru; No saved response example in source file; Parsed from Bruno file"
   }
 ]

@@ -483,13 +483,17 @@ def {schema_name}(api_runtime_config: dict[str, str]) -> None:
 
 def clear_previous_generated_tests() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    failed_paths: list[Path] = []
+
     for path in OUTPUT_DIR.glob("test_*.py"):
         try:
             path.unlink()
         except PermissionError:
-            # Windows workspaces can temporarily deny unlink on files that were
-            # just imported or indexed. Existing files are overwritten below.
-            pass
+            failed_paths.append(path)
+
+    if failed_paths:
+        paths = ", ".join(str(path.relative_to(ROOT_DIR)) for path in failed_paths)
+        raise RuntimeError(f"Could not remove stale generated test file(s): {paths}")
 
 
 def write_generated_tests(rows: list[dict[str, str]]) -> list[Path]:

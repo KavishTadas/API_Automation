@@ -163,7 +163,7 @@
               "",
               "  console.log('Pending approvals: ' + json.pendingleavs.length);",
               "} else {",
-              "  console.log('pendingleavs array is empty â€” no pending approvals for this user');",
+              "  console.log('pendingleavs array is empty - no pending approvals for this user');",
               "}"
             ]
           }

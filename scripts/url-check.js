@@ -4,13 +4,13 @@ const https = require('https');
 
 const CANDIDATES = [
   {
-    label: 'Underscore URL (confirmed for /auth/token)',
-    base: 'https://uat_mcdp_be.omfysgroup.com',
+    label: 'Hyphen URL (/auth/token)',
+    base: 'https://uat-mcdp-be.omfysgroup.com',
     path: '/auth/token',
     method: 'POST',
   },
   {
-    label: 'Hyphen URL (confirmed for leave endpoints)',
+    label: 'Hyphen URL (/user/leaves/approvals)',
     base: 'https://uat-mcdp-be.omfysgroup.com',
     path: '/user/leaves/approvals',
     method: 'GET',

@@ -3,17 +3,17 @@
   "values": [
     {
       "key": "baseUrl",
-      "value": "https://staging.uat_mcdp_be.omfysgroup.com",
+      "value": "https://staging-hcm-api.example.com",
       "type": "default",
       "enabled": true,
-      "description": "Staging environment — replace with real staging URL when available"
+      "description": "Placeholder staging URL - replace with the real staging URL when available"
     },
     {
       "key": "leaveBaseUrl",
-      "value": "https://staging.uat-mcdp-be.omfysgroup.com",
+      "value": "https://staging-hcm-api.example.com",
       "type": "default",
       "enabled": true,
-      "description": "Staging environment — replace with real staging URL when available"
+      "description": "Placeholder staging URL - replace with the real staging URL when available"
     }
   ],
   "_postman_variable_scope": "environment"

@@ -145,7 +145,10 @@ jobs:
 
       - name: Run API tests
         id: run-tests
-        run: npx cross-env ENV=${{ inputs.environment || 'uat' }} node scripts/run-newman.js
+        env:
+          ENV: ${{ inputs.environment || 'uat' }}
+          COLLECTION_FILTER: ${{ inputs.collection || 'all' }}
+        run: node scripts/run-newman.js
 
       - name: Setup Java (required for Allure)
         if: always()
@@ -187,6 +190,7 @@ jobs:
         run: |
           echo "## API Test Results" >> $GITHUB_STEP_SUMMARY
           echo "- **Environment:** ${{ inputs.environment || 'uat' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Collection:** ${{ inputs.collection || 'all' }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Run:** #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY

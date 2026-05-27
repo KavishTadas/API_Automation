@@ -44,21 +44,18 @@
   ""token"": ""<jwt-token>"",
   ""username"": ""<username>""
 }","Produces authToken for downstream APIs","KavishTadas <kavish.tadas@omfysgroup.com>","post|{{baseurl}}|/auth/token|login api|tc01 - valid credentials return token","Source: collections/Login_API.json; Data-driven: test-data/Login_API.csv; No saved response example in source file"
-"6","users","Get profile","private","Status is 200; Email is a string","{{BASE_URL}}","/users/me","GET","auth: bearer token={{authToken}}","","","","Expected status(es): 200
+"6","auth","Login","public","Status is 200; Token exists","{{BASE_URL}}","/auth/login","POST","","{ ""email"": ""{{USERNAME}}"", ""password"": ""{{PASSWORD}}"" }","{
+  ""email"": ""<USERNAME>"",
+  ""password"": ""<PASSWORD>""
+}","{""email"":""string"",""password"":""string""}","Expected status(es): 200
+{
+  ""token"": ""<jwt-token>""
+}","{
+  ""token"": ""<jwt-token>""
+}","Produces authToken for downstream APIs","KavishTadas <kavish.tadas@omfysgroup.com>","post|{{base_url}}|/auth/login|auth|login","Source: bruno/auth/login.bru; No saved response example in source file; Parsed from Bruno file"
+"7","users","Get profile","private","Status is 200; Email is a string","{{BASE_URL}}","/users/me","GET","auth: bearer token={{authToken}}","","","","Expected status(es): 200
 {
   ""email"": ""<email>""
 }","{
   ""email"": ""<email>""
 }","Requires authToken from Login API; Depends on Login API POST /auth/token for authToken","KavishTadas <kavish.tadas@omfysgroup.com>","get|{{base_url}}|/users/me|users|get profile","Source: bruno/users/get-profile.bru; No saved response example in source file; Parsed from Bruno file"
-"7","auth","Login","public","Status is 200; Token exists; empCode matches","{{baseUrl}}","/auth/token","POST","","{
-    ""empCode"": ""{{empCode}}"",
-    ""password"": ""{{empPassword}}""
-  }","{
-  ""empCode"": ""<empCode>"",
-  ""password"": ""<empPassword>""
-}","{""empCode"":""string"",""password"":""string""}","Expected status(es): 200
-{
-  ""token"": ""<jwt-token>""
-}","{
-  ""token"": ""<jwt-token>""
-}","Produces authToken for downstream APIs","KavishTadas <kavish.tadas@omfysgroup.com>","post|{{baseurl}}|/auth/token|auth|login","Source: bruno/auth/login.bru; No saved response example in source file; Parsed from Bruno file"

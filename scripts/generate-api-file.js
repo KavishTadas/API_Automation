@@ -1238,29 +1238,25 @@ function mergeWithExistingRows(discoveredRows) {
     return { rows: discoveredRows, audit };
   }
 
-  const rows = existingRows.map((existingRow) => {
+  const rows = [];
+
+  existingRows.forEach((existingRow) => {
     const key = existingRow['API Identifier'] || makeApiIdentifier(existingRow);
     const discovered = discoveredByKey.get(key);
 
     if (discovered) {
       usedKeys.add(key);
       audit.refreshedApis.push(apiLabel(discovered));
-      return {
+      rows.push({
         ...existingRow,
         ...discovered,
         'API Identifier': key
-      };
+      });
+      return;
     }
 
     audit.missingApis.push(apiLabel(existingRow));
-    return {
-      ...existingRow,
-      'API Identifier': key,
-      Comments: appendComment(
-        existingRow.Comments,
-        'Not found in latest collection/Bruno scan; retained for audit continuity'
-      )
-    };
+    usedKeys.add(key);
   });
 
   discoveredRows.forEach((row) => {
@@ -1272,15 +1268,6 @@ function mergeWithExistingRows(discoveredRows) {
   });
 
   return { rows, audit };
-}
-
-function appendComment(existingComment, comment) {
-  const parts = cleanText(existingComment)
-    .split(';')
-    .map((part) => part.trim())
-    .filter(Boolean);
-  parts.push(comment);
-  return unique(parts).join('; ');
 }
 
 function apiLabel(row) {
@@ -1385,6 +1372,7 @@ function main() {
   console.log(`Generated ${rows.length} API endpoint row(s).`);
   console.log(`Discovered ${discoveredRows.length} endpoint row(s) from source files.`);
   console.log(`Appended ${audit.newApis.length} new API row(s).`);
+  console.log(`Removed ${audit.missingApis.length} stale API row(s).`);
   if (historyEntry) {
     console.log(`History snapshot: api-docs/history/API_File_${historyEntry.timestamp}.*`);
   }

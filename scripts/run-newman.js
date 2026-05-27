@@ -185,6 +185,61 @@ function runCollection(collectionFile) {
   });
 }
 
+function writeAllureCategories() {
+  const categoriesPath = path.join(
+    __dirname, '..', 'reports', 'allure-results', 'categories.json'
+  );
+  const categories = [
+    {
+      name: 'Authentication and authorization',
+      matchedStatuses: ['failed', 'broken'],
+      messageRegex: '.*(401|403|Unauthorized|Forbidden|authToken|Bearer|Invalid credentials|missing auth).*',
+      traceRegex: '.*(401|403|Unauthorized|Forbidden|authToken|Bearer|Invalid credentials|missing auth).*'
+    },
+    {
+      name: 'JSON parsing and schema',
+      matchedStatuses: ['failed', 'broken'],
+      messageRegex: '.*(JSONError|Unexpected token|JSON|schema|parse|valid JSON).*',
+      traceRegex: '.*(JSONError|Unexpected token|JSON|schema|parse|valid JSON).*'
+    },
+    {
+      name: 'Client/API validation 4xx',
+      matchedStatuses: ['failed', 'broken'],
+      messageRegex: '.*(400|404|409|422|Bad Request|Not Found|Unprocessable).*',
+      traceRegex: '.*(400|404|409|422|Bad Request|Not Found|Unprocessable).*'
+    },
+    {
+      name: 'Server/API availability 5xx',
+      matchedStatuses: ['failed', 'broken'],
+      messageRegex: '.*(500|502|503|504|Internal Server Error|Bad Gateway|Service Unavailable|Gateway Timeout).*',
+      traceRegex: '.*(500|502|503|504|Internal Server Error|Bad Gateway|Service Unavailable|Gateway Timeout).*'
+    },
+    {
+      name: 'Timeouts and network',
+      matchedStatuses: ['failed', 'broken'],
+      messageRegex: '.*(timeout|ETIMEDOUT|ECONNRESET|ENOTFOUND|ECONNREFUSED|socket hang up).*',
+      traceRegex: '.*(timeout|ETIMEDOUT|ECONNRESET|ENOTFOUND|ECONNREFUSED|socket hang up).*'
+    },
+    {
+      name: 'Assertion failures',
+      matchedStatuses: ['failed'],
+      messageRegex: '.*(expected|assertion|AssertionError|Status code|Response time).*',
+      traceRegex: '.*(expected|assertion|AssertionError|Status code|Response time).*'
+    },
+    {
+      name: 'Broken tests',
+      matchedStatuses: ['broken']
+    }
+  ];
+
+  fs.mkdirSync(path.dirname(categoriesPath), { recursive: true });
+  fs.writeFileSync(
+    categoriesPath,
+    `${JSON.stringify(categories, null, 2)}\n`
+  );
+  console.log('  OK categories.json written to allure-results');
+}
+
 async function runAll() {
   const executorPath = path.join(
     __dirname, '..', 'reports', 'allure-results', 'executor.json'
@@ -216,6 +271,7 @@ async function runAll() {
   fs.mkdirSync(path.dirname(envPropsPath), { recursive: true });
   fs.writeFileSync(envPropsPath, envProps);
   console.log('  ✓ environment.properties written to allure-results');
+  writeAllureCategories();
 
   for (const file of collectionFiles_filtered) {
     await runCollection(file);
