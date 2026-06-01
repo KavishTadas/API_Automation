@@ -155,7 +155,7 @@
     "Response (example/200)": "Expected status(es): 200\n{\n  \"empCode\": \"<empCode>\",\n  \"roles\": [\n    \"<role>\"\n  ],\n  \"token\": \"<jwt-token>\",\n  \"username\": \"<username>\"\n}",
     "Example Response Payload": "{\n  \"empCode\": \"<empCode>\",\n  \"roles\": [\n    \"<role>\"\n  ],\n  \"token\": \"<jwt-token>\",\n  \"username\": \"<username>\"\n}",
     "Dependent APIs / Services": "Produces authToken for downstream APIs",
-    "Owner / Developer": "",
+    "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
     "API Identifier": "post|{{baseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
     "Comments": "Source: collections/Employee_Auth_API.json; No saved response example in source file"
   },
@@ -175,7 +175,7 @@
     "Response (example/200)": "Expected status(es): 400\n{\n  \"token\": \"<jwt-token>\"\n}",
     "Example Response Payload": "{\n  \"token\": \"<jwt-token>\"\n}",
     "Dependent APIs / Services": "",
-    "Owner / Developer": "",
+    "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
     "API Identifier": "post|{{baseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400",
     "Comments": "Source: collections/Employee_Auth_API.json; No saved response example in source file"
   },
@@ -195,7 +195,7 @@
     "Response (example/200)": "Expected status(es): 400\n{\n  \"token\": \"<jwt-token>\"\n}",
     "Example Response Payload": "{\n  \"token\": \"<jwt-token>\"\n}",
     "Dependent APIs / Services": "",
-    "Owner / Developer": "",
+    "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
     "API Identifier": "post|{{baseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400",
     "Comments": "Source: collections/Employee_Auth_API.json; No saved response example in source file"
   }

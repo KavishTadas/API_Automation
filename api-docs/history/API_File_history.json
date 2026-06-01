@@ -32,5 +32,39 @@
     "missingApis": [
       "auth - POST - /auth/login - Login"
     ]
+  },
+  {
+    "version": 4,
+    "timestamp": "20260530_100255",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260530_100255.json",
+    "previousCsv": "api-docs/history/API_File_20260530_100255.csv",
+    "newApis": [],
+    "refreshedCount": 7,
+    "missingApis": []
+  },
+  {
+    "version": 5,
+    "timestamp": "20260601_092749",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260601_092749.json",
+    "previousCsv": "api-docs/history/API_File_20260601_092749.csv",
+    "newApis": [
+      "Employee Auth API - POST - /auth/token - TC01 - Valid credentials return JWT token",
+      "Employee Auth API - POST - /auth/token - TC02 - Invalid empCode returns 400",
+      "Employee Auth API - POST - /auth/token - TC03 - Missing password returns 400"
+    ],
+    "refreshedCount": 7,
+    "missingApis": []
+  },
+  {
+    "version": 6,
+    "timestamp": "20260601_092811",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260601_092811.json",
+    "previousCsv": "api-docs/history/API_File_20260601_092811.csv",
+    "newApis": [],
+    "refreshedCount": 10,
+    "missingApis": []
   }
 ]

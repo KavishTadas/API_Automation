@@ -32,7 +32,7 @@ API = json.loads(r"""{
   "Request Body Schema": "",
   "Response (example/200)": "Expected status(es): 200\n{\n  \"email\": \"<email>\"\n}",
   "Example Response Payload": "{\n  \"email\": \"<email>\"\n}",
-  "Dependent APIs / Services": "Requires authToken from Login API; Depends on Login API POST /auth/token for authToken",
+  "Dependent APIs / Services": "Requires authToken from Login API; Depends on Employee Auth API POST /auth/token for authToken",
   "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
   "API Identifier": "get|{{base_url}}|/users/me|users|get profile",
   "Comments": "Source: bruno/users/get-profile.bru; No saved response example in source file; Parsed from Bruno file"

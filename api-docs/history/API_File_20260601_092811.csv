@@ -80,7 +80,7 @@
   ],
   ""token"": ""<jwt-token>"",
   ""username"": ""<username>""
-}","Produces authToken for downstream APIs","","post|{{baseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token","Source: collections/Employee_Auth_API.json; No saved response example in source file"
+}","Produces authToken for downstream APIs","KavishTadas <kavish.tadas@omfysgroup.com>","post|{{baseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token","Source: collections/Employee_Auth_API.json; No saved response example in source file"
 "9","Employee Auth API","TC02 - Invalid empCode returns 400","public","TC02 - Status is 400 for bad empCode; TC02 - Error message returned","{{baseUrl}}","/auth/token","POST","headers: Content-Type=application/json","{""empCode"": ""INVALID-999"", ""password"": ""wrongpassword""}","{
   ""empCode"": ""INVALID-999"",
   ""password"": ""wrongpassword""
@@ -89,7 +89,7 @@
   ""token"": ""<jwt-token>""
 }","{
   ""token"": ""<jwt-token>""
-}","","","post|{{baseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400","Source: collections/Employee_Auth_API.json; No saved response example in source file"
+}","","KavishTadas <kavish.tadas@omfysgroup.com>","post|{{baseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400","Source: collections/Employee_Auth_API.json; No saved response example in source file"
 "10","Employee Auth API","TC03 - Missing password returns 400","public","TC03 - Status is 400 for missing password; TC03 - Validation message returned","{{baseUrl}}","/auth/token","POST","headers: Content-Type=application/json","{""empCode"": ""{{empCode}}""}","{
   ""empCode"": ""<empCode>""
 }","{""empCode"":""string""}","Expected status(es): 400
@@ -97,4 +97,4 @@
   ""token"": ""<jwt-token>""
 }","{
   ""token"": ""<jwt-token>""
-}","","","post|{{baseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400","Source: collections/Employee_Auth_API.json; No saved response example in source file"
+}","","KavishTadas <kavish.tadas@omfysgroup.com>","post|{{baseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400","Source: collections/Employee_Auth_API.json; No saved response example in source file"

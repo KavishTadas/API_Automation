@@ -6,6 +6,8 @@ const path = require('path');
 const zlib = require('zlib');
 const { execFileSync } = require('child_process');
 
+const stripBom = s => s.replace(/^\uFEFF/, '');
+
 const ROOT_DIR = path.resolve(__dirname, '..');
 const COLLECTIONS_DIR = path.join(ROOT_DIR, 'collections');
 const BRUNO_DIR = path.join(ROOT_DIR, 'bruno');
@@ -944,7 +946,7 @@ function readPostmanRows() {
 
   files.forEach((sourcePath) => {
     try {
-      const collection = JSON.parse(fs.readFileSync(sourcePath, 'utf8'));
+      const collection = JSON.parse(stripBom(fs.readFileSync(sourcePath, 'utf8')));
       const collectionName = collection.info && collection.info.name
         ? collection.info.name
         : path.basename(sourcePath, '.json');
@@ -1181,7 +1183,7 @@ function makeApiIdentifier(row) {
 function readExistingApiRows() {
   if (fs.existsSync(JSON_OUT)) {
     try {
-      const rows = JSON.parse(fs.readFileSync(JSON_OUT, 'utf8'));
+      const rows = JSON.parse(stripBom(fs.readFileSync(JSON_OUT, 'utf8')));
       return Array.isArray(rows) ? rows : [];
     } catch (error) {
       console.warn(`Could not parse existing ${toPosixPath(JSON_OUT)}: ${error.message}`);
@@ -1324,7 +1326,7 @@ function readHistoryIndex() {
   }
 
   try {
-    const parsed = JSON.parse(fs.readFileSync(HISTORY_INDEX, 'utf8'));
+    const parsed = JSON.parse(stripBom(fs.readFileSync(HISTORY_INDEX, 'utf8')));
     return Array.isArray(parsed) ? parsed : [];
   } catch (error) {
     return [];

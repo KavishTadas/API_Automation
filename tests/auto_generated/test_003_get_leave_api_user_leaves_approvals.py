@@ -32,7 +32,7 @@ API = json.loads(r"""{
   "Request Body Schema": "",
   "Response (example/200)": "Expected status(es): 200\n{\n  \"pendingleavs\": []\n}",
   "Example Response Payload": "{\n  \"pendingleavs\": []\n}",
-  "Dependent APIs / Services": "Requires authToken from Login API; Depends on Login API POST /auth/token for authToken",
+  "Dependent APIs / Services": "Requires authToken from Login API; Depends on Employee Auth API POST /auth/token for authToken",
   "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
   "API Identifier": "get|{{leavebaseurl}}|/user/leaves/approvals|leave api|tc03 - pending approvals returns pendingleavs array",
   "Comments": "Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"

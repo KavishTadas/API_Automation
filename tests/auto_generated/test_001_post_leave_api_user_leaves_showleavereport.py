@@ -32,7 +32,7 @@ API = json.loads(r"""{
   "Request Body Schema": "{\"startDate\":\"string\",\"endDate\":\"string\"}",
   "Response (example/200)": "Expected status(es): 200\n{\n  \"records\": []\n}",
   "Example Response Payload": "{\n  \"records\": []\n}",
-  "Dependent APIs / Services": "Requires authToken from Login API; Depends on Login API POST /auth/token for authToken",
+  "Dependent APIs / Services": "Requires authToken from Login API; Depends on Employee Auth API POST /auth/token for authToken",
   "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
   "API Identifier": "post|{{leavebaseurl}}|/user/leaves/showleavereport|leave api|tc01 - show leave report returns records array",
   "Comments": "Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
