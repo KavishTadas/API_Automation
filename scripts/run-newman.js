@@ -13,10 +13,23 @@ if (!fs.existsSync(envFile)) {
   process.exit(1);
 }
 
+for (const [credential, value] of Object.entries({
+  empCode: process.env.EMP_CODE,
+  empPassword: process.env.EMP_PASSWORD
+})) {
+  if (typeof value !== 'string' || value.trim() === '') {
+    console.error(
+      `ERROR: Missing required credential ${credential} — set ${credential === 'empCode' ? 'EMP_CODE' : 'EMP_PASSWORD'} via env var before running`
+    );
+    process.exit(1);
+  }
+}
+
 const collectionsDir  = path.join(__dirname, '..', 'collections');
 const RUN_ORDER = [
-  'Login_API.json',
-  'Leave_API.json'
+  'Employee_Auth_API.json',
+  'Leave_API.json',
+  'Login_API.json'
 ];
 
 const discovered = fs.readdirSync(collectionsDir)
@@ -53,7 +66,11 @@ collectionFiles.forEach((f, i) =>
   console.log(`  ${i + 1}. ${f}`)
 );
 
-if (collectionFiles.length === 0) {
+if (filteredFiles.length === 0) {
+  if (COLLECTION_FILTER && COLLECTION_FILTER !== 'all') {
+    console.error(`ERROR: No collections matched filter "${COLLECTION_FILTER}".`);
+    process.exit(1);
+  }
   console.warn('No collections found in collections/');
   process.exit(0);
 }
@@ -83,9 +100,17 @@ function runCollection(collectionFile) {
       export: htmlReportPath
     });
 
+    const environment = require(envFile);
     const options = {
       collection:   require(collectionPath),
-      environment:  require(envFile),
+      environment: {
+        ...environment,
+        values: environment.values.map((variable) => (
+          Object.prototype.hasOwnProperty.call(sharedEnvVars, variable.key)
+            ? { ...variable, value: sharedEnvVars[variable.key] }
+            : variable
+        ))
+      },
       envVar: Object.entries(sharedEnvVars).map(
         ([key, value]) => ({ key, value })
       ),
@@ -175,13 +200,30 @@ function runCollection(collectionFile) {
         );
       }
 
-      results.push({
+      const collectionResult = {
         ...result,
         reportFile: htmlReportPath,
         _failed: result.Failed > 0 || !!err
-      });
-      resolve();
+      };
+      results.push(collectionResult);
+      resolve(collectionResult);
     });
+  });
+}
+
+function markLeaveApiBlocked() {
+  console.log(
+    '\nBlocked Leave_API (including Approvals): skipped due to upstream Employee_Auth_API failure.'
+  );
+  results.push({
+    Collection: 'Leave_API (BLOCKED: Employee_Auth_API failed)',
+    Requests: 0,
+    Passed: 0,
+    Failed: 0,
+    Skipped: 1,
+    'Duration(ms)': 0,
+    reportFile: '',
+    _failed: false
   });
 }
 
@@ -273,8 +315,17 @@ async function runAll() {
   console.log('  ✓ environment.properties written to allure-results');
   writeAllureCategories();
 
+  let authFailed = false;
   for (const file of collectionFiles_filtered) {
-    await runCollection(file);
+    if (authFailed && file === 'Leave_API.json') {
+      markLeaveApiBlocked();
+      continue;
+    }
+
+    const collectionResult = await runCollection(file);
+    if (file === 'Employee_Auth_API.json' && collectionResult._failed) {
+      authFailed = true;
+    }
   }
 
   console.log('\nRun summary:');

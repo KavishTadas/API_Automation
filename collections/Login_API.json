@@ -69,7 +69,7 @@
         "header": [{ "key": "Content-Type", "value": "application/json" }],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"empCode\": \"{{empCode}}\",\n  \"password\": \"{{password}}\"\n}"
+          "raw": "{\n  \"empCode\": \"{{empCode}}\",\n  \"password\": \"{{empPassword}}\"\n}"
         },
         "url": {
           "raw": "{{baseUrl}}/auth/token",

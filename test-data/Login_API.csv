@@ -1,4 +1,4 @@
-empCode,password,expectedStatus,expectedOutcome,testLabel
+empCode,empPassword,expectedStatus,expectedOutcome,testLabel
 TEST-EMP-001,DummyPass@2024!,200,token,TC-DD-01 Valid employee login
 NONEXISTENT-999,DummyPass@2024!,400,message,TC-DD-02 Non-existent empCode
 TEST-EMP-001,WrongPassword!,400,message,TC-DD-03 Wrong password

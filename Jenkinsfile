@@ -1,11 +1,20 @@
 /*
 Required Jenkins setup:
 Plugins: NodeJS, Allure, HTML Publisher, Email Extension
-Credentials (configure in Jenkins > Credentials): api-key, postman-api-key
+Credentials (configure in Jenkins > Credentials): emp-code, emp-password, postman-api-key
+NodeJS tool (configure with this exact name): NodeJS 24
 */
 
 pipeline {
   agent any
+
+  tools {
+    nodejs 'NodeJS 24'
+  }
+
+  options {
+    buildDiscarder(logRotator(numToKeepStr: '30'))
+  }
 
   parameters {
     choice(name: 'ENVIRONMENT', choices: ['uat','staging','production','local'], description: 'Target environment')
@@ -14,32 +23,47 @@ pipeline {
   }
 
   environment {
-    API_KEY         = credentials('api-key')
+    EMP_CODE        = credentials('emp-code')
+    EMP_PASSWORD    = credentials('emp-password')
     POSTMAN_API_KEY = credentials('postman-api-key')
   }
 
   stages {
     stage('Checkout')              { steps { checkout scm } }
-    stage('Install dependencies')  { steps { sh 'npm ci' } }
+    stage('Install dependencies') {
+      steps {
+        script {
+          if (isUnix()) { sh 'npm ci' }
+          else { bat 'call npm ci' }
+        }
+      }
+    }
     stage('Lint OpenAPI spec') {
-      steps { sh 'npm run lint:spec' }
+      steps {
+        script {
+          if (isUnix()) { sh 'npm run lint:spec' }
+          else { bat 'call npm run lint:spec' }
+        }
+      }
       post { failure { unstable('OpenAPI lint warnings found — marking as unstable') } }
     }
     stage('Run API tests') {
-      steps { sh 'cross-env ENV=${ENVIRONMENT} COLLECTION_FILTER=${COLLECTION} node scripts/run-newman.js' }
-    }
-    stage('Publish Allure report') {
-      steps { allure([results: [[path: 'reports/allure-results']]]) }
-    }
-    stage('Archive HTML report') {
       steps {
-        publishHTML(target: [reportDir: 'reports/html', reportFiles: '*.html',
-                             reportName: 'API Test Report', keepAll: true])
+        script {
+          def command = "npx --no-install cross-env ENV=${params.ENVIRONMENT} COLLECTION_FILTER=${params.COLLECTION} node scripts/run-newman.js"
+          if (isUnix()) { sh command }
+          else { bat "call ${command}" }
+        }
       }
     }
   }
 
   post {
+    always {
+      allure([results: [[path: 'reports/allure-results']]])
+      publishHTML(target: [reportDir: 'reports/html', reportFiles: '*.html',
+                           reportName: 'API Test Report', keepAll: true])
+    }
     failure {
       script {
         if (params.NOTIFY_EMAIL?.trim()) {

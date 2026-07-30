@@ -186,19 +186,20 @@ def _build_headers(
 
     if _requires_auth_token(api, request_parameters):
         token = _auth_token(context)
-        if not token:
-            pytest.skip(
-                "API requires authToken; set AUTH_TOKEN, API_AUTH_TOKEN, "
-                "or authToken before running generated tests"
-            )
+        assert token, (
+            "Missing required auth credential: API requires authToken; "
+            "set AUTH_TOKEN, API_AUTH_TOKEN, or authToken before running generated tests"
+        )
         headers["Authorization"] = f"Bearer {token}"
 
     for key, value in list(headers.items()):
         if _has_unresolved_template(value):
             if "authtoken" in value.lower():
                 token = _auth_token(context)
-                if not token:
-                    pytest.skip(f"Header {key} contains unresolved authToken")
+                assert token, (
+                    f"Missing required auth credential: Header {key} "
+                    "contains unresolved authToken"
+                )
                 headers[key] = re.sub(r"\{\{\s*authToken\s*}}", token, value)
             else:
                 pytest.skip(f"Header {key} contains unresolved template")

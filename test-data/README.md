@@ -9,7 +9,7 @@ available inside test scripts as pm.iterationData.get('columnName').
 
 ## Login_API.csv columns
 - empCode       → substituted into request body
-- password      → substituted into request body
+- empPassword   → substituted into request body
 - expectedStatus → used in test script assertions
 - expectedOutcome → 'token' or 'message' field to assert
 - testLabel     → logged to console per iteration

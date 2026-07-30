@@ -1,5 +1,6 @@
 node_modules/
 .env
+reports/
 __pycache__/
 **/__pycache__/
 reports/html/
