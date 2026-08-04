@@ -15,11 +15,13 @@
   },
   "devDependencies": {
     "@stoplight/spectral-cli": "^6.15.1",
+    "ajv": "^8.20.0",
     "allure-commandline": "2.29.0",
     "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
     "newman": "6.2.2",
     "newman-reporter-allure": "2.15.1",
-    "newman-reporter-htmlextra": "1.23.1"
+    "newman-reporter-htmlextra": "1.23.1",
+    "yaml": "^2.9.0"
   }
 }

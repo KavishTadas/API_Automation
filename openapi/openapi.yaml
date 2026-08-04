@@ -87,6 +87,12 @@ paths:
                   value: { "message": "Invalid empCode" }
                 missingEmpCode:
                   value: { "message": "empCode is required" }
+        "429":
+          description: Not yet observed in live traffic — documented per REST convention, unverified.
+          x-qa-status: scaffold
+        "5XX":
+          description: Not yet observed in live traffic — documented per REST convention, unverified.
+          x-qa-status: scaffold
 
   /user/leaves/getAllLeaveReports:
     get:
@@ -154,6 +160,12 @@ paths:
                 message: Token has expired or invalid
                 data: null
                 timestamp: 04-Aug-2026 T09:53:21
+        "429":
+          description: Not yet observed in live traffic — documented per REST convention, unverified.
+          x-qa-status: scaffold
+        "5XX":
+          description: Not yet observed in live traffic — documented per REST convention, unverified.
+          x-qa-status: scaffold
 
 components:
 
@@ -247,6 +259,13 @@ components:
     GetAllLeaveReportsItem:
       type: object
       additionalProperties: false
+      x-qa-notes: >
+        purpose can be null for bulk/administratively-created leave entries.
+        The observed signature is consecutive lr_no values in steps of 2, a
+        shared application_date, a shared single leave date, many distinct
+        employees, and one leave_type. March 2026 contained a 25-record LWP
+        batch matching this signature. Individual employee-submitted leave
+        requests are expected to always have a populated purpose.
       required:
         - lr_no
         - lr_id
@@ -288,7 +307,7 @@ components:
         empid:
           type: integer
         purpose:
-          type: string
+          type: ["string", "null"]
         reason:
           type: ["string", "null"]
 

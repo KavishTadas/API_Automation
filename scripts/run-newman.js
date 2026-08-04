@@ -1,7 +1,9 @@
 require('dotenv').config();
 const newman   = require('newman');
+const Ajv      = require('ajv');
 const fs       = require('fs');
 const path     = require('path');
+const YAML     = require('yaml');
 const reporterConfig = require('./reporter-config');
 const { generateIndex } = require('./generate-html-index');
 const {
@@ -12,6 +14,61 @@ const {
 const PINNED_AUTH_BASE_URL = `https://${PINNED_HOST}`;
 const LEAVE_REPORT_BASE_URL = 'https://devmcdphcmplatform.omfysgroup.com';
 const PINNED_TLS_DEBUG = process.env.PINNED_TLS_DEBUG === '1';
+const OPENAPI_SCHEMA_BUNDLE_ID =
+  'https://hcm-api-automation.local/openapi-schema-bundle.json';
+const REQUIRED_RESPONSE_SCHEMAS = [
+  'LoginResponse',
+  'ErrorResponse',
+  'GetAllLeaveReportsResponse',
+  'GetAllLeaveReportsErrorResponse',
+  'GetAllLeaveReportsItem'
+];
+
+function loadOpenApiSchemaBundle() {
+  const specPath = path.join(__dirname, '..', 'openapi', 'openapi.yaml');
+  const document = YAML.parse(fs.readFileSync(specPath, 'utf8'));
+  const schemas = document?.components?.schemas;
+
+  if (!schemas || typeof schemas !== 'object') {
+    throw new Error(
+      'OpenAPI schema loading failed: components.schemas is missing from openapi/openapi.yaml'
+    );
+  }
+
+  const missingSchemas = REQUIRED_RESPONSE_SCHEMAS.filter(
+    schemaName => !Object.prototype.hasOwnProperty.call(schemas, schemaName)
+  );
+  if (missingSchemas.length > 0) {
+    throw new Error(
+      `OpenAPI schema loading failed: missing ${missingSchemas.join(', ')}`
+    );
+  }
+
+  const schemaBundle = {
+    $schema: 'http://json-schema.org/draft-07/schema#',
+    $id: OPENAPI_SCHEMA_BUNDLE_ID,
+    components: { schemas }
+  };
+
+  // Compile every response schema before making network calls. Collection
+  // scripts repeat this validation inside Newman's sandbox against real bodies.
+  const ajv = new Ajv({ allErrors: true, strict: false });
+  ajv.addSchema(schemaBundle);
+  REQUIRED_RESPONSE_SCHEMAS.forEach(schemaName => {
+    const validator = ajv.getSchema(
+      `${OPENAPI_SCHEMA_BUNDLE_ID}#/components/schemas/${schemaName}`
+    );
+    if (typeof validator !== 'function') {
+      throw new Error(
+        `OpenAPI schema loading failed: could not compile ${schemaName}`
+      );
+    }
+  });
+
+  return JSON.stringify(schemaBundle);
+}
+
+const OPENAPI_SCHEMA_BUNDLE_JSON = loadOpenApiSchemaBundle();
 
 const ENV     = process.env.ENV || 'local';
 const envFile = path.join(__dirname, '..', 'environments', `${ENV}.json`);
@@ -95,7 +152,8 @@ const sharedEnvVars = {
   empCode:      process.env.EMP_CODE      || '',
   empPassword:  process.env.EMP_PASSWORD  || '',
   leaveBaseUrl: process.env.LEAVE_BASE_URL ||
-                LEAVE_REPORT_BASE_URL
+                LEAVE_REPORT_BASE_URL,
+  openapiSchemaBundle: OPENAPI_SCHEMA_BUNDLE_JSON
 };
 
 function runCollection(collectionFile) {
@@ -215,7 +273,14 @@ function runCollection(collectionFile) {
         members.forEach(v => {
           if (
             v?.key &&
-            !['authBaseUrl', 'baseUrl', 'leaveBaseUrl', 'empCode', 'empPassword'].includes(v.key) &&
+            ![
+              'authBaseUrl',
+              'baseUrl',
+              'leaveBaseUrl',
+              'empCode',
+              'empPassword',
+              'openapiSchemaBundle'
+            ].includes(v.key) &&
             v.value !== undefined &&
             v.value !== null &&
             v.value !== '' &&
