@@ -55,7 +55,7 @@ class GlobalContractContext:
 
 @lru_cache(maxsize=1)
 def _load_contract_sources() -> ContractSources:
-    with API_FILE_PATH.open(encoding="utf-8") as handle:
+    with API_FILE_PATH.open(encoding="utf-8-sig") as handle:
         api_rows = json.load(handle)
 
     with OPENAPI_PATH.open(encoding="utf-8") as handle:

@@ -72,7 +72,7 @@ def _read_dotenv(path: Path) -> dict[str, str]:
         return {}
 
     values: dict[str, str] = {}
-    for raw_line in path.read_text(encoding="utf-8").splitlines():
+    for raw_line in path.read_text(encoding="utf-8-sig").splitlines():
         line = raw_line.strip()
         if not line or line.startswith("#") or "=" not in line:
             continue
@@ -85,7 +85,7 @@ def _read_postman_environment(path: Path) -> dict[str, str]:
     if not path.exists():
         return {}
 
-    with path.open(encoding="utf-8") as handle:
+    with path.open(encoding="utf-8-sig") as handle:
         payload = json.load(handle)
 
     values: dict[str, str] = {}
@@ -185,7 +185,7 @@ def _first_iteration_data(api: dict[str, str]) -> dict[str, str]:
     if not data_path.exists():
         return {}
 
-    with data_path.open(newline="", encoding="utf-8") as handle:
+    with data_path.open(newline="", encoding="utf-8-sig") as handle:
         reader = csv.DictReader(handle)
         first_row = next(reader, None)
         return {key: value for key, value in (first_row or {}).items() if value}
@@ -453,7 +453,7 @@ class _RuntimeConfig(dict[str, str]):
 @pytest.fixture(scope="session")
 def api_runtime_config() -> dict[str, str]:
     config = _RuntimeConfig(load_runtime_config())
-    with (ROOT_DIR / "api-docs" / "API_File.json").open(encoding="utf-8") as handle:
+    with (ROOT_DIR / "api-docs" / "API_File.json").open(encoding="utf-8-sig") as handle:
         api_rows = json.load(handle)
 
     auth_row = next(
@@ -493,12 +493,12 @@ INIT_CONTENT = '''"""Generated API tests package."""
 
 def read_api_rows() -> list[dict[str, str]]:
     if JSON_INPUT.exists():
-        with JSON_INPUT.open(encoding="utf-8") as handle:
+        with JSON_INPUT.open(encoding="utf-8-sig") as handle:
             rows = json.load(handle)
         return [normalize_row(row) for row in rows]
 
     if CSV_INPUT.exists():
-        with CSV_INPUT.open(newline="", encoding="utf-8") as handle:
+        with CSV_INPUT.open(newline="", encoding="utf-8-sig") as handle:
             return [normalize_row(row) for row in csv.DictReader(handle)]
 
     raise FileNotFoundError(

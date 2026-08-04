@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
+const stripBom = value => value.replace(/^\uFEFF/, '');
+
 const workspaceRoot = path.resolve(__dirname, '..');
 
 const report = {
@@ -82,7 +84,7 @@ filesToCheck.forEach(file => {
 const packageJsonPath = path.join(workspaceRoot, 'package.json');
 if (fs.existsSync(packageJsonPath)) {
   try {
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    const packageJson = JSON.parse(stripBom(fs.readFileSync(packageJsonPath, 'utf8')));
     report.packages.scripts = Object.keys(packageJson.scripts || {});
     report.packages.devDependencies = Object.keys(packageJson.devDependencies || {});
   } catch (e) {

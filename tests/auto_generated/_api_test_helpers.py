@@ -52,7 +52,7 @@ def _read_dotenv(path: Path) -> dict[str, str]:
         return {}
 
     values: dict[str, str] = {}
-    for raw_line in path.read_text(encoding="utf-8").splitlines():
+    for raw_line in path.read_text(encoding="utf-8-sig").splitlines():
         line = raw_line.strip()
         if not line or line.startswith("#") or "=" not in line:
             continue
@@ -65,7 +65,7 @@ def _read_postman_environment(path: Path) -> dict[str, str]:
     if not path.exists():
         return {}
 
-    with path.open(encoding="utf-8") as handle:
+    with path.open(encoding="utf-8-sig") as handle:
         payload = json.load(handle)
 
     values: dict[str, str] = {}
@@ -165,7 +165,7 @@ def _first_iteration_data(api: dict[str, str]) -> dict[str, str]:
     if not data_path.exists():
         return {}
 
-    with data_path.open(newline="", encoding="utf-8") as handle:
+    with data_path.open(newline="", encoding="utf-8-sig") as handle:
         reader = csv.DictReader(handle)
         first_row = next(reader, None)
         return {key: value for key, value in (first_row or {}).items() if value}

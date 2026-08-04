@@ -11,9 +11,26 @@ const {
   PINNED_HOST
 } = require('./pinned-tls-agent');
 
-const PINNED_AUTH_BASE_URL = `https://${PINNED_HOST}`;
+const PINNED_AUTH_BASE_URL =
+  process.env.NEWMAN_RETRY_PROBE_AUTH_BASE_URL || `https://${PINNED_HOST}`;
 const LEAVE_REPORT_BASE_URL = 'https://devmcdphcmplatform.omfysgroup.com';
 const PINNED_TLS_DEBUG = process.env.PINNED_TLS_DEBUG === '1';
+// Tune these two constants if the retry budget or initial backoff ever needs
+// to change. Attempts use 500ms then 1000ms delays (three attempts total).
+const MAX_TRANSIENT_ATTEMPTS = 3;
+const INITIAL_RETRY_DELAY_MS = 500;
+const RETRYABLE_NETWORK_ERROR_CODES = new Set([
+  'ECONNABORTED',
+  'ECONNREFUSED',
+  'ECONNRESET',
+  'EHOSTUNREACH',
+  'EAI_AGAIN',
+  'ENETUNREACH',
+  'ENOTFOUND',
+  'EPIPE',
+  'ESOCKETTIMEDOUT',
+  'ETIMEDOUT'
+]);
 const OPENAPI_SCHEMA_BUNDLE_ID =
   'https://hcm-api-automation.local/openapi-schema-bundle.json';
 const REQUIRED_RESPONSE_SCHEMAS = [
@@ -69,6 +86,104 @@ function loadOpenApiSchemaBundle() {
 }
 
 const OPENAPI_SCHEMA_BUNDLE_JSON = loadOpenApiSchemaBundle();
+
+function wait(delayMs) {
+  return new Promise(resolve => setTimeout(resolve, delayMs));
+}
+
+function cursorKey(cursor) {
+  if (!cursor) {
+    return undefined;
+  }
+  return `${cursor.iteration ?? ''}:${cursor.httpRequestId ?? cursor.ref ?? cursor.position ?? ''}`;
+}
+
+function isRetryableNetworkError(error) {
+  if (!error) {
+    return false;
+  }
+
+  const code = String(error.code || error.errno || '').toUpperCase();
+  if (RETRYABLE_NETWORK_ERROR_CODES.has(code)) {
+    return true;
+  }
+
+  const message = String(error.message || error);
+  return /\b(?:ECONNABORTED|ECONNREFUSED|ECONNRESET|EHOSTUNREACH|EAI_AGAIN|ENETUNREACH|ENOTFOUND|EPIPE|ESOCKETTIMEDOUT|ETIMEDOUT)\b|socket hang up|getaddrinfo\s+(?:ENOTFOUND|EAI_AGAIN)|connect(?:ion)?\s+timed?\s*out|request\s+timed?\s*out/i.test(message);
+}
+
+function failureText(failure) {
+  return [
+    failure?.error?.test,
+    failure?.error?.message,
+    failure?.error?.stack,
+    failure?.error?.name,
+    failure?.error?.code,
+    failure?.message
+  ]
+    .filter(Boolean)
+    .join(' ');
+}
+
+function classifyTransientFailure(err, summary) {
+  const executions = Array.isArray(summary?.run?.executions)
+    ? summary.run.executions
+    : [];
+  const failures = Array.isArray(summary?.run?.failures)
+    ? summary.run.failures
+    : [];
+  const reasons = [];
+  let sawNonRetryable4xx = false;
+
+  executions.forEach(execution => {
+    const requestName = execution.item?.name || 'unnamed request';
+    const statusCode = Number(execution.response?.code);
+
+    if (statusCode === 429 || (statusCode >= 500 && statusCode <= 599)) {
+      const status = execution.response?.status
+        ? ` ${execution.response.status}`
+        : '';
+      reasons.push(`HTTP ${statusCode}${status} from "${requestName}"`);
+      return;
+    }
+
+    if (statusCode >= 400 && statusCode < 500) {
+      sawNonRetryable4xx = true;
+      return;
+    }
+
+    if (isRetryableNetworkError(execution.requestError)) {
+      reasons.push(
+        `${execution.requestError.code || 'network error'} in "${requestName}": ${execution.requestError.message}`
+      );
+    }
+  });
+
+  if (isRetryableNetworkError(err)) {
+    reasons.push(`${err.code || 'network error'}: ${err.message}`);
+  }
+
+  const failureDetails = failures.map(failure => failureText(failure)).join(' ');
+  if (
+    /OpenAPI.*schema|schema validation|Ajv|JSON schema/i.test(failureDetails) ||
+    /JSONError|Unexpected token|Expected application\/json response|content-type/i.test(failureDetails)
+  ) {
+    return { retryable: false, reason: '' };
+  }
+
+  if (sawNonRetryable4xx) {
+    return { retryable: false, reason: 'non-retryable 4xx response' };
+  }
+
+  if (reasons.length === 0) {
+    return { retryable: false, reason: '' };
+  }
+
+  return {
+    retryable: true,
+    reason: [...new Set(reasons)].join('; ')
+  };
+}
 
 const ENV     = process.env.ENV || 'local';
 const envFile = path.join(__dirname, '..', 'environments', `${ENV}.json`);
@@ -128,7 +243,7 @@ if (COLLECTION_FILTER && COLLECTION_FILTER !== 'all') {
   console.log('Running:', filteredFiles.length, 'collection(s)');
 }
 
-const collectionFiles_filtered = filteredFiles;
+const collectionFilesFiltered = filteredFiles;
 
 console.log('\nCollection run order:');
 filteredFiles.forEach((f, i) =>
@@ -156,7 +271,7 @@ const sharedEnvVars = {
   openapiSchemaBundle: OPENAPI_SCHEMA_BUNDLE_JSON
 };
 
-function runCollection(collectionFile) {
+function runCollectionAttempt(collectionFile, attempt) {
   return new Promise((resolve) => {
     const collectionName = collectionFile.replace('.json', '');
     const collectionPath = path.join(collectionsDir, collectionFile);
@@ -182,7 +297,7 @@ function runCollection(collectionFile) {
         : {})
     };
     const options = {
-      collection:   require(collectionPath),
+      collection: require(collectionPath),
       environment: {
         ...environment,
         values: environment.values.map((variable) => (
@@ -201,37 +316,58 @@ function runCollection(collectionFile) {
           export: path.join(__dirname, '..', 'reports', 'allure-results')
         }
       },
+      // Abort the current attempt on transport errors so the outer retry can
+      // classify the real Newman request error; assertions do not abort.
+      bail: ['folder'],
       timeoutRequest: 10000,
       delayRequest:   200
     };
 
     let pinnedAuthAgent;
     if (collectionFile === 'Employee_Auth_API.json') {
-      pinnedAuthAgent = createPinnedTlsAgent({
-        onPinVerified: PINNED_TLS_DEBUG
-          ? ({ hostname, fingerprint }) => console.log(
-              `[PINNED TLS VERIFIED] host=${hostname} sha256=${fingerprint}`
-            )
-          : undefined
-      });
-      options.requestAgents = { https: pinnedAuthAgent };
-      console.log(
-        `  Pinned TLS agent attached to Employee_Auth_API for ${PINNED_HOST}`
+      const authBaseUrl = new URL(PINNED_AUTH_BASE_URL);
+      const usePinnedTlsAgent = (
+        authBaseUrl.protocol === 'https:' &&
+        authBaseUrl.hostname === PINNED_HOST
       );
+
+      if (usePinnedTlsAgent) {
+        pinnedAuthAgent = createPinnedTlsAgent({
+          onPinVerified: PINNED_TLS_DEBUG
+            ? ({ hostname, fingerprint }) => console.log(
+                `[PINNED TLS VERIFIED] host=${hostname} sha256=${fingerprint}`
+              )
+            : undefined
+        });
+        options.requestAgents = { https: pinnedAuthAgent };
+        console.log(
+          `  Pinned TLS agent attached to Employee_Auth_API for ${PINNED_HOST}`
+        );
+      } else {
+        console.log(
+          `  Pinned TLS agent skipped for Employee_Auth_API; using ${PINNED_AUTH_BASE_URL}`
+        );
+      }
     }
 
     if (fs.existsSync(testDataPath)) {
       options.iterationData = testDataPath;
     }
 
-    console.log(`\nRunning ${collectionName}`);
+    console.log(
+      attempt === 1
+        ? `\nRunning ${collectionName}`
+        : `\nRunning ${collectionName} (attempt ${attempt}/${MAX_TRANSIENT_ATTEMPTS})`
+    );
 
     newman.run(options, (err, summary) => {
       if (pinnedAuthAgent) {
         pinnedAuthAgent.destroy();
       }
       const stats    = summary ? summary.run.stats    : {};
-      const failures = summary ? summary.run.failures : [];
+      const failures = Array.isArray(summary?.run?.failures)
+        ? summary.run.failures
+        : [];
       const timings  = summary ? summary.run.timings  : {};
 
       const passed = stats.assertions
@@ -309,12 +445,51 @@ function runCollection(collectionFile) {
       const collectionResult = {
         ...result,
         reportFile: htmlReportPath,
-        _failed: result.Failed > 0 || !!err
+        _failed: result.Failed > 0 || failures.length > 0 || !!err
       };
-      results.push(collectionResult);
-      resolve(collectionResult);
+      resolve({ collectionResult, err, summary });
     });
   });
+}
+
+async function runCollection(collectionFile) {
+  const collectionName = collectionFile.replace('.json', '');
+
+  let attempt = 1;
+  while (attempt <= MAX_TRANSIENT_ATTEMPTS) {
+    const attemptResult = await runCollectionAttempt(collectionFile, attempt);
+    const retryDecision = classifyTransientFailure(
+      attemptResult.err,
+      attemptResult.summary
+    );
+
+    if (retryDecision.retryable && attempt < MAX_TRANSIENT_ATTEMPTS) {
+      const delayMs = INITIAL_RETRY_DELAY_MS * (2 ** (attempt - 1));
+      console.log(
+        `Retrying ${collectionName}: attempt ${attempt + 1}/${MAX_TRANSIENT_ATTEMPTS}; reason: ${retryDecision.reason}; delay: ${delayMs}ms`
+      );
+      await wait(delayMs);
+      attempt += 1;
+      continue;
+    }
+
+    const retriesExhausted = retryDecision.retryable &&
+      attempt === MAX_TRANSIENT_ATTEMPTS;
+    if (retriesExhausted) {
+      console.error(
+        `Retry limit exhausted for ${collectionName} after ${MAX_TRANSIENT_ATTEMPTS} attempts; last reason: ${retryDecision.reason}`
+      );
+    }
+
+    const collectionResult = {
+      ...attemptResult.collectionResult,
+      _failed: retriesExhausted || attemptResult.collectionResult._failed
+    };
+    results.push(collectionResult);
+    return collectionResult;
+  }
+
+  throw new Error(`Retry loop ended unexpectedly for ${collectionName}`);
 }
 
 function markLeaveApiBlocked() {
@@ -422,7 +597,7 @@ async function runAll() {
   writeAllureCategories();
 
   let authFailed = false;
-  for (const file of collectionFiles_filtered) {
+  for (const file of collectionFilesFiltered) {
     if (authFailed && file === 'Leave_API.json') {
       markLeaveApiBlocked();
       continue;

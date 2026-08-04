@@ -18,6 +18,10 @@
               "const expectedStatus = Number(pm.iterationData.get('expectedStatus') || 200);",
               "const requireTwoRecords = pm.iterationData.get('spotCheckItems') === 'true';",
               "const actualStatus = pm.response.code;",
+              "const responseContentType = (pm.response.headers.get('Content-Type') || '').trim();",
+              "const responseIsJson = /^(?:application\\/json|application\\/[^;\\s]+\\+json)(?:\\s*;|$)/i.test(responseContentType);",
+              "const contentTypeDescription = responseContentType || 'no content-type header';",
+              "const contentTypeFailureMessage = 'Expected application/json response but received ' + contentTypeDescription;",
               "function assertOpenApiSchema(schemaName, payload, context) {",
               "  const rawBundle = pm.environment.get('openapiSchemaBundle');",
               "  pm.expect(rawBundle, 'OpenAPI schema bundle must be injected by scripts/run-newman.js').to.be.a('string');",
@@ -40,6 +44,11 @@
               "  pm.expect(actualStatus).to.equal(expectedStatus);",
               "});",
               "",
+              "if (!responseIsJson) {",
+              "  pm.test(contentTypeFailureMessage, function () {",
+              "    pm.expect(responseIsJson, contentTypeFailureMessage).to.equal(true);",
+              "  });",
+              "} else {",
               "const json = pm.response.json();",
               "if (caseType === 'valid') {",
               "  pm.test('TC01 - Status is 200 - ' + label, function () {",
@@ -117,6 +126,7 @@
               "    pm.expect(json).to.have.property('status', 'error');",
               "    pm.expect(json).to.have.property('message').that.is.a('string');",
               "  });",
+              "}",
               "}"
             ]
           }
@@ -155,6 +165,10 @@
             "type": "text/javascript",
             "exec": [
               "console.log('[Leave_API][INVALID_TOKEN] HTTP ' + pm.response.code);",
+              "const responseContentType = (pm.response.headers.get('Content-Type') || '').trim();",
+              "const responseIsJson = /^(?:application\\/json|application\\/[^;\\s]+\\+json)(?:\\s*;|$)/i.test(responseContentType);",
+              "const contentTypeDescription = responseContentType || 'no content-type header';",
+              "const contentTypeFailureMessage = 'Expected application/json response but received ' + contentTypeDescription;",
               "function assertOpenApiSchema(schemaName, payload, context) {",
               "  const rawBundle = pm.environment.get('openapiSchemaBundle');",
               "  pm.expect(rawBundle, 'OpenAPI schema bundle must be injected by scripts/run-newman.js').to.be.a('string');",
@@ -174,6 +188,11 @@
               "pm.test('TC02 - Invalid token returns observed HTTP 401', function () {",
               "  pm.response.to.have.status(401);",
               "});",
+              "if (!responseIsJson) {",
+              "  pm.test(contentTypeFailureMessage, function () {",
+              "    pm.expect(responseIsJson, contentTypeFailureMessage).to.equal(true);",
+              "  });",
+              "} else {",
               "const json = pm.response.json();",
               "pm.test('TC02 - Full response matches OpenAPI GetAllLeaveReportsErrorResponse', function () {",
               "  assertOpenApiSchema('GetAllLeaveReportsErrorResponse', json, 'Invalid-token error response');",
@@ -181,7 +200,8 @@
               "pm.test('TC02 - Invalid token response has observed error structure', function () {",
               "  pm.expect(json).to.have.property('status', 'error');",
               "  pm.expect(json).to.have.property('message').that.is.a('string');",
-              "});"
+              "});",
+              "}"
             ]
           }
         }

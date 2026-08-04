@@ -649,7 +649,7 @@ function readFirstCsvRow(filePath) {
     return {};
   }
 
-  const lines = fs.readFileSync(filePath, 'utf8')
+  const lines = stripBom(fs.readFileSync(filePath, 'utf8'))
     .split(/\r?\n/)
     .filter(Boolean);
 
@@ -1242,7 +1242,9 @@ function readExistingApiRows() {
 }
 
 function readCsvRows(filePath) {
-  const lines = fs.readFileSync(filePath, 'utf8').split(/\r?\n/).filter(Boolean);
+  const lines = stripBom(fs.readFileSync(filePath, 'utf8'))
+    .split(/\r?\n/)
+    .filter(Boolean);
   if (lines.length === 0) {
     return [];
   }

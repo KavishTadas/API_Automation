@@ -13,6 +13,15 @@
         "script": {
           "type": "text/javascript",
           "exec": [
+            "const responseContentType = (pm.response.headers.get('Content-Type') || '').trim();",
+            "const responseIsJson = /^(?:application\\/json|application\\/[^;\\s]+\\+json)(?:\\s*;|$)/i.test(responseContentType);",
+            "const contentTypeDescription = responseContentType || 'no content-type header';",
+            "const contentTypeFailureMessage = 'Expected application/json response but received ' + contentTypeDescription;",
+            "if (!responseIsJson) {",
+            "  pm.test(contentTypeFailureMessage, function () {",
+            "    pm.expect(responseIsJson, contentTypeFailureMessage).to.equal(true);",
+            "  });",
+            "} else {",
             "const json = pm.response.json();",
             "function assertOpenApiSchema(schemaName, payload, context) {",
             "  const rawBundle = pm.environment.get('openapiSchemaBundle');",
@@ -47,7 +56,8 @@
             "pm.test('TC01 - roles is non-empty array', function() {",
             "  pm.expect(json.roles).to.be.an('array').with.length.above(0);",
             "});",
-            "if (json.token) { pm.environment.set('authToken', json.token); console.log('authToken stored'); }"
+            "if (json.token) { pm.environment.set('authToken', json.token); console.log('authToken stored'); }",
+            "}"
           ]
         }
       }],
@@ -72,6 +82,15 @@
         "script": {
           "type": "text/javascript",
           "exec": [
+            "const responseContentType = (pm.response.headers.get('Content-Type') || '').trim();",
+            "const responseIsJson = /^(?:application\\/json|application\\/[^;\\s]+\\+json)(?:\\s*;|$)/i.test(responseContentType);",
+            "const contentTypeDescription = responseContentType || 'no content-type header';",
+            "const contentTypeFailureMessage = 'Expected application/json response but received ' + contentTypeDescription;",
+            "if (!responseIsJson) {",
+            "  pm.test(contentTypeFailureMessage, function () {",
+            "    pm.expect(responseIsJson, contentTypeFailureMessage).to.equal(true);",
+            "  });",
+            "} else {",
             "const json = pm.response.json();",
             "function assertOpenApiSchema(schemaName, payload, context) {",
             "  const rawBundle = pm.environment.get('openapiSchemaBundle');",
@@ -98,7 +117,8 @@
             "pm.test('TC02 - Error message returned', function() {",
             "  pm.expect(json).to.have.property('message');",
             "  pm.expect(json.message).to.be.a('string');",
-            "});"
+            "});",
+            "}"
           ]
         }
       }],
@@ -123,6 +143,15 @@
         "script": {
           "type": "text/javascript",
           "exec": [
+            "const responseContentType = (pm.response.headers.get('Content-Type') || '').trim();",
+            "const responseIsJson = /^(?:application\\/json|application\\/[^;\\s]+\\+json)(?:\\s*;|$)/i.test(responseContentType);",
+            "const contentTypeDescription = responseContentType || 'no content-type header';",
+            "const contentTypeFailureMessage = 'Expected application/json response but received ' + contentTypeDescription;",
+            "if (!responseIsJson) {",
+            "  pm.test(contentTypeFailureMessage, function () {",
+            "    pm.expect(responseIsJson, contentTypeFailureMessage).to.equal(true);",
+            "  });",
+            "} else {",
             "const json = pm.response.json();",
             "function assertOpenApiSchema(schemaName, payload, context) {",
             "  const rawBundle = pm.environment.get('openapiSchemaBundle');",
@@ -148,7 +177,8 @@
             "});",
             "pm.test('TC03 - Validation message returned', function() {",
             "  pm.expect(json).to.have.property('message');",
-            "});"
+            "});",
+            "}"
           ]
         }
       }],

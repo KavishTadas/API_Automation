@@ -25,7 +25,7 @@ def _credential(name: str) -> str:
     if environment_value:
         return environment_value
 
-    for raw_line in (ROOT_DIR / ".env").read_text(encoding="utf-8").splitlines():
+    for raw_line in (ROOT_DIR / ".env").read_text(encoding="utf-8-sig").splitlines():
         line = raw_line.strip()
         if not line or line.startswith("#") or "=" not in line:
             continue

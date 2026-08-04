@@ -3,6 +3,14 @@ require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const newman = require('newman');
+const Ajv = require('ajv');
+const YAML = require('yaml');
+const {
+  createPinnedTlsAgent,
+  PINNED_HOST
+} = require('../scripts/pinned-tls-agent');
+
+const stripBom = value => value.replace(/^\uFEFF/, '');
 
 const COLLECTIONS_DIR = 'collections';
 const LOGS_DIR = path.join('monitoring', 'logs');
@@ -13,6 +21,21 @@ const COLLECTION_RUN_ORDER = [
 ];
 const ENV = process.env.ENV || 'uat';
 const ENV_FILE = path.join(__dirname, '..', 'environments', `${ENV}.json`);
+const LEAVE_TEST_DATA_PATH = path.join(
+  __dirname,
+  '..',
+  'test-data',
+  'Leave_API.csv'
+);
+const OPENAPI_SCHEMA_BUNDLE_ID =
+  'https://hcm-api-automation.local/openapi-schema-bundle.json';
+const REQUIRED_RESPONSE_SCHEMAS = [
+  'LoginResponse',
+  'ErrorResponse',
+  'GetAllLeaveReportsResponse',
+  'GetAllLeaveReportsErrorResponse',
+  'GetAllLeaveReportsItem'
+];
 
 /**
  * Returns today's date in YYYY-MM-DD format.
@@ -33,7 +56,7 @@ function loadEnvironmentFile() {
     return undefined;
   }
 
-  return JSON.parse(fs.readFileSync(ENV_FILE, 'utf8'));
+  return JSON.parse(stripBom(fs.readFileSync(ENV_FILE, 'utf8')));
 }
 
 /**
@@ -69,15 +92,83 @@ function extractEnvironmentValues(environment) {
   }, {});
 }
 
+/**
+ * Builds the same precompiled OpenAPI schema bundle used by the main runner.
+ *
+ * @returns {string} Serialized schema bundle for Newman's environment.
+ */
+function loadOpenApiSchemaBundle() {
+  const specPath = path.join(__dirname, '..', 'openapi', 'openapi.yaml');
+  const document = YAML.parse(fs.readFileSync(specPath, 'utf8'));
+  const schemas = document && document.components && document.components.schemas;
+
+  if (!schemas || typeof schemas !== 'object') {
+    throw new Error(
+      'OpenAPI schema loading failed: components.schemas is missing from openapi/openapi.yaml'
+    );
+  }
+
+  const missingSchemas = REQUIRED_RESPONSE_SCHEMAS.filter(
+    schemaName => !Object.prototype.hasOwnProperty.call(schemas, schemaName)
+  );
+  if (missingSchemas.length > 0) {
+    throw new Error(
+      `OpenAPI schema loading failed: missing ${missingSchemas.join(', ')}`
+    );
+  }
+
+  const schemaBundle = {
+    $schema: 'http://json-schema.org/draft-07/schema#',
+    $id: OPENAPI_SCHEMA_BUNDLE_ID,
+    components: { schemas }
+  };
+  const ajv = new Ajv({ allErrors: true, strict: false });
+  ajv.addSchema(schemaBundle);
+  REQUIRED_RESPONSE_SCHEMAS.forEach(schemaName => {
+    const validator = ajv.getSchema(
+      `${OPENAPI_SCHEMA_BUNDLE_ID}#/components/schemas/${schemaName}`
+    );
+    if (typeof validator !== 'function') {
+      throw new Error(
+        `OpenAPI schema loading failed: could not compile ${schemaName}`
+      );
+    }
+  });
+
+  return JSON.stringify(schemaBundle);
+}
+
+const OPENAPI_SCHEMA_BUNDLE_JSON = loadOpenApiSchemaBundle();
+
 const baseEnvironment = loadEnvironmentFile();
 const sharedEnvVars = {
   ...extractEnvironmentValues(baseEnvironment)
 };
 
 sharedEnvVars.baseUrl = process.env.BASE_URL || sharedEnvVars.baseUrl || '';
+sharedEnvVars.authBaseUrl = process.env.AUTH_BASE_URL || sharedEnvVars.authBaseUrl || '';
 sharedEnvVars.empCode = process.env.EMP_CODE || sharedEnvVars.empCode || '';
 sharedEnvVars.empPassword = process.env.EMP_PASSWORD || sharedEnvVars.empPassword || '';
 sharedEnvVars.leaveBaseUrl = process.env.LEAVE_BASE_URL || sharedEnvVars.leaveBaseUrl || '';
+sharedEnvVars.openapiSchemaBundle = OPENAPI_SCHEMA_BUNDLE_JSON;
+
+/**
+ * Fails before Newman starts if required credentials are unavailable.
+ *
+ * @returns {void}
+ */
+function validateRequiredCredentials() {
+  for (const [credential, value] of Object.entries({
+    empCode: sharedEnvVars.empCode,
+    empPassword: sharedEnvVars.empPassword
+  })) {
+    if (typeof value !== 'string' || value.trim() === '') {
+      throw new Error(
+        `Missing required credential ${credential} — set ${credential === 'empCode' ? 'EMP_CODE' : 'EMP_PASSWORD'} via env var before running`
+      );
+    }
+  }
+}
 
 /**
  * Discovers JSON collection files in the collections directory.
@@ -137,40 +228,65 @@ function carryForwardEnvVars(summary) {
  */
 function runCollection(collectionPath) {
   return new Promise((resolve) => {
-    newman.run(
-      {
-        collection: collectionPath,
-        environment: cloneEnvironment(baseEnvironment),
-        envVar: Object.entries(sharedEnvVars)
-          .filter(([, value]) => value !== undefined && value !== null)
-          .map(([key, value]) => ({ key, value })),
-        timeoutRequest: 10000,
-        bail: false,
-        reporters: ['cli']
-      },
-      (error, summary) => {
-        if (error) {
-          resolve({
-            collectionPath,
-            runError: error,
-            run: {
-              executions: [],
-              failures: [
-                {
-                  error,
-                  source: {
-                    name: path.basename(collectionPath, path.extname(collectionPath))
-                  }
-                }
-              ]
-            }
-          });
-          return;
-        }
+    const collectionFile = path.basename(collectionPath);
+    const options = {
+      collection: collectionPath,
+      environment: cloneEnvironment(baseEnvironment),
+      envVar: Object.entries(sharedEnvVars)
+        .filter(([, value]) => value !== undefined && value !== null)
+        .map(([key, value]) => ({ key, value })),
+      timeoutRequest: 10000,
+      bail: false,
+      reporters: ['cli']
+    };
 
-        resolve(summary);
+    if (collectionFile === 'Leave_API.json') {
+      options.iterationData = LEAVE_TEST_DATA_PATH;
+    }
+
+    let pinnedAuthAgent;
+    if (collectionFile === 'Employee_Auth_API.json') {
+      const authBaseUrl = new URL(sharedEnvVars.authBaseUrl);
+      const usePinnedTlsAgent = (
+        authBaseUrl.protocol === 'https:' &&
+        authBaseUrl.hostname === PINNED_HOST
+      );
+
+      if (usePinnedTlsAgent) {
+        pinnedAuthAgent = createPinnedTlsAgent();
+        options.requestAgents = { https: pinnedAuthAgent };
+        console.log(
+          `Pinned TLS agent attached to Employee_Auth_API for ${PINNED_HOST}`
+        );
       }
-    );
+    }
+
+    newman.run(options, (error, summary) => {
+      if (pinnedAuthAgent) {
+        pinnedAuthAgent.destroy();
+      }
+
+      if (error) {
+        resolve({
+          collectionPath,
+          runError: error,
+          run: {
+            executions: [],
+            failures: [
+              {
+                error,
+                source: {
+                  name: path.basename(collectionPath, path.extname(collectionPath))
+                }
+              }
+            ]
+          }
+        });
+        return;
+      }
+
+      resolve(summary);
+    });
   });
 }
 
@@ -255,10 +371,16 @@ function readExistingLog(logPath) {
   }
 
   try {
-    const parsed = JSON.parse(fs.readFileSync(logPath, 'utf8'));
-    return Array.isArray(parsed) ? parsed : [];
+    const parsed = JSON.parse(stripBom(fs.readFileSync(logPath, 'utf8')));
+    if (!Array.isArray(parsed)) {
+      throw new TypeError('Health log root must be a JSON array');
+    }
+    return parsed;
   } catch (error) {
-    return [];
+    throw new Error(
+      `Failed to parse existing health log ${logPath}: ${error.message}`,
+      { cause: error }
+    );
   }
 }
 
@@ -297,11 +419,13 @@ function hasDegradedResponse(summary) {
 /**
  * Prints the final health summary.
  *
- * @param {{ healthy: number, degraded: number, failed: number }} counts Health counts.
+ * @param {{ healthy: number, degraded: number, failed: number, blocked: number }} counts Health counts.
  * @returns {void}
  */
 function printSummary(counts) {
-  console.log(`✓ HEALTHY: ${counts.healthy}  ⚠ DEGRADED: ${counts.degraded}  ✗ FAILED: ${counts.failed}`);
+  console.log(
+    `✓ HEALTHY: ${counts.healthy}  ⚠ DEGRADED: ${counts.degraded}  ✗ FAILED: ${counts.failed}  ⏸ BLOCKED: ${counts.blocked}`
+  );
 }
 
 /**
@@ -310,14 +434,46 @@ function printSummary(counts) {
  * @returns {Promise<void>} Resolves when monitoring completes.
  */
 async function main() {
+  validateRequiredCredentials();
+  if (!fs.existsSync(LEAVE_TEST_DATA_PATH)) {
+    throw new Error(
+      'Leave monitoring data is missing: test-data/Leave_API.csv'
+    );
+  }
+
   const collections = discoverCollections();
   const counts = {
     healthy: 0,
     degraded: 0,
-    failed: 0
+    failed: 0,
+    blocked: 0
   };
+  let authFailed = false;
 
   for (const collectionPath of collections) {
+    const collectionFile = path.basename(collectionPath);
+    if (authFailed && collectionFile === 'Leave_API.json') {
+      const blockedMessage =
+        'Blocked Leave_API: skipped due to upstream Employee_Auth_API failure.';
+      console.log(`\n${blockedMessage}`);
+      appendFailureLog([
+        {
+          timestamp: new Date().toISOString(),
+          collection: 'Leave_API',
+          requestName: null,
+          endpoint: null,
+          method: null,
+          statusCode: null,
+          responseTimeMs: null,
+          error: blockedMessage,
+          expected: null,
+          actual: null
+        }
+      ]);
+      counts.blocked += 1;
+      continue;
+    }
+
     const summary = await runCollection(collectionPath);
     carryForwardEnvVars(summary);
     const failures = summary.run && Array.isArray(summary.run.failures) ? summary.run.failures : [];
@@ -326,6 +482,9 @@ async function main() {
 
     if (failures.length > 0) {
       counts.failed += 1;
+      if (collectionFile === 'Employee_Auth_API.json') {
+        authFailed = true;
+      }
     } else if (hasDegradedResponse(summary)) {
       counts.degraded += 1;
     } else {
@@ -334,25 +493,29 @@ async function main() {
   }
 
   printSummary(counts);
-  process.exit(counts.failed === 0 ? 0 : 1);
+  process.exit(counts.failed === 0 && counts.blocked === 0 ? 0 : 1);
 }
 
 main().catch((error) => {
-  appendFailureLog([
-    {
-      timestamp: new Date().toISOString(),
-      collection: null,
-      requestName: null,
-      endpoint: null,
-      method: null,
-      statusCode: null,
-      responseTimeMs: null,
-      error: error.message || String(error),
-      expected: null,
-      actual: null
-    }
-  ]);
+  try {
+    appendFailureLog([
+      {
+        timestamp: new Date().toISOString(),
+        collection: null,
+        requestName: null,
+        endpoint: null,
+        method: null,
+        statusCode: null,
+        responseTimeMs: null,
+        error: error.message || String(error),
+        expected: null,
+        actual: null
+      }
+    ]);
+  } catch (logError) {
+    console.error(`Could not append monitoring failure log: ${logError.message}`);
+  }
   console.error(error.message || error);
-  console.log('✓ HEALTHY: 0  ⚠ DEGRADED: 0  ✗ FAILED: 1');
+  console.log('✓ HEALTHY: 0  ⚠ DEGRADED: 0  ✗ FAILED: 1  ⏸ BLOCKED: 0');
   process.exit(1);
 });

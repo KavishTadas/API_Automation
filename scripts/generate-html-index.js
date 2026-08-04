@@ -3,6 +3,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const stripBom = value => value.replace(/^\uFEFF/, '');
+
 const ROOT_DIR = path.join(__dirname, '..');
 const REPORTS_DIR = path.join(ROOT_DIR, 'reports');
 const HTML_REPORTS_DIR = path.join(REPORTS_DIR, 'html');
@@ -317,7 +319,7 @@ function parseAllureResult(filePath, metadataByName, includeAll) {
   let result;
 
   try {
-    result = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    result = JSON.parse(stripBom(fs.readFileSync(filePath, 'utf8')));
   } catch (error) {
     return null;
   }

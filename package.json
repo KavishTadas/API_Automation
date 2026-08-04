@@ -10,7 +10,7 @@
     "lint:spec": "spectral lint openapi/openapi.yaml --ruleset openapi/.spectral.yaml",
     "report:generate": "node scripts/generate-allure.js",
     "report:html": "node scripts/generate-html-index.js",
-    "report:open": "allure open reports/allure-report",
+    "report:open": "node scripts/open-allure.js",
     "monitor:run": "node monitoring/health-check.js"
   },
   "devDependencies": {

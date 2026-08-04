@@ -29,7 +29,7 @@ class _RuntimeConfig(dict[str, str]):
 @pytest.fixture(scope="session")
 def api_runtime_config() -> dict[str, str]:
     config = _RuntimeConfig(load_runtime_config())
-    with (ROOT_DIR / "api-docs" / "API_File.json").open(encoding="utf-8") as handle:
+    with (ROOT_DIR / "api-docs" / "API_File.json").open(encoding="utf-8-sig") as handle:
         api_rows = json.load(handle)
 
     auth_row = next(
