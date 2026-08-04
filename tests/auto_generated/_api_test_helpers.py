@@ -16,9 +16,16 @@ from typing import Any
 import httpx
 import pytest
 
+from scripts import pinned_tls
+
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 DEFAULT_TIMEOUT = float(os.getenv("API_TEST_TIMEOUT", "30"))
+
+
+def _canonical_env_key(key: str) -> str:
+    """Convert Postman-style camelCase names to canonical ENV_VAR names."""
+    return re.sub(r"(?<=[a-z0-9])(?=[A-Z])", "_", key).replace("-", "_").upper()
 
 
 def load_runtime_config() -> dict[str, str]:
@@ -35,7 +42,7 @@ def load_runtime_config() -> dict[str, str]:
 
     for key, value in list(config.items()):
         if value is not None:
-            config.setdefault(key.upper(), str(value))
+            config.setdefault(_canonical_env_key(key), str(value))
 
     return config
 
@@ -116,7 +123,36 @@ def perform_api_request(api: dict[str, str], config: dict[str, str]) -> httpx.Re
             request_kwargs["content"] = body_text
 
     with httpx.Client() as client:
-        return client.request(method, url, **request_kwargs)
+        request = client.build_request(method, url, **request_kwargs)
+        if _uses_pinned_tls(request.url):
+            return _send_pinned_request(request)
+        return client.send(request)
+
+
+def _uses_pinned_tls(url: httpx.URL) -> bool:
+    """Select the fixed-host pin without weakening TLS for any other origin."""
+    return (
+        url.scheme == "https"
+        and url.host == pinned_tls.PINNED_HOST
+        and url.port in (None, pinned_tls.PINNED_PORT)
+    )
+
+
+def _send_pinned_request(request: httpx.Request) -> httpx.Response:
+    pinned_response = pinned_tls.request(
+        request.method,
+        request.url.raw_path.decode("ascii"),
+        headers=dict(request.headers),
+        content=request.content,
+        timeout=DEFAULT_TIMEOUT,
+    )
+    return httpx.Response(
+        status_code=pinned_response.status_code,
+        headers=pinned_response.headers,
+        content=pinned_response.content,
+        request=request,
+        extensions={"reason_phrase": pinned_response.reason.encode("ascii", errors="replace")},
+    )
 
 
 def _first_iteration_data(api: dict[str, str]) -> dict[str, str]:
@@ -230,13 +266,17 @@ def _resolve_templates(value: str, context: dict[str, str]) -> str:
 
     def replace(match: re.Match[str]) -> str:
         key = match.group(1).strip()
-        return (
-            os.getenv(key)
-            or os.getenv(key.upper())
-            or context.get(key)
-            or context.get(key.upper())
-            or match.group(0)
-        )
+        canonical_key = _canonical_env_key(key)
+
+        # Canonical snake-case values are explicit runtime overrides. Check
+        # both process and dotenv context before camelCase Postman defaults so
+        # baseUrl cannot collide with the legacy BASEURL spelling.
+        for candidate in (canonical_key, key, key.upper()):
+            resolved = os.getenv(candidate) or context.get(candidate)
+            if resolved:
+                return resolved
+
+        return match.group(0)
 
     return re.sub(r"\{\{\s*([^}]+?)\s*}}", replace, text)
 

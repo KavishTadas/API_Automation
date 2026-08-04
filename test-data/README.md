@@ -7,13 +7,6 @@ Newman reads the CSV and runs the collection once per row,
 substituting CSV column values as environment variables
 available inside test scripts as pm.iterationData.get('columnName').
 
-## Login_API.csv columns
-- empCode       → substituted into request body
-- empPassword   → substituted into request body
-- expectedStatus → used in test script assertions
-- expectedOutcome → 'token' or 'message' field to assert
-- testLabel     → logged to console per iteration
-
 ## Leave_API.csv columns
 - startDate     → substituted into request body
 - endDate       → substituted into request body

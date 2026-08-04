@@ -52,7 +52,7 @@ Run a single collection by filename fragment:
 
 ```powershell
 $env:ENV="uat"
-$env:COLLECTION_FILTER="Login_API"
+$env:COLLECTION_FILTER="Employee_Auth_API"
 node scripts/run-newman.js
 ```
 

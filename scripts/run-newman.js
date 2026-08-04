@@ -4,6 +4,14 @@ const fs       = require('fs');
 const path     = require('path');
 const reporterConfig = require('./reporter-config');
 const { generateIndex } = require('./generate-html-index');
+const {
+  createPinnedTlsAgent,
+  PINNED_HOST
+} = require('./pinned-tls-agent');
+
+const PINNED_AUTH_BASE_URL = `https://${PINNED_HOST}`;
+const LEAVE_REPORT_BASE_URL = 'https://devmcdphcmplatform.omfysgroup.com';
+const PINNED_TLS_DEBUG = process.env.PINNED_TLS_DEBUG === '1';
 
 const ENV     = process.env.ENV || 'local';
 const envFile = path.join(__dirname, '..', 'environments', `${ENV}.json`);
@@ -28,8 +36,7 @@ for (const [credential, value] of Object.entries({
 const collectionsDir  = path.join(__dirname, '..', 'collections');
 const RUN_ORDER = [
   'Employee_Auth_API.json',
-  'Leave_API.json',
-  'Login_API.json'
+  'Leave_API.json'
 ];
 
 const discovered = fs.readdirSync(collectionsDir)
@@ -44,12 +51,17 @@ const collectionFiles = [
 ];
 
 const COLLECTION_FILTER = process.env.COLLECTION_FILTER;
+const requestedCollectionFilters = COLLECTION_FILTER && COLLECTION_FILTER !== 'all'
+  ? COLLECTION_FILTER.split(',')
+      .map(filter => filter.trim().toLowerCase().replace('.json', ''))
+      .filter(Boolean)
+  : [];
 const filteredFiles = (
-  COLLECTION_FILTER && COLLECTION_FILTER !== 'all'
+  requestedCollectionFilters.length > 0
 )
   ? collectionFiles.filter(f =>
-      f.toLowerCase().includes(
-        COLLECTION_FILTER.toLowerCase().replace('.json','')
+      requestedCollectionFilters.some(filter =>
+        f.toLowerCase().replace('.json', '').includes(filter)
       )
     )
   : collectionFiles;
@@ -62,7 +74,7 @@ if (COLLECTION_FILTER && COLLECTION_FILTER !== 'all') {
 const collectionFiles_filtered = filteredFiles;
 
 console.log('\nCollection run order:');
-collectionFiles.forEach((f, i) =>
+filteredFiles.forEach((f, i) =>
   console.log(`  ${i + 1}. ${f}`)
 );
 
@@ -77,12 +89,13 @@ if (filteredFiles.length === 0) {
 
 const results = [];
 const sharedEnvVars = {
+  authBaseUrl:  PINNED_AUTH_BASE_URL,
   baseUrl:      process.env.BASE_URL      ||
                 'https://uat-mcdp-be.omfysgroup.com',
   empCode:      process.env.EMP_CODE      || '',
   empPassword:  process.env.EMP_PASSWORD  || '',
   leaveBaseUrl: process.env.LEAVE_BASE_URL ||
-                'https://uat-mcdp-be.omfysgroup.com'
+                LEAVE_REPORT_BASE_URL
 };
 
 function runCollection(collectionFile) {
@@ -101,17 +114,26 @@ function runCollection(collectionFile) {
     });
 
     const environment = require(envFile);
+    const collectionEnvVars = {
+      ...sharedEnvVars,
+      ...(collectionFile === 'Employee_Auth_API.json'
+        ? { authBaseUrl: PINNED_AUTH_BASE_URL }
+        : {}),
+      ...(collectionFile === 'Leave_API.json'
+        ? { leaveBaseUrl: LEAVE_REPORT_BASE_URL }
+        : {})
+    };
     const options = {
       collection:   require(collectionPath),
       environment: {
         ...environment,
         values: environment.values.map((variable) => (
-          Object.prototype.hasOwnProperty.call(sharedEnvVars, variable.key)
-            ? { ...variable, value: sharedEnvVars[variable.key] }
+          Object.prototype.hasOwnProperty.call(collectionEnvVars, variable.key)
+            ? { ...variable, value: collectionEnvVars[variable.key] }
             : variable
         ))
       },
-      envVar: Object.entries(sharedEnvVars).map(
+      envVar: Object.entries(collectionEnvVars).map(
         ([key, value]) => ({ key, value })
       ),
       reporters: ['htmlextra', 'allure', 'cli'],
@@ -125,6 +147,21 @@ function runCollection(collectionFile) {
       delayRequest:   200
     };
 
+    let pinnedAuthAgent;
+    if (collectionFile === 'Employee_Auth_API.json') {
+      pinnedAuthAgent = createPinnedTlsAgent({
+        onPinVerified: PINNED_TLS_DEBUG
+          ? ({ hostname, fingerprint }) => console.log(
+              `[PINNED TLS VERIFIED] host=${hostname} sha256=${fingerprint}`
+            )
+          : undefined
+      });
+      options.requestAgents = { https: pinnedAuthAgent };
+      console.log(
+        `  Pinned TLS agent attached to Employee_Auth_API for ${PINNED_HOST}`
+      );
+    }
+
     if (fs.existsSync(testDataPath)) {
       options.iterationData = testDataPath;
     }
@@ -132,6 +169,9 @@ function runCollection(collectionFile) {
     console.log(`\nRunning ${collectionName}`);
 
     newman.run(options, (err, summary) => {
+      if (pinnedAuthAgent) {
+        pinnedAuthAgent.destroy();
+      }
       const stats    = summary ? summary.run.stats    : {};
       const failures = summary ? summary.run.failures : [];
       const timings  = summary ? summary.run.timings  : {};
@@ -175,6 +215,7 @@ function runCollection(collectionFile) {
         members.forEach(v => {
           if (
             v?.key &&
+            !['authBaseUrl', 'baseUrl', 'leaveBaseUrl', 'empCode', 'empPassword'].includes(v.key) &&
             v.value !== undefined &&
             v.value !== null &&
             v.value !== '' &&
@@ -213,7 +254,7 @@ function runCollection(collectionFile) {
 
 function markLeaveApiBlocked() {
   console.log(
-    '\nBlocked Leave_API (including Approvals): skipped due to upstream Employee_Auth_API failure.'
+    '\nBlocked Leave_API: skipped due to upstream Employee_Auth_API failure.'
   );
   results.push({
     Collection: 'Leave_API (BLOCKED: Employee_Auth_API failed)',

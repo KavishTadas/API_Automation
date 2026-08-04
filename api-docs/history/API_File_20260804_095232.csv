@@ -49,29 +49,9 @@
 }","","KavishTadas <kavish.tadas@omfysgroup.com>","post|{{authbaseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400","Source: collections/Employee_Auth_API.json; No saved response example in source file"
 "5","Leave API","TC01/TC03 - Get all leave reports and validate structure","private","TC01 - Status is 200 - ; TC01 - Response has status, message, data.count and data.leaveReport - ; TC01 - Count contains observed integer fields - ; TC03 - First two records contain all 13 expected fields - ; TC03 - At least two records available for required spot-check - ; TC04 - Invalid month returns observed error structure -","{{leaveBaseUrl}}","/user/leaves/getAllLeaveReports","GET","query: month={{month}}; year={{year}} | headers: Authorization=Bearer {{authToken}}","","","","Expected status(es): 200
 {
-  ""status"": ""<status>"",
-  ""message"": ""<message>"",
-  ""data"": {
-    ""count"": {
-      ""rejected"": 0,
-      ""cancelled"": 0,
-      ""pending"": 0,
-      ""approved"": 0
-    },
-    ""leaveReport"": []
-  }
+  ""records"": []
 }","{
-  ""status"": ""<status>"",
-  ""message"": ""<message>"",
-  ""data"": {
-    ""count"": {
-      ""rejected"": 0,
-      ""cancelled"": 0,
-      ""pending"": 0,
-      ""approved"": 0
-    },
-    ""leaveReport"": []
-  }
+  ""records"": []
 }","Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken","KavishTadas <kavish.tadas@omfysgroup.com>","get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure","Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
 "6","Leave API","TC02 - Invalid token returns observed authorization status","private","TC02 - Invalid token returns observed HTTP 401; TC02 - Invalid token response has observed error structure","{{leaveBaseUrl}}","/user/leaves/getAllLeaveReports","GET","query: month=4; year=2026 | headers: Authorization=Bearer invalid-token-value","","","","Expected status(es): 401
 {

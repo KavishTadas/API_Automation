@@ -1,3 +1,8 @@
+# TLS note: dev_mcdp_be.omfysgroup.com requires certificate pinning because its
+# underscore triggers an RFC 6125 hostname-validation quirk; this is not a real
+# certificate security issue. See scripts/pinned_tls.py and
+# scripts/pinned-tls-agent.js. The pinned certificate expires Aug 11 2026 and
+# the fingerprint must be updated when that certificate rotates.
 openapi: 3.1.0
 
 info:
@@ -9,20 +14,27 @@ info:
     x-qa-status values: "verified" = tested and passing,
     "scaffold" = defined but not yet tested.
 
+# Root discovery list for OpenAPI tooling. Each operation below overrides this
+# list with its one authoritative host so auth and leave traffic cannot mix.
 servers:
-  - url: "https://uat-mcdp-be.omfysgroup.com"
-    description: UAT - hyphen URL
+  - url: "https://dev_mcdp_be.omfysgroup.com"
+    description: Development authentication host (certificate pin required)
+  - url: "https://devmcdphcmplatform.omfysgroup.com"
+    description: Development HCM platform host
 
 tags:
   - name: Authentication
     description: Login and JWT token management
   - name: Leave Module
-    description: Leave report, approvals and balance
+    description: Leave reporting
 
 paths:
 
   /auth/token:
     post:
+      servers:
+        - url: "https://dev_mcdp_be.omfysgroup.com"
+          description: Development authentication host (certificate pin required)
       tags: [Authentication]
       operationId: loginEmployee
       description: >
@@ -32,6 +44,9 @@ paths:
         Store the returned token as authToken for all
         subsequent authenticated requests.
       summary: Authenticate employee and return JWT token
+      x-sla-ms: 1000
+      x-required-role: none
+      x-max-payload-bytes: 10000
       x-qa-status: verified
       x-qa-notes: >
         TC01 status 200 + token string length > 20 + empCode match
@@ -47,8 +62,8 @@ paths:
             schema:
               $ref: '#/components/schemas/LoginRequest'
             example:
-              empCode: "OMI-0001"
-              password: "Omfys@123"
+              empCode: "EMP-SAMPLE-001"
+              password: "REPLACE_WITH_TEST_PASSWORD"
       responses:
         "200":
           description: Authentication successful — JWT token returned
@@ -57,10 +72,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/LoginResponse'
               example:
-                empCode: "OMI-0001"
+                empCode: "EMP-SAMPLE-001"
                 roles: ["ROLE_EMPLOYEE", "ROLE_BDH"]
                 token: "eyJhbGciOiJIUzI1NiJ9..."
-                username: "Jasprit Bumrah"
+                username: "Sample Employee"
         "400":
           description: Invalid credentials or missing field
           content:
@@ -73,108 +88,72 @@ paths:
                 missingEmpCode:
                   value: { "message": "empCode is required" }
 
-  /user/leaves/showleavereport:
-    post:
-      tags: [Leave Module]
-      operationId: showLeaveReport
-      description: >
-        Returns all leave records within the specified date
-        range for the authenticated employee. Admin users
-        receive records for all employees under them; regular
-        employees receive only their own records. Date format
-        is YYYY-MM-DD. Known UAT data quality issue: some
-        records contain historical dates with year 0025.
-      summary: Get leave records filtered by date range
-      x-qa-status: scaffold
-      x-qa-notes: >
-        Token-based auth — requires Bearer {{authToken}} from
-        Login API. Admin sees all employee records, employee
-        sees only their own. Test cases to cover:
-        TC01 valid date range returns records array (may be empty).
-        TC02 response records each have all required fields.
-        TC03 leave_type values are within known enum values.
-        TC04 status values are within known enum values.
-        DATA QUALITY NOTE — real data contains end_date
-        "06-Apr-0025" (year 0025) — a known data entry bug in UAT.
-        Do not hard-assert specific record counts.
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LeaveReportRequest'
-            example:
-              startDate: "2020-01-10"
-              endDate: "2026-01-10"
-      responses:
-        "200":
-          description: Leave records returned successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LeaveReportResponse'
-        "401":
-          description: Missing or invalid Bearer token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        "403":
-          description: Token present but insufficient permissions
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /user/leaves/approvals:
+  /user/leaves/getAllLeaveReports:
     get:
+      servers:
+        - url: "https://devmcdphcmplatform.omfysgroup.com"
+          description: Development HCM platform host
       tags: [Leave Module]
-      operationId: getPendingApprovals
+      operationId: getAllLeaveReports
       description: >
-        Returns all pending leave requests awaiting approval
-        by the authenticated Administrative Reviewer (AR).
-        Only leaves where approver_type is Administrative
-        and status is Pending for AR Approval are returned.
-        Known UAT data quality issue: some records contain
-        dates with year 0033.
-      summary: Get all pending leave requests for AR to approve
+        Returns the observed leave-report structure for the requested
+        month and year, including aggregate status counts and the
+        complete leaveReport array.
+      summary: Get all leave reports for a month and year
+      x-sla-ms: 3000
+      x-idempotent: true
+      x-required-role: authenticated-employee
       x-qa-status: scaffold
       x-qa-notes: >
-        Token-based auth — requires Bearer {{authToken}} from
-        Login API. Returns leaves of employees under the
-        logged-in AR (Administrative Reviewer).
-        Test cases to cover:
-        TC01 status 200 and pendingleavs is an array.
-        TC02 each record has lr_id, lr_no, emp_name, leave_type,
-        leave_count, day_type, approver_type fields.
-        TC03 leave_count is a positive number (Full Day = 1.0,
-        Half Day = 0.25 or 0.5).
-        TC04 approver_type is "Administrative" or "Functional".
-        DATA QUALITY NOTE — real data contains startdate
-        "0033-04-16" (year 0033) — known data entry bug in UAT.
+        Schema scaffolded from an authenticated HTTP 200 capture for
+        month=4 and year=2026. All documented response fields were
+        observed in that capture; no legacy leave fields were carried over.
       security:
         - bearerAuth: []
+      parameters:
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: integer
+          example: 4
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+          example: 2026
       responses:
         "200":
-          description: Pending approvals returned successfully
+          description: Leave report fetched successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PendingApprovalsResponse'
+                $ref: '#/components/schemas/GetAllLeaveReportsResponse'
+        "400":
+          description: Invalid month query parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllLeaveReportsErrorResponse'
+              example:
+                status: error
+                errorCode: INVALID_MONTH
+                message: Month must be between 1 and 12.
+                data: null
+                timestamp: 04-Aug-2026 T09:53:23
         "401":
-          description: Missing or invalid Bearer token
+          description: Bearer token is expired or invalid
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        "403":
-          description: Token present but insufficient permissions
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/GetAllLeaveReportsErrorResponse'
+              example:
+                status: error
+                errorCode: INVALID_TOKEN
+                message: Token has expired or invalid
+                data: null
+                timestamp: 04-Aug-2026 T09:53:21
 
 components:
 
@@ -197,11 +176,11 @@ components:
       properties:
         empCode:
           type: string
-          example: "OMI-0001"
+          example: "EMP-SAMPLE-001"
         password:
           type: string
           minLength: 6
-          example: "Omfys@123"
+          example: "REPLACE_WITH_TEST_PASSWORD"
 
     LoginResponse:
       type: object
@@ -209,7 +188,7 @@ components:
       properties:
         empCode:
           type: string
-          example: "OMI-0001"
+          example: "EMP-SAMPLE-001"
         roles:
           type: array
           items:
@@ -223,176 +202,115 @@ components:
           type: string
           example: "Jasprit Bumrah"
 
-    LeaveReportRequest:
+    GetAllLeaveReportsResponse:
       type: object
-      required: [startDate, endDate]
+      additionalProperties: false
+      required: [status, errorCode, message, data, timestamp]
       properties:
-        startDate:
+        status:
           type: string
-          description: Start of date range in YYYY-MM-DD format
-          example: "2020-01-10"
-        endDate:
+        errorCode:
+          type: "null"
+        message:
           type: string
-          description: End of date range in YYYY-MM-DD format
-          example: "2026-01-10"
+        data:
+          $ref: '#/components/schemas/GetAllLeaveReportsData'
+        timestamp:
+          type: string
 
-    LeaveReportResponse:
+    GetAllLeaveReportsData:
       type: object
-      required: [records]
+      additionalProperties: false
+      required: [count, leaveReport]
       properties:
-        records:
+        count:
+          $ref: '#/components/schemas/LeaveReportCount'
+        leaveReport:
           type: array
           items:
-            $ref: '#/components/schemas/LeaveRecord'
+            $ref: '#/components/schemas/GetAllLeaveReportsItem'
 
-    LeaveRecord:
+    LeaveReportCount:
       type: object
+      additionalProperties: false
+      required: [approved, pending, cancelled, rejected]
+      properties:
+        approved:
+          type: integer
+        pending:
+          type: integer
+        cancelled:
+          type: integer
+        rejected:
+          type: integer
+
+    GetAllLeaveReportsItem:
+      type: object
+      additionalProperties: false
       required:
-        [lr_no, lr_id, subject, application_date, status,
-         start_date, end_date, leave_type, emp_name,
-         day_type, empid]
+        - lr_no
+        - lr_id
+        - subject
+        - application_date
+        - status
+        - start_date
+        - end_date
+        - leave_type
+        - emp_name
+        - day_type
+        - empid
+        - purpose
+        - reason
       properties:
         lr_no:
           type: integer
-          example: 48246
         lr_id:
           type: integer
-          example: 350348246
         subject:
           type: string
-          example: "OMI-0008 - Wed Oct 08 14:20:00 IST 2025"
         application_date:
           type: string
-          description: Display format DD-MMM-YYYY
-          example: "08-Oct-2025"
+          description: Observed format DD-Mon-YYYY, for example 15-Apr-2026
         status:
           type: string
-          enum:
-            - "Pending for AR Approval"
-            - "Pending for FR Approval"
-            - "Approved"
-            - "Rejected"
-            - "Cancelled"
-          example: "Pending for AR Approval"
         start_date:
           type: string
-          description: Display format DD-MMM-YYYY
-          example: "01-Dec-2025"
+          description: Observed format DD-Mon-YYYY, for example 17-Apr-2026
         end_date:
           type: string
-          description: Display format DD-MMM-YYYY
-          example: "01-Dec-2025"
+          description: Observed format DD-Mon-YYYY, for example 17-Apr-2026
         leave_type:
           type: string
-          enum: ["CL", "LWP", "PL", "SL", "ML", "EL"]
-          example: "CL"
         emp_name:
           type: string
-          example: "Rahul Choudhary"
         day_type:
           type: string
-          enum: ["Full Day", "Half Day", "1st Half",
-                 "2nd Half", "1st half"]
-          example: "Full Day"
         empid:
           type: integer
-          example: 3503
-
-    PendingApprovalsResponse:
-      type: object
-      required: [pendingleavs]
-      properties:
-        pendingleavs:
-          type: array
-          items:
-            $ref: '#/components/schemas/PendingLeaveRecord'
-
-    PendingLeaveRecord:
-      type: object
-      required:
-        [lr_id, lr_no, emp_name, subject, status,
-         start_date, end_date, application_date,
-         startdate, enddate, applicationdate,
-         leave_type, leave_count, day_type,
-         approver_type, functional_decision]
-      properties:
-        lr_id:
-          type: integer
-          example: 3448192
-        lr_no:
-          type: integer
-          example: 48192
-        emp_name:
+        purpose:
           type: string
-          example: "Sachin Khutwad"
-        subject:
-          type: string
-          example: "20-09-25 TO 21-09-25"
+        reason:
+          type: ["string", "null"]
+
+    GetAllLeaveReportsErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [status, errorCode, message, data, timestamp]
+      properties:
         status:
           type: string
-          enum:
-            - "Pending for AR Approval"
-            - "Pending for FR Approval"
-            - "Approved"
-            - "Rejected"
-          example: "Pending for AR Approval"
-        start_date:
+          const: error
+        errorCode:
           type: string
-          description: Display format DD-MMM-YYYY
-          example: "20-Sept-2025"
-        end_date:
+          enum: [INVALID_MONTH, INVALID_TOKEN]
+        message:
           type: string
-          description: Display format DD-MMM-YYYY
-          example: "21-Sept-2025"
-        application_date:
+        data:
+          type: "null"
+        timestamp:
           type: string
-          description: Display format DD-MMM-YYYY
-          example: "07-Oct-2025"
-        startdate:
-          type: string
-          description: ISO format YYYY-MM-DD
-          example: "2025-09-20"
-        enddate:
-          type: string
-          description: ISO format YYYY-MM-DD
-          example: "2025-09-21"
-        applicationdate:
-          type: string
-          description: ISO format YYYY-MM-DD
-          example: "2025-10-07"
-        leave_type:
-          type: string
-          enum: ["CL", "LWP", "PL", "SL", "ML", "EL"]
-          example: "PL"
-        leave_count:
-          type: number
-          description: >
-            Days counted. Full Day = 1.0,
-            Half Day = 0.5 or 0.25
-          example: 1.0
-        reason_for_leave:
-          type: string
-          nullable: true
-          example: "family"
-        day_type:
-          type: string
-          enum: ["Full Day", "Half Day", "1st Half", "2nd Half"]
-          example: "Full Day"
-        approver_type:
-          type: string
-          enum: ["Administrative", "Functional"]
-          example: "Administrative"
-        functional_decision:
-          type: string
-          example: "Pending for approval"
-        chargeshandover:
-          type: string
-          nullable: true
-          example: null
-        emp_code:
-          type: string
-          nullable: true
-          example: null
+          description: Observed format DD-Mon-YYYY THH:MM:SS
+          pattern: '^\d{2}-[A-Za-z]{3}-\d{4} T\d{2}:\d{2}:\d{2}$'
 
     ErrorResponse:
       type: object

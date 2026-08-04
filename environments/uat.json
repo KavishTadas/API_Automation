@@ -3,6 +3,12 @@
   "name": "UAT",
   "values": [
     {
+      "key": "authBaseUrl",
+      "value": "https://dev_mcdp_be.omfysgroup.com",
+      "enabled": true,
+      "description": "Employee auth API; requires the host-scoped pinned TLS agent in scripts/pinned-tls-agent.js"
+    },
+    {
       "key": "baseUrl",
       "value": "https://uat-mcdp-be.omfysgroup.com",
       "enabled": true,
@@ -10,9 +16,9 @@
     },
     {
       "key": "leaveBaseUrl",
-      "value": "https://uat-mcdp-be.omfysgroup.com",
+      "value": "https://devmcdphcmplatform.omfysgroup.com",
       "enabled": true,
-      "description": "Leave Module API — hyphen URL"
+      "description": "Leave report API base URL"
     },
     {
       "key": "empCode",

@@ -66,5 +66,62 @@
     "newApis": [],
     "refreshedCount": 10,
     "missingApis": []
+  },
+  {
+    "version": 7,
+    "timestamp": "20260731_111845",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260731_111845.json",
+    "previousCsv": "api-docs/history/API_File_20260731_111845.csv",
+    "newApis": [],
+    "refreshedCount": 9,
+    "missingApis": [
+      "users - GET - /users/me - Get profile"
+    ]
+  },
+  {
+    "version": 8,
+    "timestamp": "20260804_094718",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260804_094718.json",
+    "previousCsv": "api-docs/history/API_File_20260804_094718.csv",
+    "newApis": [
+      "Employee Auth API - POST - /auth/token - TC01 - Valid credentials return JWT token",
+      "Employee Auth API - POST - /auth/token - TC02 - Invalid empCode returns 400",
+      "Employee Auth API - POST - /auth/token - TC03 - Missing password returns 400",
+      "Leave API - GET - /user/leaves/getAllLeaveReports - TC01/TC03 - Get all leave reports and validate structure",
+      "Leave API - GET - /user/leaves/getAllLeaveReports - TC02 - Invalid token returns observed authorization status"
+    ],
+    "refreshedCount": 1,
+    "missingApis": [
+      "Leave API - POST - /user/leaves/showleavereport - TC01 - Show leave report returns records array",
+      "Leave API - POST - /user/leaves/showleavereport - TC02 - Show leave report rejects missing auth",
+      "Leave API - GET - /user/leaves/approvals - TC03 - Pending approvals returns pendingleavs array",
+      "Leave API - GET - /user/leaves/approvals - TC04 - Pending approvals rejects missing auth",
+      "Login API - POST - /auth/token - TC01 - Valid credentials return token",
+      "Employee Auth API - POST - /auth/token - TC01 - Valid credentials return JWT token",
+      "Employee Auth API - POST - /auth/token - TC02 - Invalid empCode returns 400",
+      "Employee Auth API - POST - /auth/token - TC03 - Missing password returns 400"
+    ]
+  },
+  {
+    "version": 9,
+    "timestamp": "20260804_095047",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260804_095047.json",
+    "previousCsv": "api-docs/history/API_File_20260804_095047.csv",
+    "newApis": [],
+    "refreshedCount": 6,
+    "missingApis": []
+  },
+  {
+    "version": 10,
+    "timestamp": "20260804_095232",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260804_095232.json",
+    "previousCsv": "api-docs/history/API_File_20260804_095232.csv",
+    "newApis": [],
+    "refreshedCount": 6,
+    "missingApis": []
   }
 ]

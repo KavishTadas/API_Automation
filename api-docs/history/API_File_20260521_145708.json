@@ -97,7 +97,7 @@
     "Dependent APIs / Services": "Produces authToken for downstream APIs",
     "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
     "API Identifier": "post|{{baseurl}}|/auth/token|login api|tc01 - valid credentials return token",
-    "Comments": "Source: collections/Login_API.json; Data-driven: test-data/Login_API.csv; No saved response example in source file"
+    "Comments": "Source: retired standalone login collection; Data-driven: retired standalone login data; No saved response example in source file"
   },
   {
     "Sr. No": "6",

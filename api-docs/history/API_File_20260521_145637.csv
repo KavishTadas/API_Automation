@@ -9,6 +9,6 @@
 "5","Login API","TC01 - Valid credentials return token","public","TC01 - Valid credentials return token","{{baseUrl}}","/auth/token","POST","headers: Content-Type=application/json","{
   ""empCode"": ""{{empCode}}"",
   ""password"": ""{{password}}""
-}","{""empCode"":""string"",""password"":""string""}","","Produces authToken for downstream APIs","KavishTadas <kavish.tadas@omfysgroup.com>","Source: collections/Login_API.json; Data-driven: test-data/Login_API.csv; No saved response example in source file"
+}","{""empCode"":""string"",""password"":""string""}","","Produces authToken for downstream APIs","KavishTadas <kavish.tadas@omfysgroup.com>","Source: retired standalone login collection; Data-driven: retired standalone login data; No saved response example in source file"
 "6","auth","Login","public","Status is 200; Token exists","{{BASE_URL}}","/auth/login","POST","","{ ""email"": ""{{USERNAME}}"", ""password"": ""{{PASSWORD}}"" }","{""email"":""string"",""password"":""string""}","Expected status(es): 200","Produces authToken for downstream APIs","KavishTadas <kavish.tadas@omfysgroup.com>","Source: bruno/auth/login.bru; No saved response example in source file; Parsed from Bruno file"
 "7","users","Get profile","private","Status is 200; Email is a string","{{BASE_URL}}","/users/me","GET","auth: bearer token={{authToken}}","","","Expected status(es): 200","Requires authToken from Login API","KavishTadas <kavish.tadas@omfysgroup.com>","Source: bruno/users/get-profile.bru; No saved response example in source file; Parsed from Bruno file"

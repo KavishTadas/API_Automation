@@ -40,8 +40,8 @@
           "raw": "{\"empCode\": \"{{empCode}}\", \"password\": \"{{empPassword}}\"}"
         },
         "url": {
-          "raw": "{{baseUrl}}/auth/token",
-          "host": ["{{baseUrl}}"],
+          "raw": "{{authBaseUrl}}/auth/token",
+          "host": ["{{authBaseUrl}}"],
           "path": ["auth", "token"]
         }
       }
@@ -72,8 +72,8 @@
           "raw": "{\"empCode\": \"INVALID-999\", \"password\": \"wrongpassword\"}"
         },
         "url": {
-          "raw": "{{baseUrl}}/auth/token",
-          "host": ["{{baseUrl}}"],
+          "raw": "{{authBaseUrl}}/auth/token",
+          "host": ["{{authBaseUrl}}"],
           "path": ["auth", "token"]
         }
       }
@@ -103,8 +103,8 @@
           "raw": "{\"empCode\": \"{{empCode}}\"}"
         },
         "url": {
-          "raw": "{{baseUrl}}/auth/token",
-          "host": ["{{baseUrl}}"],
+          "raw": "{{authBaseUrl}}/auth/token",
+          "host": ["{{authBaseUrl}}"],
           "path": ["auth", "token"]
         }
       }

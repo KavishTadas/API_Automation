@@ -8,7 +8,7 @@ const COLLECTIONS_DIR = 'collections';
 const LOGS_DIR = path.join('monitoring', 'logs');
 const RESPONSE_TIME_DEGRADED_MS = 2000;
 const COLLECTION_RUN_ORDER = [
-  'Login_API.json',
+  'Employee_Auth_API.json',
   'Leave_API.json'
 ];
 const ENV = process.env.ENV || 'uat';

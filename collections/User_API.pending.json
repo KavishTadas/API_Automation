@@ -1,6 +1,7 @@
 {
   "info": {
     "name": "User API",
+    "description": "OUT OF HCM SCOPE: local FastAPI sample routes only. The .pending. filename keeps this collection out of Newman and generated HCM pytest CI.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [

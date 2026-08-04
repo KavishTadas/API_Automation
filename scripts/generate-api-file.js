@@ -11,6 +11,7 @@ const stripBom = s => s.replace(/^\uFEFF/, '');
 const ROOT_DIR = path.resolve(__dirname, '..');
 const COLLECTIONS_DIR = path.join(ROOT_DIR, 'collections');
 const BRUNO_DIR = path.join(ROOT_DIR, 'bruno');
+const BRUNO_UNVERIFIED_PREFIX = 'bruno/unverified-endpoints/';
 const OUT_DIR = path.join(ROOT_DIR, 'api-docs');
 const CSV_OUT = path.join(OUT_DIR, 'API_File.csv');
 const JSON_OUT = path.join(OUT_DIR, 'API_File.json');
@@ -381,6 +382,18 @@ function getPostmanHeaders(headers) {
     .filter((header) => header !== '=');
 }
 
+function getPostmanAuthorizationHeader(auth) {
+  if (!auth || auth.type !== 'bearer' || !Array.isArray(auth.bearer)) {
+    return '';
+  }
+
+  const tokenEntry = auth.bearer.find(
+    (entry) => entry && entry.disabled !== true && entry.key === 'token'
+  );
+  const token = tokenEntry && cleanText(tokenEntry.value);
+  return token ? `Authorization=Bearer ${token}` : '';
+}
+
 function getPostmanPathVariables(url, endpointPath) {
   const variables = [];
 
@@ -567,6 +580,22 @@ function inferExampleResponsePayload(scriptText, endpointPath) {
     return JSON.stringify({ pendingleavs: [] }, null, 2);
   }
 
+  if (/leaveReport/i.test(text) && /\bcount\b/i.test(text)) {
+    return JSON.stringify({
+      status: '<status>',
+      message: '<message>',
+      data: {
+        count: {
+          rejected: 0,
+          cancelled: 0,
+          pending: 0,
+          approved: 0
+        },
+        leaveReport: []
+      }
+    }, null, 2);
+  }
+
   if (/\brecords\b/i.test(text)) {
     return JSON.stringify({ records: [] }, null, 2);
   }
@@ -718,7 +747,7 @@ function extractDependencies(sourceText) {
   }
 
   if (consumesAuthToken && !producesAuthToken) {
-    dependencies.push('Requires authToken from Login API');
+    dependencies.push('Requires authToken from Employee Auth API');
   }
 
   const setVars = unique([
@@ -861,11 +890,19 @@ function postmanItemToRow({ item, folderPath, collection, collectionName, source
   );
   const queryParams = getPostmanQueryParams(request.url, rawUrl);
   const headers = getPostmanHeaders(request.header);
+  const auth = request.auth || item.auth || collection.auth;
+  const authorizationHeader = getPostmanAuthorizationHeader(auth);
+  if (
+    authorizationHeader &&
+    !headers.some((header) => /^Authorization=/i.test(header))
+  ) {
+    headers.push(authorizationHeader);
+  }
   const pathVariables = getPostmanPathVariables(request.url, endpointPath);
   const requestBody = getPostmanBody(request.body);
   const sourceText = [
     rawUrl,
-    cleanText(request.header),
+    headers.join('\n'),
     requestBody,
     scriptText
   ].join('\n');
@@ -1156,7 +1193,10 @@ function bruFileToRow(sourcePath) {
 function readBrunoRows() {
   return listFiles(
     BRUNO_DIR,
-    (filePath) => filePath.endsWith('.bru') && !filePath.includes('.pending.')
+    (filePath) =>
+      filePath.endsWith('.bru') &&
+      !filePath.includes('.pending.') &&
+      !toPosixPath(filePath).startsWith(BRUNO_UNVERIFIED_PREFIX)
   )
     .sort()
     .map((sourcePath) => {

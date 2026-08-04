@@ -43,7 +43,7 @@
   ],
   ""token"": ""<jwt-token>"",
   ""username"": ""<username>""
-}","Produces authToken for downstream APIs","KavishTadas <kavish.tadas@omfysgroup.com>","post|{{baseurl}}|/auth/token|login api|tc01 - valid credentials return token","Source: collections/Login_API.json; Data-driven: test-data/Login_API.csv; No saved response example in source file"
+}","Produces authToken for downstream APIs","KavishTadas <kavish.tadas@omfysgroup.com>","post|{{baseurl}}|/auth/token|login api|tc01 - valid credentials return token","Source: retired standalone login collection; Data-driven: retired standalone login data; No saved response example in source file"
 "6","auth","Login","public","Status is 200; Token exists","{{BASE_URL}}","/auth/login","POST","","{ ""email"": ""{{USERNAME}}"", ""password"": ""{{PASSWORD}}"" }","{
   ""email"": ""<USERNAME>"",
   ""password"": ""<PASSWORD>""

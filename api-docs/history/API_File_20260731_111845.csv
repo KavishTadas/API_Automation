@@ -7,7 +7,7 @@
   ""records"": []
 }","{
   ""records"": []
-}","Requires authToken from Login API; Depends on Login API POST /auth/token for authToken","KavishTadas <kavish.tadas@omfysgroup.com>","post|{{leavebaseurl}}|/user/leaves/showleavereport|leave api|tc01 - show leave report returns records array","Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
+}","Requires authToken from Login API; Depends on Employee Auth API POST /auth/token for authToken","KavishTadas <kavish.tadas@omfysgroup.com>","post|{{leavebaseurl}}|/user/leaves/showleavereport|leave api|tc01 - show leave report returns records array","Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
 "2","Leave API","TC02 - Show leave report rejects missing auth","private","TC02 - Status is 401 or 403 without token","{{leaveBaseUrl}}","/user/leaves/showleavereport","POST","headers: Content-Type=application/json","{
   ""startDate"": ""2020-01-01"",
   ""endDate"": ""2026-12-31""
@@ -20,13 +20,13 @@
   ""pendingleavs"": []
 }","{
   ""pendingleavs"": []
-}","Requires authToken from Login API; Depends on Login API POST /auth/token for authToken","KavishTadas <kavish.tadas@omfysgroup.com>","get|{{leavebaseurl}}|/user/leaves/approvals|leave api|tc03 - pending approvals returns pendingleavs array","Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
+}","Requires authToken from Login API; Depends on Employee Auth API POST /auth/token for authToken","KavishTadas <kavish.tadas@omfysgroup.com>","get|{{leavebaseurl}}|/user/leaves/approvals|leave api|tc03 - pending approvals returns pendingleavs array","Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
 "4","Leave API","TC04 - Pending approvals rejects missing auth","private","TC04 - Status is 401 or 403 without token","{{leaveBaseUrl}}","/user/leaves/approvals","GET","","","","","Expected status(es): 401, 403","","","KavishTadas <kavish.tadas@omfysgroup.com>","get|{{leavebaseurl}}|/user/leaves/approvals|leave api|tc04 - pending approvals rejects missing auth","Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
 "5","Login API","TC01 - Valid credentials return token","public","TC01 - Valid credentials return token","{{baseUrl}}","/auth/token","POST","headers: Content-Type=application/json","{
   ""empCode"": ""{{empCode}}"",
   ""password"": ""{{password}}""
 }","{
-  ""empCode"": ""OMI-0001"",
+  ""empCode"": ""TEST-EMP-001"",
   ""password"": ""<password>""
 }","{""empCode"":""string"",""password"":""string""}","Expected status(es): 200
 {
@@ -49,7 +49,7 @@
   ""email"": ""<email>""
 }","{
   ""email"": ""<email>""
-}","Requires authToken from Login API; Depends on Login API POST /auth/token for authToken","KavishTadas <kavish.tadas@omfysgroup.com>","get|{{base_url}}|/users/me|users|get profile","Source: bruno/users/get-profile.bru; No saved response example in source file; Parsed from Bruno file"
+}","Requires authToken from Login API; Depends on Employee Auth API POST /auth/token for authToken","KavishTadas <kavish.tadas@omfysgroup.com>","get|{{base_url}}|/users/me|users|get profile","Source: bruno/users/get-profile.bru; No saved response example in source file; Parsed from Bruno file"
 "7","auth","Login","public","Status is 200; Token exists; empCode matches","{{baseUrl}}","/auth/token","POST","","{
     ""empCode"": ""{{empCode}}"",
     ""password"": ""{{empPassword}}""
@@ -62,3 +62,39 @@
 }","{
   ""token"": ""<jwt-token>""
 }","Produces authToken for downstream APIs","KavishTadas <kavish.tadas@omfysgroup.com>","post|{{baseurl}}|/auth/token|auth|login","Source: bruno/auth/login.bru; No saved response example in source file; Parsed from Bruno file"
+"8","Employee Auth API","TC01 - Valid credentials return JWT token","public","TC01 - Status is 200; TC01 - Token is three-part JWT; TC01 - empCode and username returned; TC01 - roles is non-empty array","{{baseUrl}}","/auth/token","POST","headers: Content-Type=application/json","{""empCode"": ""{{empCode}}"", ""password"": ""{{empPassword}}""}","{
+  ""empCode"": ""<empCode>"",
+  ""password"": ""<empPassword>""
+}","{""empCode"":""string"",""password"":""string""}","Expected status(es): 200
+{
+  ""empCode"": ""<empCode>"",
+  ""roles"": [
+    ""<role>""
+  ],
+  ""token"": ""<jwt-token>"",
+  ""username"": ""<username>""
+}","{
+  ""empCode"": ""<empCode>"",
+  ""roles"": [
+    ""<role>""
+  ],
+  ""token"": ""<jwt-token>"",
+  ""username"": ""<username>""
+}","Produces authToken for downstream APIs","","post|{{baseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token","Source: collections/Employee_Auth_API.json; No saved response example in source file"
+"9","Employee Auth API","TC02 - Invalid empCode returns 400","public","TC02 - Status is 400 for bad empCode; TC02 - Error message returned","{{baseUrl}}","/auth/token","POST","headers: Content-Type=application/json","{""empCode"": ""INVALID-999"", ""password"": ""wrongpassword""}","{
+  ""empCode"": ""INVALID-999"",
+  ""password"": ""wrongpassword""
+}","{""empCode"":""string"",""password"":""string""}","Expected status(es): 400
+{
+  ""token"": ""<jwt-token>""
+}","{
+  ""token"": ""<jwt-token>""
+}","","","post|{{baseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400","Source: collections/Employee_Auth_API.json; No saved response example in source file"
+"10","Employee Auth API","TC03 - Missing password returns 400","public","TC03 - Status is 400 for missing password; TC03 - Validation message returned","{{baseUrl}}","/auth/token","POST","headers: Content-Type=application/json","{""empCode"": ""{{empCode}}""}","{
+  ""empCode"": ""<empCode>""
+}","{""empCode"":""string""}","Expected status(es): 400
+{
+  ""token"": ""<jwt-token>""
+}","{
+  ""token"": ""<jwt-token>""
+}","","","post|{{baseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400","Source: collections/Employee_Auth_API.json; No saved response example in source file"

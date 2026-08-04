@@ -15,11 +15,11 @@ Current Status Snapshot
 | Current worktree status | Clean after cleanup commit |
 | Main test runner | scripts/run-newman.js |
 | API documentation generator | scripts/generate-api-file.js |
-| Current API file | api-docs/API_File.csv and api-docs/API_File.json contain 7 endpoint rows across Leave API, Login API, auth, and users modules |
+| Current API file | api-docs/API_File.csv and api-docs/API_File.json contain 6 endpoint rows across Employee Auth API, Leave API, and auth modules |
 | Current feature count | 7 API inventory rows; 5 active Postman request items; 2 active Bruno HTTP request files |
 | Current test case count | 14 collected generated pytest tests, 2 FastAPI sample tests, and 25 latest Allure result JSON checks |
 | Collections | 2 active collections and 1 pending collection |
-| Data-driven test data | test-data/Login_API.csv has 5 data rows; test-data/Leave_API.csv has 5 data rows |
+| Data-driven test data | test-data/Leave_API.csv has 5 data rows |
 | Latest generated generic tests | tests/auto_generated/ has 7 endpoint test files plus helper, conftest, and package files |
 | Latest generated reports | reports/html/index.html plus 2 collection HTML reports; reports/allure-results has 136 entries |
 | Latest Allure result status | 25 result JSON checks observed: 15 passed, 10 failed |
@@ -63,12 +63,11 @@ Validation Notes
 - Select-String scripts\generate-generic-tests.py for output directory, authToken/Authorization, skip, and pytest.mark: completed; all required generator capabilities found.
 - Select-String scripts\generate-html-index.js for pytest, junit, Newman, Auto-generated, and render functions: completed; reads Allure JSON/JUnit XML and renders Newman plus Auto-generated sections.
 - Select-String monitoring\health-check.js for .pending., environment, envVar, and collections: completed; pending skip and environment loading found.
-- Get-ChildItem collections\*.json | Select Name: completed; Leave_API.json, Login_API.json, User_API.pending.json.
+- Get-ChildItem collections\*.json | Select Name: completed; Employee_Auth_API.json, Leave_API.json, User_API.pending.json.
 - Get-ChildItem collections\*.pending.json -ErrorAction SilentlyContinue | Select Name: completed; User_API.pending.json.
 - Get-ChildItem bruno -Recurse -Filter *.bru | Select Name: completed; login.bru, local.bru, staging.bru, get-profile.bru.
-- Active collection metadata scan: completed; Leave_API.json has 4 request items and Login_API.json has 1 request item; both have test scripts and matching CSV iteration data.
-- Get-ChildItem test-data\* | Select Name: completed; Leave_API.csv, Login_API.csv, README.md, users.csv.
-- Import-Csv test-data\Login_API.csv | Measure-Object: completed; 5 data rows.
+- Active collection metadata scan: completed; Employee_Auth_API.json has 3 request items and Leave_API.json has 2 request items; both have test scripts.
+- Get-ChildItem test-data\* | Select Name: completed; Leave_API.csv, README.md, users.csv.
 - Import-Csv test-data\Leave_API.csv | Measure-Object: completed; 5 data rows.
 - npm run lint:spec 2>&1: passed; 0 errors, 0 warnings, message "No results with a severity of 'error' found!".
 - Get-Content openapi/openapi.yaml: completed; 3 paths, 8 schemas, and 1 server URL recorded.
@@ -88,8 +87,8 @@ Validation Notes
 - Get-ChildItem tests\auto_generated\*.py -ErrorAction SilentlyContinue | Select Name: completed; 10 Python files found, including 7 endpoint test files.
 - python -m pytest tests\auto_generated --collect-only -q 2>&1: passed; 14 tests collected, 0 collection errors.
 - Get-Content api-docs\API_File.json: completed; 7 endpoint rows.
-- API_File summary scan: completed; modules are Leave API, Login API, users, and auth.
-- Select-String scripts\run-newman.js for RUN_ORDER/authToken/sharedEnvVars/COLLECTION_FILTER: completed; Login_API.json runs before Leave_API.json and authToken carry-forward exists.
+- API_File summary scan: completed; modules are Employee Auth API, Leave API, and auth.
+- Select-String scripts\run-newman.js for RUN_ORDER/authToken/sharedEnvVars/COLLECTION_FILTER: completed; Employee_Auth_API.json runs before Leave_API.json and authToken carry-forward exists.
 - Get-Content bruno\auth\login.bru: completed; current request uses /auth/token and empCode/empPassword.
 - Environment URL scan for environments\*.json: completed; local is localhost, UAT is UAT URL, staging/production use generic example.com placeholders.
 - Select-String monitoring\health-check.js for .pending./environment/envVar: completed; all found.
@@ -135,10 +134,9 @@ Main modules and components
 Design patterns and implementation style
 - Data-driven testing:
   - CSV files in test-data/ map to collection filenames.
-  - test-data/Login_API.csv feeds collections/Login_API.json.
   - test-data/Leave_API.csv feeds collections/Leave_API.json.
 - Ordered test execution:
-  - scripts/run-newman.js forces Login_API.json before Leave_API.json so auth can run first.
+  - scripts/run-newman.js forces Employee_Auth_API.json before Leave_API.json so auth can run first.
 - Shared test context:
   - authToken and other non-empty Newman environment values are carried forward between collection runs.
 - Generated reports:
@@ -187,7 +185,7 @@ Full project structure, 2 levels deep, excluding node_modules, .git, __pycache__
 |   `-- README.md
 |-- collections/
 |   |-- Leave_API.json
-|   |-- Login_API.json
+|   |-- Employee_Auth_API.json
 |   `-- User_API.pending.json
 |-- environments/
 |   |-- local.json
@@ -217,7 +215,6 @@ Full project structure, 2 levels deep, excluding node_modules, .git, __pycache__
 |   `-- url-check.js
 |-- test-data/
 |   |-- Leave_API.csv
-|   |-- Login_API.csv
 |   |-- README.md
 |   `-- users.csv
 |-- tests/
@@ -252,7 +249,6 @@ Important deeper files and generated inventory
 | tests/auto_generated/test_007_get_users_users_me.py | (REMOVED) Reordered to test_006_get_users_users_me.py |
 | reports/html/index.html | Generated consolidated HTML index |
 | reports/html/report-Leave_API-1779185723943.html | Generated htmlextra report |
-| reports/html/report-Login_API-1779185719505.html | Generated htmlextra report |
 | reports/allure-results/ | Generated/ignored Allure raw results; 136 entries observed |
 | reports/allure-report/index.html | Generated/ignored Allure HTML report; exists |
 | reports/allure-html-report/index.html | Generated/ignored Allure HTML output; exists and is not tracked in git index |
@@ -273,7 +269,7 @@ Important source and config files
 | models.py | Python source | Pydantic MsgPayload model |
 | tests/test_main.py | Python tests | Tests root and about FastAPI routes |
 | collections/Leave_API.json | Postman collection | Active Leave API collection with 4 request items |
-| collections/Login_API.json | Postman collection | Active Login API collection with 1 request item |
+| collections/Employee_Auth_API.json | Postman collection | Active employee authentication collection with 3 request items |
 | collections/User_API.pending.json | Postman collection | Pending sample FastAPI collection skipped by runner and monitor |
 | bruno/auth/login.bru | Bruno request | Active Bruno login request using /auth/token |
 | bruno/users/get-profile.bru | Bruno request | Active Bruno profile request using bearer authToken |
@@ -384,7 +380,7 @@ Local git identity
 Secrets policy
 - Real passwords, API keys, tokens, and credentials are not written here.
 - URLs are recorded as-is because URLs are not secrets.
-- Employee codes and password-like test values from Login_API.csv are treated as sensitive and redacted here; .env.example and Bruno env files now use neutral placeholders.
+- Employee codes and password-like test values are treated as sensitive and redacted here; .env.example and Bruno env files use neutral placeholders.
 5. Features and Functionality
 Feature inventory
 | Feature | File(s) | Status |
@@ -405,13 +401,13 @@ Feature inventory
 | Generic pytest generator | scripts/generate-generic-tests.py, tests/auto_generated/ | working |
 | Auto-generated pytest suite | tests/auto_generated/ | working for collection; live API execution depends on credentials/token |
 | Leave API data-driven CSV scenarios | collections/Leave_API.json, test-data/Leave_API.csv | partial; data exists, latest historical Allure results still include failures |
-| Login API data-driven CSV scenarios | collections/Login_API.json, test-data/Login_API.csv | partial; data exists, values must be treated as sensitive |
+| Employee authentication scenarios | collections/Employee_Auth_API.json | active; credentials come from environment configuration |
 | Monitoring health check | monitoring/health-check.js | partial; skips pending and loads env files, but lacks auth carry-forward parity |
 scripts/run-newman.js current behavior
 | Capability checked | Current result |
 |---|---|
 | Skips .pending. files | Yes |
-| Has RUN_ORDER | Yes; Login_API.json before Leave_API.json |
+| Has RUN_ORDER | Yes; Employee_Auth_API.json before Leave_API.json |
 | Injects envVar | Yes |
 | Carries forward sharedEnvVars | Yes |
 | Writes environment.properties | Yes |
@@ -427,7 +423,7 @@ scripts/generate-api-file.js current behavior
 | Latest history entry | version 3, timestamp 20260526_094404 |
 | Sensitive data masking | safeExampleValue masks password/token/secret/key/code-like examples with placeholders |
 | Current endpoint count | 7 rows |
-| Current modules | Leave API, Login API, users, auth |
+| Current modules | Employee Auth API, Leave API, auth |
 scripts/generate-generic-tests.py current behavior
 | Capability checked | Current result |
 |---|---|
@@ -451,17 +447,17 @@ monitoring/health-check.js current behavior
 Collections and test data
 | Collection | Name | Request items | Test scripts | Iteration data |
 |---|---|---:|---|---|
-| collections/Leave_API.json | Leave API | 4 | Yes | test-data/Leave_API.csv |
-| collections/Login_API.json | Login API | 1 | Yes | test-data/Login_API.csv |
+| collections/Leave_API.json | Leave API | 2 | Yes | test-data/Leave_API.csv |
+| collections/Employee_Auth_API.json | Employee Auth API | 3 | Yes | Environment credentials |
 | collections/User_API.pending.json | User API sample | 4 | Not part of active run | Pending/skipped |
 Active collection request inventory
 | Collection | Request | Method | URL |
 |---|---|---|---|
-| Leave_API.json | TC01 - Show leave report returns records array | POST | {{leaveBaseUrl}}/user/leaves/showleavereport |
-| Leave_API.json | TC02 - Show leave report rejects missing auth | POST | {{leaveBaseUrl}}/user/leaves/showleavereport |
-| Leave_API.json | TC03 - Pending approvals returns pendingleavs array | GET | {{leaveBaseUrl}}/user/leaves/approvals |
-| Leave_API.json | TC04 - Pending approvals rejects missing auth | GET | {{leaveBaseUrl}}/user/leaves/approvals |
-| Login_API.json | TC01 - Valid credentials return token | POST | {{baseUrl}}/auth/token |
+| Leave_API.json | TC01/TC03 - Get all leave reports and validate structure | GET | {{leaveBaseUrl}}/user/leaves/getAllLeaveReports |
+| Leave_API.json | TC02 - Invalid token returns observed authorization status | GET | {{leaveBaseUrl}}/user/leaves/getAllLeaveReports |
+| Employee_Auth_API.json | TC01 - Valid credentials return token | POST | {{authBaseUrl}}/auth/token |
+| Employee_Auth_API.json | TC02 - Invalid empCode returns 400 | POST | {{authBaseUrl}}/auth/token |
+| Employee_Auth_API.json | TC03 - Missing password returns 400 | POST | {{authBaseUrl}}/auth/token |
 Bruno request inventory
 | File | Current request |
 |---|---|
@@ -472,13 +468,13 @@ Bruno request inventory
 OpenAPI spec inventory
 | Category | Current values |
 |---|---|
-| Paths | /auth/token; /user/leaves/showleavereport; /user/leaves/approvals |
-| Schemas | LoginRequest, LoginResponse, LeaveReportRequest, LeaveReportResponse, LeaveRecord, PendingApprovalsResponse, PendingLeaveRecord, ErrorResponse |
-| Server URLs | https://uat-mcdp-be.omfysgroup.com |
+| Paths | /auth/token; /user/leaves/getAllLeaveReports |
+| Schemas | LoginRequest, LoginResponse, GetAllLeaveReportsResponse, GetAllLeaveReportsData, LeaveReportCount, GetAllLeaveReportsItem, ErrorResponse |
+| Server URLs | https://dev_mcdp_be.omfysgroup.com; https://devmcdphcmplatform.omfysgroup.com |
 Reports inventory
 | Report area | Current state |
 |---|---|
-| reports/html/ | index.html, report-Leave_API-1779185723943.html, report-Login_API-1779185719505.html |
+| reports/html/ | index.html, report-Employee_Auth_API-1785817399312.html, report-Leave_API-1785817401492.html |
 | reports/allure-results/ | 136 entries; environment.properties, categories.json, executor.json exist |
 | reports/allure-results result status | 15 passed, 10 failed |
 | reports/allure-report/ | index.html exists |
@@ -543,7 +539,7 @@ npm run test:production
 Run one collection through COLLECTION_FILTER
 ```powershell
 $env:ENV="uat"
-$env:COLLECTION_FILTER="Login_API"
+$env:COLLECTION_FILTER="Employee_Auth_API"
 node scripts/run-newman.js
 ```
 Generate Allure HTML from existing raw results
@@ -595,10 +591,9 @@ CI/CD run instructions
   Description: .env.example now uses neutral employee credential placeholders.
   File: .env.example
   Fix: DONE: EMP_CODE and EMP_PASSWORD were replaced with YOUR_* placeholders.
-[NEW] Login CSV contains real-looking credential values
-  Description: Login_API.csv includes credential-like test values that should be treated as sensitive.
-  File: test-data/Login_API.csv
-  Fix: Replace with safe dummy values or move live credentials to .env/CI secrets.
+[RESOLVED] Standalone login CSV removed
+  Description: Employee authentication credentials now come from .env or CI secrets.
+  File: collections/Employee_Auth_API.json
 [RESOLVED] local/staging/production Newman environments all pointed to UAT URL
   Description: local now points to localhost and staging/production no longer use the exact UAT URL.
   File: environments/local.json, environments/staging.json, environments/production.json
@@ -620,7 +615,7 @@ CI/CD run instructions
   File: scripts/run-newman.js, reports/allure-results/categories.json
   Fix: DONE: writeAllureCategories writes custom buckets for auth, JSON/schema, HTTP 4xx/5xx, network, assertion, and broken-test failures.
 [RESOLVED] Leave API authToken ordering in main runner
-  Description: run-newman.js now enforces Login_API.json before Leave_API.json and carries authToken forward.
+  Description: run-newman.js now enforces Employee_Auth_API.json before Leave_API.json and carries authToken forward.
   File: scripts/run-newman.js
   Fix: DONE: RUN_ORDER and sharedEnvVars are present.
 [RESOLVED] monitoring/health-check.js executed pending collections
@@ -632,7 +627,7 @@ CI/CD run instructions
   File: monitoring/health-check.js
   Fix: DONE: environment and envVar are present.
 [RESOLVED] monitoring runner lacked auth carry-forward ordering
-  Description: health-check.js now runs Login_API.json before Leave_API.json and carries non-empty environment values forward.
+  Description: health-check.js now runs Employee_Auth_API.json before Leave_API.json and carries non-empty environment values forward.
   File: monitoring/health-check.js
   Fix: DONE: Added COLLECTION_RUN_ORDER, sharedEnvVars, environment loading, and carryForwardEnvVars.
 [RESOLVED] Bruno login endpoint was misaligned
@@ -706,16 +701,14 @@ Latest report failure details observed
 | Likely historical Leave/API failures | Earlier KT noted auth and JSON parsing failures; current runner ordering is fixed but live Newman was not rerun in this update |
 Likely investigation path
 1. Confirm valid EMP_CODE and EMP_PASSWORD are available in .env or CI secrets.
-2. Run Login_API.json alone and confirm a token is returned.
+2. Run Employee_Auth_API.json alone and confirm a token is returned.
 3. Confirm run-newman.js carries authToken into Leave_API.json in a live run.
-4. Inspect raw pending approvals response when JSON parsing fails; it may be HTML, empty body, auth error, or gateway error.
-5. Make Leave_API tests parse JSON only after confirming status/content-type when appropriate.
+4. Inspect raw getAllLeaveReports responses when JSON parsing fails; they may be HTML, empty, auth errors, or gateway errors.
+5. Keep Leave_API response checks aligned with data.count and data.leaveReport.
 OpenAPI notes
 - x-qa-status is verified for /auth/token.
-- x-qa-status is scaffold for leave report and approvals endpoints.
-- OpenAPI notes mention known UAT data quality issues:
-  - showleavereport can contain end_date with year 0025.
-  - approvals can contain startdate with year 0033.
+- x-qa-status covers the getAllLeaveReports endpoint.
+- OpenAPI documents the observed getAllLeaveReports response structure.
 - Tests should not hard-assert exact record counts due to UAT data volatility.
 CI/CD notes
 - GitHub Actions uses Node.js 24.
@@ -734,18 +727,17 @@ CI/CD notes
 | scripts/generate-generic-tests.py | Generates pytest smoke/schema tests from API_File | KavishTadas <kavish.tadas@[REDACTED]> | active/modified | read_api_rows, write_generated_tests, generated_test_content, skip_reason, parse_args, main |
 | scripts/generate-html-index.js | Generates consolidated HTML index from Newman summaries and generated pytest result files | KavishTadas <kavish.tadas@[REDACTED]> | active | generateIndex, readAutoGeneratedTestResults, readAllureResults, readJUnitResults, renderNewmanSection, renderAutoGeneratedSection |
 | monitoring/health-check.js | Runs active collections as health checks and appends failure logs | KavishTadas <kavish.tadas@[REDACTED]> | active | discoverCollections, runCollection, createFailureLogEntry, appendFailureLog, hasDegradedResponse, main |
-| collections/Login_API.json | Postman collection for HCM login token tests | KavishTadas <kavish.tadas@[REDACTED]> | active | 1 request item; test script stores authToken on valid token response; uses iterationData from test-data/Login_API.csv |
-| collections/Leave_API.json | Postman collection for leave report and pending approvals tests | KavishTadas <kavish.tadas@[REDACTED]> | active | 4 request items; tests records/pendingleavs arrays and missing-auth scenarios; uses iterationData from test-data/Leave_API.csv |
+| collections/Employee_Auth_API.json | Postman collection for HCM authentication tests | KavishTadas <kavish.tadas@[REDACTED]> | active | 3 request items; test script stores authToken on valid token response |
+| collections/Leave_API.json | Postman collection for getAllLeaveReports tests | KavishTadas <kavish.tadas@[REDACTED]> | active | 2 request items; tests authenticated data structure and invalid-token behavior; uses iterationData from test-data/Leave_API.csv |
 | collections/User_API.pending.json | Pending sample FastAPI Postman collection | KavishTadas <kavish.tadas@[REDACTED]> | pending | 4 request items for root/about/messages sample routes; skipped by main runner and monitor |
-| openapi/openapi.yaml | OpenAPI 3.1 contract for auth and leave APIs | KavishTadas <kavish.tadas@[REDACTED]> | active/modified | Paths: /auth/token, /user/leaves/showleavereport, /user/leaves/approvals; schemas: LoginRequest, LoginResponse, LeaveReportRequest, LeaveReportResponse, LeaveRecord, PendingApprovalsResponse, PendingLeaveRecord, ErrorResponse |
+| openapi/openapi.yaml | OpenAPI 3.1 contract for auth and leave APIs | KavishTadas <kavish.tadas@[REDACTED]> | active/modified | Paths: /auth/token, /user/leaves/getAllLeaveReports; schemas cover authentication, leave-report data/count/items, and errors |
 | .github/workflows/api-tests.yml | GitHub Actions workflow for API tests, generated API file, generated pytest tests, report uploads, and Slack failure alert | KavishTadas <kavish.tadas@[REDACTED]> | active/modified | jobs: generate-api-file, api-tests; condition: github.event_name == 'push' && github.ref_name == 'develop'; Node 24; workflow_dispatch collection maps to COLLECTION_FILTER |
 | Jenkinsfile | Jenkins pipeline for checkout, install, lint, test, Allure, HTML archive, and email failure alert | KavishTadas <kavish.tadas@[REDACTED]> | active | parameters ENVIRONMENT/COLLECTION/NOTIFY_EMAIL; stages Checkout, Install dependencies, Lint OpenAPI spec, Run API tests, Publish Allure report, Archive HTML report |
-| api-docs/API_File.json | Generated JSON endpoint inventory | KavishTadas <kavish.tadas@[REDACTED]> | active/generated/modified | 7 endpoint rows; modules Leave API, Login API, users, auth; current Bruno auth row is /auth/token |
-| api-docs/API_File.csv | Generated CSV endpoint inventory | KavishTadas <kavish.tadas@[REDACTED]> | active/generated/modified | Same 7 rows as JSON; used for human-readable API sheet |
+| api-docs/API_File.json | Generated JSON endpoint inventory | KavishTadas <kavish.tadas@[REDACTED]> | active/generated/modified | 6 endpoint rows; modules Employee Auth API, Leave API, auth; current Bruno auth row is /auth/token |
+| api-docs/API_File.csv | Generated CSV endpoint inventory | KavishTadas <kavish.tadas@[REDACTED]> | active/generated/modified | Same 6 rows as JSON; used for human-readable API sheet |
 | api-docs/history/API_File_history.json | API file regeneration history index | KavishTadas <kavish.tadas@[REDACTED]> | active/generated/modified | version 3 entry timestamp 20260526_094404; records new auth /auth/token and missing auth /auth/login |
 | api-docs/history/API_File_20260526_094404.csv | Previous API_File CSV snapshot from latest regeneration | KavishTadas <kavish.tadas@[REDACTED]> | active/generated/new | History snapshot file |
 | api-docs/history/API_File_20260526_094404.json | Previous API_File JSON snapshot from latest regeneration | KavishTadas <kavish.tadas@[REDACTED]> | active/generated/new | History snapshot file |
-| test-data/Login_API.csv | Login iteration data | KavishTadas <kavish.tadas@[REDACTED]> | active | Columns empCode, password, expectedStatus, expectedOutcome, testLabel; 5 data rows; values redacted here |
 | test-data/Leave_API.csv | Leave iteration data | KavishTadas <kavish.tadas@[REDACTED]> | active | Columns startDate, endDate, testLabel, expectRecords; 5 data rows |
 | bruno/auth/login.bru | Bruno login request | KavishTadas <kavish.tadas@[REDACTED]> | active | POST {{baseUrl}}/auth/token; JSON body uses empCode and empPassword; tests status/token/empCode and sets authToken |
 | bruno/users/get-profile.bru | Bruno profile request | KavishTadas <kavish.tadas@[REDACTED]> | active | GET {{BASE_URL}}/users/me; bearer authToken; validates status and email |
