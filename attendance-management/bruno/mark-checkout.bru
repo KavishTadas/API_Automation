@@ -1,0 +1,29 @@
+meta {
+  name: Mark Check-Out
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{BASE_URL}}/user/attendance/checkout
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+body:json {
+  {
+    "empCode": "{{empCode}}",
+    "checkOutTime": "18:00:00",
+    "location": "Office"
+  }
+}
+
+tests {
+  test("Status is 200 or 201", function() {
+    expect([200, 201]).to.include(res.getStatus());
+  });
+}

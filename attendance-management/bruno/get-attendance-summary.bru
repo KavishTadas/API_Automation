@@ -1,0 +1,21 @@
+meta {
+  name: Get Attendance Summary
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{BASE_URL}}/user/attendance/summary
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

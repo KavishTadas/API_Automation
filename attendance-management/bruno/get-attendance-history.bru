@@ -1,0 +1,21 @@
+meta {
+  name: Get Attendance History
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{BASE_URL}}/user/attendance/history
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
