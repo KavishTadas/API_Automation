@@ -1,0 +1,3 @@
+empCode,checkInTime,testLabel,expectedStatus
+OMI-0076,09:00:00,TC-DD-01 Standard Check-in,200
+OMI-0076,09:30:00,TC-DD-02 Late Check-in,200

@@ -1,0 +1,58 @@
+openapi: 3.0.3
+info:
+  title: Attendance Management API Specification
+  version: 1.0.0
+  description: OpenAPI contract for HCM Attendance Management APIs.
+
+paths:
+  /user/attendance/history:
+    get:
+      summary: Get Attendance History
+      operationId: getAttendanceHistory
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Attendance history retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  records:
+                    type: array
+                    items:
+                      type: object
+
+  /user/attendance/checkin:
+    post:
+      summary: Mark Attendance Check-In
+      operationId: markAttendanceCheckIn
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - empCode
+                - checkInTime
+              properties:
+                empCode:
+                  type: string
+                checkInTime:
+                  type: string
+                location:
+                  type: string
+      responses:
+        '200':
+          description: Check-in recorded successfully
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

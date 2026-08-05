@@ -1,0 +1,73 @@
+{
+  "info": {
+    "name": "Attendance API Management",
+    "description": "Collection for Attendance Management APIs including Check-in, Check-out, and Attendance Summary Reports.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "TC01 - Get Attendance History",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const label = pm.iterationData.get('testLabel') || 'Attendance History Test';",
+              "pm.test(label + ' — status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "pm.test(label + ' — response is valid json', function () {",
+              "  pm.expect(pm.response.json()).to.be.an('object');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user/attendance/history",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "attendance", "history"]
+        }
+      }
+    },
+    {
+      "name": "TC02 - Mark Attendance Check-In",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Check-in — status is 200 or 201', function () {",
+              "  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"empCode\": \"{{empCode}}\",\n  \"checkInTime\": \"{{checkInTime}}\",\n  \"location\": \"Office\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/user/attendance/checkin",
+          "host": ["{{baseUrl}}"],
+          "path": ["user", "attendance", "checkin"]
+        }
+      }
+    }
+  ]
+}
