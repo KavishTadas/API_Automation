@@ -98,6 +98,7 @@ jobs:
         if: always()
         run: |
           npx allure generate reports/allure-results/generated-tests --clean -o reports/allure-report/auto-generated-tests
+          python -m pip install allure-combine
           python -c "from allure_combine import combine; combine.combine_allure('reports/allure-report/auto-generated-tests')"
           cp reports/allure-report/auto-generated-tests/complete.html reports/allure-report/auto-generated-tests/index.html
 
@@ -213,6 +214,7 @@ jobs:
         if: always()
         run: |
           npx allure generate reports/allure-results --clean -o reports/allure-report
+          python -m pip install allure-combine
           python -c "from allure_combine import combine; combine.combine_allure('reports/allure-report')"
           cp reports/allure-report/complete.html reports/allure-report/index.html
 
