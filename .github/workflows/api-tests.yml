@@ -100,7 +100,7 @@ jobs:
         if: always()
         run: |
           npx allure generate reports/allure-results/generated-tests --clean -o reports/allure-report/auto-generated-tests
-          allure-combine reports/allure-report/auto-generated-tests
+          python -c "from allure_combine import combine; combine.combine_allure('reports/allure-report/auto-generated-tests')"
           cp reports/allure-report/auto-generated-tests/complete.html reports/allure-report/auto-generated-tests/index.html
 
       - name: Upload auto-generated test reports
@@ -200,7 +200,7 @@ jobs:
         if: always()
         run: |
           npx allure generate reports/allure-results --clean -o reports/allure-report
-          allure-combine reports/allure-report
+          python -c "from allure_combine import combine; combine.combine_allure('reports/allure-report')"
           cp reports/allure-report/complete.html reports/allure-report/index.html
 
       - name: Upload HTML report
