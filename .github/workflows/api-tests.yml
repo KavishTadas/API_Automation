@@ -142,16 +142,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint OpenAPI spec
-        run: npm run lint:spec
-
-      - name: Run API tests
-        id: run-tests
-        env:
-          ENV: ${{ inputs.environment || 'uat' }}
-          COLLECTION_FILTER: ${{ inputs.collection || 'all' }}
-        run: node scripts/run-newman.js
-
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -162,6 +152,16 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r dev-requirements.txt
+
+      - name: Lint OpenAPI spec
+        run: npm run lint:spec
+
+      - name: Run API tests
+        id: run-tests
+        env:
+          ENV: ${{ inputs.environment || 'uat' }}
+          COLLECTION_FILTER: ${{ inputs.collection || 'all' }}
+        run: node scripts/run-newman.js
 
       - name: Generate API File
         run: node scripts/generate-api-file.js

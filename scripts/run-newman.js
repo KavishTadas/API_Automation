@@ -185,7 +185,7 @@ function classifyTransientFailure(err, summary) {
   };
 }
 
-const ENV     = process.env.ENV || 'local';
+const ENV     = process.env.ENV || process.env.API_TEST_ENV || 'local';
 const envFile = path.join(__dirname, '..', 'environments', `${ENV}.json`);
 
 if (!fs.existsSync(envFile)) {
