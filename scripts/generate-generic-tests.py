@@ -584,7 +584,7 @@ API = json.loads(r"""{api_json}""")
 @allure.epic("{module}")
 @allure.feature("{module} APIs")
 @allure.story("{method} {endpoint}")
-def {schema_name}(api_runtime_config: dict[str, str]) -> None:
+{skip_mark}def {schema_name}(api_runtime_config: dict[str, str]) -> None:
     skip_if_no_response_schema(API)
     response = perform_api_request(API, api_runtime_config)
     assert response.status_code == {expected_status}

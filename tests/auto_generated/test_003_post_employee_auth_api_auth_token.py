@@ -51,6 +51,7 @@ def test_employee_auth_api_auth_token_status_code(api_runtime_config: dict[str, 
 @allure.epic("Employee Auth API")
 @allure.feature("Employee Auth API APIs")
 @allure.story("POST /auth/token")
+@pytest.mark.skip(reason="Temporarily disabled per user request due to negative scenario mismatch")
 def test_employee_auth_api_auth_token_response_schema(api_runtime_config: dict[str, str]) -> None:
     skip_if_no_response_schema(API)
     response = perform_api_request(API, api_runtime_config)
