@@ -533,10 +533,11 @@ def generated_test_content(api: dict[str, str], function_slug: str, reason: str)
     api_json = json.dumps(api, indent=2)
     status_name = f"test_{function_slug}_status_code"
     schema_name = f"test_{function_slug}_response_schema"
-    skip_mark = f'pytestmark = pytest.mark.skip(reason="{reason}")\n\n' if reason else ""
+    skip_mark = f'@pytest.mark.skip(reason="{reason}")\n' if reason else ""
     module = api.get("Module Name", "General")
     method = api.get("HTTP Method", "GET")
     endpoint = api.get("Endpoint / Path", "/")
+
 
     return f'''"""Generated tests for API row {api.get("Sr. No", "")}.
 

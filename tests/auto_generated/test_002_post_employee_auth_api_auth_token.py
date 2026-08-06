@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 
+import allure
 import pytest
 
 from ._api_test_helpers import (
@@ -38,11 +39,17 @@ API = json.loads(r"""{
   "Comments": "Source: collections/Employee_Auth_API.json; No saved response example in source file"
 }""")
 
+@allure.epic("Employee Auth API")
+@allure.feature("Employee Auth API APIs")
+@allure.story("POST /auth/token")
 def test_employee_auth_api_auth_token_status_code(api_runtime_config: dict[str, str]) -> None:
     response = perform_api_request(API, api_runtime_config)
     assert response.status_code == 200
 
 
+@allure.epic("Employee Auth API")
+@allure.feature("Employee Auth API APIs")
+@allure.story("POST /auth/token")
 def test_employee_auth_api_auth_token_response_schema(api_runtime_config: dict[str, str]) -> None:
     skip_if_no_response_schema(API)
     response = perform_api_request(API, api_runtime_config)

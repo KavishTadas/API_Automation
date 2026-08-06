@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 
+import allure
 import pytest
 
 from ._api_test_helpers import (
@@ -38,11 +39,17 @@ API = json.loads(r"""{
   "Comments": "Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
 }""")
 
+@allure.epic("Leave API")
+@allure.feature("Leave API APIs")
+@allure.story("GET /user/leaves/getAllLeaveReports")
 def test_leave_api_user_leaves_getallleavereports_status_code(api_runtime_config: dict[str, str]) -> None:
     response = perform_api_request(API, api_runtime_config)
     assert response.status_code == 200
 
 
+@allure.epic("Leave API")
+@allure.feature("Leave API APIs")
+@allure.story("GET /user/leaves/getAllLeaveReports")
 def test_leave_api_user_leaves_getallleavereports_response_schema(api_runtime_config: dict[str, str]) -> None:
     skip_if_no_response_schema(API)
     response = perform_api_request(API, api_runtime_config)
