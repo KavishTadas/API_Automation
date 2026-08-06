@@ -46,7 +46,6 @@ paths:
       summary: Authenticate employee and return JWT token
       x-sla-ms: 1000
       x-required-role: none
-      x-max-payload-bytes: 10000
       x-qa-status: verified
       x-qa-notes: >
         TC01 status 200 + token string length > 20 + empCode match
@@ -54,7 +53,13 @@ paths:
         TC02 wrong password returns 400 with message field.
         TC03 missing empCode returns 400 with message field.
         Token stored as authToken in Newman environment for
-        downstream leave endpoint requests.
+        downstream leave endpoint requests. Requests up to 1 MiB
+        (1,048,576 bytes) were processed normally, with no
+        payload-size-specific rejection observed; oversized test payloads
+        failed only on ordinary credential validation, for example HTTP 400
+        "Invalid password". The true maximum, if any, is untested beyond
+        that point. Testing was deliberately stopped at 1 MiB to avoid
+        placing undue load on infrastructure outside this project's ownership.
       requestBody:
         required: true
         content:
@@ -114,6 +119,13 @@ paths:
         Schema scaffolded from an authenticated HTTP 200 capture for
         month=4 and year=2026. All documented response fields were
         observed in that capture; no legacy leave fields were carried over.
+        Ten sequential requests using a single token completed successfully:
+        all returned HTTP 200 with a consistent 177,973-byte response, and no
+        rate-limiting (HTTP 429) or blocking response was observed. This does
+        not establish the actual rate-limit threshold, if any; it establishes
+        only that a small burst of this size is not rejected. Testing was
+        deliberately kept small to avoid placing load on infrastructure
+        outside this project's ownership.
       security:
         - bearerAuth: []
       parameters:

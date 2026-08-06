@@ -33,8 +33,6 @@ jobs:
       LEAVE_BASE_URL:   ${{ secrets.LEAVE_BASE_URL }}
       API_AUTH_TOKEN:   ${{ secrets.API_AUTH_TOKEN }}
       AUTH_TOKEN:       ${{ secrets.AUTH_TOKEN }}
-      USERNAME:         ${{ secrets.USERNAME }}
-      PASSWORD:         ${{ secrets.PASSWORD }}
 
     steps:
       - name: Checkout code
@@ -131,7 +129,6 @@ jobs:
       LEAVE_BASE_URL:    "https://devmcdphcmplatform.omfysgroup.com"
       API_AUTH_TOKEN:    ${{ secrets.API_AUTH_TOKEN }}
       AUTH_TOKEN:        ${{ secrets.AUTH_TOKEN }}
-      API_KEY:           ${{ secrets.API_KEY }}
       POSTMAN_API_KEY:   ${{ secrets.POSTMAN_API_KEY }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 

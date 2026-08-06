@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
@@ -12,6 +13,7 @@ from typing import Any
 import httpx
 import pytest
 import yaml
+from jsonschema import Draft202012Validator
 
 from tests.auto_generated._api_test_helpers import (
     load_runtime_config,
@@ -51,6 +53,9 @@ class GlobalContractContext:
     sources: ContractSources
     runtime_config: dict[str, str] = field(repr=False)
     bootstrap_responses: dict[tuple[str, str], httpx.Response] = field(repr=False)
+    response_samples: dict[tuple[str, str], tuple[httpx.Response, ...]] = field(
+        repr=False
+    )
 
 
 @lru_cache(maxsize=1)
@@ -244,11 +249,12 @@ def global_contract_context() -> GlobalContractContext:
     sources = _load_contract_sources()
     runtime_config = load_runtime_config()
     bootstrap_responses: dict[tuple[str, str], httpx.Response] = {}
+    operation_cases = _build_operation_cases()
 
     auth_case = next(
         (
             case
-            for case in _build_operation_cases()
+            for case in operation_cases
             if case.method == "POST" and case.path == "/auth/token"
         ),
         None,
@@ -267,10 +273,36 @@ def global_contract_context() -> GlobalContractContext:
                     }
                 )
 
+    for operation_case in operation_cases:
+        operation_key = (operation_case.method, operation_case.path)
+        if operation_key not in bootstrap_responses:
+            bootstrap_responses[operation_key] = perform_api_request(
+                operation_case.api_row,
+                runtime_config,
+            )
+
+    response_samples: dict[tuple[str, str], tuple[httpx.Response, ...]] = {}
+    for operation_case in operation_cases:
+        operation_key = (operation_case.method, operation_case.path)
+        samples = [bootstrap_responses[operation_key]]
+        error_rows = [
+            api_row
+            for api_row in sources.api_rows
+            if str(api_row.get("HTTP Method", "")).upper() == operation_case.method
+            and str(api_row.get("Endpoint / Path", "")) == operation_case.path
+            and any(code >= 400 for code in _inventory_status_codes(api_row))
+        ]
+        samples.extend(
+            perform_api_request(api_row, runtime_config)
+            for api_row in error_rows
+        )
+        response_samples[operation_key] = tuple(samples)
+
     return GlobalContractContext(
         sources=sources,
         runtime_config=runtime_config,
         bootstrap_responses=bootstrap_responses,
+        response_samples=response_samples,
     )
 
 
@@ -292,6 +324,322 @@ def test_status_code_matches_spec(
         f"{operation_case.method} {operation_case.path} returned "
         f"{response.status_code}; documented statuses are "
         f"{sorted(operation_case.documented_status_codes)}"
+    )
+
+
+@pytest.mark.parametrize("operation_case", build_contract_params())
+def test_response_matches_full_schema(
+    operation_case: OperationCase,
+    global_contract_context: GlobalContractContext,
+) -> None:
+    responses = global_contract_context.response_samples[
+        (operation_case.method, operation_case.path)
+    ]
+    observed_statuses: list[int] = []
+
+    for response in responses:
+        observed_statuses.append(response.status_code)
+        schema_document = _response_schema_document(
+            operation_case,
+            response.status_code,
+            global_contract_context.sources,
+        )
+        payload = _response_json(operation_case, response)
+        errors = sorted(
+            Draft202012Validator(schema_document).iter_errors(payload),
+            key=lambda error: [str(part) for part in error.absolute_path],
+        )
+
+        assert not errors, (
+            f"{operation_case.method} {operation_case.path} HTTP "
+            f"{response.status_code} failed its complete OpenAPI response schema: "
+            + "; ".join(_format_schema_error(error) for error in errors)
+        )
+
+    assert any(200 <= status < 300 for status in observed_statuses), (
+        f"{operation_case.method} {operation_case.path} schema check did not inspect "
+        f"a success response; observed statuses: {observed_statuses}"
+    )
+    assert any(status >= 400 for status in observed_statuses), (
+        f"{operation_case.method} {operation_case.path} schema check did not inspect "
+        f"an error response; observed statuses: {observed_statuses}"
+    )
+
+
+@pytest.mark.parametrize("operation_case", build_contract_params())
+def test_no_credential_leakage_in_response(
+    operation_case: OperationCase,
+    global_contract_context: GlobalContractContext,
+) -> None:
+    responses = global_contract_context.response_samples[
+        (operation_case.method, operation_case.path)
+    ]
+
+    for sample_index, response in enumerate(responses):
+        payload = _response_json(operation_case, response)
+        fields = _field_paths(payload)
+        credential_paths = [
+            path
+            for field_name, path in fields
+            if re.search(r"password|secret", field_name, re.IGNORECASE)
+        ]
+        assert not credential_paths, (
+            f"{operation_case.method} {operation_case.path} HTTP "
+            f"{response.status_code} exposed credential field(s): "
+            f"{credential_paths}"
+        )
+
+        token_paths = [
+            path
+            for field_name, path in fields
+            if re.sub(r"[^a-z0-9]", "", field_name.lower())
+            in {"token", "authtoken"}
+        ]
+        is_expected_auth_success = (
+            sample_index == 0
+            and operation_case.method == "POST"
+            and operation_case.path == "/auth/token"
+            and response.status_code == 200
+        )
+        if is_expected_auth_success:
+            assert token_paths == ["$.token"], (
+                "POST /auth/token HTTP 200 must contain exactly one root token field; "
+                f"observed token field paths: {token_paths}"
+            )
+        else:
+            assert not token_paths, (
+                f"{operation_case.method} {operation_case.path} HTTP "
+                f"{response.status_code} unexpectedly exposed token field(s): "
+                f"{token_paths}"
+            )
+
+
+@pytest.mark.parametrize("operation_case", build_contract_params())
+def test_response_time_within_sla(
+    operation_case: OperationCase,
+    global_contract_context: GlobalContractContext,
+) -> None:
+    if operation_case.sla_ms is None:
+        pytest.skip(
+            f"{operation_case.method} {operation_case.path} has no x-sla-ms "
+            "defined in openapi.yaml"
+        )
+
+    started_at = time.perf_counter()
+    perform_api_request(
+        operation_case.api_row,
+        global_contract_context.runtime_config,
+    )
+    elapsed_ms = (time.perf_counter() - started_at) * 1000
+    buffer_percent = 20
+    allowed_ms = operation_case.sla_ms * (1 + buffer_percent / 100)
+
+    print(
+        f"SLA measurement {operation_case.method} {operation_case.path}: "
+        f"{elapsed_ms:.1f}ms; limit {allowed_ms:.0f}ms "
+        f"({operation_case.sla_ms}ms SLA +{buffer_percent}% buffer)"
+    )
+    assert elapsed_ms <= allowed_ms, (
+        f"{operation_case.method} {operation_case.path}: expected "
+        f"<={allowed_ms:.0f}ms ({operation_case.sla_ms}ms SLA "
+        f"+{buffer_percent}% buffer), got {elapsed_ms:.1f}ms"
+    )
+
+
+@pytest.mark.parametrize(
+    "operation_case",
+    [
+        pytest.param(case, id=f"{case.method} {case.path}")
+        for case in _build_operation_cases()
+        if case.idempotent is True
+    ],
+)
+def test_idempotent_get_returns_stable_result(
+    operation_case: OperationCase,
+    global_contract_context: GlobalContractContext,
+) -> None:
+    first_response = perform_api_request(
+        operation_case.api_row,
+        global_contract_context.runtime_config,
+    )
+    second_response = perform_api_request(
+        operation_case.api_row,
+        global_contract_context.runtime_config,
+    )
+
+    assert first_response.status_code == second_response.status_code, (
+        f"{operation_case.method} {operation_case.path} returned different statuses "
+        f"for identical consecutive requests: first={first_response.status_code}, "
+        f"second={second_response.status_code}"
+    )
+
+    first_payload = _response_json(operation_case, first_response)
+    second_payload = _response_json(operation_case, second_response)
+    assert isinstance(first_payload, dict) and isinstance(second_payload, dict), (
+        f"{operation_case.method} {operation_case.path} must return JSON objects "
+        "for structural idempotency comparison"
+    )
+
+    first_top_level_fields = frozenset(first_payload)
+    second_top_level_fields = frozenset(second_payload)
+    assert first_top_level_fields == second_top_level_fields, (
+        f"{operation_case.method} {operation_case.path} returned different top-level "
+        "fields for identical consecutive requests: "
+        f"first={sorted(first_top_level_fields)}, "
+        f"second={sorted(second_top_level_fields)}"
+    )
+
+    first_data = first_payload.get("data")
+    second_data = second_payload.get("data")
+    first_data_fields = (
+        frozenset(first_data) if isinstance(first_data, dict) else frozenset()
+    )
+    second_data_fields = (
+        frozenset(second_data) if isinstance(second_data, dict) else frozenset()
+    )
+    assert first_data_fields == second_data_fields, (
+        f"{operation_case.method} {operation_case.path} returned different data "
+        "structures for identical consecutive requests: "
+        f"first={sorted(first_data_fields)}, second={sorted(second_data_fields)}"
+    )
+
+    first_records = (
+        first_data.get("leaveReport") if isinstance(first_data, dict) else None
+    )
+    second_records = (
+        second_data.get("leaveReport") if isinstance(second_data, dict) else None
+    )
+    first_record_count = len(first_records) if isinstance(first_records, list) else None
+    second_record_count = len(second_records) if isinstance(second_records, list) else None
+    assert first_record_count == second_record_count, (
+        f"{operation_case.method} {operation_case.path} returned a different record "
+        "count for identical consecutive requests: "
+        f"first={first_record_count}, second={second_record_count}"
+    )
+
+    print(
+        f"Idempotency observation {operation_case.method} {operation_case.path}: "
+        f"status={first_response.status_code} both times; "
+        f"record_count={first_record_count} both times; "
+        f"top_level_fields={sorted(first_top_level_fields)}"
+    )
+
+
+def test_small_burst_does_not_trigger_immediate_blocking(
+    global_contract_context: GlobalContractContext,
+) -> None:
+    operation_case = next(
+        case
+        for case in _build_operation_cases()
+        if (case.method, case.path)
+        == ("GET", "/user/leaves/getAllLeaveReports")
+    )
+    token = global_contract_context.runtime_config.get("AUTH_TOKEN")
+    assert token, "The session bootstrap did not provide a valid auth token"
+
+    burst_row = _api_row_with_authorization(
+        {
+            **operation_case.api_row,
+            "Request Parameters": "query: month=4; year=2026",
+        },
+        f"Bearer {token}",
+    )
+    observed_statuses: list[int] = []
+
+    for request_number in range(1, 11):
+        response = perform_api_request(
+            burst_row,
+            global_contract_context.runtime_config,
+        )
+        observed_statuses.append(response.status_code)
+        has_waf_fingerprint = (
+            response.status_code == 403 and not response.content.strip()
+        )
+        assert not has_waf_fingerprint, (
+            "Small sequential burst was blocked with the known WAF fingerprint "
+            f"(HTTP 403 with an empty body) at request {request_number}; "
+            f"statuses observed before stopping: {observed_statuses}"
+        )
+
+    print(
+        "Small-burst observation GET /user/leaves/getAllLeaveReports "
+        f"month=4 year=2026: statuses={observed_statuses}"
+    )
+
+
+@pytest.mark.parametrize(
+    "operation_case",
+    [
+        pytest.param(case, id=f"{case.method} {case.path}")
+        for case in _build_operation_cases()
+        if case.max_payload_bytes is not None
+        and isinstance(
+            _load_contract_sources()
+            .openapi["paths"][case.path][case.method.lower()]
+            .get("requestBody"),
+            dict,
+        )
+    ],
+)
+def test_request_payload_size_enforcement(
+    operation_case: OperationCase,
+    global_contract_context: GlobalContractContext,
+) -> None:
+    assert operation_case.max_payload_bytes is not None
+    oversized_row = {
+        **operation_case.api_row,
+        "Request Body": json.dumps(
+            {
+                "empCode": "{{empCode}}",
+                "password": "X" * (operation_case.max_payload_bytes + 1),
+            },
+            separators=(",", ":"),
+        ),
+    }
+    response = perform_api_request(
+        oversized_row,
+        global_contract_context.runtime_config,
+    )
+    actual_request_bytes = len(response.request.content)
+    assert actual_request_bytes > operation_case.max_payload_bytes, (
+        f"Oversized request construction failed: expected more than "
+        f"{operation_case.max_payload_bytes} bytes, got {actual_request_bytes}"
+    )
+
+    response_body = response.text
+    configured_emp_code = (
+        global_contract_context.runtime_config.get("EMP_CODE")
+        or global_contract_context.runtime_config.get("empCode")
+        or ""
+    )
+    if configured_emp_code:
+        response_body = response_body.replace(configured_emp_code, "<redacted-emp-code>")
+
+    try:
+        response_payload = response.json()
+    except ValueError:
+        response_payload = None
+    if response_payload is not None:
+        sensitive_response_paths = [
+            path
+            for field_name, path in _field_paths(response_payload)
+            if re.search(
+                r"password|secret|token|emp[_-]?code",
+                field_name,
+                re.IGNORECASE,
+            )
+        ]
+        if sensitive_response_paths:
+            response_body = (
+                "<response body withheld because it contained sensitive field(s): "
+                f"{sensitive_response_paths}>"
+            )
+
+    print(
+        f"Oversized payload observation {operation_case.method} "
+        f"{operation_case.path}: request_bytes={actual_request_bytes}; "
+        f"documented_limit={operation_case.max_payload_bytes}; "
+        f"status={response.status_code}; response_body={response_body}"
     )
 
 
@@ -334,6 +682,82 @@ def _api_row_with_additional_headers(
 
 def _response_media_type(response: httpx.Response) -> str:
     return response.headers.get("content-type", "").split(";", 1)[0].strip().lower()
+
+
+def _response_schema_document(
+    operation_case: OperationCase,
+    status_code: int,
+    sources: ContractSources,
+) -> dict[str, Any]:
+    operation = sources.openapi["paths"][operation_case.path][
+        operation_case.method.lower()
+    ]
+    responses = operation.get("responses", {})
+    response_definition = responses.get(str(status_code))
+    if response_definition is None:
+        response_definition = responses.get(f"{status_code // 100}XX")
+
+    assert isinstance(response_definition, dict), (
+        f"{operation_case.method} {operation_case.path} returned {status_code}, "
+        "but OpenAPI has no response definition for that status"
+    )
+
+    content = response_definition.get("content", {})
+    json_content = content.get("application/json")
+    assert isinstance(json_content, dict), (
+        f"{operation_case.method} {operation_case.path} returned {status_code}, "
+        "but OpenAPI has no application/json response schema for that status"
+    )
+
+    response_schema = json_content.get("schema")
+    assert isinstance(response_schema, dict), (
+        f"{operation_case.method} {operation_case.path} returned {status_code}, "
+        "but its application/json response has no schema"
+    )
+
+    schema_document: dict[str, Any] = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "components": sources.openapi.get("components", {}),
+    }
+    schema_document.update(response_schema)
+    Draft202012Validator.check_schema(schema_document)
+    return schema_document
+
+
+def _response_json(
+    operation_case: OperationCase,
+    response: httpx.Response,
+) -> Any:
+    try:
+        return response.json()
+    except ValueError:
+        pytest.fail(
+            f"{operation_case.method} {operation_case.path} returned "
+            f"non-JSON content for HTTP {response.status_code}; body withheld"
+        )
+
+
+def _format_schema_error(error: Any) -> str:
+    instance_path = "$" + "".join(
+        f"[{part}]" if isinstance(part, int) else f".{part}"
+        for part in error.absolute_path
+    )
+    schema_path = "/".join(str(part) for part in error.absolute_schema_path)
+    return f"{instance_path}: {error.validator} failed at schema/{schema_path}"
+
+
+def _field_paths(value: Any, path: str = "$") -> list[tuple[str, str]]:
+    fields: list[tuple[str, str]] = []
+    if isinstance(value, dict):
+        for key, child in value.items():
+            key_text = str(key)
+            child_path = f"{path}.{key_text}"
+            fields.append((key_text, child_path))
+            fields.extend(_field_paths(child, child_path))
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            fields.extend(_field_paths(child, f"{path}[{index}]"))
+    return fields
 
 
 def build_special_character_params() -> list[Any]:
