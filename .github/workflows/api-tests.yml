@@ -1,4 +1,4 @@
-﻿name: API automation tests
+name: API automation tests
 
 on:
   push:
@@ -98,9 +98,10 @@ jobs:
 
       - name: Generate Allure HTML report for auto-generated tests
         if: always()
-        run: >
-          npx allure generate reports/allure-results/generated-tests
-          --clean -o reports/allure-report/auto-generated-tests
+        run: |
+          npx allure generate reports/allure-results/generated-tests --clean -o reports/allure-report/auto-generated-tests
+          allure-combine reports/allure-report/auto-generated-tests
+          cp reports/allure-report/auto-generated-tests/complete.html reports/allure-report/auto-generated-tests/index.html
 
       - name: Upload auto-generated test reports
         if: always()
@@ -197,7 +198,10 @@ jobs:
 
       - name: Generate Allure HTML report
         if: always()
-        run: npx allure generate reports/allure-results --clean -o reports/allure-report
+        run: |
+          npx allure generate reports/allure-results --clean -o reports/allure-report
+          allure-combine reports/allure-report
+          cp reports/allure-report/complete.html reports/allure-report/index.html
 
       - name: Upload HTML report
         uses: actions/upload-artifact@v4
