@@ -1,0 +1,21 @@
+meta {
+  name: Get profile
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{BASE_URL}}/users/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{authToken}}
+}
+
+tests {
+  test("Status is 200", function() { expect(res.getStatus()).to.equal(200); });
+  test("Email is a string", function() { expect(res.getBody().email).to.be.a("string"); });
+}
+
