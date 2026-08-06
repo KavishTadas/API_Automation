@@ -2,9 +2,9 @@ name: API automation tests
 
 on:
   push:
-    branches: [main, develop, feature/hcm-leave-management-api]
+    branches: [main, develop, feature/hcm-leave-management-api, attendance]
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop, attendance]
   workflow_dispatch:
     inputs:
       environment:
