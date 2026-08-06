@@ -50,7 +50,12 @@ def api_runtime_config() -> dict[str, str]:
     )
 
     payload = response.json()
-    token = payload.get("token") if isinstance(payload, dict) else None
+    token = None
+    if isinstance(payload, dict):
+        token = payload.get("token") or payload.get("access_token") or payload.get("authToken")
+        if not token and isinstance(payload.get("data"), dict):
+            token = payload["data"].get("token") or payload["data"].get("access_token") or payload["data"].get("authToken")
+            
     assert token, "Employee Auth bootstrap response did not contain a token"
     config.update(
         {

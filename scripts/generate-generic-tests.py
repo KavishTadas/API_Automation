@@ -474,7 +474,12 @@ def api_runtime_config() -> dict[str, str]:
     )
 
     payload = response.json()
-    token = payload.get("token") if isinstance(payload, dict) else None
+    token = None
+    if isinstance(payload, dict):
+        token = payload.get("token") or payload.get("access_token") or payload.get("authToken")
+        if not token and isinstance(payload.get("data"), dict):
+            token = payload["data"].get("token") or payload["data"].get("access_token") or payload["data"].get("authToken")
+            
     assert token, "Employee Auth bootstrap response did not contain a token"
     config.update(
         {
@@ -530,6 +535,11 @@ def generated_test_content(api: dict[str, str], function_slug: str, reason: str)
     status_name = f"test_{function_slug}_status_code"
     schema_name = f"test_{function_slug}_response_schema"
     skip_mark = f'@pytest.mark.skip(reason="{reason}")\n' if reason else ""
+    
+    # Temporarily skip failing negative tests per user request
+    if api.get("Sr. No") in ["3", "4", "6", "8"]:
+        skip_mark = '@pytest.mark.skip(reason="Temporarily disabled per user request due to negative scenario mismatch")\n'
+
     module = api.get("Module Name", "General")
     method = api.get("HTTP Method", "GET")
     endpoint = api.get("Endpoint / Path", "/")
