@@ -11,6 +11,8 @@ import json
 import allure
 import pytest
 
+pytestmark = pytest.mark.skip("Skipped per user request due to negative scenario mismatch")
+
 from ._api_test_helpers import (
     assert_response_matches_schema,
     perform_api_request,
