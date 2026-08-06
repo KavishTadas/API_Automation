@@ -522,10 +522,6 @@ def skip_reason(api: dict[str, str]) -> str:
     if not api.get("Base URL", "").strip() or not api.get("Endpoint / Path", "").strip():
         return "Base URL or endpoint is missing in API file"
 
-    response_spec = api.get("Response (example/200)", "")
-    if response_spec and "200" not in response_spec:
-        return "API row documents a non-200 or negative scenario, not a valid request"
-
     return ""
 
 
@@ -538,6 +534,12 @@ def generated_test_content(api: dict[str, str], function_slug: str, reason: str)
     method = api.get("HTTP Method", "GET")
     endpoint = api.get("Endpoint / Path", "/")
 
+    expected_status = 200
+    response_spec = api.get("Response (example/200)", "")
+    # Search for things like "Expected status(es): 400"
+    match = re.search(r'Expected status(?:\(es\)|es)?:[^\d]*(\d{3})', response_spec, re.IGNORECASE)
+    if match:
+        expected_status = int(match.group(1))
 
     return f'''"""Generated tests for API row {api.get("Sr. No", "")}.
 
@@ -566,7 +568,7 @@ API = json.loads(r"""{api_json}""")
 @allure.story("{method} {endpoint}")
 {skip_mark}def {status_name}(api_runtime_config: dict[str, str]) -> None:
     response = perform_api_request(API, api_runtime_config)
-    assert response.status_code == 200
+    assert response.status_code == {expected_status}
 
 
 @allure.epic("{module}")
@@ -575,7 +577,7 @@ API = json.loads(r"""{api_json}""")
 def {schema_name}(api_runtime_config: dict[str, str]) -> None:
     skip_if_no_response_schema(API)
     response = perform_api_request(API, api_runtime_config)
-    assert response.status_code == 200
+    assert response.status_code == {expected_status}
     assert_response_matches_schema(response, API)
 '''
 

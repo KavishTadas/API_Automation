@@ -42,10 +42,9 @@ API = json.loads(r"""{
 @allure.epic("Leave API")
 @allure.feature("Leave API APIs")
 @allure.story("GET /user/leaves/getAllLeaveReports")
-@pytest.mark.skip(reason="API row documents a non-200 or negative scenario, not a valid request")
 def test_leave_api_user_leaves_getallleavereports_status_code(api_runtime_config: dict[str, str]) -> None:
     response = perform_api_request(API, api_runtime_config)
-    assert response.status_code == 200
+    assert response.status_code == 401
 
 
 @allure.epic("Leave API")
@@ -54,5 +53,5 @@ def test_leave_api_user_leaves_getallleavereports_status_code(api_runtime_config
 def test_leave_api_user_leaves_getallleavereports_response_schema(api_runtime_config: dict[str, str]) -> None:
     skip_if_no_response_schema(API)
     response = perform_api_request(API, api_runtime_config)
-    assert response.status_code == 200
+    assert response.status_code == 401
     assert_response_matches_schema(response, API)
