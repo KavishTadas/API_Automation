@@ -534,6 +534,9 @@ def generated_test_content(api: dict[str, str], function_slug: str, reason: str)
     status_name = f"test_{function_slug}_status_code"
     schema_name = f"test_{function_slug}_response_schema"
     skip_mark = f'pytestmark = pytest.mark.skip(reason="{reason}")\n\n' if reason else ""
+    module = api.get("Module Name", "General")
+    method = api.get("HTTP Method", "GET")
+    endpoint = api.get("Endpoint / Path", "/")
 
     return f'''"""Generated tests for API row {api.get("Sr. No", "")}.
 
@@ -545,6 +548,7 @@ from __future__ import annotations
 
 import json
 
+import allure
 import pytest
 
 from ._api_test_helpers import (
@@ -556,11 +560,17 @@ from ._api_test_helpers import (
 
 API = json.loads(r"""{api_json}""")
 
+@allure.epic("{module}")
+@allure.feature("{module} APIs")
+@allure.story("{method} {endpoint}")
 {skip_mark}def {status_name}(api_runtime_config: dict[str, str]) -> None:
     response = perform_api_request(API, api_runtime_config)
     assert response.status_code == 200
 
 
+@allure.epic("{module}")
+@allure.feature("{module} APIs")
+@allure.story("{method} {endpoint}")
 def {schema_name}(api_runtime_config: dict[str, str]) -> None:
     skip_if_no_response_schema(API)
     response = perform_api_request(API, api_runtime_config)

@@ -195,6 +195,25 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
+      - name: Get previous Allure history
+        uses: dawidd6/action-download-artifact@v3
+        if: always()
+        continue-on-error: true
+        with:
+          workflow: api-tests.yml
+          name_is_regexp: true
+          name: allure-html-report-.*
+          path: old-reports/
+
+      - name: Copy Allure history & create environment properties
+        if: always()
+        run: |
+          mkdir -p reports/allure-results
+          cp -r old-reports/*/history reports/allure-results/history || true
+          echo "Pipeline=GitHub Actions" >> reports/allure-results/environment.properties
+          echo "Branch=${{ github.ref_name }}" >> reports/allure-results/environment.properties
+          echo "Commit=${{ github.sha }}" >> reports/allure-results/environment.properties
+          echo "Run ID=${{ github.run_id }}" >> reports/allure-results/environment.properties
 
       - name: Generate Allure HTML report
         if: always()

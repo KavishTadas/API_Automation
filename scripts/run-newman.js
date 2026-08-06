@@ -514,43 +514,37 @@ function writeAllureCategories() {
   );
   const categories = [
     {
-      name: 'Authentication and authorization',
+      name: 'Authentication & Security Failures',
       matchedStatuses: ['failed', 'broken'],
-      messageRegex: '.*(401|403|Unauthorized|Forbidden|authToken|Bearer|Invalid credentials|missing auth).*',
-      traceRegex: '.*(401|403|Unauthorized|Forbidden|authToken|Bearer|Invalid credentials|missing auth).*'
+      messageRegex: '.*(401|403|Unauthorized|Forbidden|authToken|Bearer|Invalid credentials|missing auth|Security|Token).*',
+      traceRegex: '.*(401|403|Unauthorized|Forbidden|authToken|Bearer|Invalid credentials|missing auth|Security|Token).*'
     },
     {
-      name: 'JSON parsing and schema',
+      name: 'API Response Failures',
       matchedStatuses: ['failed', 'broken'],
-      messageRegex: '.*(JSONError|Unexpected token|JSON|schema|parse|valid JSON).*',
-      traceRegex: '.*(JSONError|Unexpected token|JSON|schema|parse|valid JSON).*'
+      messageRegex: '.*(400|404|409|422|Bad Request|Not Found|Unprocessable|JSONError|Unexpected token|JSON|schema|parse|valid JSON).*',
+      traceRegex: '.*(400|404|409|422|Bad Request|Not Found|Unprocessable|JSONError|Unexpected token|JSON|schema|parse|valid JSON).*'
     },
     {
-      name: 'Client/API validation 4xx',
-      matchedStatuses: ['failed', 'broken'],
-      messageRegex: '.*(400|404|409|422|Bad Request|Not Found|Unprocessable).*',
-      traceRegex: '.*(400|404|409|422|Bad Request|Not Found|Unprocessable).*'
-    },
-    {
-      name: 'Server/API availability 5xx',
+      name: 'Server & Infrastructure Faults',
       matchedStatuses: ['failed', 'broken'],
       messageRegex: '.*(500|502|503|504|Internal Server Error|Bad Gateway|Service Unavailable|Gateway Timeout).*',
       traceRegex: '.*(500|502|503|504|Internal Server Error|Bad Gateway|Service Unavailable|Gateway Timeout).*'
     },
     {
-      name: 'Timeouts and network',
+      name: 'Performance & SLA Breaches',
       matchedStatuses: ['failed', 'broken'],
-      messageRegex: '.*(timeout|ETIMEDOUT|ECONNRESET|ENOTFOUND|ECONNREFUSED|socket hang up).*',
-      traceRegex: '.*(timeout|ETIMEDOUT|ECONNRESET|ENOTFOUND|ECONNREFUSED|socket hang up).*'
+      messageRegex: '.*(timeout|ETIMEDOUT|ECONNRESET|ENOTFOUND|ECONNREFUSED|socket hang up|Response time|Slow).*',
+      traceRegex: '.*(timeout|ETIMEDOUT|ECONNRESET|ENOTFOUND|ECONNREFUSED|socket hang up|Response time|Slow).*'
     },
     {
-      name: 'Assertion failures',
+      name: 'Assertion Failures',
       matchedStatuses: ['failed'],
-      messageRegex: '.*(expected|assertion|AssertionError|Status code|Response time).*',
-      traceRegex: '.*(expected|assertion|AssertionError|Status code|Response time).*'
+      messageRegex: '.*(expected|assertion|AssertionError|Status code).*',
+      traceRegex: '.*(expected|assertion|AssertionError|Status code).*'
     },
     {
-      name: 'Broken tests',
+      name: 'Framework Errors',
       matchedStatuses: ['broken']
     }
   ];
