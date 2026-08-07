@@ -208,11 +208,7 @@ components:
 
     LoginResponse:
       type: object
-      required: [empCode, roles, username]
-      oneOf:
-        - required: [token]
-        - required: [access_token]
-        - required: [authToken]
+      required: [empCode, roles, token, username]
       properties:
         empCode:
           type: string
@@ -223,14 +219,6 @@ components:
             type: string
           example: ["ROLE_EMPLOYEE", "ROLE_BDH"]
         token:
-          type: string
-          minLength: 20
-          example: "eyJhbGciOiJIUzI1NiJ9..."
-        access_token:
-          type: string
-          minLength: 20
-          example: "eyJhbGciOiJIUzI1NiJ9..."
-        authToken:
           type: string
           minLength: 20
           example: "eyJhbGciOiJIUzI1NiJ9..."

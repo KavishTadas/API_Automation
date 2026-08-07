@@ -1,0 +1,5 @@
+month,year,testLabel,caseType,expectedStatus,spotCheckItems
+8,2026,TC-DD-01 Current month August 2026,valid,200,false
+4,2026,TC-DD-02 Known populated month April 2026,valid,200,true
+3,2026,TC-DD-03 Past month March 2026,valid,200,false
+13,2026,TC-DD-04 Invalid month 13,invalid,400,false

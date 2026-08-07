@@ -1,0 +1,234 @@
+{
+  "info": {
+    "name": "Leave API",
+    "description": "Observed monthly leave-report contract and authorization checks",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "TC01/TC03 - Get all leave reports and validate structure",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const label = pm.iterationData.get('testLabel') || 'unlabelled iteration';",
+              "const caseType = pm.iterationData.get('caseType') || 'valid';",
+              "const expectedStatus = Number(pm.iterationData.get('expectedStatus') || 200);",
+              "const requireTwoRecords = pm.iterationData.get('spotCheckItems') === 'true';",
+              "const actualStatus = pm.response.code;",
+              "const responseContentType = (pm.response.headers.get('Content-Type') || '').trim();",
+              "const responseIsJson = /^(?:application\\/json|application\\/[^;\\s]+\\+json)(?:\\s*;|$)/i.test(responseContentType);",
+              "const contentTypeDescription = responseContentType || 'no content-type header';",
+              "const contentTypeFailureMessage = 'Expected application/json response but received ' + contentTypeDescription;",
+              "function assertOpenApiSchema(schemaName, payload, context) {",
+              "  const rawBundle = pm.environment.get('openapiSchemaBundle');",
+              "  pm.expect(rawBundle, 'OpenAPI schema bundle must be injected by scripts/run-newman.js').to.be.a('string');",
+              "  const schemaBundle = JSON.parse(rawBundle);",
+              "  const Ajv = require('ajv');",
+              "  const ajv = new Ajv({ allErrors: true, jsonPointers: true, schemaId: 'auto', unknownFormats: 'ignore' });",
+              "  ajv.addSchema(schemaBundle);",
+              "  const validate = ajv.getSchema(schemaBundle.$id + '#/components/schemas/' + schemaName);",
+              "  pm.expect(validate, 'Compiled OpenAPI schema ' + schemaName + ' must exist').to.be.a('function');",
+              "  const valid = validate(payload);",
+              "  const errors = validate.errors || [];",
+              "  const details = errors.slice(0, 5).map(function (error) {",
+              "    return (error.dataPath || '/') + ' ' + error.message + ' (' + error.schemaPath + ')';",
+              "  }).join('; ') + (errors.length > 5 ? '; ... ' + (errors.length - 5) + ' additional violation(s)' : '');",
+              "  pm.expect(valid, (context || schemaName) + ' failed OpenAPI schema validation: ' + details).to.equal(true);",
+              "}",
+              "",
+              "console.log('[Leave_API][AUTHENTICATED] ' + label + ' HTTP ' + actualStatus);",
+              "pm.test(label + ' - expected HTTP ' + expectedStatus, function () {",
+              "  pm.expect(actualStatus).to.equal(expectedStatus);",
+              "});",
+              "",
+              "if (!responseIsJson) {",
+              "  pm.test(contentTypeFailureMessage, function () {",
+              "    pm.expect(responseIsJson, contentTypeFailureMessage).to.equal(true);",
+              "  });",
+              "} else {",
+              "const json = pm.response.json();",
+              "if (caseType === 'valid') {",
+              "  pm.test('TC01 - Status is 200 - ' + label, function () {",
+              "    pm.response.to.have.status(200);",
+              "  });",
+              "",
+              "  pm.test('TC01 - Full response matches OpenAPI GetAllLeaveReportsResponse - ' + label, function () {",
+              "    assertOpenApiSchema('GetAllLeaveReportsResponse', json, 'Leave-report response');",
+              "  });",
+              "",
+              "  pm.test('TC01 - Response has status, message, data.count and data.leaveReport - ' + label, function () {",
+              "    pm.expect(json).to.have.property('status').that.is.a('string');",
+              "    pm.expect(json).to.have.property('message').that.is.a('string');",
+              "    pm.expect(json).to.have.property('data').that.is.an('object');",
+              "    pm.expect(json.data).to.have.property('count').that.is.an('object');",
+              "    pm.expect(json.data).to.have.property('leaveReport').that.is.an('array');",
+              "  });",
+              "",
+              "  pm.test('TC01 - Count contains observed integer fields - ' + label, function () {",
+              "    ['rejected', 'cancelled', 'pending', 'approved'].forEach(function (field) {",
+              "      pm.expect(json.data.count).to.have.property(field);",
+              "      pm.expect(Number.isInteger(json.data.count[field])).to.equal(true);",
+              "    });",
+              "  });",
+              "",
+              "  const reports = json.data.leaveReport;",
+              "  pm.test('TC03 - Every leaveReport item matches OpenAPI GetAllLeaveReportsItem - ' + label, function () {",
+              "    reports.forEach(function (record, index) {",
+              "      assertOpenApiSchema('GetAllLeaveReportsItem', record, 'leaveReport[' + index + ']');",
+              "    });",
+              "  });",
+              "",
+              "  if (requireTwoRecords) {",
+              "    pm.test('TC03 - At least two records available for required spot-check - ' + label, function () {",
+              "      pm.expect(reports.length).to.be.at.least(2);",
+              "    });",
+              "  }",
+              "",
+              "  if (reports.length > 0) {",
+              "    const expectedFields = [",
+              "      'lr_no', 'lr_id', 'subject', 'application_date', 'status',",
+              "      'start_date', 'end_date', 'leave_type', 'emp_name', 'day_type',",
+              "      'empid', 'purpose', 'reason'",
+              "    ];",
+              "    const integerFields = ['lr_no', 'lr_id', 'empid'];",
+              "    const stringFields = [",
+              "      'subject', 'application_date', 'status', 'start_date', 'end_date',",
+              "      'leave_type', 'emp_name', 'day_type'",
+              "    ];",
+              "",
+              "    pm.test('TC03 - Every record contains all 13 expected fields - ' + label, function () {",
+              "      reports.forEach(function (record) {",
+              "        expectedFields.forEach(function (field) {",
+              "          pm.expect(record).to.have.property(field);",
+              "        });",
+              "        integerFields.forEach(function (field) {",
+              "          pm.expect(Number.isInteger(record[field])).to.equal(true);",
+              "        });",
+              "        stringFields.forEach(function (field) {",
+              "          pm.expect(record[field]).to.be.a('string');",
+              "        });",
+              "        pm.expect(record.purpose === null || typeof record.purpose === 'string').to.equal(true);",
+              "        pm.expect(record.reason === null || typeof record.reason === 'string').to.equal(true);",
+              "      });",
+              "    });",
+              "    console.log('[Leave_API][TC03] checked all ' + reports.length + ' records for ' + label);",
+              "  } else {",
+              "    console.log('[Leave_API][TC03] no records returned; item checks are vacuously satisfied for ' + label);",
+              "  }",
+              "} else {",
+              "  pm.test('TC04 - Full response matches OpenAPI GetAllLeaveReportsErrorResponse - ' + label, function () {",
+              "    assertOpenApiSchema('GetAllLeaveReportsErrorResponse', json, 'Invalid-month error response');",
+              "  });",
+              "  pm.test('TC04 - Invalid month returns observed error structure - ' + label, function () {",
+              "    pm.expect(json).to.have.property('status', 'error');",
+              "    pm.expect(json).to.have.property('message').that.is.a('string');",
+              "  });",
+              "}",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{authToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{leaveBaseUrl}}/user/leaves/getAllLeaveReports?month={{month}}&year={{year}}",
+          "host": ["{{leaveBaseUrl}}"],
+          "path": ["user", "leaves", "getAllLeaveReports"],
+          "query": [
+            { "key": "month", "value": "{{month}}" },
+            { "key": "year", "value": "{{year}}" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "TC02 - Invalid token returns observed authorization status",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "console.log('[Leave_API][INVALID_TOKEN] HTTP ' + pm.response.code);",
+              "const responseContentType = (pm.response.headers.get('Content-Type') || '').trim();",
+              "const responseIsJson = /^(?:application\\/json|application\\/[^;\\s]+\\+json)(?:\\s*;|$)/i.test(responseContentType);",
+              "const contentTypeDescription = responseContentType || 'no content-type header';",
+              "const contentTypeFailureMessage = 'Expected application/json response but received ' + contentTypeDescription;",
+              "function assertOpenApiSchema(schemaName, payload, context) {",
+              "  const rawBundle = pm.environment.get('openapiSchemaBundle');",
+              "  pm.expect(rawBundle, 'OpenAPI schema bundle must be injected by scripts/run-newman.js').to.be.a('string');",
+              "  const schemaBundle = JSON.parse(rawBundle);",
+              "  const Ajv = require('ajv');",
+              "  const ajv = new Ajv({ allErrors: true, jsonPointers: true, schemaId: 'auto', unknownFormats: 'ignore' });",
+              "  ajv.addSchema(schemaBundle);",
+              "  const validate = ajv.getSchema(schemaBundle.$id + '#/components/schemas/' + schemaName);",
+              "  pm.expect(validate, 'Compiled OpenAPI schema ' + schemaName + ' must exist').to.be.a('function');",
+              "  const valid = validate(payload);",
+              "  const errors = validate.errors || [];",
+              "  const details = errors.slice(0, 5).map(function (error) {",
+              "    return (error.dataPath || '/') + ' ' + error.message + ' (' + error.schemaPath + ')';",
+              "  }).join('; ') + (errors.length > 5 ? '; ... ' + (errors.length - 5) + ' additional violation(s)' : '');",
+              "  pm.expect(valid, (context || schemaName) + ' failed OpenAPI schema validation: ' + details).to.equal(true);",
+              "}",
+              "pm.test('TC02 - Invalid token returns observed HTTP 401', function () {",
+              "  pm.response.to.have.status(401);",
+              "});",
+              "if (!responseIsJson) {",
+              "  pm.test(contentTypeFailureMessage, function () {",
+              "    pm.expect(responseIsJson, contentTypeFailureMessage).to.equal(true);",
+              "  });",
+              "} else {",
+              "const json = pm.response.json();",
+              "pm.test('TC02 - Full response matches OpenAPI GetAllLeaveReportsErrorResponse', function () {",
+              "  assertOpenApiSchema('GetAllLeaveReportsErrorResponse', json, 'Invalid-token error response');",
+              "});",
+              "pm.test('TC02 - Invalid token response has observed error structure', function () {",
+              "  pm.expect(json).to.have.property('status', 'error');",
+              "  pm.expect(json).to.have.property('message').that.is.a('string');",
+              "});",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "invalid-token-value",
+              "type": "string"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{leaveBaseUrl}}/user/leaves/getAllLeaveReports?month=4&year=2026",
+          "host": ["{{leaveBaseUrl}}"],
+          "path": ["user", "leaves", "getAllLeaveReports"],
+          "query": [
+            { "key": "month", "value": "4" },
+            { "key": "year", "value": "2026" }
+          ]
+        }
+      }
+    }
+  ]
+}
