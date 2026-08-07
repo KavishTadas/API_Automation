@@ -66,10 +66,18 @@ function prepareAllureResults() {
       const content = fs.readFileSync(filePath, 'utf8');
       const data = JSON.parse(content);
 
-      data.labels = data.labels || [];
-
       const name = data.name || '';
       const fullName = data.fullName || '';
+
+      // Purge skipped/ignored unverified endpoint results per user request
+      if (data.status === 'skipped' || name.includes('users_me') || fullName.includes('unverified_endpoints') || name.includes('unverified')) {
+        try {
+          fs.unlinkSync(filePath);
+        } catch (e) {}
+        return;
+      }
+
+      data.labels = data.labels || [];
       let method = 'POST';
       let endpoint = '';
       let moduleName = 'API Module';
