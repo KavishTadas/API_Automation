@@ -40,17 +40,36 @@ API = json.loads(r"""{
 }""")
 
 @allure.epic("Leave API")
-@allure.feature("Leave API APIs")
-@allure.story("GET /user/leaves/getAllLeaveReports")
+@allure.feature("GET /user/leaves/getAllLeaveReports — TC01/TC03 - Get all leave reports and validate structure")
+@allure.story("HTTP Status Code Check (200)")
+@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.link("get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure", name="API Identifier")
 def test_leave_api_user_leaves_getallleavereports_status_code(api_runtime_config: dict[str, str]) -> None:
+    allure.dynamic.parameter("HTTP Method", "GET")
+    allure.dynamic.parameter("Endpoint Path", "/user/leaves/getAllLeaveReports")
+    allure.dynamic.parameter("Expected Status", "200")
     response = perform_api_request(API, api_runtime_config)
+    allure.attach(
+        json.dumps(dict(response.headers), indent=2),
+        name="Response Headers",
+        attachment_type=allure.attachment_type.JSON
+    )
+    allure.attach(
+        response.text[:2000],
+        name="Response Body Snippet",
+        attachment_type=allure.attachment_type.TEXT
+    )
     assert response.status_code == 200
 
 
 @allure.epic("Leave API")
-@allure.feature("Leave API APIs")
-@allure.story("GET /user/leaves/getAllLeaveReports")
+@allure.feature("GET /user/leaves/getAllLeaveReports — TC01/TC03 - Get all leave reports and validate structure")
+@allure.story("OpenAPI Schema Validation Check")
+@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.link("get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure", name="API Identifier")
 def test_leave_api_user_leaves_getallleavereports_response_schema(api_runtime_config: dict[str, str]) -> None:
+    allure.dynamic.parameter("HTTP Method", "GET")
+    allure.dynamic.parameter("Endpoint Path", "/user/leaves/getAllLeaveReports")
     skip_if_no_response_schema(API)
     response = perform_api_request(API, api_runtime_config)
     assert response.status_code == 200

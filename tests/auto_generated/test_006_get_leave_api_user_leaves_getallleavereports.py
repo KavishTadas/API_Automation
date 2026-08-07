@@ -40,19 +40,38 @@ API = json.loads(r"""{
 }""")
 
 @allure.epic("Leave API")
-@allure.feature("Leave API APIs")
-@allure.story("GET /user/leaves/getAllLeaveReports")
+@allure.feature("GET /user/leaves/getAllLeaveReports — TC02 - Invalid token returns observed authorization status")
+@allure.story("HTTP Status Code Check (401)")
+@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.link("get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status", name="API Identifier")
 @pytest.mark.skip(reason="Temporarily disabled per user request due to negative scenario mismatch")
 def test_leave_api_user_leaves_getallleavereports_status_code(api_runtime_config: dict[str, str]) -> None:
+    allure.dynamic.parameter("HTTP Method", "GET")
+    allure.dynamic.parameter("Endpoint Path", "/user/leaves/getAllLeaveReports")
+    allure.dynamic.parameter("Expected Status", "401")
     response = perform_api_request(API, api_runtime_config)
+    allure.attach(
+        json.dumps(dict(response.headers), indent=2),
+        name="Response Headers",
+        attachment_type=allure.attachment_type.JSON
+    )
+    allure.attach(
+        response.text[:2000],
+        name="Response Body Snippet",
+        attachment_type=allure.attachment_type.TEXT
+    )
     assert response.status_code == 401
 
 
 @allure.epic("Leave API")
-@allure.feature("Leave API APIs")
-@allure.story("GET /user/leaves/getAllLeaveReports")
+@allure.feature("GET /user/leaves/getAllLeaveReports — TC02 - Invalid token returns observed authorization status")
+@allure.story("OpenAPI Schema Validation Check")
+@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.link("get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status", name="API Identifier")
 @pytest.mark.skip(reason="Temporarily disabled per user request due to negative scenario mismatch")
 def test_leave_api_user_leaves_getallleavereports_response_schema(api_runtime_config: dict[str, str]) -> None:
+    allure.dynamic.parameter("HTTP Method", "GET")
+    allure.dynamic.parameter("Endpoint Path", "/user/leaves/getAllLeaveReports")
     skip_if_no_response_schema(API)
     response = perform_api_request(API, api_runtime_config)
     assert response.status_code == 401

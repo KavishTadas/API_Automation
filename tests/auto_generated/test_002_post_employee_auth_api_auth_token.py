@@ -40,17 +40,36 @@ API = json.loads(r"""{
 }""")
 
 @allure.epic("Employee Auth API")
-@allure.feature("Employee Auth API APIs")
-@allure.story("POST /auth/token")
+@allure.feature("POST /auth/token — TC01 - Valid credentials return JWT token")
+@allure.story("HTTP Status Code Check (200)")
+@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.link("post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token", name="API Identifier")
 def test_employee_auth_api_auth_token_status_code(api_runtime_config: dict[str, str]) -> None:
+    allure.dynamic.parameter("HTTP Method", "POST")
+    allure.dynamic.parameter("Endpoint Path", "/auth/token")
+    allure.dynamic.parameter("Expected Status", "200")
     response = perform_api_request(API, api_runtime_config)
+    allure.attach(
+        json.dumps(dict(response.headers), indent=2),
+        name="Response Headers",
+        attachment_type=allure.attachment_type.JSON
+    )
+    allure.attach(
+        response.text[:2000],
+        name="Response Body Snippet",
+        attachment_type=allure.attachment_type.TEXT
+    )
     assert response.status_code == 200
 
 
 @allure.epic("Employee Auth API")
-@allure.feature("Employee Auth API APIs")
-@allure.story("POST /auth/token")
+@allure.feature("POST /auth/token — TC01 - Valid credentials return JWT token")
+@allure.story("OpenAPI Schema Validation Check")
+@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.link("post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token", name="API Identifier")
 def test_employee_auth_api_auth_token_response_schema(api_runtime_config: dict[str, str]) -> None:
+    allure.dynamic.parameter("HTTP Method", "POST")
+    allure.dynamic.parameter("Endpoint Path", "/auth/token")
     skip_if_no_response_schema(API)
     response = perform_api_request(API, api_runtime_config)
     assert response.status_code == 200
