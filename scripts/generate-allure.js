@@ -168,10 +168,45 @@ const result = spawnSync(
   { stdio: 'inherit', shell: false, cwd: projectRoot }
 );
 
+function patchGeneratedAllureCategories() {
+  const reportDataDir = path.join(projectRoot, 'reports', 'allure-report', 'data');
+  const suitesPath = path.join(reportDataDir, 'suites.json');
+  const categoriesPath = path.join(reportDataDir, 'categories.json');
+
+  if (!fs.existsSync(suitesPath)) {
+    return;
+  }
+
+  try {
+    const suitesData = JSON.parse(fs.readFileSync(suitesPath, 'utf8'));
+    const categoriesData = fs.existsSync(categoriesPath)
+      ? JSON.parse(fs.readFileSync(categoriesPath, 'utf8'))
+      : { uid: "categories", name: "categories", children: [] };
+
+    categoriesData.children = categoriesData.children || [];
+
+    if (categoriesData.children.length === 0 && suitesData.children) {
+      suitesData.children.forEach(moduleNode => {
+        const categoryGroup = {
+          name: `${moduleNode.name} Scenarios`,
+          children: moduleNode.children || []
+        };
+        categoriesData.children.push(categoryGroup);
+      });
+      fs.writeFileSync(categoriesPath, JSON.stringify(categoriesData, null, 2), 'utf8');
+      console.log(`Patched allure-report categories.json with ${categoriesData.children.length} API category group(s).`);
+    }
+  } catch (e) {
+    console.warn('Could not patch allure-report categories.json:', e.message);
+  }
+}
+
 if (result.status === 0) {
+  patchGeneratedAllureCategories();
   console.log('Allure report generated: reports/allure-report/index.html');
 } else {
   console.error('Allure generation failed with status:', result.status);
   process.exit(result.status || 1);
 }
+
 
