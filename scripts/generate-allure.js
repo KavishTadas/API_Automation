@@ -28,27 +28,17 @@ function prepareAllureResults() {
 
   const categories = [
     {
-      name: "Authentication & Security Scenarios",
+      name: "Employee Auth API Scenarios",
       matchedStatuses: ["passed", "failed", "broken", "skipped"],
-      messageRegex: ".*(401|403|Unauthorized|Forbidden|JWT|token|auth).*"
+      messageRegex: ".*(Auth|token|Login|auth/token).*"
     },
     {
-      name: "API Schema & Validation Scenarios",
+      name: "Leave Management API Scenarios",
       matchedStatuses: ["passed", "failed", "broken", "skipped"],
-      messageRegex: ".*(400|404|schema|AJV|validation|mismatch|ErrorResponse).*"
+      messageRegex: ".*(Leave|leave|showleavereport|getAllLeaveReports|approvals).*"
     },
     {
-      name: "Server & Infrastructure Health",
-      matchedStatuses: ["passed", "failed", "broken", "skipped"],
-      messageRegex: ".*(500|502|503|Bad Gateway|Internal Server Error).*"
-    },
-    {
-      name: "Performance & SLA Compliance",
-      matchedStatuses: ["passed", "failed", "broken", "skipped"],
-      messageRegex: ".*(SLA|latency|timeout|ETIMEDOUT|ECONNRESET).*"
-    },
-    {
-      name: "Functional API Test Suite",
+      name: "General API Scenarios",
       matchedStatuses: ["passed", "failed", "broken", "skipped"]
     }
   ];
@@ -130,6 +120,12 @@ function prepareAllureResults() {
       }
 
       const apiFeatureName = `${method} ${endpoint}`;
+
+      // Populate statusDetails message so categories.json messageRegex can match passed and failed tests
+      data.statusDetails = data.statusDetails || {};
+      if (!data.statusDetails.message) {
+        data.statusDetails.message = `[${moduleName}] ${apiFeatureName} - ${name}`;
+      }
 
       // Overwrite or set labels cleanly so Allure groups correctly
       data.labels = data.labels.filter(l => !['epic', 'feature', 'story', 'parentSuite', 'suite', 'subSuite'].includes(l.name));
