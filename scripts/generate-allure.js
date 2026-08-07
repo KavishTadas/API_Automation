@@ -1,7 +1,157 @@
-const { spawnSync } = require('child_process');
+const fs = require('fs');
 const path = require('path');
+const { spawnSync } = require('child_process');
 
 const projectRoot = path.resolve(__dirname, '..');
+const allureResultsDir = path.join(projectRoot, 'reports', 'allure-results');
+const generatedSubDir = path.join(allureResultsDir, 'generated-tests');
+
+function prepareAllureResults() {
+  if (!fs.existsSync(allureResultsDir)) {
+    fs.mkdirSync(allureResultsDir, { recursive: true });
+  }
+
+  if (fs.existsSync(generatedSubDir)) {
+    const files = fs.readdirSync(generatedSubDir);
+    files.forEach(file => {
+      const src = path.join(generatedSubDir, file);
+      const dest = path.join(allureResultsDir, file);
+      if (fs.lstatSync(src).isFile()) {
+        try {
+          fs.renameSync(src, dest);
+        } catch (e) {
+          fs.copyFileSync(src, dest);
+        }
+      }
+    });
+  }
+
+  const categories = [
+    {
+      name: "Authentication & Security Scenarios",
+      matchedStatuses: ["passed", "failed", "broken", "skipped"],
+      messageRegex: ".*(401|403|Unauthorized|Forbidden|JWT|token|auth).*"
+    },
+    {
+      name: "API Schema & Validation Scenarios",
+      matchedStatuses: ["passed", "failed", "broken", "skipped"],
+      messageRegex: ".*(400|404|schema|AJV|validation|mismatch|ErrorResponse).*"
+    },
+    {
+      name: "Server & Infrastructure Health",
+      matchedStatuses: ["passed", "failed", "broken", "skipped"],
+      messageRegex: ".*(500|502|503|Bad Gateway|Internal Server Error).*"
+    },
+    {
+      name: "Performance & SLA Compliance",
+      matchedStatuses: ["passed", "failed", "broken", "skipped"],
+      messageRegex: ".*(SLA|latency|timeout|ETIMEDOUT|ECONNRESET).*"
+    },
+    {
+      name: "Functional API Test Suite",
+      matchedStatuses: ["passed", "failed", "broken", "skipped"]
+    }
+  ];
+
+  fs.writeFileSync(
+    path.join(allureResultsDir, 'categories.json'),
+    JSON.stringify(categories, null, 2),
+    'utf8'
+  );
+
+  const envProps = `API_TEST_ENV=uat\nAUTH_BASE_URL=https://dev_mcdp_be.omfysgroup.com\nLEAVE_BASE_URL=https://devmcdphcmplatform.omfysgroup.com\n`;
+  fs.writeFileSync(
+    path.join(allureResultsDir, 'environment.properties'),
+    envProps,
+    'utf8'
+  );
+
+  const resultFiles = fs.readdirSync(allureResultsDir)
+    .filter(f => f.endsWith('-result.json'));
+
+  let processedCount = 0;
+  resultFiles.forEach(file => {
+    const filePath = path.join(allureResultsDir, file);
+    try {
+      const content = fs.readFileSync(filePath, 'utf8');
+      const data = JSON.parse(content);
+
+      data.labels = data.labels || [];
+
+      const name = data.name || '';
+      const fullName = data.fullName || '';
+      let method = 'POST';
+      let endpoint = '';
+      let moduleName = 'API Module';
+
+      const reqParam = (data.parameters || []).find(p => p.name === 'Request' || p.name === 'HTTP Method');
+      if (reqParam) {
+        const val = reqParam.value || '';
+        if (val.includes(' - ')) {
+          const parts = val.split(' - ');
+          method = parts[0].trim();
+          const rawUrl = parts[1].trim();
+          try {
+            const parsedUrl = new URL(rawUrl);
+            endpoint = parsedUrl.pathname;
+          } catch (e) {
+            endpoint = rawUrl;
+          }
+        } else if (['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].includes(val.trim())) {
+          method = val.trim();
+        }
+      }
+
+      const endpointParam = (data.parameters || []).find(p => p.name === 'Endpoint Path');
+      if (endpointParam) {
+        endpoint = endpointParam.value;
+      }
+
+      if (!endpoint || endpoint === name) {
+        const textToSearch = `${name} ${fullName}`;
+        if (/leave|getAllLeaveReports|showleavereport/i.test(textToSearch)) {
+          endpoint = '/user/leaves/getAllLeaveReports';
+          method = 'GET';
+          moduleName = 'Leave Management API';
+        } else if (/auth|token|login/i.test(textToSearch)) {
+          endpoint = '/auth/token';
+          method = 'POST';
+          moduleName = 'Employee Auth API';
+        } else {
+          endpoint = '/api/v1/endpoint';
+        }
+      }
+
+      if (endpoint.includes('/auth/token')) {
+        moduleName = 'Employee Auth API';
+        endpoint = '/auth/token';
+      } else if (endpoint.includes('/user/leaves/')) {
+        moduleName = 'Leave Management API';
+      }
+
+      const apiFeatureName = `${method} ${endpoint}`;
+
+      // Overwrite or set labels cleanly so Allure groups correctly
+      data.labels = data.labels.filter(l => !['epic', 'feature', 'story', 'parentSuite', 'suite', 'subSuite'].includes(l.name));
+      data.labels.push({ name: 'epic', value: moduleName });
+      data.labels.push({ name: 'feature', value: apiFeatureName });
+      data.labels.push({ name: 'story', value: name });
+      data.labels.push({ name: 'parentSuite', value: moduleName });
+      data.labels.push({ name: 'suite', value: apiFeatureName });
+      data.labels.push({ name: 'subSuite', value: name });
+
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+      processedCount++;
+    } catch (e) {
+      console.warn(`Failed to post-process Allure result ${file}:`, e.message);
+    }
+  });
+
+  console.log(`Preprocessed ${resultFiles.length} Allure result files (${processedCount} updated with Epic/Feature/Story labels and categories.json).`);
+}
+
+prepareAllureResults();
+
 const allureDist = path.join(projectRoot, 'node_modules', 'allure-commandline', 'dist');
 const allureBin = process.platform === 'win32'
   ? 'java'
@@ -28,3 +178,4 @@ if (result.status === 0) {
   console.error('Allure generation failed with status:', result.status);
   process.exit(result.status || 1);
 }
+
