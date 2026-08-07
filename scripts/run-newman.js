@@ -207,7 +207,8 @@ for (const [credential, value] of Object.entries({
 
 const collectionsDir  = path.join(__dirname, '..', 'collections');
 const RUN_ORDER = [
-  'Employee_Auth_API.json'
+  'Employee_Auth_API.json',
+  'Login_API.json'
 ];
 
 const discovered = fs.readdirSync(collectionsDir)
