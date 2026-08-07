@@ -1,0 +1,263 @@
+{
+  "info": {
+    "_postman_id": "2b7c5d03-7da5-4801-ad8f-c879d8713672",
+    "name": "Attendance Status Threshold API",
+    "description": "Attendance Status Threshold Master APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "43601873"
+  },
+  "item": [
+    {
+      "name": "Create Threshold",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg1MzA0MzU5LCJleHAiOjE3ODUzMzMxNTl9.Dqh39ikY9nCBmVXf1ixg-OqSQNu2c9CSLW_wfOutmf8",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"thresholdCode\": \"CUST_STD_0001\",\n  \"thresholdName\": \"Standard Custom Thresholdsl\",\n  \"description\": \"Custom threshold for flexible shift employees\",\n  \"templateMode\": \"CUSTOM\",\n  \"shiftTypeApplicability\": \"ALL\",\n  \"absentMaxHours\": 3.00,\n  \"halfDayMinHours\": 3.01,\n  \"fullDayMinHours\": 5.00,\n  \"presentMinHours\": 8.00,\n  \"effectiveFrom\": \"2026-08-01\",\n  \"effectiveTo\": \"2026-12-31\",\n  \"isDefault\": \"N\",\n  \"isActive\": \"Y\",\n  \"templateStatus\": \"PUBLISHED\",\n  \"remarks\": \"Applicable for flexible shift employees only\",\n  \"assignments\": [\n    {\n      \"employeeId\": 41,\n      \"departmentId\": 1,\n      \"designationId\": 5,\n      \"isActive\": \"N\",\n      \"effectiveFrom\": \"2026-08-01\",\n      \"effectiveTo\": \"2026-12-31\"\n    },\n    {\n      \"employeeId\": 550,\n      \"departmentId\": 1,\n      \"designationId\": 6,\n      \"isActive\": \"Y\",\n      \"effectiveFrom\": \"2026-08-01\",\n      \"effectiveTo\": \"2026-08-01\"\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/attendance/status-threshold/create",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "attendance",
+            "status-threshold",
+            "create"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Threshold",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg1MzA0MzU5LCJleHAiOjE3ODUzMzMxNTl9.Dqh39ikY9nCBmVXf1ixg-OqSQNu2c9CSLW_wfOutmf8",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"thresholdCode\": \"TH001\",\n  \"thresholdName\": \"Updated Threshold\",\n  \"description\": \"Updated Description\",\n  \"templateMode\": \"DEFAULT\",\n  \"shiftTypeApplicability\": \"ALL\",\n  \"absentMaxHours\": 3.00,\n  \"halfDayMinHours\": 3.01,\n  \"fullDayMinHours\": 5.01,\n  \"presentMinHours\": 5.02,\n  \"effectiveFrom\": \"2027-01-01\",\n  \"effectiveTo\": null,\n  \"isDefault\": \"Y\",\n  \"isActive\": \"Y\",\n  \"templateStatus\": \"DRAFT\",\n  \"remarks\": \"Updated\",\n  \"assignments\": []\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/attendance/status-threshold/update/1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "attendance",
+            "status-threshold",
+            "update",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get By Id",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg1MzA0MzU5LCJleHAiOjE3ODUzMzMxNTl9.Dqh39ikY9nCBmVXf1ixg-OqSQNu2c9CSLW_wfOutmf8",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/attendance/status-threshold/getById/8",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "attendance",
+            "status-threshold",
+            "getById",
+            "8"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get All",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg1MzA0MzU5LCJleHAiOjE3ODUzMzMxNTl9.Dqh39ikY9nCBmVXf1ixg-OqSQNu2c9CSLW_wfOutmf8",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/attendance/status-threshold/getAll?page=0&size=10&sort=thresholdName,asc",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "attendance",
+            "status-threshold",
+            "getAll"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "10"
+            },
+            {
+              "key": "sort",
+              "value": "thresholdName,asc"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Threshold",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/attendance/status-thresholds/delete/1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "attendance",
+            "status-thresholds",
+            "delete",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Change Status",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg1MzA0MzU5LCJleHAiOjE3ODUzMzMxNTl9.Dqh39ikY9nCBmVXf1ixg-OqSQNu2c9CSLW_wfOutmf8",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"isActive\": \"Y\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/attendance/status-threshold/1/status",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "attendance",
+            "status-threshold",
+            "1",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}

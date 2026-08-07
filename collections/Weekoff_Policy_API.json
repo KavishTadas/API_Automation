@@ -1,0 +1,373 @@
+{
+  "info": {
+    "_postman_id": "667932a2-8fe1-4e14-a859-63bf8714c7d5",
+    "name": "Attenedance-july2026",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "43601873"
+  },
+  "item": [
+    {
+      "name": "WeekOffActDeact",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg1OTA5Njk3LCJleHAiOjE3ODU5Mzg0OTd9.V9rtFbyNHncvRxusjbKx9jrjzkpv_VXtMDkxJSm9PP8",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_JWT_TOKEN"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"status\":\"N\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://devmcdphcmplatform.omfysgroup.com/api/attendance/week-offs/actDeact/3/status",
+          "protocol": "https",
+          "host": [
+            "devmcdphcmplatform",
+            "omfysgroup",
+            "com"
+          ],
+          "path": [
+            "api",
+            "attendance",
+            "week-offs",
+            "actDeact",
+            "3",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "WeekOffGetAll",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg0ODgzMjgzLCJleHAiOjE3ODQ5MTIwODN9.xL5fE6sDYrjuQbb57W05TkSPQtiPtpr4MNahcMkyxwg",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_JWT_TOKEN"
+          }
+        ],
+        "url": {
+          "raw": "https://devmcdphcmplatform.omfysgroup.com/api/attendance/week-offs/getAll?page=0&size=10&sort=weekOffName,asc",
+          "protocol": "https",
+          "host": [
+            "devmcdphcmplatform",
+            "omfysgroup",
+            "com"
+          ],
+          "path": [
+            "api",
+            "attendance",
+            "week-offs",
+            "getAll"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "10"
+            },
+            {
+              "key": "sort",
+              "value": "weekOffName,asc"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "WeekOffGetById",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg0ODgzMjgzLCJleHAiOjE3ODQ5MTIwODN9.xL5fE6sDYrjuQbb57W05TkSPQtiPtpr4MNahcMkyxwg",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_JWT_TOKEN"
+          }
+        ],
+        "url": {
+          "raw": "https://devmcdphcmplatform.omfysgroup.com/api/attendance/week-offs/getById/1",
+          "protocol": "https",
+          "host": [
+            "devmcdphcmplatform",
+            "omfysgroup",
+            "com"
+          ],
+          "path": [
+            "api",
+            "attendance",
+            "week-offs",
+            "getById",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "WeekOffUpdate",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg0ODgzMjgzLCJleHAiOjE3ODQ5MTIwODN9.xL5fE6sDYrjuQbb57W05TkSPQtiPtpr4MNahcMkyxwg",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_JWT_TOKEN"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"weekOffCode\": \"WO001\",\r\n    \"weekOffName\": \"Updated Sunday Week Off\",\r\n    \"description\": \"Updated Description\",\r\n    \"optionModel\": \"ALLOWED\",\r\n    \"isDefault\": \"N\",\r\n    \"isActive\": \"Y\",\r\n    \"details\": [\r\n        {\r\n            \"dayOfWeek\": \"SATURDAY\",\r\n            \"weekNo\": 2,\r\n            \"isWeekOff\": \"Y\"\r\n        },\r\n        {\r\n            \"dayOfWeek\": \"SUNDAY\",\r\n            \"weekNo\": 1,\r\n            \"isWeekOff\": \"Y\"\r\n        }\r\n    ],\r\n    \"assignments\": [\r\n        {\r\n            \"employeeId\": 101,\r\n            \"departmentId\": 10,\r\n            \"locationId\": 1,\r\n            \"effectiveFrom\": \"2026-08-01\",\r\n            \"effectiveTo\": \"2026-12-31\",\r\n            \"isActive\": \"Y\"\r\n        }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://devmcdphcmplatform.omfysgroup.com/api/attendance/week-offs/update/1",
+          "protocol": "https",
+          "host": [
+            "devmcdphcmplatform",
+            "omfysgroup",
+            "com"
+          ],
+          "path": [
+            "api",
+            "attendance",
+            "week-offs",
+            "update",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "WeekOffMasterCreate",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg0Njk3Njg2LCJleHAiOjE3ODQ3MjY0ODZ9.hCwgQk1S5Xdhc0mj-6g9mgASfCJ9p7Xk-ylc5eZNYac",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_JWT_TOKEN"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"weekOffCode\": \"WO001\",\r\n    \"weekOffName\": \"Sunday Week Off\",\r\n    \"description\": \"Default Sunday Week Off\",\r\n    \"optionModel\": \"ALLOWED\",\r\n    \"isDefault\": \"Y\",\r\n    \"isActive\": \"Y\",\r\n    \"details\": [\r\n        {\r\n            \"dayOfWeek\": \"SUNDAY\",\r\n            \"weekNo\": 1,\r\n            \"isWeekOff\": \"Y\"\r\n        },\r\n        {\r\n            \"dayOfWeek\": \"SUNDAY\",\r\n            \"weekNo\": 2,\r\n            \"isWeekOff\": \"Y\"\r\n        },\r\n        {\r\n            \"dayOfWeek\": \"SUNDAY\",\r\n            \"weekNo\": 3,\r\n            \"isWeekOff\": \"Y\"\r\n        },\r\n        {\r\n            \"dayOfWeek\": \"SUNDAY\",\r\n            \"weekNo\": 4,\r\n            \"isWeekOff\": \"Y\"\r\n        },\r\n        {\r\n            \"dayOfWeek\": \"SUNDAY\",\r\n            \"weekNo\": 5,\r\n            \"isWeekOff\": \"Y\"\r\n        }\r\n    ],\r\n    \"assignments\": [\r\n        {\r\n            \"employeeId\": 101,\r\n            \"departmentId\": 10,\r\n            \"locationId\": 1,\r\n            \"effectiveFrom\": \"2026-07-01\",\r\n            \"effectiveTo\": \"2026-12-31\",\r\n            \"isActive\": \"Y\"\r\n        }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:9078/api/attendance/week-offs/create",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "9078",
+          "path": [
+            "api",
+            "attendance",
+            "week-offs",
+            "create"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "week-off-assignment/getByWeekOffId",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg0ODg0MDE1LCJleHAiOjE3ODQ5MTI4MTV9.xVOT3U3Hr5Ez4ELNS5Q_FUTaYtdL3es-vzk9bhylHkk",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <YOUR_JWT_TOKEN>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"weekOffId\": 1\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://devmcdphcmplatform.omfysgroup.com/api/attendance/week-off-assignment/getByWeekOff?page=0&size=10&sort=employeeId,asc",
+          "protocol": "https",
+          "host": [
+            "devmcdphcmplatform",
+            "omfysgroup",
+            "com"
+          ],
+          "path": [
+            "api",
+            "attendance",
+            "week-off-assignment",
+            "getByWeekOff"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "10"
+            },
+            {
+              "key": "sort",
+              "value": "employeeId,asc"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "week-off-assignment/changeStatus",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg0ODg0MDE1LCJleHAiOjE3ODQ5MTI4MTV9.xVOT3U3Hr5Ez4ELNS5Q_FUTaYtdL3es-vzk9bhylHkk",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <TOKEN>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"assignmentId\": 3,\r\n    \"status\": \"N\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://devmcdphcmplatform.omfysgroup.com/api/attendance/week-off-assignment/changeStatus",
+          "protocol": "https",
+          "host": [
+            "devmcdphcmplatform",
+            "omfysgroup",
+            "com"
+          ],
+          "path": [
+            "api",
+            "attendance",
+            "week-off-assignment",
+            "changeStatus"
+          ]
+        },
+        "description": "Generated from cURL: curl --location --request PATCH 'http://localhost:8080/api/attendance/week-off-assignment/changeStatus' \\\r\n--header 'Authorization: Bearer <TOKEN>' \\\r\n--header 'Content-Type: application/json' \\\r\n--data '{\r\n    \"assignmentId\": 1,\r\n    \"status\": \"N\"\r\n}'"
+      },
+      "response": []
+    }
+  ]
+}

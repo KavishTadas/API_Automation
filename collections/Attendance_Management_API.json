@@ -1,0 +1,612 @@
+{
+  "info": {
+    "_postman_id": "2db368fd-54d1-4eef-87bc-34a669cce757",
+    "name": "Attendance Management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "44910696",
+    "_collection_link": "https://go.postman.co/collection/44910696-2db368fd-54d1-4eef-87bc-34a669cce757?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Attendance Policy Master",
+      "item": [
+        {
+          "name": "Create New Policy",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg0NjM1NDI2LCJleHAiOjE3ODQ2NjQyMjZ9.IygL6ZUg8XIucXHqiiJnbpWR8zkD_YO2xFPVVZ_Oi5I",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"policyName\": \"Late Coming\",\r\n    \"policyHeading\":\"Late Coming Policy Heading\",\r\n    \"policyDescription\":\"Late Coming Policy Description\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/attendancepolicy",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "attendancepolicy"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Policies",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg0NjM1NDI2LCJleHAiOjE3ODQ2NjQyMjZ9.IygL6ZUg8XIucXHqiiJnbpWR8zkD_YO2xFPVVZ_Oi5I",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/api/attendancepolicy",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "attendancepolicy"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Policy By Id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg0NjM1NDI2LCJleHAiOjE3ODQ2NjQyMjZ9.IygL6ZUg8XIucXHqiiJnbpWR8zkD_YO2xFPVVZ_Oi5I",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/api/attendancepolicy/1",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "attendancepolicy",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Policy By Id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg0NjM1NDI2LCJleHAiOjE3ODQ2NjQyMjZ9.IygL6ZUg8XIucXHqiiJnbpWR8zkD_YO2xFPVVZ_Oi5I",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"policyName\": \"Late Coming Policy\",\r\n    \"policyHeading\":\"Late Coming Policy Heading\",\r\n    \"policyDescription\":\"Late Coming Policy Description\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/attendancepolicy/2",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "attendancepolicy",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Policy By Id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg0NjM1NDI2LCJleHAiOjE3ODQ2NjQyMjZ9.IygL6ZUg8XIucXHqiiJnbpWR8zkD_YO2xFPVVZ_Oi5I",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/api/attendancepolicy/2",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "attendancepolicy",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Activate Deactivate",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg0NzExMjQ1LCJleHAiOjE3ODQ3NDAwNDV9.xAegpWatHFQOLaYNYrUqSOj0vnEvP_2WRm7SH4kuDWw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/attendancepolicy/4/status?action=ACTIVATE",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "attendancepolicy",
+                "4",
+                "status"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "ACTIVATE"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Attendance Shift Master",
+      "item": [
+        {
+          "name": "Create New Shift",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg1NTc4MjE0LCJleHAiOjE3ODU2MDcwMTR9.DcKTdBiRo8_xwd_DVY_v7D7NclxwWCiZ7yTGFpYB2hw",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"shiftCode\": \"SHF-MIDNIGHT-001\",\r\n  \"shiftName\": \"MidNight Shift - Standard\",\r\n  \"shiftType\": \"FIXED\",\r\n  \"applicabilityType\": \"DEFAULT\",\r\n  \"startTime\": \"09:00:00\",\r\n  \"endTime\": \"18:00:00\",\r\n  \"graceMinutes\": 15,\r\n  \"requiredDurationHours\": null,\r\n  \"effectiveFrom\": \"01-Aug-2026\",\r\n  \"effectiveTo\": \"31-Dec-2026\",\r\n  \"isDeleted\": \"N\",\r\n  \"description\":\"xyz\",\r\n  \"remarks\": \"Standard morning shift for all employees\",\r\n  \"breakConfigs\": [\r\n    {\r\n      \"breakName\": \"Lunch Break\",\r\n      \"breakDurationMinutes\": 60,\r\n      \"paidFlag\": false\r\n    },\r\n    {\r\n      \"breakName\": \"Tea Break\",\r\n      \"breakDurationMinutes\": 15,\r\n      \"paidFlag\": true\r\n    },\r\n    {\r\n      \"breakName\": \"Evening Tea\",\r\n      \"breakDurationMinutes\": 15,\r\n      \"paidFlag\": true\r\n    }\r\n  ],\r\n  \"applicableEmpIds\": null\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/v1/attendance/shift/master",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attendance",
+                "shift",
+                "master"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create CUSTOM Shift (FIXED Type)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg1MTMwMjMwLCJleHAiOjE3ODUxNTkwMzB9.m4dIhxIhN9dF7qzUVA-HMNlfm5d3bjAGD5Q4DDQPuSU",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"shiftCode\": \"SHF-NIGHT-005\",\r\n  \"shiftName\": \"   Night Shift -Tech Support Team \",\r\n  \"shiftType\": \"FIXED\",\r\n  \"applicabilityType\": \"CUSTOM\",\r\n  \"startTime\": \"22:00:00\",\r\n  \"endTime\": \"06:00:00\",\r\n  \"graceMinutes\": 10,\r\n  \"requiredDurationHours\": null,\r\n  \"effectiveFrom\": \"01-Aug-2026\",\r\n  \"effectiveTo\": \"31-Mar-2027\",\r\n  \"activeFlag\": true,\r\n  \"remarks\": \"Night shift for global support team (cross-midnight)\",\r\n  \"breakConfigs\": [\r\n    {\r\n      \"breakName\": \"Dinner Break\",\r\n      \"breakDurationMinutes\": 45,\r\n      \"paidFlag\": false\r\n    },\r\n    {\r\n      \"breakName\": \"Tea Break\",\r\n      \"breakDurationMinutes\": 15,\r\n      \"paidFlag\": true\r\n    },\r\n    {\r\n      \"breakName\": \"Refreshment Break\",\r\n      \"breakDurationMinutes\": 10,\r\n      \"paidFlag\": true\r\n    }\r\n  ],\r\n  \"applicableEmpIds\": [3496,3500]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/v1/attendance/shift/master",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attendance",
+                "shift",
+                "master"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Shift",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg1MTMwMjMwLCJleHAiOjE3ODUxNTkwMzB9.m4dIhxIhN9dF7qzUVA-HMNlfm5d3bjAGD5Q4DDQPuSU",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"shiftName\": \"Night Shift -Techno Support Team\",\r\n  \"shiftType\": \"FIXED\",\r\n  \"applicabilityType\": \"DEFAULT\",\r\n  \"startTime\": \"22:00:00\",\r\n  \"endTime\": \"06:00:00\",\r\n  \"graceMinutes\": 10,\r\n  \"requiredDurationHours\": null,\r\n  \"effectiveFrom\": \"01-Aug-2026\",\r\n  \"effectiveTo\": \"31-Mar-2027\",\r\n  \"activeFlag\": true,\r\n  \"description\":\"xyz\",\r\n  \"remarks\": \"Night shift for global support team (cross-midnight)\",\r\n  \"breakConfigs\": [\r\n    {\r\n      \"breakName\": \"Dinner Break\",\r\n      \"breakDurationMinutes\": 45,\r\n      \"paidFlag\": false\r\n    },\r\n    {\r\n      \"breakName\": \"Shortscut Break\",\r\n      \"breakDurationMinutes\": 15,\r\n      \"paidFlag\": true\r\n    },\r\n    {\r\n      \"breakName\": \"Refreshment Break\",\r\n      \"breakDurationMinutes\": 10,\r\n      \"paidFlag\": true\r\n    }\r\n  ],\r\n  \"applicableEmpIds\": [3496,3500]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/v1/attendance/shift/master/2",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attendance",
+                "shift",
+                "master",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get By Id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg1MTMwMjMwLCJleHAiOjE3ODUxNTkwMzB9.m4dIhxIhN9dF7qzUVA-HMNlfm5d3bjAGD5Q4DDQPuSU",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURLDev}}/api/v1/attendance/shift/master/7",
+              "host": [
+                "{{baseURLDev}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attendance",
+                "shift",
+                "master",
+                "7"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Shift",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg1MTMwMjMwLCJleHAiOjE3ODUxNTkwMzB9.m4dIhxIhN9dF7qzUVA-HMNlfm5d3bjAGD5Q4DDQPuSU",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"shiftCode\": \"SHF-NIGHT-0002\",\r\n  \"shiftName\": \"Night Shift -Techno Support Team\",\r\n  \"shiftType\": \"FIXED\",\r\n  \"applicabilityType\": \"DEFAULT\",\r\n  \"startTime\": \"22:00:00\",\r\n  \"endTime\": \"06:00:00\",\r\n  \"graceMinutes\": 10,\r\n  \"requiredDurationHours\": null,\r\n  \"effectiveFrom\": \"01-Aug-2026\",\r\n  \"effectiveTo\": \"31-Mar-2027\",\r\n  \"activeFlag\": true,\r\n  \"remarks\": \"Night shift for global support team (cross-midnight)\",\r\n  \"breakConfigs\": [\r\n    {\r\n      \"breakName\": \"Dinner Break\",\r\n      \"breakDurationMinutes\": 45,\r\n      \"paidFlag\": false\r\n    },\r\n    {\r\n      \"breakName\": \"Shortscut Break\",\r\n      \"breakDurationMinutes\": 15,\r\n      \"paidFlag\": true\r\n    },\r\n    {\r\n      \"breakName\": \"Refreshment Break\",\r\n      \"breakDurationMinutes\": 10,\r\n      \"paidFlag\": true\r\n    }\r\n  ],\r\n  \"applicableEmpIds\": [3496,3500]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}/api/v1/attendance/shift/master/6",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attendance",
+                "shift",
+                "master",
+                "6"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Delete",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg1MjEyNTIxLCJleHAiOjE3ODUyNDEzMjF9.EiI24sMJoSOE3kEMrn7iUDB8xhLL8_GQrthXcfpo3O4",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/api/v1/attendance/shift/master/status/7?action=DEACTIVATE",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attendance",
+                "shift",
+                "master",
+                "status",
+                "7"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "DEACTIVATE"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Shifts",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg1MjE2NDIyLCJleHAiOjE3ODUyNDUyMjJ9.yEi7ycp6e5RX0aBkCJYy6cHanVlGXxaLBSmta1Cy_W8",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/api/v1/attendance/shift/master?page=0&size&sortBy&sortDirection&includeDeleted=true",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "attendance",
+                "shift",
+                "master"
+              ],
+              "query": [
+                {
+                  "key": "searchText",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "shiftType",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "applicabilityType",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "activeFlag",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": null
+                },
+                {
+                  "key": "sortBy",
+                  "value": null
+                },
+                {
+                  "key": "sortDirection",
+                  "value": null
+                },
+                {
+                  "key": "includeDeleted",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg1NTc4MjE0LCJleHAiOjE3ODU2MDcwMTR9.DcKTdBiRo8_xwd_DVY_v7D7NclxwWCiZ7yTGFpYB2hw",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseURL",
+      "value": ""
+    },
+    {
+      "key": "baseURLDev",
+      "value": ""
+    },
+    {
+      "key": "baseURLUat",
+      "value": ""
+    }
+  ]
+}

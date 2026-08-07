@@ -1,0 +1,247 @@
+{
+  "info": {
+    "_postman_id": "adc582e1-6680-46a9-aac7-701efe971539",
+    "name": "Latearly-Policy",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "43601873"
+  },
+  "item": [
+    {
+      "name": "update",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg1NTY5MzA3LCJleHAiOjE3ODU1OTgxMDd9.mZstTsyqsRFkO2mTydzMv6B7IFeW4ndukeU91QxkkQo",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <JWT_TOKEN>"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"policyCode\": \"LEP001\",\r\n    \"policyName\": \"Updated Late/Early Policy\",\r\n    \"description\": \"Updated Policy\",\r\n    \"templateMode\": \"DEFAULT\",\r\n    \"templateStatus\": \"PUBLISHED\",\r\n    \"eventCountMinutes\": 5,\r\n    \"graceMinutes\": 20,\r\n    \"graceEvent\": 2,\r\n    \"allowedEvent\": 3,\r\n    \"deductionType\": \"LEAVE\",\r\n    \"leaveDeductDays\": 1,\r\n    \"leaveTypeId\": 1,\r\n    \"fineAmount\": null,\r\n    \"effectiveFrom\": \"2026-08-01\",\r\n    \"effectiveTo\": null,\r\n    \"isDefault\": \"N\",\r\n    \"remarks\": \"Updated Policy\",\r\n    \"deductionPriorities\": [\r\n        {\r\n            \"priorityOrder\": 3,\r\n            \"leaveTypeId\": 1,\r\n            \"isActive\": \"Y\"\r\n        }\r\n    ],\r\n    \"assignments\": [\r\n        {\r\n            \"employeeId\": 3844,\r\n            \"effectiveFrom\": \"2026-08-01\",\r\n            \"effectiveTo\": null,\r\n            \"isActive\": \"Y\"\r\n        }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:9078/api/attendance/late-early-policies/update/2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "9078",
+          "path": [
+            "api",
+            "attendance",
+            "late-early-policies",
+            "update",
+            "2"
+          ]
+        },
+        "description": "Generated from cURL: curl --location --request PUT 'http://localhost:9079/api/attendance/late-early-policies/update/1' \\\r\n--header 'Authorization: Bearer <JWT_TOKEN>' \\\r\n--header 'Content-Type: application/json' \\\r\n--data '{\r\n    \"policyCode\": \"LEP001\",\r\n    \"policyName\": \"Updated Late/Early Policy\",\r\n    \"description\": \"Updated Policy\",\r\n    \"templateMode\": \"DEFAULT\",\r\n    \"templateStatus\": \"PUBLISHED\",\r\n    \"eventCountMinutes\": 20,\r\n    \"graceMinutes\": 5,\r\n    \"graceEvent\": 2,\r\n    \"allowedEvent\": 3,\r\n    \"deductionType\": \"LEAVE\",\r\n    \"leaveDeductDays\": 1,\r\n    \"leaveTypeId\": 1,\r\n    \"fineAmount\": null,\r\n    \"effectiveFrom\": \"2026-08-01\",\r\n    \"effectiveTo\": null,\r\n    \"isDefault\": \"N\",\r\n    \"remarks\": \"Updated Policy\",\r\n    \"deductionPriorities\": [\r\n        {\r\n            \"priorityOrder\": 1,\r\n            \"leaveTypeId\": 1,\r\n            \"isActive\": \"Y\"\r\n        }\r\n    ],\r\n    \"assignments\": [\r\n        {\r\n            \"employeeId\": 1001,\r\n            \"effectiveFrom\": \"2026-08-01\",\r\n            \"effectiveTo\": null,\r\n            \"isActive\": \"Y\"\r\n        }\r\n    ]\r\n}'"
+      },
+      "response": []
+    },
+    {
+      "name": "getById/1",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg1NTY5MzA3LCJleHAiOjE3ODU1OTgxMDd9.mZstTsyqsRFkO2mTydzMv6B7IFeW4ndukeU91QxkkQo",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <JWT_TOKEN>"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:9078/api/attendance/late-early-policies/getById/5",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "9078",
+          "path": [
+            "api",
+            "attendance",
+            "late-early-policies",
+            "getById",
+            "5"
+          ]
+        },
+        "description": "Generated from cURL: curl --location 'http://localhost:9079/api/attendance/late-early-policies/getById/1' \\\r\n--header 'Authorization: Bearer <JWT_TOKEN>'"
+      },
+      "response": []
+    },
+    {
+      "name": "create",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg1ODI0NzcwLCJleHAiOjE3ODU4NTM1NzB9.bUqBSP4XYA03TcvruPhZEURqyVmREQAYK9frsYUYKig",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer YOUR_JWT_TOKEN"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"policyCode\": null,\r\n    \"policyName\": \"Standard Laes Ears Policises1\",\r\n    \"description\": \"Policy for late coming and early leaving\",\r\n\r\n    \"templateMode\": \"CUSTOM\",\r\n\r\n    \"eventCountMinutes\": 30,\r\n    \"graceMinutes\": 10,\r\n    \"graceEvent\": 2,\r\n    \"allowedEvent\": 3,\r\n\r\n    \"deductionType\": \"LEAVE\",\r\n\r\n    \"leaveDeductDays\": 0.50,\r\n    \"leaveTypeId\": 1,\r\n    \"fineAmount\": null,\r\n\r\n    \"effectiveFrom\": \"2026-08-01\",\r\n    \"effectiveTo\": \"2026-12-31\",\r\n\r\n    \"isDefault\": \"N\",\r\n\t\t\"isActive\":\"N\",\r\n    \"remarks\": \"Applicable for regular employees\",\r\n\r\n    \"deductionPriorities\": [\r\n        {\r\n            \"priorityOrder\": 1,\r\n            \"leaveTypeId\": 1,\r\n            \"isActive\": \"Y\"\r\n        },\r\n        {\r\n            \"priorityOrder\": 2,\r\n            \"leaveTypeId\": 2,\r\n            \"isActive\": \"Y\"\r\n        }\r\n    ],\r\n\r\n    \"assignments\": [\r\n        {\r\n            \"employeeId\": 3721,\r\n            \"departmentId\": 141,\r\n            \"designationId\": 51,\r\n            \"effectiveFrom\": \"2026-08-01\",\r\n            \"effectiveTo\": \"2026-12-31\",\r\n            \"isActive\": \"Y\"\r\n        \r\n        }\r\n    ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:9078/api/attendance/late-early-policies/create",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "9078",
+          "path": [
+            "api",
+            "attendance",
+            "late-early-policies",
+            "create"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getAll",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg1NTY5MzA3LCJleHAiOjE3ODU1OTgxMDd9.mZstTsyqsRFkO2mTydzMv6B7IFeW4ndukeU91QxkkQo",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <JWT_TOKEN>"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:9078/api/attendance/late-early-policies/getAll?page=0&size=10&sort=policyId,desc",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "9078",
+          "path": [
+            "api",
+            "attendance",
+            "late-early-policies",
+            "getAll"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "10"
+            },
+            {
+              "key": "sort",
+              "value": "policyId,desc"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ChangeStatus",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2IiwicHJvZmlsZUlkIjo2LCJlbXBOYW1lIjoiU2FjaGluIEtodXR3YWQiLCJyb2xlcyI6WyJST0xFX0FETUlOIiwiUk9MRV9FTVBMT1lFRSIsIlJPTEVfQ1JNX0FETUlOIl0sImVtYWlsIjoic3VtaXQucmFza2FyQG9tZnlzZ3JvdXAuY29tIiwiaWF0IjoxNzg1NTY5MzA3LCJleHAiOjE3ODU1OTgxMDd9.mZstTsyqsRFkO2mTydzMv6B7IFeW4ndukeU91QxkkQo",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <JWT_TOKEN>"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:9078/api/attendance/late-early-policies/5/status?status=N",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "9078",
+          "path": [
+            "api",
+            "attendance",
+            "late-early-policies",
+            "5",
+            "status"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "N"
+            }
+          ]
+        },
+        "description": "Generated from cURL: curl --location --request PATCH 'http://localhost:9079/api/attendance/late-early-policies/5/status?status=Y' \\\r\n--header 'Authorization: Bearer <JWT_TOKEN>'"
+      },
+      "response": []
+    }
+  ]
+}
