@@ -213,7 +213,7 @@ jobs:
       - name: Generate Allure HTML report
         if: always()
         run: |
-          npx allure generate reports/allure-results --clean -o reports/allure-report
+          node scripts/generate-allure.js
           python -m pip install allure-combine
           python -c "from allure_combine import combine; combine.combine_allure('reports/allure-report')"
           cp reports/allure-report/complete.html reports/allure-report/index.html
@@ -249,12 +249,16 @@ jobs:
       - name: Write job summary
         if: always()
         run: |
-          echo "## API Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 API Test Results" >> $GITHUB_STEP_SUMMARY
           echo "- **Environment:** ${{ inputs.environment || 'uat' }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Collection:** ${{ inputs.collection || 'all' }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Run:** #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📥 Download Reports from Artifacts Below:" >> $GITHUB_STEP_SUMMARY
+          echo "* 📄 **Consolidated HTML Index**: Download \`html-report-${{ github.run_number }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "* 📊 **Single-file Allure Report**: Download \`allure-html-report-${{ github.run_number }}\` (open \`complete.html\` in browser)" >> $GITHUB_STEP_SUMMARY
 
       - name: Slack alert on failure
         if: failure() && env.SLACK_WEBHOOK_URL != ''
