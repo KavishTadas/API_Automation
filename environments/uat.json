@@ -21,6 +21,12 @@
       "description": "Leave report API base URL"
     },
     {
+      "key": "attendanceBaseUrl",
+      "value": "https://uat_mcdp_hcm.omfysgroup.com",
+      "enabled": true,
+      "description": "Attendance API base URL"
+    },
+    {
       "key": "empCode",
       "value": "",
       "enabled": true
