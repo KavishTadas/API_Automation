@@ -125,6 +125,8 @@ function prepareAllureResults() {
         endpoint = '/auth/token';
       } else if (endpoint.includes('/user/leaves/')) {
         moduleName = 'Leave Management API';
+      } else if (/attendance|threshold|holiday|lateearly|weekoff/i.test(`${endpoint} ${name} ${fullName}`)) {
+        moduleName = 'Attendance Management API';
       }
 
       const apiFeatureName = `${method} ${endpoint}`;
