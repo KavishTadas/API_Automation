@@ -1,264 +1,258 @@
 {
-  "info": {
-    "_postman_id": "da6c4931-b426-43a5-9078-2c289b4482cf",
-    "name": "Holiday Template APIs Copy",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "43601873"
-  },
-  "item": [
-    {
-      "name": "Create",
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{authToken}}",
-              "type": "string"
-            }
-          ]
-        },
-        "method": "POST",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{jwtToken}}"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"templateCode\": \"HOL2026\",\n  \"templateName\": \"India Holiday Calendar 2026\",\n  \"description\": \"National Holidays\",\n  \"effectiveFrom\": \"2026-01-01\",\n  \"effectiveTo\": \"2026-12-31\",\n  \"optionModel\": \"ALLOWED\",\n  \"templateMode\": \"DEFAULT\",\n  \"isDefault\": \"Y\",\n  \"isActive\": \"Y\",\n  \"templateStatus\": \"DRAFT\",\n  \"remarks\": \"2026\",\n  \"holidays\": [\n    {\n      \"holidayName\": \"Republic Day\",\n      \"occasion\": \"National Holiday\",\n      \"holidayDate\": \"2026-01-26\",\n      \"isOptional\": \"N\",\n      \"isHalfDay\": \"N\",\n      \"remarks\": \"\"\n    }\n  ],\n  \"assignments\": [\n    {\n      \"employeeId\": 101,\n      \"effectiveFrom\": \"2026-01-01\",\n      \"effectiveTo\": \"2026-12-31\",\n      \"isActive\": \"Y\"\n    }\n  ]\n}"
-        },
-        "url": {
-          "raw": "{{baseURL}}/api/attendance/holiday-templates/create",
-          "protocol": "http",
-          "host": [
-            "{{baseURL}}"
-          ],
-          "port": "9078",
-          "path": [
-            "api",
-            "attendance",
-            "holiday-templates",
-            "create"
-          ]
-        }
-      },
-      "response": []
+    "info": {
+        "_postman_id": "da6c4931-b426-43a5-9078-2c289b4482cf",
+        "name": "Holiday Template APIs Copy",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "43601873"
     },
-    {
-      "name": "Update",
-      "request": {
-        "method": "PUT",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{jwtToken}}"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{}"
-        },
-        "url": {
-          "raw": "{{baseURL}}/api/attendance/holiday-templates/update/{holidayTemplateId}",
-          "protocol": "http",
-          "host": [
-            "{{baseURL}}"
-          ],
-          "port": "9078",
-          "path": [
-            "api",
-            "attendance",
-            "holiday-templates",
-            "update",
-            "{holidayTemplateId}"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Get By Id",
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{authToken}}",
-              "type": "string"
-            }
-          ]
-        },
-        "method": "GET",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{jwtToken}}"
-          }
-        ],
-        "url": {
-          "raw": "{{baseURL}}/api/attendance/holiday-templates/getById/19",
-          "protocol": "http",
-          "host": [
-            "{{baseURL}}"
-          ],
-          "port": "9078",
-          "path": [
-            "api",
-            "attendance",
-            "holiday-templates",
-            "getById",
-            "19"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Get All",
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{authToken}}",
-              "type": "string"
-            }
-          ]
-        },
-        "method": "GET",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{jwtToken}}"
-          }
-        ],
-        "url": {
-          "raw": "{{baseURL}}/api/attendance/holiday-templates/getAll?page=0&size=10",
-          "protocol": "http",
-          "host": [
-            "{{baseURL}}"
-          ],
-          "port": "9078",
-          "path": [
-            "api",
-            "attendance",
-            "holiday-templates",
-            "getAll"
-          ],
-          "query": [
-            {
-              "key": "page",
-              "value": "0"
+    "item": [
+        {
+            "name": "Create",
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "{{authToken}}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwtToken}}"
+                    },
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"templateCode\": \"HOL2026\",\n  \"templateName\": \"India Holiday Calendar 2026\",\n  \"description\": \"National Holidays\",\n  \"effectiveFrom\": \"2026-01-01\",\n  \"effectiveTo\": \"2026-12-31\",\n  \"optionModel\": \"ALLOWED\",\n  \"templateMode\": \"DEFAULT\",\n  \"isDefault\": \"Y\",\n  \"isActive\": \"Y\",\n  \"templateStatus\": \"DRAFT\",\n  \"remarks\": \"2026\",\n  \"holidays\": [\n    {\n      \"holidayName\": \"Republic Day\",\n      \"occasion\": \"National Holiday\",\n      \"holidayDate\": \"2026-01-26\",\n      \"isOptional\": \"N\",\n      \"isHalfDay\": \"N\",\n      \"remarks\": \"\"\n    }\n  ],\n  \"assignments\": [\n    {\n      \"employeeId\": 101,\n      \"effectiveFrom\": \"2026-01-01\",\n      \"effectiveTo\": \"2026-12-31\",\n      \"isActive\": \"Y\"\n    }\n  ]\n}"
+                },
+                "url": {
+                    "raw": "{{baseURL}}/api/attendance/holiday-templates/create",
+                    "protocol": "https",
+                    "host": [
+                        "{{baseURL}}"
+                    ],
+                    "path": [
+                        "api",
+                        "attendance",
+                        "holiday-templates",
+                        "create"
+                    ]
+                }
             },
-            {
-              "key": "size",
-              "value": "10"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Change Status",
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{authToken}}",
-              "type": "string"
-            }
-          ]
+            "response": []
         },
-        "method": "PATCH",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{jwtToken}}"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"isActive\": \"N\"\n}"
+        {
+            "name": "Update",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwtToken}}"
+                    },
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{}"
+                },
+                "url": {
+                    "raw": "{{baseURL}}/api/attendance/holiday-templates/update/{holidayTemplateId}",
+                    "protocol": "https",
+                    "host": [
+                        "{{baseURL}}"
+                    ],
+                    "path": [
+                        "api",
+                        "attendance",
+                        "holiday-templates",
+                        "update",
+                        "{holidayTemplateId}"
+                    ]
+                }
+            },
+            "response": []
         },
-        "url": {
-          "raw": "{{baseURL}}/api/attendance/holiday-templates/19/status",
-          "protocol": "http",
-          "host": [
-            "{{baseURL}}"
-          ],
-          "port": "9078",
-          "path": [
-            "api",
-            "attendance",
-            "holiday-templates",
-            "19",
-            "status"
-          ]
+        {
+            "name": "Get By Id",
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "{{authToken}}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwtToken}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseURL}}/api/attendance/holiday-templates/getById/19",
+                    "protocol": "https",
+                    "host": [
+                        "{{baseURL}}"
+                    ],
+                    "path": [
+                        "api",
+                        "attendance",
+                        "holiday-templates",
+                        "getById",
+                        "19"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Get All",
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "{{authToken}}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwtToken}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseURL}}/api/attendance/holiday-templates/getAll?page=0&size=10",
+                    "protocol": "https",
+                    "host": [
+                        "{{baseURL}}"
+                    ],
+                    "path": [
+                        "api",
+                        "attendance",
+                        "holiday-templates",
+                        "getAll"
+                    ],
+                    "query": [
+                        {
+                            "key": "page",
+                            "value": "0"
+                        },
+                        {
+                            "key": "size",
+                            "value": "10"
+                        }
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Change Status",
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "{{authToken}}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "PATCH",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwtToken}}"
+                    },
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"isActive\": \"N\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseURL}}/api/attendance/holiday-templates/19/status",
+                    "protocol": "https",
+                    "host": [
+                        "{{baseURL}}"
+                    ],
+                    "path": [
+                        "api",
+                        "attendance",
+                        "holiday-templates",
+                        "19",
+                        "status"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "Delete",
+            "request": {
+                "method": "DELETE",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer {{jwtToken}}"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseURL}}/api/attendance/holiday-templates/delete/{holidayTemplateId}",
+                    "protocol": "https",
+                    "host": [
+                        "{{baseURL}}"
+                    ],
+                    "path": [
+                        "api",
+                        "attendance",
+                        "holiday-templates",
+                        "delete",
+                        "{holidayTemplateId}"
+                    ]
+                }
+            },
+            "response": []
         }
-      },
-      "response": []
-    },
-    {
-      "name": "Delete",
-      "request": {
-        "method": "DELETE",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer {{jwtToken}}"
-          }
-        ],
-        "url": {
-          "raw": "{{baseURL}}/api/attendance/holiday-templates/delete/{holidayTemplateId}",
-          "protocol": "http",
-          "host": [
-            "{{baseURL}}"
-          ],
-          "port": "9078",
-          "path": [
-            "api",
-            "attendance",
-            "holiday-templates",
-            "delete",
-            "{holidayTemplateId}"
-          ]
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "https://uat_mcdp_hcm.omfysgroup.com"
+        },
+        {
+            "key": "jwtToken",
+            "value": "PASTE_JWT_HERE"
+        },
+        {
+            "key": "holidayTemplateId",
+            "value": "1"
         }
-      },
-      "response": []
-    }
-  ],
-  "variable": [
-    {
-      "key": "baseUrl",
-      "value": "https://uat_mcdp_hcm.omfysgroup.com"
-    },
-    {
-      "key": "jwtToken",
-      "value": "PASTE_JWT_HERE"
-    },
-    {
-      "key": "holidayTemplateId",
-      "value": "1"
-    }
-  ]
+    ]
 }

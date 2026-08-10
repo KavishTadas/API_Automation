@@ -1,351 +1,360 @@
 {
-  "info": {
-    "_postman_id": "667932a2-8fe1-4e14-a859-63bf8714c7d5",
-    "name": "Attenedance-july2026",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "43601873"
-  },
-  "item": [
-    {
-      "name": "WeekOffActDeact",
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{authToken}}",
-              "type": "string"
-            }
-          ]
-        },
-        "method": "PATCH",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer YOUR_JWT_TOKEN"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n    \"status\":\"N\"\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{attendanceBaseUrl}}/api/attendance/week-offs/actDeact/3/status",
-          "protocol": "https",
-          "host": [
-            "{{attendanceBaseUrl}}"
-          ],
-          "path": [
-            "api",
-            "attendance",
-            "week-offs",
-            "actDeact",
-            "3",
-            "status"
-          ]
-        }
-      },
-      "response": []
+    "info": {
+        "_postman_id": "667932a2-8fe1-4e14-a859-63bf8714c7d5",
+        "name": "Attenedance-july2026",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "43601873"
     },
-    {
-      "name": "WeekOffGetAll",
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{authToken}}",
-              "type": "string"
-            }
-          ]
-        },
-        "method": "GET",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer YOUR_JWT_TOKEN"
-          }
-        ],
-        "url": {
-          "raw": "{{attendanceBaseUrl}}/api/attendance/week-offs/getAll?page=0&size=10&sort=weekOffName,asc",
-          "protocol": "https",
-          "host": ["{{attendanceBaseUrl}}"],
-          "path": [
-            "api",
-            "attendance",
-            "week-offs",
-            "getAll"
-          ],
-          "query": [
-            {
-              "key": "page",
-              "value": "0"
+    "item": [
+        {
+            "name": "WeekOffActDeact",
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "{{authToken}}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "PATCH",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer YOUR_JWT_TOKEN"
+                    },
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\r\n    \"status\":\"N\"\r\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{attendanceBaseUrl}}/api/attendance/week-offs/actDeact/3/status",
+                    "protocol": "https",
+                    "host": [
+                        "{{attendanceBaseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "attendance",
+                        "week-offs",
+                        "actDeact",
+                        "3",
+                        "status"
+                    ]
+                }
             },
-            {
-              "key": "size",
-              "value": "10"
+            "response": []
+        },
+        {
+            "name": "WeekOffGetAll",
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "{{authToken}}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer YOUR_JWT_TOKEN"
+                    }
+                ],
+                "url": {
+                    "raw": "{{attendanceBaseUrl}}/api/attendance/week-offs/getAll?page=0&size=10&sort=weekOffName,asc",
+                    "protocol": "https",
+                    "host": [
+                        "{{attendanceBaseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "attendance",
+                        "week-offs",
+                        "getAll"
+                    ],
+                    "query": [
+                        {
+                            "key": "page",
+                            "value": "0"
+                        },
+                        {
+                            "key": "size",
+                            "value": "10"
+                        },
+                        {
+                            "key": "sort",
+                            "value": "weekOffName,asc"
+                        }
+                    ]
+                }
             },
-            {
-              "key": "sort",
-              "value": "weekOffName,asc"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "WeekOffGetById",
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{authToken}}",
-              "type": "string"
-            }
-          ]
+            "response": []
         },
-        "method": "GET",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer YOUR_JWT_TOKEN"
-          }
-        ],
-        "url": {
-          "raw": "{{attendanceBaseUrl}}/api/attendance/week-offs/getById/1",
-          "protocol": "https",
-          "host": ["{{attendanceBaseUrl}}"],
-          "path": [
-            "api",
-            "attendance",
-            "week-offs",
-            "getById",
-            "1"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "WeekOffUpdate",
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{authToken}}",
-              "type": "string"
-            }
-          ]
-        },
-        "method": "PUT",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer YOUR_JWT_TOKEN"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n    \"weekOffCode\": \"WO001\",\r\n    \"weekOffName\": \"Updated Sunday Week Off\",\r\n    \"description\": \"Updated Description\",\r\n    \"optionModel\": \"ALLOWED\",\r\n    \"isDefault\": \"N\",\r\n    \"isActive\": \"Y\",\r\n    \"details\": [\r\n        {\r\n            \"dayOfWeek\": \"SATURDAY\",\r\n            \"weekNo\": 2,\r\n            \"isWeekOff\": \"Y\"\r\n        },\r\n        {\r\n            \"dayOfWeek\": \"SUNDAY\",\r\n            \"weekNo\": 1,\r\n            \"isWeekOff\": \"Y\"\r\n        }\r\n    ],\r\n    \"assignments\": [\r\n        {\r\n            \"employeeId\": 101,\r\n            \"departmentId\": 10,\r\n            \"locationId\": 1,\r\n            \"effectiveFrom\": \"2026-08-01\",\r\n            \"effectiveTo\": \"2026-12-31\",\r\n            \"isActive\": \"Y\"\r\n        }\r\n    ]\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{attendanceBaseUrl}}/api/attendance/week-offs/update/1",
-          "protocol": "https",
-          "host": ["{{attendanceBaseUrl}}"],
-          "path": [
-            "api",
-            "attendance",
-            "week-offs",
-            "update",
-            "1"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "WeekOffMasterCreate",
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{authToken}}",
-              "type": "string"
-            }
-          ]
-        },
-        "method": "POST",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer YOUR_JWT_TOKEN"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n    \"weekOffCode\": \"WO001\",\r\n    \"weekOffName\": \"Sunday Week Off\",\r\n    \"description\": \"Default Sunday Week Off\",\r\n    \"optionModel\": \"ALLOWED\",\r\n    \"isDefault\": \"Y\",\r\n    \"isActive\": \"Y\",\r\n    \"details\": [\r\n        {\r\n            \"dayOfWeek\": \"SUNDAY\",\r\n            \"weekNo\": 1,\r\n            \"isWeekOff\": \"Y\"\r\n        },\r\n        {\r\n            \"dayOfWeek\": \"SUNDAY\",\r\n            \"weekNo\": 2,\r\n            \"isWeekOff\": \"Y\"\r\n        },\r\n        {\r\n            \"dayOfWeek\": \"SUNDAY\",\r\n            \"weekNo\": 3,\r\n            \"isWeekOff\": \"Y\"\r\n        },\r\n        {\r\n            \"dayOfWeek\": \"SUNDAY\",\r\n            \"weekNo\": 4,\r\n            \"isWeekOff\": \"Y\"\r\n        },\r\n        {\r\n            \"dayOfWeek\": \"SUNDAY\",\r\n            \"weekNo\": 5,\r\n            \"isWeekOff\": \"Y\"\r\n        }\r\n    ],\r\n    \"assignments\": [\r\n        {\r\n            \"employeeId\": 101,\r\n            \"departmentId\": 10,\r\n            \"locationId\": 1,\r\n            \"effectiveFrom\": \"2026-07-01\",\r\n            \"effectiveTo\": \"2026-12-31\",\r\n            \"isActive\": \"Y\"\r\n        }\r\n    ]\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{baseURL}}/api/attendance/week-offs/create",
-          "protocol": "http",
-          "host": [
-            "{{baseURL}}"
-          ],
-          "port": "9078",
-          "path": [
-            "api",
-            "attendance",
-            "week-offs",
-            "create"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "week-off-assignment/getByWeekOffId",
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{authToken}}",
-              "type": "string"
-            }
-          ]
-        },
-        "method": "POST",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer <YOUR_JWT_TOKEN>"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n    \"weekOffId\": 1\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{attendanceBaseUrl}}/api/attendance/week-off-assignment/getByWeekOff?page=0&size=10&sort=employeeId,asc",
-          "protocol": "https",
-          "host": ["{{attendanceBaseUrl}}"],
-          "path": [
-            "api",
-            "attendance",
-            "week-off-assignment",
-            "getByWeekOff"
-          ],
-          "query": [
-            {
-              "key": "page",
-              "value": "0"
+        {
+            "name": "WeekOffGetById",
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "{{authToken}}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer YOUR_JWT_TOKEN"
+                    }
+                ],
+                "url": {
+                    "raw": "{{attendanceBaseUrl}}/api/attendance/week-offs/getById/1",
+                    "protocol": "https",
+                    "host": [
+                        "{{attendanceBaseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "attendance",
+                        "week-offs",
+                        "getById",
+                        "1"
+                    ]
+                }
             },
-            {
-              "key": "size",
-              "value": "10"
+            "response": []
+        },
+        {
+            "name": "WeekOffUpdate",
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "{{authToken}}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer YOUR_JWT_TOKEN"
+                    },
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\r\n    \"weekOffCode\": \"WO001\",\r\n    \"weekOffName\": \"Updated Sunday Week Off\",\r\n    \"description\": \"Updated Description\",\r\n    \"optionModel\": \"ALLOWED\",\r\n    \"isDefault\": \"N\",\r\n    \"isActive\": \"Y\",\r\n    \"details\": [\r\n        {\r\n            \"dayOfWeek\": \"SATURDAY\",\r\n            \"weekNo\": 2,\r\n            \"isWeekOff\": \"Y\"\r\n        },\r\n        {\r\n            \"dayOfWeek\": \"SUNDAY\",\r\n            \"weekNo\": 1,\r\n            \"isWeekOff\": \"Y\"\r\n        }\r\n    ],\r\n    \"assignments\": [\r\n        {\r\n            \"employeeId\": 101,\r\n            \"departmentId\": 10,\r\n            \"locationId\": 1,\r\n            \"effectiveFrom\": \"2026-08-01\",\r\n            \"effectiveTo\": \"2026-12-31\",\r\n            \"isActive\": \"Y\"\r\n        }\r\n    ]\r\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{attendanceBaseUrl}}/api/attendance/week-offs/update/1",
+                    "protocol": "https",
+                    "host": [
+                        "{{attendanceBaseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "attendance",
+                        "week-offs",
+                        "update",
+                        "1"
+                    ]
+                }
             },
-            {
-              "key": "sort",
-              "value": "employeeId,asc"
-            }
-          ]
+            "response": []
+        },
+        {
+            "name": "WeekOffMasterCreate",
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "{{authToken}}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer YOUR_JWT_TOKEN"
+                    },
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\r\n    \"weekOffCode\": \"WO001\",\r\n    \"weekOffName\": \"Sunday Week Off\",\r\n    \"description\": \"Default Sunday Week Off\",\r\n    \"optionModel\": \"ALLOWED\",\r\n    \"isDefault\": \"Y\",\r\n    \"isActive\": \"Y\",\r\n    \"details\": [\r\n        {\r\n            \"dayOfWeek\": \"SUNDAY\",\r\n            \"weekNo\": 1,\r\n            \"isWeekOff\": \"Y\"\r\n        },\r\n        {\r\n            \"dayOfWeek\": \"SUNDAY\",\r\n            \"weekNo\": 2,\r\n            \"isWeekOff\": \"Y\"\r\n        },\r\n        {\r\n            \"dayOfWeek\": \"SUNDAY\",\r\n            \"weekNo\": 3,\r\n            \"isWeekOff\": \"Y\"\r\n        },\r\n        {\r\n            \"dayOfWeek\": \"SUNDAY\",\r\n            \"weekNo\": 4,\r\n            \"isWeekOff\": \"Y\"\r\n        },\r\n        {\r\n            \"dayOfWeek\": \"SUNDAY\",\r\n            \"weekNo\": 5,\r\n            \"isWeekOff\": \"Y\"\r\n        }\r\n    ],\r\n    \"assignments\": [\r\n        {\r\n            \"employeeId\": 101,\r\n            \"departmentId\": 10,\r\n            \"locationId\": 1,\r\n            \"effectiveFrom\": \"2026-07-01\",\r\n            \"effectiveTo\": \"2026-12-31\",\r\n            \"isActive\": \"Y\"\r\n        }\r\n    ]\r\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{baseURL}}/api/attendance/week-offs/create",
+                    "protocol": "https",
+                    "host": [
+                        "{{baseURL}}"
+                    ],
+                    "path": [
+                        "api",
+                        "attendance",
+                        "week-offs",
+                        "create"
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "week-off-assignment/getByWeekOffId",
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "{{authToken}}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer <YOUR_JWT_TOKEN>"
+                    },
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\r\n    \"weekOffId\": 1\r\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{attendanceBaseUrl}}/api/attendance/week-off-assignment/getByWeekOff?page=0&size=10&sort=employeeId,asc",
+                    "protocol": "https",
+                    "host": [
+                        "{{attendanceBaseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "attendance",
+                        "week-off-assignment",
+                        "getByWeekOff"
+                    ],
+                    "query": [
+                        {
+                            "key": "page",
+                            "value": "0"
+                        },
+                        {
+                            "key": "size",
+                            "value": "10"
+                        },
+                        {
+                            "key": "sort",
+                            "value": "employeeId,asc"
+                        }
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "week-off-assignment/changeStatus",
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "{{authToken}}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "PATCH",
+                "header": [
+                    {
+                        "key": "Authorization",
+                        "value": "Bearer <TOKEN>"
+                    },
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\r\n    \"assignmentId\": 3,\r\n    \"status\": \"N\"\r\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{attendanceBaseUrl}}/api/attendance/week-off-assignment/changeStatus",
+                    "protocol": "https",
+                    "host": [
+                        "{{attendanceBaseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "attendance",
+                        "week-off-assignment",
+                        "changeStatus"
+                    ]
+                },
+                "description": "Generated from cURL: curl --location --request PATCH 'http://localhost:8080/api/attendance/week-off-assignment/changeStatus' \\\r\n--header 'Authorization: Bearer <TOKEN>' \\\r\n--header 'Content-Type: application/json' \\\r\n--data '{\r\n    \"assignmentId\": 1,\r\n    \"status\": \"N\"\r\n}'"
+            },
+            "response": []
         }
-      },
-      "response": []
-    },
-    {
-      "name": "week-off-assignment/changeStatus",
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{authToken}}",
-              "type": "string"
-            }
-          ]
-        },
-        "method": "PATCH",
-        "header": [
-          {
-            "key": "Authorization",
-            "value": "Bearer <TOKEN>"
-          },
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n    \"assignmentId\": 3,\r\n    \"status\": \"N\"\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{attendanceBaseUrl}}/api/attendance/week-off-assignment/changeStatus",
-          "protocol": "https",
-          "host": ["{{attendanceBaseUrl}}"],
-          "path": [
-            "api",
-            "attendance",
-            "week-off-assignment",
-            "changeStatus"
-          ]
-        },
-        "description": "Generated from cURL: curl --location --request PATCH 'http://localhost:8080/api/attendance/week-off-assignment/changeStatus' \\\r\n--header 'Authorization: Bearer <TOKEN>' \\\r\n--header 'Content-Type: application/json' \\\r\n--data '{\r\n    \"assignmentId\": 1,\r\n    \"status\": \"N\"\r\n}'"
-      },
-      "response": []
-    }
-  ]
+    ]
 }
