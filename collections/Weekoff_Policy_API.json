@@ -236,10 +236,10 @@
           }
         },
         "url": {
-          "raw": "http://localhost:9078/api/attendance/week-offs/create",
+          "raw": "{{baseURL}}/api/attendance/week-offs/create",
           "protocol": "http",
           "host": [
-            "localhost"
+            "{{baseURL}}"
           ],
           "port": "9078",
           "path": [

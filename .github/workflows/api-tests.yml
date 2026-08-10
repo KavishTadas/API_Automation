@@ -122,9 +122,10 @@ jobs:
       API_TEST_ENV:     ${{ inputs.environment || 'uat' }}
       EMP_CODE:          ${{ secrets.EMP_CODE }}
       EMP_PASSWORD:      ${{ secrets.EMP_PASSWORD }}
-      BASE_URL:          ${{ secrets.BASE_URL }}
-      AUTH_BASE_URL:     "https://dev_mcdp_be.omfysgroup.com"
-      LEAVE_BASE_URL:    "https://devmcdphcmplatform.omfysgroup.com"
+      BASE_URL:            ${{ secrets.BASE_URL }}
+      AUTH_BASE_URL:       "https://dev_mcdp_be.omfysgroup.com"
+      LEAVE_BASE_URL:      "https://devmcdphcmplatform.omfysgroup.com"
+      ATTENDANCE_BASE_URL: "https://uat_mcdp_hcm.omfysgroup.com"
       API_AUTH_TOKEN:    ${{ secrets.API_AUTH_TOKEN }}
       AUTH_TOKEN:        ${{ secrets.AUTH_TOKEN }}
       POSTMAN_API_KEY:   ${{ secrets.POSTMAN_API_KEY }}

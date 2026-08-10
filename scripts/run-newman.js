@@ -271,6 +271,9 @@ const sharedEnvVars = {
   baseUrl:           process.env.BASE_URL            ||
                      process.env.ATTENDANCE_BASE_URL ||
                      'https://uat_mcdp_hcm.omfysgroup.com',
+  baseurl:           process.env.BASE_URL            ||
+                     process.env.ATTENDANCE_BASE_URL ||
+                     'https://uat_mcdp_hcm.omfysgroup.com',
   attendanceBaseUrl: process.env.ATTENDANCE_BASE_URL ||
                      'https://uat_mcdp_hcm.omfysgroup.com',
   empCode:           process.env.EMP_CODE            || '',
