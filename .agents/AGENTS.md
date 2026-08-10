@@ -15,5 +15,7 @@
 4. **Attendance Management Testing & Allure Pre-Processor Invariants**:
    - Attendance API requests MUST target `attendanceBaseUrl` (`https://uat_mcdp_hcm.omfysgroup.com`).
    - `scripts/generate-allure.js` MUST purge skipped placeholder results (such as `test_users_users_me`) and inject `epic: "Attendance Management API"` and `feature: "<METHOD> <PATH>"` for all Attendance endpoints.
-   - `patchGeneratedAllureCategories()` in `scripts/generate-allure.js` MUST patch `reports/allure-report/data/categories.json` immediately after `allure generate` so that Categories tab remains 100% populated even during 100% green test runs.
+5. **Strict Git Push Governance**:
+   - NEVER execute `git push` (to `origin/attendance`, `main`, or any remote branch) without asking for and receiving explicit user confirmation first.
+
 

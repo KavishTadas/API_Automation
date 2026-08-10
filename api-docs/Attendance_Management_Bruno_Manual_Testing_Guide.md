@@ -194,5 +194,92 @@ flowchart TD
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Step 1 (Auth)** | `AUTH-01` | Missing Password | `/auth/token` | `POST` | `400 Bad Request` |
 | **Step 3 (Shift)** | `SHIFT-01` | Duplicate Shift Code | `/api/v1/attendance/shift/master` | `POST` | `400 Bad Request` |
-| **Step 3 (Policy)`**| `POL-01` | Missing Policy Name | `/api/attendancepolicy` | `POST` | `400 Bad Request` |
-| **Step 5 (Delete)`**| `DEL-01` | Delete Non-Existent ID | `/api/attendancepolicy/9999` | `DELETE` | `404 Not Found` |
+| **Step 3 (Policy)** | `POL-01` | Missing Policy Name | `/api/attendancepolicy` | `POST` | `400 Bad Request` |
+| **Step 5 (Delete)** | `DEL-01` | Delete Non-Existent ID | `/api/attendancepolicy/9999` | `DELETE` | `404 Not Found` |
+
+---
+
+## 📋 Comprehensive Shift Template Master Manual Test Scenarios
+
+### 1. Functional & UI Workflow Scenarios
+
+| Test Case ID | Test Scenario Name | Pre-Conditions | Test Steps / Action | Expected Result |
+| :--- | :--- | :--- | :--- | :--- |
+| **TC-SHIFT-01** | Create Valid FIXED Shift Template | User authenticated as Admin | Send `POST /api/v1/attendance/shift/master` with valid `shiftCode`, `shiftName`, `shiftType: "FIXED"`, `startTime: "09:30:00"`, `endTime: "18:30:00"`. | `200 OK` / `201 Created`. Shift is added to list and UI shows Active status. |
+| **TC-SHIFT-02** | Create Valid OPEN Shift Template | User authenticated as Admin | Send `POST` with `shiftType: "OPEN"`, `requiredDurationHours: 8`, `startTime: null`, `endTime: null`. | `200 OK` / `201 Created`. UI displays Timing as `8 hrs`. |
+| **TC-SHIFT-03** | Create CUSTOM Applicability Shift | User authenticated as Admin | Send `POST` with `applicabilityType: "CUSTOM"`, `applicableEmpIds: [3496, 3500]`. | `200 OK`. `Applied To` column displays count of assigned employees. |
+| **TC-SHIFT-04** | Toggle Shift Status (Activate / Deactivate) | Existing shift exists (`shiftId: 43`) | Send `PATCH /api/v1/attendance/shift/master/status/43?action=DEACTIVATE`. | `200 OK`. Toggle switch in UI turns OFF / Inactive. |
+| **TC-SHIFT-05** | Search & Filter Shifts | Multiple shifts exist | Send `GET /api/v1/attendance/shift/master?searchText=SHF-0001`. | Returns only matching shift records. |
+
+---
+
+### 2. Field Validation & Boundary Scenarios
+
+| Test Case ID | Field Under Test | Negative Test Input / Action | Expected Result & Error Validation |
+| :--- | :--- | :--- | :--- |
+| **TC-SHIFT-VAL-01** | `shiftCode` | Duplicate `shiftCode` (e.g. `SHF-0001` which already exists) | `400 Bad Request`. Message: *"Shift code already exists"*. |
+| **TC-SHIFT-VAL-02** | `shiftName` | Blank / Empty string `""` or null `shiftName` | `400 Bad Request`. Validation error on mandatory `shiftName`. |
+| **TC-SHIFT-VAL-03** | `shiftType` | Invalid enum value (e.g. `"FLEXIBLE_INVALID"`) | `400 Bad Request` or AJV schema failure. |
+| **TC-SHIFT-VAL-04** | `startTime` / `endTime` | For `FIXED` shift type: Omit `startTime` or `endTime` | `400 Bad Request`. Fixed shifts require valid Start and End times. |
+| **TC-SHIFT-VAL-05** | `requiredDurationHours` | For `OPEN` shift type: Omit `requiredDurationHours` | `400 Bad Request`. Open shifts require non-null required duration. |
+| **TC-SHIFT-VAL-06** | Effective Dates | `effectiveFrom` date greater than `effectiveTo` (e.g. `From: 29-Aug > To: 08-Aug`) | `400 Bad Request`. Validation error on date range boundary. |
+| **TC-SHIFT-VAL-07** | `graceMinutes` | Negative number (e.g. `-15`) | `400 Bad Request`. Grace minutes must be positive integer. |
+| **TC-SHIFT-VAL-08** | `applicableEmpIds` | `applicabilityType: "CUSTOM"` but `applicableEmpIds` is empty array `[]` | `400 Bad Request`. Custom shifts require at least 1 employee assigned. |
+
+---
+
+### 3. Break Configuration Validation Scenarios
+
+| Test Case ID | Test Description | Input Payload Modification | Expected Validation Result |
+| :--- | :--- | :--- | :--- |
+| **TC-SHIFT-BRK-01** | Valid Multiple Breaks | Send `breakConfigs` with Lunch (60m unpaid), Tea (15m paid). | `200 OK`. Breaks linked correctly. |
+| **TC-SHIFT-BRK-02** | Exceeding Shift Hours | Total break duration exceeds total shift working duration. | `400 Bad Request`. Break duration cannot exceed shift duration. |
+| **TC-SHIFT-BRK-03** | Invalid Break Duration | `breakDurationMinutes: 0` or negative. | `400 Bad Request`. Break duration must be > 0. |
+
+---
+
+### 4. Security & Access Control Scenarios
+
+| Test Case ID | Test Description | Action | Expected Status |
+| :--- | :--- | :--- | :--- |
+| **TC-SHIFT-SEC-01** | Missing Bearer Token | Remove `Authorization` header on `POST` / `PUT` / `DELETE`. | `401 Unauthorized` |
+| **TC-SHIFT-SEC-02** | Non-Admin Role Attempt | Send request with Employee-only token. | `403 Forbidden` |
+
+---
+
+## 🖥️ Manual Web UI Testing Suite for Shift Templates Screen
+
+### 1. Page Load & Grid Verification
+
+| Test ID | Test Scenario | Steps / Execution Action | Expected UI Result |
+| :--- | :--- | :--- | :--- |
+| **TC-UI-01** | Page Header | Navigate to `/hcm/attendance` $\rightarrow$ Shift Templates | Header displays **`Shift Templates`** with `+ Create Template` button. |
+| **TC-UI-02** | Grid Column Headers | Inspect table headers | Headers present: `Sr No.`, `Code`, `Name`, `Shift Type`, `Timing`, `Applied To`, `Status`, `Creation Date`, `Update Date`, `Actions`. |
+| **TC-UI-03** | Default Data Rows | Verify initial grid load | Rows displayed (e.g. `SHF-0002` Open 8 hrs, `SHF-0001` Fixed 09:30-18:34 with status `Active`). |
+
+---
+
+### 2. Shift Creation Modal (`+ Create Template` Button)
+
+| Test ID | Test Scenario | Input Data & Steps | Expected UI Validation Result |
+| :--- | :--- | :--- | :--- |
+| **TC-UI-04** | Create Fixed Shift (Happy Path) | 1. Click `+ Create Template`<br>2. Code: `SHF-0003`, Name: `Morning Shift`, Type: `Fixed`, Timing: `09:00 - 18:00`<br>3. Click **Save** | Success toast message. Shift appears in grid with `Active` status badge. |
+| **TC-UI-05** | Create Open Shift (Happy Path) | 1. Click `+ Create Template`<br>2. Select `Open`, Duration: `8 hrs`<br>3. Click **Save** | Success toast message. Timing column displays `8 hrs`. |
+| **TC-UI-06** | Mandatory Field Check | Leave Code/Name blank and click **Save** | Red inline validation messages under empty fields (*"Code is required"*, *"Name is required"*). Form does not submit. |
+| **TC-UI-07** | Duplicate Shift Code Validation | Enter existing code `SHF-0001` and click **Save** | Error alert/toast: *"Shift code already exists"*. |
+| **TC-UI-08** | Inverted Date Range Validation | Set `Effective From: 29-Aug-2026` and `Effective To: 08-Aug-2026` | Validation message: *"Effective To date cannot be earlier than Effective From date"*. |
+
+---
+
+### 3. Grid Action Buttons (View, Edit, Status Toggle, Search, Pagination)
+
+| Test ID | UI Control / Action | Test Execution Steps | Expected UI Behavior |
+| :--- | :--- | :--- | :--- |
+| **TC-UI-09** | View Action (Eye Icon 👁️) | Click Eye icon on row `SHF-0001` | Read-only modal opens showing shift details, break configs (Tea break 20m), and assigned employees list (74 employees). |
+| **TC-UI-10** | Edit Action (Pencil Icon ✏️) | 1. Click Pencil icon on row `SHF-0002`<br>2. Change Name to `Updated Tested Shift`<br>3. Click **Update** | Success toast message. Grid updates immediately with new Shift Name. |
+| **TC-UI-11** | Status Toggle Switch 🔵 | Click active toggle switch on `SHF-0001` | Status pill changes from `Active` (Green) to `Inactive` (Gray/Red). State persists on refresh. |
+| **TC-UI-12** | Search Filter | Type `Tested` in top search bar | Grid filters dynamically to display only matching `SHF-0002` record. |
+| **TC-UI-13** | Non-Matching Search | Type `XYZ999` in top search bar | Grid displays empty message: *"No matching records found"*. |
+| **TC-UI-14** | Entries Dropdown & Pagination | Change `Show 10 entries` dropdown to `25` | Table updates page size and pagination controls (`Previous`, `Page 1 of 1`, `Next`). |
+
+

@@ -79,3 +79,26 @@
 }","{
   ""token"": ""<jwt-token>""
 }","","KavishTadas <kavish.tadas@omfysgroup.com>","get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status","Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
+"7","Attendance Management API","Attendance Shift Master - Get All Shifts","private","Status is 200; Shift templates fetched successfully; Pagination metadata populated","{{attendanceBaseUrl}}","/api/v1/attendance/shift/master","GET","query: page=0&size=10&includeDeleted=true | headers: Authorization=Bearer {{authToken}}","","","","Expected status(es): 200
+{
+  ""status"": ""success"",
+  ""message"": ""Shift templates fetched successfully"",
+  ""data"": {
+    ""content"": [],
+    ""pageNumber"": 0,
+    ""pageSize"": 10,
+    ""totalElements"": 2,
+    ""totalPages"": 1
+  }
+}","{
+  ""status"": ""success"",
+  ""message"": ""Shift templates fetched successfully"",
+  ""data"": {
+    ""content"": [],
+    ""pageNumber"": 0,
+    ""pageSize"": 10,
+    ""totalElements"": 2,
+    ""totalPages"": 1
+  }
+}","Requires authToken from Employee Auth API","KavishTadas <kavish.tadas@omfysgroup.com>","get|{{attendancebaseurl}}|/api/v1/attendance/shift/master|attendance management api|shift master get all shifts","Source: collections/Attendance_Management_API.json"
+
