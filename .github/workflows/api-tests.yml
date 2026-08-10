@@ -123,7 +123,7 @@ jobs:
       EMP_CODE:          ${{ secrets.EMP_CODE }}
       EMP_PASSWORD:      ${{ secrets.EMP_PASSWORD }}
       BASE_URL:            ${{ secrets.BASE_URL }}
-      AUTH_BASE_URL:       "https://uat_mcdp_be.omfysgroup.com"
+      AUTH_BASE_URL:       "https://dev_mcdp_be.omfysgroup.com"
       LEAVE_BASE_URL:      "https://uat_mcdp_hcm.omfysgroup.com"
       ATTENDANCE_BASE_URL: "https://uat_mcdp_hcm.omfysgroup.com"
       API_AUTH_TOKEN:    ${{ secrets.API_AUTH_TOKEN }}

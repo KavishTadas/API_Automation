@@ -13,7 +13,7 @@ const crypto = require('crypto');
 const https = require('https');
 
 
-const PINNED_HOST = 'uat_mcdp_be.omfysgroup.com';
+const PINNED_HOST = 'dev_mcdp_be.omfysgroup.com';
 const PINNED_PORT = 443;
 
 // Leaf certificate updated on uat_mcdp_be.omfysgroup.com

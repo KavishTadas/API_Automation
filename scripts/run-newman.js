@@ -267,7 +267,8 @@ if (filteredFiles.length === 0) {
 
 const results = [];
 const sharedEnvVars = {
-  authBaseUrl:       PINNED_AUTH_BASE_URL,
+  authBaseUrl:       process.env.AUTH_BASE_URL       ||
+                     PINNED_AUTH_BASE_URL,
   baseUrl:           process.env.BASE_URL            ||
                      process.env.ATTENDANCE_BASE_URL ||
                      'https://uat_mcdp_hcm.omfysgroup.com',
