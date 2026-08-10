@@ -1,21 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 
-const collectionsDir = path.join(__dirname, '..', 'collections');
-const files = fs.readdirSync(collectionsDir).filter(f => f.endsWith('.json'));
+const file = path.join(__dirname, '..', 'collections', 'Weekoff_Policy_API.json');
+let content = fs.readFileSync(file, 'utf8');
 
-let totalReplacements = 0;
+content = content.replace(/"host":\s*\[\s*"devmcdphcmplatform",\s*"omfysgroup",\s*"com"\s*\]/g, '"host": ["{{attendanceBaseUrl}}"]');
 
-files.forEach(file => {
-  const filePath = path.join(collectionsDir, file);
-  let content = fs.readFileSync(filePath, 'utf8');
-  const matches = content.match(/"value":\s*"eyJhbG[^"]+"/g);
-  if (matches) {
-    totalReplacements += matches.length;
-    content = content.replace(/"value":\s*"eyJhbG[^"]+"/g, '"value": "{{authToken}}"');
-    fs.writeFileSync(filePath, content, 'utf8');
-    console.log(`Updated ${matches.length} hardcoded tokens in ${file}`);
-  }
-});
-
-console.log(`Done. Total replaced: ${totalReplacements}`);
+fs.writeFileSync(file, content, 'utf8');
+console.log('Cleaned host arrays in Weekoff_Policy_API.json');

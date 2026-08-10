@@ -40,12 +40,10 @@
           }
         },
         "url": {
-          "raw": "https://devmcdphcmplatform.omfysgroup.com/api/attendance/week-offs/actDeact/3/status",
+          "raw": "{{attendanceBaseUrl}}/api/attendance/week-offs/actDeact/3/status",
           "protocol": "https",
           "host": [
-            "devmcdphcmplatform",
-            "omfysgroup",
-            "com"
+            "{{attendanceBaseUrl}}"
           ],
           "path": [
             "api",
@@ -80,13 +78,9 @@
           }
         ],
         "url": {
-          "raw": "https://devmcdphcmplatform.omfysgroup.com/api/attendance/week-offs/getAll?page=0&size=10&sort=weekOffName,asc",
+          "raw": "{{attendanceBaseUrl}}/api/attendance/week-offs/getAll?page=0&size=10&sort=weekOffName,asc",
           "protocol": "https",
-          "host": [
-            "devmcdphcmplatform",
-            "omfysgroup",
-            "com"
-          ],
+          "host": ["{{attendanceBaseUrl}}"],
           "path": [
             "api",
             "attendance",
@@ -132,13 +126,9 @@
           }
         ],
         "url": {
-          "raw": "https://devmcdphcmplatform.omfysgroup.com/api/attendance/week-offs/getById/1",
+          "raw": "{{attendanceBaseUrl}}/api/attendance/week-offs/getById/1",
           "protocol": "https",
-          "host": [
-            "devmcdphcmplatform",
-            "omfysgroup",
-            "com"
-          ],
+          "host": ["{{attendanceBaseUrl}}"],
           "path": [
             "api",
             "attendance",
@@ -184,13 +174,9 @@
           }
         },
         "url": {
-          "raw": "https://devmcdphcmplatform.omfysgroup.com/api/attendance/week-offs/update/1",
+          "raw": "{{attendanceBaseUrl}}/api/attendance/week-offs/update/1",
           "protocol": "https",
-          "host": [
-            "devmcdphcmplatform",
-            "omfysgroup",
-            "com"
-          ],
+          "host": ["{{attendanceBaseUrl}}"],
           "path": [
             "api",
             "attendance",
@@ -286,13 +272,9 @@
           }
         },
         "url": {
-          "raw": "https://devmcdphcmplatform.omfysgroup.com/api/attendance/week-off-assignment/getByWeekOff?page=0&size=10&sort=employeeId,asc",
+          "raw": "{{attendanceBaseUrl}}/api/attendance/week-off-assignment/getByWeekOff?page=0&size=10&sort=employeeId,asc",
           "protocol": "https",
-          "host": [
-            "devmcdphcmplatform",
-            "omfysgroup",
-            "com"
-          ],
+          "host": ["{{attendanceBaseUrl}}"],
           "path": [
             "api",
             "attendance",
@@ -351,13 +333,9 @@
           }
         },
         "url": {
-          "raw": "https://devmcdphcmplatform.omfysgroup.com/api/attendance/week-off-assignment/changeStatus",
+          "raw": "{{attendanceBaseUrl}}/api/attendance/week-off-assignment/changeStatus",
           "protocol": "https",
-          "host": [
-            "devmcdphcmplatform",
-            "omfysgroup",
-            "com"
-          ],
+          "host": ["{{attendanceBaseUrl}}"],
           "path": [
             "api",
             "attendance",
