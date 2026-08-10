@@ -41,7 +41,6 @@
                 },
                 "url": {
                     "raw": "{{attendanceBaseUrl}}/api/attendance/week-offs/actDeact/3/status",
-                    "protocol": "https",
                     "host": [
                         "{{attendanceBaseUrl}}"
                     ],
@@ -79,7 +78,6 @@
                 ],
                 "url": {
                     "raw": "{{attendanceBaseUrl}}/api/attendance/week-offs/getAll?page=0&size=10&sort=weekOffName,asc",
-                    "protocol": "https",
                     "host": [
                         "{{attendanceBaseUrl}}"
                     ],
@@ -129,7 +127,6 @@
                 ],
                 "url": {
                     "raw": "{{attendanceBaseUrl}}/api/attendance/week-offs/getById/1",
-                    "protocol": "https",
                     "host": [
                         "{{attendanceBaseUrl}}"
                     ],
@@ -179,7 +176,6 @@
                 },
                 "url": {
                     "raw": "{{attendanceBaseUrl}}/api/attendance/week-offs/update/1",
-                    "protocol": "https",
                     "host": [
                         "{{attendanceBaseUrl}}"
                     ],
@@ -229,7 +225,6 @@
                 },
                 "url": {
                     "raw": "{{baseURL}}/api/attendance/week-offs/create",
-                    "protocol": "https",
                     "host": [
                         "{{baseURL}}"
                     ],
@@ -278,7 +273,6 @@
                 },
                 "url": {
                     "raw": "{{attendanceBaseUrl}}/api/attendance/week-off-assignment/getByWeekOff?page=0&size=10&sort=employeeId,asc",
-                    "protocol": "https",
                     "host": [
                         "{{attendanceBaseUrl}}"
                     ],
@@ -341,7 +335,6 @@
                 },
                 "url": {
                     "raw": "{{attendanceBaseUrl}}/api/attendance/week-off-assignment/changeStatus",
-                    "protocol": "https",
                     "host": [
                         "{{attendanceBaseUrl}}"
                     ],

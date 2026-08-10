@@ -41,7 +41,6 @@
                 },
                 "url": {
                     "raw": "{{baseURL}}/api/attendance/late-early-policies/update/2",
-                    "protocol": "https",
                     "host": [
                         "{{baseURL}}"
                     ],
@@ -79,7 +78,6 @@
                 ],
                 "url": {
                     "raw": "{{baseURL}}/api/attendance/late-early-policies/getById/5",
-                    "protocol": "https",
                     "host": [
                         "{{baseURL}}"
                     ],
@@ -130,7 +128,6 @@
                 },
                 "url": {
                     "raw": "{{baseURL}}/api/attendance/late-early-policies/create",
-                    "protocol": "https",
                     "host": [
                         "{{baseURL}}"
                     ],
@@ -166,7 +163,6 @@
                 ],
                 "url": {
                     "raw": "{{baseURL}}/api/attendance/late-early-policies/getAll?page=0&size=10&sort=policyId,desc",
-                    "protocol": "https",
                     "host": [
                         "{{baseURL}}"
                     ],
@@ -216,7 +212,6 @@
                 ],
                 "url": {
                     "raw": "{{baseURL}}/api/attendance/late-early-policies/5/status?status=N",
-                    "protocol": "https",
                     "host": [
                         "{{baseURL}}"
                     ],

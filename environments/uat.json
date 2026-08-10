@@ -27,6 +27,12 @@
       "description": "Attendance API base URL"
     },
     {
+      "key": "baseURL",
+      "value": "https://uat_mcdp_hcm.omfysgroup.com",
+      "enabled": true,
+      "description": "Attendance API base URL (uppercase variant used in collections)"
+    },
+    {
       "key": "empCode",
       "value": "",
       "enabled": true
