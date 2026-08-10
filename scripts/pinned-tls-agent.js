@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * Fixed-host certificate-pinned HTTPS helper for dev_mcdp_be.omfysgroup.com.
+ * Fixed-host certificate-pinned HTTPS helper for uat_mcdp_be.omfysgroup.com.
  *
  * Normal certificate-chain, expiry, and trusted-root validation remains enabled.
  * Only RFC hostname-string comparison is skipped for the exact underscore host;
@@ -13,10 +13,10 @@ const crypto = require('crypto');
 const https = require('https');
 
 
-const PINNED_HOST = 'dev_mcdp_be.omfysgroup.com';
+const PINNED_HOST = 'uat_mcdp_be.omfysgroup.com';
 const PINNED_PORT = 443;
 
-// Leaf certificate updated on dev_mcdp_be.omfysgroup.com
+// Leaf certificate updated on uat_mcdp_be.omfysgroup.com
 const EXPECTED_CERT_SHA256 =
   'C139A6EB97F44676BD7A79897211B02FC3DEAFB988E8B08705F6AEFC82D1F569';
 

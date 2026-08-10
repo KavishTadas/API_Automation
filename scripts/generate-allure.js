@@ -49,7 +49,7 @@ function prepareAllureResults() {
     'utf8'
   );
 
-  const envProps = `API_TEST_ENV=uat\nAUTH_BASE_URL=https://dev_mcdp_be.omfysgroup.com\nLEAVE_BASE_URL=https://devmcdphcmplatform.omfysgroup.com\n`;
+  const envProps = `API_TEST_ENV=uat\nAUTH_BASE_URL=https://uat_mcdp_be.omfysgroup.com\nLEAVE_BASE_URL=https://uat_mcdp_hcm.omfysgroup.com\n`;
   fs.writeFileSync(
     path.join(allureResultsDir, 'environment.properties'),
     envProps,

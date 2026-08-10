@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Narrow certificate-pinned HTTPS helper for the development MCDP login host.
 
-This module is intentionally scoped to ``dev_mcdp_be.omfysgroup.com``. Normal
+This module is intentionally scoped to ``uat_mcdp_be.omfysgroup.com``. Normal
 CA-chain and certificate-validity verification remains enabled. Only automatic
 hostname matching is disabled because the underscore hostname is rejected by
 standard hostname rules; the exact leaf certificate SHA-256 pin is checked on
@@ -19,7 +19,7 @@ from dataclasses import dataclass
 from typing import Any, Mapping
 
 
-PINNED_HOST = "dev_mcdp_be.omfysgroup.com"
+PINNED_HOST = "uat_mcdp_be.omfysgroup.com"
 PINNED_PORT = 443
 EXPECTED_CERT_SHA256 = (
     "C139A6EB97F44676BD7A79897211B02FC3DEAFB988E8B08705F6AEFC82D1F569"
