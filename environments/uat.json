@@ -4,7 +4,7 @@
   "values": [
     {
       "key": "authBaseUrl",
-      "value": "https://dev_mcdp_be.omfysgroup.com",
+      "value": "https://uat_mcdp_be.omfysgroup.com",
       "enabled": true,
       "description": "Employee auth API; requires the host-scoped pinned TLS agent in scripts/pinned-tls-agent.js"
     },
@@ -16,7 +16,7 @@
     },
     {
       "key": "leaveBaseUrl",
-      "value": "https://devmcdphcmplatform.omfysgroup.com",
+      "value": "https://uat_mcdp_hcm.omfysgroup.com",
       "enabled": true,
       "description": "Leave report API base URL"
     },

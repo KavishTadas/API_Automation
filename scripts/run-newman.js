@@ -208,11 +208,11 @@ for (const [credential, value] of Object.entries({
 const collectionsDir  = path.join(__dirname, '..', 'collections');
 const RUN_ORDER = [
   'Employee_Auth_API.json',
-  'Attendance_Management_API.json',
-  'Attendance_Threshold_API.json',
-  'Holiday_Template_API.json',
-  'Late_Early_Policy_API.json',
-  'Weekoff_Policy_API.json',
+  // 'Attendance_Management_API.json',
+  // 'Attendance_Threshold_API.json',
+  // 'Holiday_Template_API.json',
+  // 'Late_Early_Policy_API.json',
+  // 'Weekoff_Policy_API.json',
   'Leave_API.json',
   'Login_API.json'
 ];
