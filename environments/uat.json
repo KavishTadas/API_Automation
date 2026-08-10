@@ -10,9 +10,9 @@
     },
     {
       "key": "baseUrl",
-      "value": "https://uat-mcdp-be.omfysgroup.com",
+      "value": "https://uat_mcdp_hcm.omfysgroup.com",
       "enabled": true,
-      "description": "API base URL — hyphen URL"
+      "description": "Attendance API base URL"
     },
     {
       "key": "leaveBaseUrl",

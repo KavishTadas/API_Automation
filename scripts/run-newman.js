@@ -267,13 +267,16 @@ if (filteredFiles.length === 0) {
 
 const results = [];
 const sharedEnvVars = {
-  authBaseUrl:  PINNED_AUTH_BASE_URL,
-  baseUrl:      process.env.BASE_URL      ||
-                'https://uat-mcdp-be.omfysgroup.com',
-  empCode:      process.env.EMP_CODE      || '',
-  empPassword:  process.env.EMP_PASSWORD  || '',
-  leaveBaseUrl: process.env.LEAVE_BASE_URL ||
-                LEAVE_REPORT_BASE_URL,
+  authBaseUrl:       PINNED_AUTH_BASE_URL,
+  baseUrl:           process.env.BASE_URL            ||
+                     process.env.ATTENDANCE_BASE_URL ||
+                     'https://uat_mcdp_hcm.omfysgroup.com',
+  attendanceBaseUrl: process.env.ATTENDANCE_BASE_URL ||
+                     'https://uat_mcdp_hcm.omfysgroup.com',
+  empCode:           process.env.EMP_CODE            || '',
+  empPassword:       process.env.EMP_PASSWORD        || '',
+  leaveBaseUrl:      process.env.LEAVE_BASE_URL      ||
+                     LEAVE_REPORT_BASE_URL,
   openapiSchemaBundle: OPENAPI_SCHEMA_BUNDLE_JSON
 };
 
