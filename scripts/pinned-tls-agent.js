@@ -16,10 +16,9 @@ const https = require('https');
 const PINNED_HOST = 'dev_mcdp_be.omfysgroup.com';
 const PINNED_PORT = 443;
 
-// This certificate expires on Aug 11 2026. The pin WILL need updating when the
-// certificate rotates; until updated, requests correctly fail closed.
+// Leaf certificate updated on dev_mcdp_be.omfysgroup.com
 const EXPECTED_CERT_SHA256 =
-  'C3524D47998E616A31634A3A4E75899629FDBE58DAD17318AF51FC2288F375C8';
+  'C139A6EB97F44676BD7A79897211B02FC3DEAFB988E8B08705F6AEFC82D1F569';
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 const TEST_ONLY_PIN_OVERRIDE = Symbol('test-only-pin-override');
