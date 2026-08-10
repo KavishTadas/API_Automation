@@ -13,7 +13,7 @@ const {
 
 const PINNED_AUTH_BASE_URL =
   process.env.NEWMAN_RETRY_PROBE_AUTH_BASE_URL || `https://${PINNED_HOST}`;
-const LEAVE_REPORT_BASE_URL = 'https://uat_mcdp_hcm.omfysgroup.com';
+const LEAVE_REPORT_BASE_URL = 'https://devmcdphcmplatform.omfysgroup.com';
 const PINNED_TLS_DEBUG = process.env.PINNED_TLS_DEBUG === '1';
 // Tune these two constants if the retry budget or initial backoff ever needs
 // to change. Attempts use 500ms then 1000ms delays (three attempts total).

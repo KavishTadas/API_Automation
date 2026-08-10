@@ -16,7 +16,7 @@
     },
     {
       "key": "leaveBaseUrl",
-      "value": "https://uat_mcdp_hcm.omfysgroup.com",
+      "value": "https://devmcdphcmplatform.omfysgroup.com",
       "enabled": true,
       "description": "Leave report API base URL"
     },
