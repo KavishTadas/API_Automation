@@ -60,6 +60,29 @@ function prepareAllureResults() {
     .filter(f => f.endsWith('-result.json'));
 
   let processedCount = 0;
+  let purgedCount = 0;
+
+  // WHITELIST: Only these collections should be in reports
+  const APPROVED_COLLECTIONS = [
+    'Employee_Auth_API',
+    'Login_API',
+    'Leave_API'
+  ];
+
+  // BLACKLIST: Attendance APIs to be purged from reports
+  const ATTENDANCE_API_PATTERNS = [
+    /Attendance/i,
+    /attendance/i,
+    /shift/i,
+    /status-threshold/i,
+    /holiday-template/i,
+    /late-early-polic/i,
+    /week-off-assignment/i,
+    /changeStatus/i,
+    /403 Forbidden/i,
+    /Forbidden/i
+  ];
+
   resultFiles.forEach(file => {
     const filePath = path.join(allureResultsDir, file);
     try {
@@ -68,11 +91,21 @@ function prepareAllureResults() {
 
       const name = data.name || '';
       const fullName = data.fullName || '';
+      const statusDetails = data.statusDetails?.message || '';
+      const combinedText = `${name} ${fullName} ${statusDetails}`;
 
-      // Purge skipped/ignored unverified endpoint results per user request
-      if (data.status === 'skipped' || name.includes('users_me') || fullName.includes('unverified_endpoints') || name.includes('unverified')) {
+      // PURGE: Skipped endpoints, unverified endpoints, and failed Attendance APIs
+      if (
+        data.status === 'skipped' || 
+        name.includes('users_me') || 
+        fullName.includes('unverified_endpoints') || 
+        name.includes('unverified') ||
+        (data.status === 'failed' && ATTENDANCE_API_PATTERNS.some(pattern => pattern.test(combinedText))) ||
+        (data.status === 'broken' && ATTENDANCE_API_PATTERNS.some(pattern => pattern.test(combinedText)))
+      ) {
         try {
           fs.unlinkSync(filePath);
+          purgedCount++;
         } catch (e) {}
         return;
       }
@@ -153,7 +186,7 @@ function prepareAllureResults() {
     }
   });
 
-  console.log(`Preprocessed ${resultFiles.length} Allure result files (${processedCount} updated with Epic/Feature/Story labels and categories.json).`);
+  console.log(`✓ Preprocessed ${resultFiles.length} Allure result files (${processedCount} updated, ${purgedCount} purged from reports).`);
 }
 
 prepareAllureResults();
