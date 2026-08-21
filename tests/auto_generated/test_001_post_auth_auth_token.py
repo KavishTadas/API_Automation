@@ -34,38 +34,40 @@ API = json.loads(r"""{
   "Response (example/200)": "Expected status(es): 200\n{\n  \"token\": \"<jwt-token>\"\n}",
   "Example Response Payload": "{\n  \"token\": \"<jwt-token>\"\n}",
   "Dependent APIs / Services": "Produces authToken for downstream APIs",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "",
   "API Identifier": "post|{{baseurl}}|/auth/token|auth|login",
   "Comments": "Source: bruno/auth/login.bru; No saved response example in source file; Parsed from Bruno file"
 }""")
 
+@allure.title("Login - Status is 200; Token exists; empCode matches \u2014 returns HTTP 200")
 @allure.epic("auth")
 @allure.feature("POST /auth/token — Login")
 @allure.story("HTTP Status Code Check (200)")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.parent_suite("auth")
+@allure.suite("POST /auth/token — Login")
+@allure.sub_suite("HTTP Status Code Check (200)")
+@allure.label("sourceModule", "auth")
+@allure.label("sourceType", "Python auto-generated")
+@allure.label("owner", "")
 @allure.link("post|{{baseurl}}|/auth/token|auth|login", name="API Identifier")
 def test_auth_auth_token_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
     allure.dynamic.parameter("Endpoint Path", "/auth/token")
     allure.dynamic.parameter("Expected Status", "200")
     response = perform_api_request(API, api_runtime_config)
-    allure.attach(
-        json.dumps(dict(response.headers), indent=2),
-        name="Response Headers",
-        attachment_type=allure.attachment_type.JSON
-    )
-    allure.attach(
-        response.text[:2000],
-        name="Response Body Snippet",
-        attachment_type=allure.attachment_type.TEXT
-    )
     assert response.status_code == 200
 
 
+@allure.title("Login - Status is 200; Token exists; empCode matches \u2014 response matches documented schema")
 @allure.epic("auth")
 @allure.feature("POST /auth/token — Login")
 @allure.story("OpenAPI Schema Validation Check")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.parent_suite("auth")
+@allure.suite("POST /auth/token — Login")
+@allure.sub_suite("OpenAPI Schema Validation Check")
+@allure.label("sourceModule", "auth")
+@allure.label("sourceType", "Python auto-generated")
+@allure.label("owner", "")
 @allure.link("post|{{baseurl}}|/auth/token|auth|login", name="API Identifier")
 def test_auth_auth_token_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")

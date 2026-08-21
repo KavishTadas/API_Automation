@@ -12,7 +12,9 @@ import os
 import re
 from pathlib import Path
 from typing import Any
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
+import allure
 import httpx
 import pytest
 
@@ -21,6 +23,17 @@ from scripts import pinned_tls
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 DEFAULT_TIMEOUT = float(os.getenv("API_TEST_TIMEOUT", "30"))
+REDACTED = "***REDACTED***"
+SENSITIVE_KEY_PATTERN = re.compile(
+    r"emp[_.-]*code|emp[_.-]*password|password|secret|token",
+    re.IGNORECASE,
+)
+SENSITIVE_HEADER_NAMES = {
+    "authorization",
+    "proxy-authorization",
+    "cookie",
+    "set-cookie",
+}
 
 
 def _canonical_env_key(key: str) -> str:
@@ -78,6 +91,204 @@ def _read_postman_environment(path: Path) -> dict[str, str]:
     return values
 
 
+def _sensitive_values(context: dict[str, str]) -> tuple[str, ...]:
+    values = {
+        str(value)
+        for key, value in context.items()
+        if SENSITIVE_KEY_PATTERN.search(str(key)) and value
+    }
+    return tuple(sorted(values, key=len, reverse=True))
+
+
+def _redact_text(value: Any, sensitive_values: tuple[str, ...]) -> str:
+    redacted = "" if value is None else str(value)
+    for sensitive_value in sensitive_values:
+        redacted = redacted.replace(sensitive_value, REDACTED)
+    redacted = re.sub(
+        r"""(?ix)
+        (\b(?:emp[_.-]*code|emp[_.-]*password|password|secret|token)\b\s*(?:=|:)\s*)
+        (?:"[^"]*"|'[^']*'|[^,;\s&]+)
+        """,
+        lambda match: f"{match.group(1)}{REDACTED}",
+        redacted,
+    )
+    return re.sub(
+        r"(?i)\bBearer\s+[^\s,;]+",
+        f"Bearer {REDACTED}",
+        redacted,
+    )
+
+
+def _redact_structured_value(
+    value: Any,
+    sensitive_values: tuple[str, ...],
+) -> Any:
+    if isinstance(value, dict):
+        return {
+            key: (
+                REDACTED
+                if SENSITIVE_KEY_PATTERN.search(str(key))
+                else _redact_structured_value(child, sensitive_values)
+            )
+            for key, child in value.items()
+        }
+    if isinstance(value, list):
+        return [
+            _redact_structured_value(child, sensitive_values)
+            for child in value
+        ]
+    if isinstance(value, str):
+        return _redact_text(value, sensitive_values)
+    return value
+
+
+def _redacted_headers(
+    headers: httpx.Headers,
+    sensitive_values: tuple[str, ...],
+) -> dict[str, str]:
+    redacted: dict[str, str] = {}
+    for key, value in headers.multi_items():
+        normalized_key = key.lower()
+        if normalized_key == "authorization" and value.lower().startswith("bearer "):
+            safe_value = f"Bearer {REDACTED}"
+        elif (
+            normalized_key in SENSITIVE_HEADER_NAMES
+            or SENSITIVE_KEY_PATTERN.search(normalized_key)
+        ):
+            safe_value = REDACTED
+        else:
+            safe_value = _redact_text(value, sensitive_values)
+        redacted[key] = safe_value
+    return redacted
+
+
+def _redacted_url(
+    url: httpx.URL,
+    sensitive_values: tuple[str, ...],
+) -> str:
+    parsed = urlsplit(str(url))
+    safe_query = urlencode(
+        [
+            (
+                key,
+                REDACTED
+                if SENSITIVE_KEY_PATTERN.search(key)
+                else _redact_text(value, sensitive_values),
+            )
+            for key, value in parse_qsl(parsed.query, keep_blank_values=True)
+        ],
+        doseq=True,
+    )
+    safe_netloc = parsed.netloc
+    if parsed.username is not None or parsed.password is not None:
+        host = parsed.hostname or ""
+        port = f":{parsed.port}" if parsed.port is not None else ""
+        safe_netloc = f"{REDACTED}@{host}{port}"
+    return urlunsplit(
+        (
+            parsed.scheme,
+            safe_netloc,
+            _redact_text(parsed.path, sensitive_values),
+            safe_query,
+            _redact_text(parsed.fragment, sensitive_values),
+        )
+    )
+
+
+def _redacted_body(
+    content: bytes,
+    content_type: str,
+    sensitive_values: tuple[str, ...],
+) -> tuple[str, Any]:
+    if not content:
+        return "<empty>", allure.attachment_type.TEXT
+
+    decoded = content.decode("utf-8", errors="replace")
+    parsed_json = _parse_json_safely(decoded)
+    if parsed_json is not None:
+        return (
+            json.dumps(
+                _redact_structured_value(parsed_json, sensitive_values),
+                indent=2,
+            ),
+            allure.attachment_type.JSON,
+        )
+
+    if "application/x-www-form-urlencoded" in content_type.lower():
+        safe_form = [
+            (
+                key,
+                REDACTED
+                if SENSITIVE_KEY_PATTERN.search(key)
+                else _redact_text(value, sensitive_values),
+            )
+            for key, value in parse_qsl(decoded, keep_blank_values=True)
+        ]
+        return urlencode(safe_form), allure.attachment_type.TEXT
+
+    return (
+        f"<non-JSON body omitted from report; {len(content)} bytes>",
+        allure.attachment_type.TEXT,
+    )
+
+
+def _attach_request(
+    request: httpx.Request,
+    sensitive_values: tuple[str, ...],
+) -> None:
+    safe_body, body_type = _redacted_body(
+        request.content,
+        request.headers.get("content-type", ""),
+        sensitive_values,
+    )
+    allure.attach(
+        request.method,
+        name="Request Method",
+        attachment_type=allure.attachment_type.TEXT,
+    )
+    allure.attach(
+        _redacted_url(request.url, sensitive_values),
+        name="Request URL",
+        attachment_type=allure.attachment_type.TEXT,
+    )
+    allure.attach(
+        json.dumps(_redacted_headers(request.headers, sensitive_values), indent=2),
+        name="Request Headers",
+        attachment_type=allure.attachment_type.JSON,
+    )
+    allure.attach(
+        safe_body,
+        name="Request Body",
+        attachment_type=body_type,
+    )
+
+
+def _attach_response(
+    response: httpx.Response,
+    sensitive_values: tuple[str, ...],
+) -> None:
+    safe_body, body_type = _redacted_body(
+        response.content,
+        response.headers.get("content-type", ""),
+        sensitive_values,
+    )
+    allure.attach(
+        str(response.status_code),
+        name="Response Status",
+        attachment_type=allure.attachment_type.TEXT,
+    )
+    allure.attach(
+        json.dumps(_redacted_headers(response.headers, sensitive_values), indent=2),
+        name="Response Headers",
+        attachment_type=allure.attachment_type.JSON,
+    )
+    allure.attach(
+        safe_body,
+        name="Response Body",
+        attachment_type=body_type,
+    )
+
+
 def perform_api_request(api: dict[str, str], config: dict[str, str]) -> httpx.Response:
     context = dict(config)
     context.update(_first_iteration_data(api))
@@ -124,9 +335,24 @@ def perform_api_request(api: dict[str, str], config: dict[str, str]) -> httpx.Re
 
     with httpx.Client() as client:
         request = client.build_request(method, url, **request_kwargs)
-        if _uses_pinned_tls(request.url):
-            return _send_pinned_request(request)
-        return client.send(request)
+        sensitive_values = _sensitive_values(context)
+        _attach_request(request, sensitive_values)
+        try:
+            if _uses_pinned_tls(request.url):
+                response = _send_pinned_request(request)
+            else:
+                response = client.send(request)
+        except Exception as error:
+            safe_message = _redact_text(str(error), sensitive_values)
+            allure.attach(
+                f"{type(error).__module__}.{type(error).__name__}: {safe_message}",
+                name="Request Exception",
+                attachment_type=allure.attachment_type.TEXT,
+            )
+            raise
+
+        _attach_response(response, sensitive_values)
+        return response
 
 
 def _uses_pinned_tls(url: httpx.URL) -> bool:

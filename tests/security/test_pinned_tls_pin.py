@@ -1,23 +1,30 @@
 """Regression tests for the fixed development-auth certificate pin.
 
-Re-run these tests whenever the pin is updated after the current certificate
-expires on Aug 11 2026.
+The current leaf certificate is valid from Aug 7 00:00:00 2026 GMT through
+Feb 21 23:59:59 2027 GMT. Re-run these tests whenever the pin is updated.
 """
 
 from __future__ import annotations
 
-import hashlib
 import http.client
+import json
 import os
 from pathlib import Path
 from unittest.mock import patch
 
+import allure
 import pytest
 
 from scripts import pinned_tls
 
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
+CURRENT_CERT_SHA256 = (
+    "C139A6EB97F44676BD7A79897211B02FC3DEAFB988E8B08705F6AEFC82D1F569"
+)
+STALE_CERT_SHA256 = (
+    "C3524D47998E616A31634A3A4E75899629FDBE58DAD17318AF51FC2288F375C8"
+)
 
 
 def _credential(name: str) -> str:
@@ -35,8 +42,18 @@ def _credential(name: str) -> str:
     return ""
 
 
+def _attach_tls_evidence(name: str, evidence: dict[str, object]) -> None:
+    allure.attach(
+        json.dumps(evidence, indent=2),
+        name=name,
+        attachment_type=allure.attachment_type.JSON,
+    )
+
+
 def test_live_request_succeeds_through_current_certificate_pin() -> None:
     """Make a real pinned request to the fixed development auth host."""
+    assert pinned_tls.EXPECTED_CERT_SHA256 == CURRENT_CERT_SHA256
+
     emp_code = _credential("EMP_CODE")
     emp_password = _credential("EMP_PASSWORD")
     assert emp_code and emp_password, "EMP_CODE or EMP_PASSWORD is absent/empty"
@@ -50,12 +67,29 @@ def test_live_request_succeeds_through_current_certificate_pin() -> None:
     assert response.status_code == 200
     assert isinstance(payload, dict)
     assert isinstance(payload.get("token"), str) and payload["token"]
+    fingerprints_match = (
+        response.certificate_sha256 == pinned_tls.EXPECTED_CERT_SHA256
+    )
+    assert fingerprints_match
+
+    _attach_tls_evidence(
+        "TLS certificate pin match",
+        {
+            "expected_certificate_sha256": pinned_tls.EXPECTED_CERT_SHA256,
+            "received_certificate_sha256": response.certificate_sha256,
+            "fingerprints_match": fingerprints_match,
+            "result": "PASS: received leaf certificate matches the configured pin",
+        },
+    )
 
 
 def test_wrong_certificate_pin_fails_closed_without_network() -> None:
-    """Reject a mismatched leaf certificate before any HTTP request is sent."""
+    """Reject the retired leaf fingerprint before any HTTP request is sent."""
     presented_certificate = b"offline-regression-certificate"
-    wrong_fingerprint = hashlib.sha256(b"different-certificate").hexdigest()
+
+    class CurrentCertificateDigest:
+        def hexdigest(self) -> str:
+            return CURRENT_CERT_SHA256
 
     class FakeTlsSocket:
         def __init__(self) -> None:
@@ -76,10 +110,35 @@ def test_wrong_certificate_pin_fails_closed_without_network() -> None:
     connection = pinned_tls._PinnedHTTPSConnection(timeout=1.0)
     with (
         patch.object(http.client.HTTPSConnection, "connect", expose_fake_socket),
-        patch.object(pinned_tls, "EXPECTED_CERT_SHA256", wrong_fingerprint),
-        pytest.raises(pinned_tls.CertificatePinMismatch, match="Certificate pin mismatch"),
+        patch.object(
+            pinned_tls.hashlib,
+            "sha256",
+            return_value=CurrentCertificateDigest(),
+        ),
+        patch.object(pinned_tls, "EXPECTED_CERT_SHA256", STALE_CERT_SHA256),
+        pytest.raises(
+            pinned_tls.CertificatePinMismatch,
+            match="Certificate pin mismatch",
+        ) as exception_info,
     ):
         connection.connect()
 
     assert fake_socket.closed is True
     assert connection.sock is None
+    assert connection.peer_certificate_sha256 == CURRENT_CERT_SHA256
+
+    exception_message = str(exception_info.value.args[0])
+    assert STALE_CERT_SHA256 in exception_message
+    assert connection.peer_certificate_sha256 in exception_message
+
+    _attach_tls_evidence(
+        "TLS certificate pin rejection",
+        {
+            "deliberately_wrong_expected_sha256": STALE_CERT_SHA256,
+            "rejected_received_certificate_sha256": (
+                connection.peer_certificate_sha256
+            ),
+            "exception_message": exception_message,
+            "result": "PASS: mismatched certificate was rejected before HTTP data",
+        },
+    )

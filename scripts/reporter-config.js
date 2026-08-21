@@ -1,12 +1,13 @@
 const fs = require('fs');
 const path = require('path');
+const { FileSystemAllureWriter } = require('allure-js-commons');
 
 const REDACTED = '***REDACTED***';
 const SENSITIVE_KEY_PATTERN =
-  /(emp[_.-]*code|emp[_.-]*password|password|token)/i;
+  /(authorization|emp[_.-]*code|emp[_.-]*password|password|secret|token)/i;
 const SENSITIVE_KEY_SOURCE =
   '[A-Za-z0-9_.-]*' +
-  '(?:emp[_.-]*code|emp[_.-]*password|password|token)' +
+  '(?:authorization|emp[_.-]*code|emp[_.-]*password|password|secret|token)' +
   '[A-Za-z0-9_.-]*';
 const REPORTS_DIR = path.resolve(__dirname, '..', 'reports');
 const PATCH_MARKER = Symbol.for('hcm-api-automation.report-redaction');
@@ -191,7 +192,55 @@ function installReportRedaction() {
 
 installReportRedaction();
 
-module.exports = {
+function replaceLabel(labels, name, value) {
+  return [
+    ...(Array.isArray(labels)
+      ? labels.filter((label) => label.name !== name)
+      : []),
+    { name, value }
+  ];
+}
+
+function createAllurePostProcessor({ collectionName, resultsDir }) {
+  if (!collectionName || !resultsDir) {
+    throw new Error(
+      'Newman Allure provenance requires collectionName and resultsDir'
+    );
+  }
+
+  return (inMemoryWriter) => {
+    const fileWriter = new FileSystemAllureWriter({ resultsDir });
+
+    Object.entries(inMemoryWriter.attachments || {}).forEach(
+      ([name, content]) => fileWriter.writeAttachment(name, content)
+    );
+    (inMemoryWriter.groups || []).forEach(
+      (group) => fileWriter.writeGroup(group)
+    );
+    (inMemoryWriter.tests || []).forEach((testResult) => {
+      testResult.labels = replaceLabel(
+        testResult.labels,
+        'sourceCollection',
+        collectionName
+      );
+      testResult.labels = replaceLabel(
+        testResult.labels,
+        'sourceType',
+        'Newman'
+      );
+      fileWriter.writeResult(testResult);
+    });
+
+    if (inMemoryWriter.categories) {
+      fileWriter.writeCategoriesDefinitions(inMemoryWriter.categories);
+    }
+    if (inMemoryWriter.envInfo) {
+      fileWriter.writeEnvironmentInfo(inMemoryWriter.envInfo);
+    }
+  };
+}
+
+const reporterConfig = {
   export: null,
   title: 'API Automation Report',
   browserTitle: 'API Test Results',
@@ -207,3 +256,11 @@ module.exports = {
   showGlobalData: false,
   timezone: 'Asia/Kolkata'
 };
+
+// Keep the factory out of Object.assign() calls that build htmlextra options.
+Object.defineProperty(reporterConfig, 'createAllurePostProcessor', {
+  value: createAllurePostProcessor,
+  enumerable: false
+});
+
+module.exports = reporterConfig;

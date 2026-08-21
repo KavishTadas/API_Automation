@@ -10,6 +10,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+import allure
 import httpx
 import pytest
 import yaml
@@ -306,6 +307,7 @@ def global_contract_context() -> GlobalContractContext:
     )
 
 
+@allure.title("Response status matches the OpenAPI contract — {param_id}")
 @pytest.mark.parametrize("operation_case", build_contract_params())
 def test_status_code_matches_spec(
     operation_case: OperationCase,
@@ -327,6 +329,7 @@ def test_status_code_matches_spec(
     )
 
 
+@allure.title("Response body matches the full OpenAPI schema — {param_id}")
 @pytest.mark.parametrize("operation_case", build_contract_params())
 def test_response_matches_full_schema(
     operation_case: OperationCase,
@@ -366,6 +369,7 @@ def test_response_matches_full_schema(
     )
 
 
+@allure.title("Response exposes no credentials or tokens — {param_id}")
 @pytest.mark.parametrize("operation_case", build_contract_params())
 def test_no_credential_leakage_in_response(
     operation_case: OperationCase,
@@ -414,6 +418,7 @@ def test_no_credential_leakage_in_response(
             )
 
 
+@allure.title("Response completes within the documented SLA — {param_id}")
 @pytest.mark.parametrize("operation_case", build_contract_params())
 def test_response_time_within_sla(
     operation_case: OperationCase,
@@ -446,6 +451,7 @@ def test_response_time_within_sla(
     )
 
 
+@allure.title("Repeated GET requests return a stable result — {param_id}")
 @pytest.mark.parametrize(
     "operation_case",
     [
@@ -525,6 +531,7 @@ def test_idempotent_get_returns_stable_result(
     )
 
 
+@allure.title("A small valid request burst is not immediately blocked")
 def test_small_burst_does_not_trigger_immediate_blocking(
     global_contract_context: GlobalContractContext,
 ) -> None:
@@ -567,6 +574,7 @@ def test_small_burst_does_not_trigger_immediate_blocking(
     )
 
 
+@allure.title("Oversized payload exercises the documented size limit — {param_id}")
 @pytest.mark.parametrize(
     "operation_case",
     [
@@ -643,6 +651,7 @@ def test_request_payload_size_enforcement(
     )
 
 
+@allure.title("Missing or invalid Bearer token returns HTTP 401 — {param_id}")
 @pytest.mark.parametrize(
     ("operation_case", "authorization"),
     build_bearer_auth_negative_params(),
@@ -774,6 +783,7 @@ def build_special_character_params() -> list[Any]:
     ]
 
 
+@allure.title("Unknown route returns HTTP 404 — {param_id}")
 @pytest.mark.parametrize(
     "operation_case",
     build_contract_params(xfail_auth_waf=True),
@@ -797,6 +807,7 @@ def test_404_for_unknown_route(
     )
 
 
+@allure.title("Response honors documented content negotiation — {param_id}")
 @pytest.mark.parametrize(
     "operation_case",
     build_contract_params(xfail_auth_waf=True),
@@ -846,6 +857,7 @@ def test_content_type_negotiation(
     assert not errors, f"{operation_case.method} {operation_case.path}: {'; '.join(errors)}"
 
 
+@allure.title("CORS preflight permits the documented method — {param_id}")
 @pytest.mark.parametrize("operation_case", build_contract_params())
 def test_cors_preflight(
     operation_case: OperationCase,
@@ -882,6 +894,7 @@ def test_cors_preflight(
     )
 
 
+@allure.title("Malformed Unicode input returns HTTP 400 — {param_id}")
 @pytest.mark.parametrize(
     ("operation_case", "payload"),
     build_special_character_params(),

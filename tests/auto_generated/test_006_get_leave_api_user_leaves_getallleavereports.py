@@ -23,7 +23,7 @@ API = json.loads(r"""{
   "Module Name": "Leave API",
   "Sub-Module Name": "TC02 - Invalid token returns observed authorization status",
   "Access": "private",
-  "Functional Purpose": "TC02 - Invalid token returns observed HTTP 401; TC02 - Invalid token response has observed error structure",
+  "Functional Purpose": "TC02 - Invalid token returns observed HTTP 401; TC02 - Full response matches OpenAPI GetAllLeaveReportsErrorResponse; TC02 - Invalid token response has observed error structure",
   "Base URL": "{{leaveBaseUrl}}",
   "Endpoint / Path": "/user/leaves/getAllLeaveReports",
   "HTTP Method": "GET",
@@ -34,15 +34,21 @@ API = json.loads(r"""{
   "Response (example/200)": "Expected status(es): 401\n{\n  \"token\": \"<jwt-token>\"\n}",
   "Example Response Payload": "{\n  \"token\": \"<jwt-token>\"\n}",
   "Dependent APIs / Services": "",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "",
   "API Identifier": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status",
   "Comments": "Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
 }""")
 
+@allure.title("TC02 - Invalid token returns observed authorization status \u2014 returns HTTP 401")
 @allure.epic("Leave API")
 @allure.feature("GET /user/leaves/getAllLeaveReports — TC02 - Invalid token returns observed authorization status")
 @allure.story("HTTP Status Code Check (401)")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.parent_suite("Leave API")
+@allure.suite("GET /user/leaves/getAllLeaveReports — TC02 - Invalid token returns observed authorization status")
+@allure.sub_suite("HTTP Status Code Check (401)")
+@allure.label("sourceModule", "Leave API")
+@allure.label("sourceType", "Python auto-generated")
+@allure.label("owner", "")
 @allure.link("get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status", name="API Identifier")
 @pytest.mark.skip(reason="Temporarily disabled per user request due to negative scenario mismatch")
 def test_leave_api_user_leaves_getallleavereports_status_code(api_runtime_config: dict[str, str]) -> None:
@@ -50,23 +56,19 @@ def test_leave_api_user_leaves_getallleavereports_status_code(api_runtime_config
     allure.dynamic.parameter("Endpoint Path", "/user/leaves/getAllLeaveReports")
     allure.dynamic.parameter("Expected Status", "401")
     response = perform_api_request(API, api_runtime_config)
-    allure.attach(
-        json.dumps(dict(response.headers), indent=2),
-        name="Response Headers",
-        attachment_type=allure.attachment_type.JSON
-    )
-    allure.attach(
-        response.text[:2000],
-        name="Response Body Snippet",
-        attachment_type=allure.attachment_type.TEXT
-    )
     assert response.status_code == 401
 
 
+@allure.title("TC02 - Invalid token returns observed authorization status \u2014 response matches documented schema")
 @allure.epic("Leave API")
 @allure.feature("GET /user/leaves/getAllLeaveReports — TC02 - Invalid token returns observed authorization status")
 @allure.story("OpenAPI Schema Validation Check")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.parent_suite("Leave API")
+@allure.suite("GET /user/leaves/getAllLeaveReports — TC02 - Invalid token returns observed authorization status")
+@allure.sub_suite("OpenAPI Schema Validation Check")
+@allure.label("sourceModule", "Leave API")
+@allure.label("sourceType", "Python auto-generated")
+@allure.label("owner", "")
 @allure.link("get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status", name="API Identifier")
 @pytest.mark.skip(reason="Temporarily disabled per user request due to negative scenario mismatch")
 def test_leave_api_user_leaves_getallleavereports_response_schema(api_runtime_config: dict[str, str]) -> None:

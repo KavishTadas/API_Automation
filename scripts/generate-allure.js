@@ -1,10 +1,261 @@
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
+const { annotateAuthFailure } = require('./allure-category-classifier');
 
 const projectRoot = path.resolve(__dirname, '..');
 const allureResultsDir = path.join(projectRoot, 'reports', 'allure-results');
 const generatedSubDir = path.join(allureResultsDir, 'generated-tests');
+const DEFAULT_MODULE = 'API Module';
+const DEFAULT_FEATURE = 'POST /api/v1/endpoint';
+const LEGACY_INFERRED_UMBRELLAS = new Set([
+  DEFAULT_MODULE,
+  'Employee Auth API',
+  'Leave Management API',
+  'Attendance Management API'
+]);
+
+function labelValue(data, name) {
+  const label = (data.labels || []).find((item) => item.name === name);
+  return label ? label.value : '';
+}
+
+function replaceLabel(data, name, value) {
+  if (!value || labelValue(data, name) === value) {
+    return;
+  }
+
+  data.labels = (data.labels || []).filter((label) => label.name !== name);
+  data.labels.push({ name, value });
+}
+
+function setLabelIfMissing(data, name, value) {
+  if (value && !labelValue(data, name)) {
+    data.labels.push({ name, value });
+  }
+}
+
+function displayIdentity(identity) {
+  return path.basename(identity, path.extname(identity))
+    .replace(/_/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function isPlaceholder(value) {
+  return !value || value === DEFAULT_MODULE || value === DEFAULT_FEATURE;
+}
+
+function isTechnicalSuite(value) {
+  return !value ||
+    /^(tests?(\.|$)|test_)|auto_generated|global_contract/i.test(value);
+}
+
+function buildContainerIdentityMap() {
+  const identities = new Map();
+
+  fs.readdirSync(allureResultsDir)
+    .filter((file) => file.endsWith('-container.json'))
+    .forEach((file) => {
+      try {
+        const container = JSON.parse(
+          fs.readFileSync(path.join(allureResultsDir, file), 'utf8')
+        );
+        (container.children || []).forEach((uuid) => {
+          if (container.name && !identities.has(uuid)) {
+            identities.set(uuid, container.name);
+          }
+        });
+      } catch (error) {
+        console.warn(`Could not read Allure container ${file}:`, error.message);
+      }
+    });
+
+  return identities;
+}
+
+const generatedSourceCache = new Map();
+
+function generatedSourceMetadata(data) {
+  const match = (data.fullName || '').match(
+    /^tests\.auto_generated\.([^#]+)#/
+  );
+  if (!match) {
+    return null;
+  }
+
+  const modulePath = match[1];
+  if (generatedSourceCache.has(modulePath)) {
+    return generatedSourceCache.get(modulePath);
+  }
+
+  const sourcePath = path.join(
+    projectRoot,
+    'tests',
+    'auto_generated',
+    `${modulePath}.py`
+  );
+  let metadata = null;
+
+  try {
+    const source = fs.readFileSync(sourcePath, 'utf8');
+    const apiMatch = source.match(
+      /API\s*=\s*json\.loads\(r"""([\s\S]*?)"""\)/
+    );
+    if (apiMatch) {
+      const api = JSON.parse(apiMatch[1]);
+      metadata = {
+        moduleName: api['Module Name'] || '',
+        method: api['HTTP Method'] || '',
+        endpoint: api['Endpoint / Path'] || '',
+        subModule: api['Sub-Module Name'] || ''
+      };
+    }
+  } catch (error) {
+    console.warn(
+      `Could not recover generated-test provenance from ${sourcePath}:`,
+      error.message
+    );
+  }
+
+  generatedSourceCache.set(modulePath, metadata);
+  return metadata;
+}
+
+function requestIdentity(data) {
+  let method = '';
+  let endpoint = '';
+  const parameters = data.parameters || [];
+  const operationCase = parameters.find(
+    (parameter) => parameter.name === 'operation_case'
+  );
+  const operationMatch = String(operationCase?.value || '').match(
+    /method='([A-Z]+)',\s*path='([^']+)'/
+  );
+
+  if (operationMatch) {
+    method = operationMatch[1];
+    endpoint = operationMatch[2];
+  }
+
+  const requestParameter = parameters.find(
+    (parameter) =>
+      parameter.name === 'Request' || parameter.name === 'HTTP Method'
+  );
+  const requestValue = String(requestParameter?.value || '');
+  const separatorIndex = requestValue.indexOf(' - ');
+
+  if (separatorIndex > 0) {
+    method = requestValue.slice(0, separatorIndex).trim();
+    const rawUrl = requestValue.slice(separatorIndex + 3).trim();
+    try {
+      endpoint = new URL(rawUrl).pathname;
+    } catch (error) {
+      endpoint = rawUrl;
+    }
+  } else if (/^(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)$/.test(requestValue.trim())) {
+    method = requestValue.trim();
+  }
+
+  const endpointParameter = parameters.find(
+    (parameter) => parameter.name === 'Endpoint Path'
+  );
+  if (endpointParameter?.value) {
+    endpoint = String(endpointParameter.value);
+  }
+
+  const generatedMetadata = generatedSourceMetadata(data);
+  method ||= generatedMetadata?.method || '';
+  endpoint ||= generatedMetadata?.endpoint || '';
+
+  const existingFeature = labelValue(data, 'feature');
+  const featureMatch = existingFeature.match(
+    /^(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s+(\/\S+)/
+  );
+  if (featureMatch && !endpoint) {
+    method = featureMatch[1];
+    endpoint = featureMatch[2];
+  }
+
+  const nameMatch = (data.name || '').match(
+    /\[(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS)\s+(\/[^\]]+)\]/
+  );
+  if (nameMatch && !endpoint) {
+    method = nameMatch[1];
+    endpoint = nameMatch[2];
+  }
+
+  if (endpoint === '/api/v1/endpoint') {
+    endpoint = '';
+  }
+
+  if (data.name === 'test_small_burst_does_not_trigger_immediate_blocking') {
+    method = 'GET';
+    endpoint = '/user/leaves/getAllLeaveReports';
+  } else if (
+    data.name === 'test_live_request_succeeds_through_current_certificate_pin'
+  ) {
+    method = 'POST';
+    endpoint = '/auth/token';
+  }
+
+  return { method: method || 'POST', endpoint };
+}
+
+function inferredModuleName(data, endpoint) {
+  const searchable = `${endpoint} ${data.name || ''} ${data.fullName || ''}`;
+
+  if (endpoint.includes('/auth/token') || /auth|token|login/i.test(searchable)) {
+    return 'Employee Auth API';
+  }
+  if (
+    endpoint.includes('/user/leaves/') ||
+    /leave|getAllLeaveReports|showleavereport/i.test(searchable)
+  ) {
+    return 'Leave Management API';
+  }
+  if (/attendance|threshold|holiday|lateearly|weekoff/i.test(searchable)) {
+    return 'Attendance Management API';
+  }
+  return DEFAULT_MODULE;
+}
+
+function resolvedFeature(data, request, fallback) {
+  if (request.endpoint) {
+    return `${request.method} ${request.endpoint}`;
+  }
+  const existing = labelValue(data, 'feature');
+  return !isPlaceholder(existing) ? existing : fallback;
+}
+
+function applySourceHierarchy(data, umbrella, feature, options = {}) {
+  const { forceUmbrella = false } = options;
+  ['epic', 'parentSuite'].forEach((labelName) => {
+    const existing = labelValue(data, labelName);
+    const inferredConflict = existing !== umbrella &&
+      LEGACY_INFERRED_UMBRELLAS.has(existing);
+
+    if (
+      forceUmbrella ||
+      !existing ||
+      isTechnicalSuite(existing) ||
+      inferredConflict
+    ) {
+      replaceLabel(data, labelName, umbrella);
+    }
+  });
+  if (isPlaceholder(labelValue(data, 'feature'))) {
+    replaceLabel(data, 'feature', feature);
+  }
+
+  const suite = labelValue(data, 'suite');
+  if (isTechnicalSuite(suite) || isPlaceholder(suite)) {
+    replaceLabel(data, 'suite', feature);
+  }
+
+  setLabelIfMissing(data, 'story', data.name || feature);
+  setLabelIfMissing(data, 'subSuite', labelValue(data, 'story'));
+}
 
 function prepareAllureResults() {
   if (!fs.existsSync(allureResultsDir)) {
@@ -26,40 +277,12 @@ function prepareAllureResults() {
     });
   }
 
-  const categories = [
-    {
-      name: "Employee Auth API Scenarios",
-      matchedStatuses: ["passed", "failed", "broken", "skipped"],
-      messageRegex: ".*(Auth|token|Login|auth/token).*"
-    },
-    {
-      name: "Leave Management API Scenarios",
-      matchedStatuses: ["passed", "failed", "broken", "skipped"],
-      messageRegex: ".*(Leave|leave|showleavereport|getAllLeaveReports|approvals).*"
-    },
-    {
-      name: "General API Scenarios",
-      matchedStatuses: ["passed", "failed", "broken", "skipped"]
-    }
-  ];
-
-  fs.writeFileSync(
-    path.join(allureResultsDir, 'categories.json'),
-    JSON.stringify(categories, null, 2),
-    'utf8'
-  );
-
-  const envProps = `API_TEST_ENV=uat\nAUTH_BASE_URL=https://dev_mcdp_be.omfysgroup.com\nLEAVE_BASE_URL=https://devmcdphcmplatform.omfysgroup.com\n`;
-  fs.writeFileSync(
-    path.join(allureResultsDir, 'environment.properties'),
-    envProps,
-    'utf8'
-  );
-
   const resultFiles = fs.readdirSync(allureResultsDir)
     .filter(f => f.endsWith('-result.json'));
+  const containerIdentityByUuid = buildContainerIdentityMap();
 
   let processedCount = 0;
+  const authClassifications = {};
   resultFiles.forEach(file => {
     const filePath = path.join(allureResultsDir, file);
     try {
@@ -78,58 +301,80 @@ function prepareAllureResults() {
       }
 
       data.labels = data.labels || [];
-      let method = 'POST';
-      let endpoint = '';
-      let moduleName = 'API Module';
+      const request = requestIdentity(data);
+      const generatedMetadata = generatedSourceMetadata(data);
+      const sourceCollection = labelValue(data, 'sourceCollection');
+      const sourceModule = labelValue(data, 'sourceModule') ||
+        generatedMetadata?.moduleName || '';
+      const isGlobalContract = fullName.startsWith('tests.global_contract.');
+      const isSecurity = fullName.startsWith('tests.security.');
+      const isAutoGenerated = fullName.startsWith('tests.auto_generated.');
+      const legacyNewmanCollection = !fullName.startsWith('tests.')
+        ? containerIdentityByUuid.get(data.uuid) || ''
+        : '';
+      let moduleName = '';
+      let apiFeatureName = '';
 
-      const reqParam = (data.parameters || []).find(p => p.name === 'Request' || p.name === 'HTTP Method');
-      if (reqParam) {
-        const val = reqParam.value || '';
-        if (val.includes(' - ')) {
-          const parts = val.split(' - ');
-          method = parts[0].trim();
-          const rawUrl = parts[1].trim();
-          try {
-            const parsedUrl = new URL(rawUrl);
-            endpoint = parsedUrl.pathname;
-          } catch (e) {
-            endpoint = rawUrl;
-          }
-        } else if (['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].includes(val.trim())) {
-          method = val.trim();
-        }
+      if (isGlobalContract) {
+        moduleName = 'Global Contract Checks';
+        apiFeatureName = resolvedFeature(
+          data,
+          request,
+          'Cross-cutting API behavior'
+        );
+        replaceLabel(data, 'sourceType', 'Python global-contract');
+        applySourceHierarchy(data, moduleName, apiFeatureName, {
+          forceUmbrella: true
+        });
+      } else if (isSecurity) {
+        moduleName = 'Security & TLS Pinning';
+        const fallback = name ===
+          'test_wrong_certificate_pin_fails_closed_without_network'
+          ? 'Offline certificate pin enforcement'
+          : 'TLS certificate pinning';
+        apiFeatureName = resolvedFeature(data, request, fallback);
+        replaceLabel(data, 'sourceType', 'Python security');
+        applySourceHierarchy(data, moduleName, apiFeatureName, {
+          forceUmbrella: true
+        });
+      } else if (isAutoGenerated && sourceModule) {
+        moduleName = sourceModule;
+        const generatedFeature = generatedMetadata
+          ? [
+              generatedMetadata.method,
+              generatedMetadata.endpoint,
+              generatedMetadata.subModule
+                ? `— ${generatedMetadata.subModule}`
+                : ''
+            ].filter(Boolean).join(' ')
+          : '';
+        apiFeatureName = labelValue(data, 'feature') ||
+          generatedFeature ||
+          resolvedFeature(data, request, name);
+        replaceLabel(data, 'sourceModule', sourceModule);
+        replaceLabel(data, 'sourceType', 'Python auto-generated');
+        applySourceHierarchy(data, moduleName, apiFeatureName);
+      } else if (sourceCollection || legacyNewmanCollection) {
+        const collectionIdentity = sourceCollection || legacyNewmanCollection;
+        moduleName = displayIdentity(collectionIdentity);
+        apiFeatureName = labelValue(data, 'feature') ||
+          resolvedFeature(data, request, name);
+        replaceLabel(data, 'sourceCollection', collectionIdentity);
+        replaceLabel(data, 'sourceType', 'Newman');
+        applySourceHierarchy(data, moduleName, apiFeatureName);
+      } else {
+        // Compatibility fallback for results with no source provenance at all.
+        moduleName = labelValue(data, 'epic') ||
+          labelValue(data, 'parentSuite') ||
+          inferredModuleName(data, request.endpoint);
+        apiFeatureName = resolvedFeature(data, request, DEFAULT_FEATURE);
+        setLabelIfMissing(data, 'epic', moduleName);
+        setLabelIfMissing(data, 'feature', apiFeatureName);
+        setLabelIfMissing(data, 'story', name);
+        setLabelIfMissing(data, 'parentSuite', moduleName);
+        setLabelIfMissing(data, 'suite', apiFeatureName);
+        setLabelIfMissing(data, 'subSuite', name);
       }
-
-      const endpointParam = (data.parameters || []).find(p => p.name === 'Endpoint Path');
-      if (endpointParam) {
-        endpoint = endpointParam.value;
-      }
-
-      if (!endpoint || endpoint === name) {
-        const textToSearch = `${name} ${fullName}`;
-        if (/leave|getAllLeaveReports|showleavereport/i.test(textToSearch)) {
-          endpoint = '/user/leaves/getAllLeaveReports';
-          method = 'GET';
-          moduleName = 'Leave Management API';
-        } else if (/auth|token|login/i.test(textToSearch)) {
-          endpoint = '/auth/token';
-          method = 'POST';
-          moduleName = 'Employee Auth API';
-        } else {
-          endpoint = '/api/v1/endpoint';
-        }
-      }
-
-      if (endpoint.includes('/auth/token')) {
-        moduleName = 'Employee Auth API';
-        endpoint = '/auth/token';
-      } else if (endpoint.includes('/user/leaves/')) {
-        moduleName = 'Leave Management API';
-      } else if (/attendance|threshold|holiday|lateearly|weekoff/i.test(`${endpoint} ${name} ${fullName}`)) {
-        moduleName = 'Attendance Management API';
-      }
-
-      const apiFeatureName = `${method} ${endpoint}`;
 
       // Populate statusDetails message so categories.json messageRegex can match passed and failed tests
       data.statusDetails = data.statusDetails || {};
@@ -137,14 +382,11 @@ function prepareAllureResults() {
         data.statusDetails.message = `[${moduleName}] ${apiFeatureName} - ${name}`;
       }
 
-      // Overwrite or set labels cleanly so Allure groups correctly
-      data.labels = data.labels.filter(l => !['epic', 'feature', 'story', 'parentSuite', 'suite', 'subSuite'].includes(l.name));
-      data.labels.push({ name: 'epic', value: moduleName });
-      data.labels.push({ name: 'feature', value: apiFeatureName });
-      data.labels.push({ name: 'story', value: name });
-      data.labels.push({ name: 'parentSuite', value: moduleName });
-      data.labels.push({ name: 'suite', value: apiFeatureName });
-      data.labels.push({ name: 'subSuite', value: name });
+      const authClassification = annotateAuthFailure(data, allureResultsDir);
+      if (authClassification) {
+        authClassifications[authClassification] =
+          (authClassifications[authClassification] || 0) + 1;
+      }
 
       fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
       processedCount++;
@@ -153,7 +395,10 @@ function prepareAllureResults() {
     }
   });
 
-  console.log(`Preprocessed ${resultFiles.length} Allure result files (${processedCount} updated with Epic/Feature/Story labels and categories.json).`);
+  console.log(`Preprocessed ${resultFiles.length} Allure result files (${processedCount} updated with Epic/Feature/Story labels).`);
+  if (Object.keys(authClassifications).length > 0) {
+    console.log('Auth/infrastructure failure classifications:', authClassifications);
+  }
 }
 
 prepareAllureResults();
@@ -178,41 +423,7 @@ const result = spawnSync(
   { stdio: 'inherit', shell: false, cwd: projectRoot }
 );
 
-function patchGeneratedAllureCategories() {
-  const reportDataDir = path.join(projectRoot, 'reports', 'allure-report', 'data');
-  const suitesPath = path.join(reportDataDir, 'suites.json');
-  const categoriesPath = path.join(reportDataDir, 'categories.json');
-
-  if (!fs.existsSync(suitesPath)) {
-    return;
-  }
-
-  try {
-    const suitesData = JSON.parse(fs.readFileSync(suitesPath, 'utf8'));
-    const categoriesData = fs.existsSync(categoriesPath)
-      ? JSON.parse(fs.readFileSync(categoriesPath, 'utf8'))
-      : { uid: "categories", name: "categories", children: [] };
-
-    categoriesData.children = categoriesData.children || [];
-
-    if (categoriesData.children.length === 0 && suitesData.children) {
-      suitesData.children.forEach(moduleNode => {
-        const categoryGroup = {
-          name: `${moduleNode.name} Scenarios`,
-          children: moduleNode.children || []
-        };
-        categoriesData.children.push(categoryGroup);
-      });
-      fs.writeFileSync(categoriesPath, JSON.stringify(categoriesData, null, 2), 'utf8');
-      console.log(`Patched allure-report categories.json with ${categoriesData.children.length} API category group(s).`);
-    }
-  } catch (e) {
-    console.warn('Could not patch allure-report categories.json:', e.message);
-  }
-}
-
 if (result.status === 0) {
-  patchGeneratedAllureCategories();
   console.log('Allure report generated: reports/allure-report/index.html');
 } else {
   console.error('Allure generation failed with status:', result.status);

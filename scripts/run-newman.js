@@ -2,9 +2,17 @@ require('dotenv').config();
 const newman   = require('newman');
 const Ajv      = require('ajv');
 const fs       = require('fs');
+const os       = require('os');
 const path     = require('path');
 const YAML     = require('yaml');
+const { createHash } = require('crypto');
+const {
+  APPLICATION_AUTH_403_MARKER,
+  AUTH_FAILURE_401_MARKER,
+  GATEWAY_WAF_403_MARKER
+} = require('./allure-category-classifier');
 const reporterConfig = require('./reporter-config');
+const { resolveLastRunBy } = require('./run-identity');
 const { generateIndex } = require('./generate-html-index');
 const {
   createPinnedTlsAgent,
@@ -207,21 +215,37 @@ for (const [credential, value] of Object.entries({
 
 const collectionsDir  = path.join(__dirname, '..', 'collections');
 const RUN_ORDER = [
-  'Employee_Auth_API.json',
+  'auth/Employee_Auth_API.json',
   'Attendance_Management_API.json',
   'Attendance_Threshold_API.json',
   'Holiday_Template_API.json',
   'Late_Early_Policy_API.json',
   'Weekoff_Policy_API.json',
   'Leave_API.json',
-  'Login_API.json'
+  'auth/Login_Auth_UAT_API.json'
 ];
 
-const discovered = fs.readdirSync(collectionsDir)
-  .filter(f =>
-    f.endsWith('.json') &&
-    !f.includes('.pending.')
-  );
+function listCollectionJsonFiles(dirPath, relativeDir = '') {
+  return fs.readdirSync(dirPath, { withFileTypes: true }).flatMap((entry) => {
+    const relativePath = relativeDir
+      ? path.join(relativeDir, entry.name)
+      : entry.name;
+    const fullPath = path.join(dirPath, entry.name);
+
+    if (entry.isDirectory()) {
+      return listCollectionJsonFiles(fullPath, relativePath);
+    }
+
+    return entry.isFile() && entry.name.endsWith('.json')
+      ? [relativePath.split(path.sep).join('/')]
+      : [];
+  });
+}
+
+const allCollectionJsonFiles = listCollectionJsonFiles(collectionsDir).sort();
+const discovered = allCollectionJsonFiles.filter(
+  collectionFile => !collectionFile.includes('.pending.')
+);
 
 const collectionFiles = [
   ...RUN_ORDER.filter(f => discovered.includes(f)),
@@ -285,13 +309,28 @@ const sharedEnvVars = {
 
 function runCollectionAttempt(collectionFile, attempt) {
   return new Promise((resolve) => {
-    const collectionName = collectionFile.replace('.json', '');
-    const collectionPath = path.join(collectionsDir, collectionFile);
+    const collectionRelativeName = collectionFile.replace(/\.json$/i, '');
+    const collectionName = path.basename(
+      collectionFile,
+      path.extname(collectionFile)
+    );
+    const collectionPath = path.join(
+      collectionsDir,
+      ...collectionFile.split('/')
+    );
     const timestamp      = Date.now();
-    const testDataPath   = path.join(__dirname, '..', 'test-data', `${collectionName}.csv`);
+    const testDataPath   = path.join(
+      __dirname,
+      '..',
+      'test-data',
+      ...`${collectionRelativeName}.csv`.split('/')
+    );
     const htmlReportPath = path.join(
       __dirname, '..', 'reports', 'html',
       `report-${collectionName}-${timestamp}.html`
+    );
+    const allureResultsPath = path.join(
+      __dirname, '..', 'reports', 'allure-results'
     );
 
     const htmlConfig = Object.assign({}, reporterConfig, {
@@ -301,10 +340,10 @@ function runCollectionAttempt(collectionFile, attempt) {
     const environment = require(envFile);
     const collectionEnvVars = {
       ...sharedEnvVars,
-      ...(collectionFile === 'Employee_Auth_API.json'
+      ...(collectionName === 'Employee_Auth_API'
         ? { authBaseUrl: PINNED_AUTH_BASE_URL }
         : {}),
-      ...(collectionFile === 'Leave_API.json'
+      ...(collectionName === 'Leave_API'
         ? { leaveBaseUrl: LEAVE_REPORT_BASE_URL }
         : {})
     };
@@ -325,7 +364,12 @@ function runCollectionAttempt(collectionFile, attempt) {
       reporter: {
         htmlextra: htmlConfig,
         allure: {
-          export: path.join(__dirname, '..', 'reports', 'allure-results')
+          export: allureResultsPath,
+          collectionAsParentSuite: true,
+          postProcessorForTest: reporterConfig.createAllurePostProcessor({
+            collectionName,
+            resultsDir: allureResultsPath
+          })
         }
       },
       // Abort the current attempt on transport errors so the outer retry can
@@ -336,7 +380,7 @@ function runCollectionAttempt(collectionFile, attempt) {
     };
 
     let pinnedAuthAgent;
-    if (collectionFile === 'Employee_Auth_API.json') {
+    if (collectionName === 'Employee_Auth_API') {
       const authBaseUrl = new URL(PINNED_AUTH_BASE_URL);
       const usePinnedTlsAgent = (
         authBaseUrl.protocol === 'https:' &&
@@ -465,7 +509,10 @@ function runCollectionAttempt(collectionFile, attempt) {
 }
 
 async function runCollection(collectionFile) {
-  const collectionName = collectionFile.replace('.json', '');
+  const collectionName = path.basename(
+    collectionFile,
+    path.extname(collectionFile)
+  );
 
   let attempt = 1;
   while (attempt <= MAX_TRANSIENT_ATTEMPTS) {
@@ -526,10 +573,16 @@ function writeAllureCategories() {
   );
   const categories = [
     {
+      name: 'Gateway/WAF Blocks (Infrastructure)',
+      matchedStatuses: ['failed', 'broken'],
+      messageRegex: `.*${GATEWAY_WAF_403_MARKER}.*`,
+      traceRegex: `.*${GATEWAY_WAF_403_MARKER}.*`
+    },
+    {
       name: 'Authentication & Security Failures',
       matchedStatuses: ['failed', 'broken'],
-      messageRegex: '.*(401|403|Unauthorized|Forbidden|authToken|Bearer|Invalid credentials|missing auth|Security|Token).*',
-      traceRegex: '.*(401|403|Unauthorized|Forbidden|authToken|Bearer|Invalid credentials|missing auth|Security|Token).*'
+      messageRegex: `.*(${AUTH_FAILURE_401_MARKER}|${APPLICATION_AUTH_403_MARKER}|Unauthorized|authToken|Bearer|Invalid credentials|missing auth|invalid token|expired token|authentication failure).*`,
+      traceRegex: `.*(${AUTH_FAILURE_401_MARKER}|${APPLICATION_AUTH_403_MARKER}|Unauthorized|authToken|Bearer|Invalid credentials|missing auth|invalid token|expired token|authentication failure).*`
     },
     {
       name: 'API Response Failures',
@@ -564,32 +617,56 @@ function writeAllureCategories() {
   fs.mkdirSync(path.dirname(categoriesPath), { recursive: true });
   fs.writeFileSync(
     categoriesPath,
-    `${JSON.stringify(categories, null, 2)}\n`
+    `${JSON.stringify(categories, null, 2)}\n`,
+    'utf8'
   );
   console.log('  OK categories.json written to allure-results');
+}
+
+function githubActionsRunUrl() {
+  if (process.env.GITHUB_ACTIONS !== 'true') {
+    return '';
+  }
+
+  const serverUrl = process.env.GITHUB_SERVER_URL?.replace(/\/+$/, '');
+  const repository = process.env.GITHUB_REPOSITORY;
+  const runId = process.env.GITHUB_RUN_ID;
+
+  return serverUrl && repository && runId
+    ? `${serverUrl}/${repository}/actions/runs/${runId}`
+    : '';
 }
 
 async function runAll() {
   const executorPath = path.join(
     __dirname, '..', 'reports', 'allure-results', 'executor.json'
   );
+  const isGithubActions = process.env.GITHUB_ACTIONS === 'true';
   const executor = {
-    name:      'Local',
-    type:      'local',
-    buildName: `${ENV} run — ${new Date().toISOString().slice(0,19).replace('T',' ')}`,
-    buildUrl:  '',
-    reportUrl: ''
+    name: isGithubActions ? 'GitHub Actions' : 'Local',
+    type: isGithubActions ? 'github' : 'local',
+    buildName: `${ENV} run \u2014 ${new Date().toISOString().slice(0, 19).replace('T', ' ')}`,
+    buildUrl: githubActionsRunUrl(),
+    reportUrl: process.env.ALLURE_REPORT_URL?.trim() || ''
   };
   fs.mkdirSync(path.dirname(executorPath), { recursive: true });
-  fs.writeFileSync(executorPath, JSON.stringify(executor, null, 2));
+  fs.writeFileSync(
+    executorPath,
+    `${JSON.stringify(executor, null, 2)}\n`,
+    'utf8'
+  );
 
   const envPropsPath = path.join(
     __dirname, '..', 'reports', 'allure-results',
     'environment.properties'
   );
+  const lastRunBy = resolveLastRunBy({
+    cwd: path.resolve(__dirname, '..')
+  });
   const envProps = [
     `ENV=${ENV}`,
-    `Base URL=${process.env.BASE_URL || process.env.STAGING_BASE_URL || 'not set'}`,
+    `Last\\ Run\\ By=${lastRunBy}`,
+    `Base URL=${process.env.BASE_URL || 'not set'}`,
     `Emp Code=${process.env.EMP_CODE ? '***' + process.env.EMP_CODE.slice(-3) : 'not set'}`,
     `Node Version=${process.version}`,
     `Newman Version=6.2.2`,
@@ -598,19 +675,23 @@ async function runAll() {
     `Run Time=${new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' })}`
   ].join('\n');
   fs.mkdirSync(path.dirname(envPropsPath), { recursive: true });
-  fs.writeFileSync(envPropsPath, envProps);
-  console.log('  ✓ environment.properties written to allure-results');
+  fs.writeFileSync(envPropsPath, `${envProps}\n`, 'utf8');
+  console.log('  OK environment.properties written to allure-results');
   writeAllureCategories();
 
   let authFailed = false;
   for (const file of collectionFilesFiltered) {
-    if (authFailed && file === 'Leave_API.json') {
+    const collectionFileName = path.basename(file);
+    if (authFailed && collectionFileName === 'Leave_API.json') {
       markLeaveApiBlocked();
       continue;
     }
 
     const collectionResult = await runCollection(file);
-    if (file === 'Employee_Auth_API.json' && collectionResult._failed) {
+    if (
+      collectionFileName === 'Employee_Auth_API.json' &&
+      collectionResult._failed
+    ) {
       authFailed = true;
     }
   }
@@ -633,6 +714,18 @@ const allureHistorySource = path.join(
 );
 const allureHistoryDest = path.join(
   reportsDir, 'allure-results', 'history'
+);
+const historyTempId = createHash('sha256')
+  .update(path.resolve(__dirname, '..'))
+  .digest('hex')
+  .slice(0, 12);
+const allureHistoryTempRoot = path.join(
+  os.tmpdir(),
+  `hcm-api-automation-allure-history-${historyTempId}`
+);
+const allureHistoryTempSnapshot = path.join(
+  allureHistoryTempRoot,
+  'history'
 );
 
 const dirsToClear = [
@@ -666,48 +759,54 @@ function clearDirectory(dirPath) {
   }
 }
 
-function snapshotDirectory(dirPath, basePath = dirPath) {
-  if (!fs.existsSync(dirPath)) {
-    return [];
-  }
+function directoryHasFiles(dirPath) {
+  return fs.existsSync(dirPath) && fs.readdirSync(dirPath).length > 0;
+}
 
-  return fs.readdirSync(dirPath).flatMap(file => {
-    const filePath = path.join(dirPath, file);
-    const stat = fs.statSync(filePath);
-
-    if (stat.isDirectory()) {
-      return snapshotDirectory(filePath, basePath);
+function stageAllureHistory(sourcePath, snapshotPath) {
+  if (!directoryHasFiles(sourcePath)) {
+    if (directoryHasFiles(snapshotPath)) {
+      console.log(`Recovered Allure history snapshot from ${snapshotPath}`);
+      return true;
     }
-
-    return [{
-      relativePath: path.relative(basePath, filePath),
-      content: fs.readFileSync(filePath)
-    }];
-  });
-}
-
-function restoreDirectory(dirPath, snapshot) {
-  if (snapshot.length === 0) {
-    return;
+    return false;
   }
 
-  snapshot.forEach(file => {
-    const filePath = path.join(dirPath, file.relativePath);
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    fs.writeFileSync(filePath, file.content);
-  });
-  console.log('  Allure history carried forward');
+  fs.rmSync(allureHistoryTempRoot, { recursive: true, force: true });
+  fs.mkdirSync(path.dirname(snapshotPath), { recursive: true });
+  fs.cpSync(sourcePath, snapshotPath, { recursive: true });
+  console.log(`Allure history staged on disk at ${snapshotPath}`);
+  return true;
 }
 
-const allureHistorySnapshot = snapshotDirectory(allureHistorySource);
+function restoreAllureHistory(dirPath, snapshotPath) {
+  if (!directoryHasFiles(snapshotPath)) {
+    return false;
+  }
+
+  fs.mkdirSync(path.dirname(dirPath), { recursive: true });
+  fs.cpSync(snapshotPath, dirPath, { recursive: true });
+  console.log('  Allure history carried forward');
+  fs.rmSync(allureHistoryTempRoot, { recursive: true, force: true });
+  console.log('  Allure history temp snapshot removed');
+  return true;
+}
+
+const hasAllureHistorySnapshot = stageAllureHistory(
+  allureHistorySource,
+  allureHistoryTempSnapshot
+);
 
 console.log('Clearing reports data...\n');
 dirsToClear.forEach(dir => clearDirectory(dir));
-restoreDirectory(allureHistoryDest, allureHistorySnapshot);
+if (hasAllureHistorySnapshot) {
+  restoreAllureHistory(allureHistoryDest, allureHistoryTempSnapshot);
+}
 console.log('\n✓ Reports cleared');
 
-const pendingFiles = fs.readdirSync(collectionsDir)
-  .filter(f => f.includes('.pending.'));
+const pendingFiles = allCollectionJsonFiles.filter(
+  collectionFile => collectionFile.includes('.pending.')
+);
 if (pendingFiles.length > 0) {
   console.log('\nSkipped (pending real endpoints):');
   pendingFiles.forEach(f => console.log(`  ⏸  ${f}`));

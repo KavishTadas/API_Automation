@@ -23,7 +23,7 @@ API = json.loads(r"""{
   "Module Name": "Employee Auth API",
   "Sub-Module Name": "TC01 - Valid credentials return JWT token",
   "Access": "public",
-  "Functional Purpose": "TC01 - Status is 200; TC01 - Token is three-part JWT; TC01 - empCode and username returned; TC01 - roles is non-empty array",
+  "Functional Purpose": "TC01 - Status is 200; TC01 - Full response matches OpenAPI LoginResponse; TC01 - Token is three-part JWT; TC01 - empCode and username returned; TC01 - roles is non-empty array",
   "Base URL": "{{authBaseUrl}}",
   "Endpoint / Path": "/auth/token",
   "HTTP Method": "POST",
@@ -34,38 +34,40 @@ API = json.loads(r"""{
   "Response (example/200)": "Expected status(es): 200\n{\n  \"empCode\": \"<empCode>\",\n  \"roles\": [\n    \"<role>\"\n  ],\n  \"token\": \"<jwt-token>\",\n  \"username\": \"<username>\"\n}",
   "Example Response Payload": "{\n  \"empCode\": \"<empCode>\",\n  \"roles\": [\n    \"<role>\"\n  ],\n  \"token\": \"<jwt-token>\",\n  \"username\": \"<username>\"\n}",
   "Dependent APIs / Services": "Produces authToken for downstream APIs",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "",
   "API Identifier": "post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
-  "Comments": "Source: collections/Employee_Auth_API.json; No saved response example in source file"
+  "Comments": "Source: collections/auth/Employee_Auth_API.json; No saved response example in source file"
 }""")
 
+@allure.title("TC01 - Valid credentials return JWT token \u2014 returns HTTP 200")
 @allure.epic("Employee Auth API")
 @allure.feature("POST /auth/token — TC01 - Valid credentials return JWT token")
 @allure.story("HTTP Status Code Check (200)")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.parent_suite("Employee Auth API")
+@allure.suite("POST /auth/token — TC01 - Valid credentials return JWT token")
+@allure.sub_suite("HTTP Status Code Check (200)")
+@allure.label("sourceModule", "Employee Auth API")
+@allure.label("sourceType", "Python auto-generated")
+@allure.label("owner", "")
 @allure.link("post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token", name="API Identifier")
 def test_employee_auth_api_auth_token_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
     allure.dynamic.parameter("Endpoint Path", "/auth/token")
     allure.dynamic.parameter("Expected Status", "200")
     response = perform_api_request(API, api_runtime_config)
-    allure.attach(
-        json.dumps(dict(response.headers), indent=2),
-        name="Response Headers",
-        attachment_type=allure.attachment_type.JSON
-    )
-    allure.attach(
-        response.text[:2000],
-        name="Response Body Snippet",
-        attachment_type=allure.attachment_type.TEXT
-    )
     assert response.status_code == 200
 
 
+@allure.title("TC01 - Valid credentials return JWT token \u2014 response matches documented schema")
 @allure.epic("Employee Auth API")
 @allure.feature("POST /auth/token — TC01 - Valid credentials return JWT token")
 @allure.story("OpenAPI Schema Validation Check")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.parent_suite("Employee Auth API")
+@allure.suite("POST /auth/token — TC01 - Valid credentials return JWT token")
+@allure.sub_suite("OpenAPI Schema Validation Check")
+@allure.label("sourceModule", "Employee Auth API")
+@allure.label("sourceType", "Python auto-generated")
+@allure.label("owner", "")
 @allure.link("post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token", name="API Identifier")
 def test_employee_auth_api_auth_token_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")

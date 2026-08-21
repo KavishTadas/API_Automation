@@ -23,7 +23,7 @@ API = json.loads(r"""{
   "Module Name": "Employee Auth API",
   "Sub-Module Name": "TC03 - Missing password returns 400",
   "Access": "public",
-  "Functional Purpose": "TC03 - Status is 400 for missing password; TC03 - Validation message returned",
+  "Functional Purpose": "TC03 - Status is 400 for missing password; TC03 - Full response matches OpenAPI ErrorResponse; TC03 - Validation message returned",
   "Base URL": "{{authBaseUrl}}",
   "Endpoint / Path": "/auth/token",
   "HTTP Method": "POST",
@@ -34,15 +34,21 @@ API = json.loads(r"""{
   "Response (example/200)": "Expected status(es): 400\n{\n  \"token\": \"<jwt-token>\"\n}",
   "Example Response Payload": "{\n  \"token\": \"<jwt-token>\"\n}",
   "Dependent APIs / Services": "",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "",
   "API Identifier": "post|{{authbaseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400",
-  "Comments": "Source: collections/Employee_Auth_API.json; No saved response example in source file"
+  "Comments": "Source: collections/auth/Employee_Auth_API.json; No saved response example in source file"
 }""")
 
+@allure.title("TC03 - Missing password returns 400 \u2014 returns HTTP 400")
 @allure.epic("Employee Auth API")
 @allure.feature("POST /auth/token — TC03 - Missing password returns 400")
 @allure.story("HTTP Status Code Check (400)")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.parent_suite("Employee Auth API")
+@allure.suite("POST /auth/token — TC03 - Missing password returns 400")
+@allure.sub_suite("HTTP Status Code Check (400)")
+@allure.label("sourceModule", "Employee Auth API")
+@allure.label("sourceType", "Python auto-generated")
+@allure.label("owner", "")
 @allure.link("post|{{authbaseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400", name="API Identifier")
 @pytest.mark.skip(reason="Temporarily disabled per user request due to negative scenario mismatch")
 def test_employee_auth_api_auth_token_status_code(api_runtime_config: dict[str, str]) -> None:
@@ -50,23 +56,19 @@ def test_employee_auth_api_auth_token_status_code(api_runtime_config: dict[str, 
     allure.dynamic.parameter("Endpoint Path", "/auth/token")
     allure.dynamic.parameter("Expected Status", "400")
     response = perform_api_request(API, api_runtime_config)
-    allure.attach(
-        json.dumps(dict(response.headers), indent=2),
-        name="Response Headers",
-        attachment_type=allure.attachment_type.JSON
-    )
-    allure.attach(
-        response.text[:2000],
-        name="Response Body Snippet",
-        attachment_type=allure.attachment_type.TEXT
-    )
     assert response.status_code == 400
 
 
+@allure.title("TC03 - Missing password returns 400 \u2014 response matches documented schema")
 @allure.epic("Employee Auth API")
 @allure.feature("POST /auth/token — TC03 - Missing password returns 400")
 @allure.story("OpenAPI Schema Validation Check")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.parent_suite("Employee Auth API")
+@allure.suite("POST /auth/token — TC03 - Missing password returns 400")
+@allure.sub_suite("OpenAPI Schema Validation Check")
+@allure.label("sourceModule", "Employee Auth API")
+@allure.label("sourceType", "Python auto-generated")
+@allure.label("owner", "")
 @allure.link("post|{{authbaseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400", name="API Identifier")
 @pytest.mark.skip(reason="Temporarily disabled per user request due to negative scenario mismatch")
 def test_employee_auth_api_auth_token_response_schema(api_runtime_config: dict[str, str]) -> None:

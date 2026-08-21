@@ -23,7 +23,7 @@ API = json.loads(r"""{
   "Module Name": "Leave API",
   "Sub-Module Name": "TC01/TC03 - Get all leave reports and validate structure",
   "Access": "private",
-  "Functional Purpose": "TC01 - Status is 200 - ; TC01 - Response has status, message, data.count and data.leaveReport - ; TC01 - Count contains observed integer fields - ; TC03 - First two records contain all 13 expected fields - ; TC03 - At least two records available for required spot-check - ; TC04 - Invalid month returns observed error structure -",
+  "Functional Purpose": "TC01 - Status is 200 - ; TC01 - Full response matches OpenAPI GetAllLeaveReportsResponse - ; TC01 - Response has status, message, data.count and data.leaveReport - ; TC01 - Count contains observed integer fields - ; TC03 - Every leaveReport item matches OpenAPI GetAllLeaveReportsItem - ; TC03 - At least two records available for required spot-check - ; TC03 - Every record contains all 13 expected fields - ; TC04 - Full response matches OpenAPI GetAllLeaveReportsErrorResponse - ; TC04 - Invalid month returns observed error structure -",
   "Base URL": "{{leaveBaseUrl}}",
   "Endpoint / Path": "/user/leaves/getAllLeaveReports",
   "HTTP Method": "GET",
@@ -34,38 +34,40 @@ API = json.loads(r"""{
   "Response (example/200)": "Expected status(es): 200\n{\n  \"status\": \"<status>\",\n  \"message\": \"<message>\",\n  \"data\": {\n    \"count\": {\n      \"rejected\": 0,\n      \"cancelled\": 0,\n      \"pending\": 0,\n      \"approved\": 0\n    },\n    \"leaveReport\": []\n  }\n}",
   "Example Response Payload": "{\n  \"status\": \"<status>\",\n  \"message\": \"<message>\",\n  \"data\": {\n    \"count\": {\n      \"rejected\": 0,\n      \"cancelled\": 0,\n      \"pending\": 0,\n      \"approved\": 0\n    },\n    \"leaveReport\": []\n  }\n}",
   "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "",
   "API Identifier": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
   "Comments": "Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
 }""")
 
+@allure.title("TC01/TC03 - Get all leave reports and validate structure \u2014 returns HTTP 200")
 @allure.epic("Leave API")
 @allure.feature("GET /user/leaves/getAllLeaveReports — TC01/TC03 - Get all leave reports and validate structure")
 @allure.story("HTTP Status Code Check (200)")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.parent_suite("Leave API")
+@allure.suite("GET /user/leaves/getAllLeaveReports — TC01/TC03 - Get all leave reports and validate structure")
+@allure.sub_suite("HTTP Status Code Check (200)")
+@allure.label("sourceModule", "Leave API")
+@allure.label("sourceType", "Python auto-generated")
+@allure.label("owner", "")
 @allure.link("get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure", name="API Identifier")
 def test_leave_api_user_leaves_getallleavereports_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")
     allure.dynamic.parameter("Endpoint Path", "/user/leaves/getAllLeaveReports")
     allure.dynamic.parameter("Expected Status", "200")
     response = perform_api_request(API, api_runtime_config)
-    allure.attach(
-        json.dumps(dict(response.headers), indent=2),
-        name="Response Headers",
-        attachment_type=allure.attachment_type.JSON
-    )
-    allure.attach(
-        response.text[:2000],
-        name="Response Body Snippet",
-        attachment_type=allure.attachment_type.TEXT
-    )
     assert response.status_code == 200
 
 
+@allure.title("TC01/TC03 - Get all leave reports and validate structure \u2014 response matches documented schema")
 @allure.epic("Leave API")
 @allure.feature("GET /user/leaves/getAllLeaveReports — TC01/TC03 - Get all leave reports and validate structure")
 @allure.story("OpenAPI Schema Validation Check")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.parent_suite("Leave API")
+@allure.suite("GET /user/leaves/getAllLeaveReports — TC01/TC03 - Get all leave reports and validate structure")
+@allure.sub_suite("OpenAPI Schema Validation Check")
+@allure.label("sourceModule", "Leave API")
+@allure.label("sourceType", "Python auto-generated")
+@allure.label("owner", "")
 @allure.link("get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure", name="API Identifier")
 def test_leave_api_user_leaves_getallleavereports_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")
