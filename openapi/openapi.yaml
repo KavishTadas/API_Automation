@@ -1,8 +1,10 @@
 # TLS note: dev_mcdp_be.omfysgroup.com requires certificate pinning because its
 # underscore triggers an RFC 6125 hostname-validation quirk; this is not a real
 # certificate security issue. See scripts/pinned_tls.py and
-# scripts/pinned-tls-agent.js. The pinned certificate expires Aug 11 2026 and
-# the fingerprint must be updated when that certificate rotates.
+# scripts/pinned-tls-agent.js. The pinned leaf certificate SHA-256 is
+# C139A6EB97F44676BD7A79897211B02FC3DEAFB988E8B08705F6AEFC82D1F569 and is
+# valid from Aug 7 00:00:00 2026 GMT through Feb 21 23:59:59 2027 GMT. Rotate
+# the fingerprint before that certificate expires.
 openapi: 3.1.0
 
 info:

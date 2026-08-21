@@ -22,6 +22,8 @@ from typing import Any, Mapping
 PINNED_HOST = "dev_mcdp_be.omfysgroup.com"
 PINNED_PORT = 443
 EXPECTED_CERT_SHA256 = (
+    # Leaf certificate validity: Aug 7 00:00:00 2026 GMT to
+    # Feb 21 23:59:59 2027 GMT. Rotate this pin before the certificate expires.
     "C139A6EB97F44676BD7A79897211B02FC3DEAFB988E8B08705F6AEFC82D1F569"
 )
 DEFAULT_TIMEOUT_SECONDS = 30.0
@@ -39,6 +41,7 @@ class PinnedResponse:
     reason: str
     headers: tuple[tuple[str, str], ...]
     content: bytes
+    certificate_sha256: str
 
     @property
     def text(self) -> str:
@@ -74,6 +77,7 @@ class _PinnedHTTPSConnection(http.client.HTTPSConnection):
             timeout=timeout,
             context=_tls_context(),
         )
+        self.peer_certificate_sha256: str | None = None
 
     def connect(self) -> None:
         super().connect()
@@ -87,6 +91,7 @@ class _PinnedHTTPSConnection(http.client.HTTPSConnection):
             raise CertificatePinMismatch("TLS peer did not present a leaf certificate")
 
         actual = hashlib.sha256(der_certificate).hexdigest().upper()
+        self.peer_certificate_sha256 = actual
         expected = _normalized_fingerprint(EXPECTED_CERT_SHA256)
         if not hmac.compare_digest(actual, expected):
             self.close()
@@ -148,11 +153,17 @@ def request(
         )
         response = connection.getresponse()
         response_content = response.read()
+        certificate_sha256 = connection.peer_certificate_sha256
+        if certificate_sha256 is None:
+            raise CertificatePinMismatch(
+                "Pinned TLS connection completed without a certificate fingerprint"
+            )
         return PinnedResponse(
             status_code=response.status,
             reason=response.reason,
             headers=tuple(response.getheaders()),
             content=response_content,
+            certificate_sha256=certificate_sha256,
         )
     finally:
         connection.close()
@@ -173,4 +184,3 @@ def post_json(
         json_body=payload,
         timeout=timeout,
     )
-

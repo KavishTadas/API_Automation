@@ -2,8 +2,8 @@
 
 /**
  * Maintained live regression verification for the fixed development-auth pin.
- * Re-run this script whenever the pin is updated after the current certificate
- * expires on Aug 11 2026.
+ * The current leaf certificate is valid from Aug 7 00:00:00 2026 GMT through
+ * Feb 21 23:59:59 2027 GMT. Re-run this script whenever the pin is updated.
  */
 
 const fs = require('fs');
@@ -20,15 +20,19 @@ const {
 
 
 const ROOT_DIR = path.resolve(__dirname, '..', '..');
-
-
-function deliberatelyWrongFingerprint(correctFingerprint) {
-  const replacement = correctFingerprint[0] === '0' ? '1' : '0';
-  return replacement + correctFingerprint.slice(1);
-}
+const CURRENT_CERT_SHA256 =
+  'C139A6EB97F44676BD7A79897211B02FC3DEAFB988E8B08705F6AEFC82D1F569';
+const STALE_CERT_SHA256 =
+  'C3524D47998E616A31634A3A4E75899629FDBE58DAD17318AF51FC2288F375C8';
 
 
 async function main() {
+  if (EXPECTED_CERT_SHA256 !== CURRENT_CERT_SHA256) {
+    throw new Error(
+      `Production pin ${EXPECTED_CERT_SHA256} does not match the current expected pin ${CURRENT_CERT_SHA256}`
+    );
+  }
+
   const dotenvValues = dotenv.parse(
     fs.readFileSync(path.join(ROOT_DIR, '.env'), 'utf8')
   );
@@ -65,11 +69,9 @@ async function main() {
   );
   console.log();
 
-  const wrongAgent = createPinnedTlsAgentForTest(
-    deliberatelyWrongFingerprint(EXPECTED_CERT_SHA256)
-  );
+  const wrongAgent = createPinnedTlsAgentForTest(STALE_CERT_SHA256);
 
-  console.log('===== DELIBERATELY WRONG PIN =====');
+  console.log('===== RETIRED/STALE PIN =====');
   try {
     await pinnedRequest('/', { agent: wrongAgent });
   } catch (error) {

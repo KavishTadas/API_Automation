@@ -16,7 +16,9 @@ const https = require('https');
 const PINNED_HOST = 'dev_mcdp_be.omfysgroup.com';
 const PINNED_PORT = 443;
 
-// Leaf certificate updated on dev_mcdp_be.omfysgroup.com
+// Leaf certificate validity: Aug 7 00:00:00 2026 GMT to
+// Feb 21 23:59:59 2027 GMT. Rotate this pin before the certificate expires;
+// until updated, requests correctly fail closed.
 const EXPECTED_CERT_SHA256 =
   'C139A6EB97F44676BD7A79897211B02FC3DEAFB988E8B08705F6AEFC82D1F569';
 
