@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "test:local": "cross-env ENV=local node scripts/run-newman.js",
-    "test:staging": "cross-env ENV=staging node scripts/run-newman.js",
-    "test:production": "cross-env ENV=production node scripts/run-newman.js",
-    "test:all": "npm run test:local && npm run test:staging",
+    "test:all": "npm run test:uat",
     "test:uat": "cross-env ENV=uat node scripts/run-newman.js",
     "lint:spec": "spectral lint openapi/openapi.yaml --ruleset openapi/.spectral.yaml",
     "report:generate": "node scripts/generate-allure.js",

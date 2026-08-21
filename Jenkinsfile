@@ -17,7 +17,7 @@ pipeline {
   }
 
   parameters {
-    choice(name: 'ENVIRONMENT', choices: ['uat','staging','production','local'], description: 'Target environment')
+    choice(name: 'ENVIRONMENT', choices: ['uat','local'], description: 'Target environment')
     string(name: 'COLLECTION', defaultValue: 'all', description: 'Collection filename or all')
     string(name: 'NOTIFY_EMAIL', defaultValue: '', description: 'Email address for failure alerts (leave blank to skip)')
   }

@@ -8,7 +8,7 @@
 
 ## Switch Environments
 
-Use the environment selector in Bruno and choose `local` or `staging`.
+Use the environment selector in Bruno and choose `local`.
 
 ## Run From Terminal
 

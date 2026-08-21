@@ -11,7 +11,7 @@ if [[ -z "${POSTMAN_API_KEY:-}" ]]; then
   exit 1
 fi
 
-ENVIRONMENT="staging"
+ENVIRONMENT="uat"
 COLLECTION="all"
 BAIL=false
 
@@ -37,17 +37,14 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "$ENVIRONMENT" in
+  uat)
+    ENV_UID="${POSTMAN_UAT_ENV_UID:-uat}"
+    ;;
   local)
     ENV_UID="${POSTMAN_LOCAL_ENV_UID:-local}"
     ;;
-  staging)
-    ENV_UID="${POSTMAN_STAGING_ENV_UID:-staging}"
-    ;;
-  production)
-    ENV_UID="${POSTMAN_PRODUCTION_ENV_UID:-production}"
-    ;;
   *)
-    echo "Error: --env must be one of: local, staging, production"
+    echo "Error: --env must be one of: uat, local"
     exit 1
     ;;
 esac
