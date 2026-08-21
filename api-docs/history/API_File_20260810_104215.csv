@@ -1,0 +1,104 @@
+"Sr. No","Module Name","Sub-Module Name","Access","Functional Purpose","Base URL","Endpoint / Path","HTTP Method","Request Parameters","Request Body","Example Request Payload","Request Body Schema","Response (example/200)","Example Response Payload","Dependent APIs / Services","Owner / Developer","API Identifier","Comments"
+"1","auth","Login","public","Status is 200; Token exists; empCode matches","{{baseUrl}}","/auth/token","POST","","{
+    ""empCode"": ""{{empCode}}"",
+    ""password"": ""{{empPassword}}""
+  }","{
+  ""empCode"": ""<empCode>"",
+  ""password"": ""<empPassword>""
+}","{""empCode"":""string"",""password"":""string""}","Expected status(es): 200
+{
+  ""token"": ""<jwt-token>""
+}","{
+  ""token"": ""<jwt-token>""
+}","Produces authToken for downstream APIs","KavishTadas <kavish.tadas@omfysgroup.com>","post|{{baseurl}}|/auth/token|auth|login","Source: bruno/auth/login.bru; No saved response example in source file; Parsed from Bruno file"
+"2","Employee Auth API","TC01 - Valid credentials return JWT token","public","TC01 - Status is 200; TC01 - Token is three-part JWT; TC01 - empCode and username returned; TC01 - roles is non-empty array","{{authBaseUrl}}","/auth/token","POST","headers: Content-Type=application/json","{""empCode"": ""{{empCode}}"", ""password"": ""{{empPassword}}""}","{
+  ""empCode"": ""<empCode>"",
+  ""password"": ""<empPassword>""
+}","{""empCode"":""string"",""password"":""string""}","Expected status(es): 200
+{
+  ""empCode"": ""<empCode>"",
+  ""roles"": [
+    ""<role>""
+  ],
+  ""token"": ""<jwt-token>"",
+  ""username"": ""<username>""
+}","{
+  ""empCode"": ""<empCode>"",
+  ""roles"": [
+    ""<role>""
+  ],
+  ""token"": ""<jwt-token>"",
+  ""username"": ""<username>""
+}","Produces authToken for downstream APIs","KavishTadas <kavish.tadas@omfysgroup.com>","post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token","Source: collections/Employee_Auth_API.json; No saved response example in source file"
+"3","Employee Auth API","TC02 - Invalid empCode returns 400","public","TC02 - Status is 400 for bad empCode; TC02 - Error message returned","{{authBaseUrl}}","/auth/token","POST","headers: Content-Type=application/json","{""empCode"": ""INVALID-999"", ""password"": ""wrongpassword""}","{
+  ""empCode"": ""INVALID-999"",
+  ""password"": ""wrongpassword""
+}","{""empCode"":""string"",""password"":""string""}","Expected status(es): 400
+{
+  ""token"": ""<jwt-token>""
+}","{
+  ""token"": ""<jwt-token>""
+}","","KavishTadas <kavish.tadas@omfysgroup.com>","post|{{authbaseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400","Source: collections/Employee_Auth_API.json; No saved response example in source file"
+"4","Employee Auth API","TC03 - Missing password returns 400","public","TC03 - Status is 400 for missing password; TC03 - Validation message returned","{{authBaseUrl}}","/auth/token","POST","headers: Content-Type=application/json","{""empCode"": ""{{empCode}}""}","{
+  ""empCode"": ""<empCode>""
+}","{""empCode"":""string""}","Expected status(es): 400
+{
+  ""token"": ""<jwt-token>""
+}","{
+  ""token"": ""<jwt-token>""
+}","","KavishTadas <kavish.tadas@omfysgroup.com>","post|{{authbaseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400","Source: collections/Employee_Auth_API.json; No saved response example in source file"
+"5","Leave API","TC01/TC03 - Get all leave reports and validate structure","private","TC01 - Status is 200 - ; TC01 - Response has status, message, data.count and data.leaveReport - ; TC01 - Count contains observed integer fields - ; TC03 - First two records contain all 13 expected fields - ; TC03 - At least two records available for required spot-check - ; TC04 - Invalid month returns observed error structure -","{{leaveBaseUrl}}","/user/leaves/getAllLeaveReports","GET","query: month={{month}}; year={{year}} | headers: Authorization=Bearer {{authToken}}","","","","Expected status(es): 200
+{
+  ""status"": ""<status>"",
+  ""message"": ""<message>"",
+  ""data"": {
+    ""count"": {
+      ""rejected"": 0,
+      ""cancelled"": 0,
+      ""pending"": 0,
+      ""approved"": 0
+    },
+    ""leaveReport"": []
+  }
+}","{
+  ""status"": ""<status>"",
+  ""message"": ""<message>"",
+  ""data"": {
+    ""count"": {
+      ""rejected"": 0,
+      ""cancelled"": 0,
+      ""pending"": 0,
+      ""approved"": 0
+    },
+    ""leaveReport"": []
+  }
+}","Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken","KavishTadas <kavish.tadas@omfysgroup.com>","get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure","Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
+"6","Leave API","TC02 - Invalid token returns observed authorization status","private","TC02 - Invalid token returns observed HTTP 401; TC02 - Invalid token response has observed error structure","{{leaveBaseUrl}}","/user/leaves/getAllLeaveReports","GET","query: month=4; year=2026 | headers: Authorization=Bearer invalid-token-value","","","","Expected status(es): 401
+{
+  ""token"": ""<jwt-token>""
+}","{
+  ""token"": ""<jwt-token>""
+}","","KavishTadas <kavish.tadas@omfysgroup.com>","get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status","Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
+"7","Attendance Management API","Attendance Shift Master - Get All Shifts","private","Status is 200; Shift templates fetched successfully; Pagination metadata populated","{{attendanceBaseUrl}}","/api/v1/attendance/shift/master","GET","query: page=0&size=10&includeDeleted=true | headers: Authorization=Bearer {{authToken}}","","","","Expected status(es): 200
+{
+  ""status"": ""success"",
+  ""message"": ""Shift templates fetched successfully"",
+  ""data"": {
+    ""content"": [],
+    ""pageNumber"": 0,
+    ""pageSize"": 10,
+    ""totalElements"": 2,
+    ""totalPages"": 1
+  }
+}","{
+  ""status"": ""success"",
+  ""message"": ""Shift templates fetched successfully"",
+  ""data"": {
+    ""content"": [],
+    ""pageNumber"": 0,
+    ""pageSize"": 10,
+    ""totalElements"": 2,
+    ""totalPages"": 1
+  }
+}","Requires authToken from Employee Auth API","KavishTadas <kavish.tadas@omfysgroup.com>","get|{{attendancebaseurl}}|/api/v1/attendance/shift/master|attendance management api|shift master get all shifts","Source: collections/Attendance_Management_API.json"
+
