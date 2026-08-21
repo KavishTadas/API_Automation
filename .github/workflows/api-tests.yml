@@ -31,8 +31,6 @@ jobs:
       EMP_PASSWORD:     ${{ secrets.EMP_PASSWORD }}
       BASE_URL:         ${{ secrets.BASE_URL }}
       LEAVE_BASE_URL:   ${{ secrets.LEAVE_BASE_URL }}
-      API_AUTH_TOKEN:   ${{ secrets.API_AUTH_TOKEN }}
-      AUTH_TOKEN:       ${{ secrets.AUTH_TOKEN }}
 
     steps:
       - name: Checkout code
@@ -126,8 +124,6 @@ jobs:
       AUTH_BASE_URL:       "https://dev_mcdp_be.omfysgroup.com"
       LEAVE_BASE_URL:      "https://devmcdphcmplatform.omfysgroup.com"
       ATTENDANCE_BASE_URL: "https://uat_mcdp_hcm.omfysgroup.com"
-      API_AUTH_TOKEN:      ${{ secrets.API_AUTH_TOKEN }}
-      AUTH_TOKEN:        ${{ secrets.AUTH_TOKEN }}
       POSTMAN_API_KEY:   ${{ secrets.POSTMAN_API_KEY }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 

@@ -500,10 +500,21 @@ def _requires_auth_token(api: dict[str, str], request_parameters: dict[str, Any]
 
 
 def _auth_token(context: dict[str, str]) -> str:
-    for key in ("AUTH_TOKEN", "API_AUTH_TOKEN", "authToken", "AUTHTOKEN"):
-        value = os.getenv(key) or context.get(key)
-        if value:
-            return value
+    """Return the bearer token for authenticated requests.
+
+    The session bootstrap in conftest.py mints a fresh token and writes it into
+    ``context``. That value must win over any ambient AUTH_TOKEN/API_AUTH_TOKEN
+    left in the process environment, because a stale export or CI secret would
+    otherwise silently defeat the bootstrap and surface as unexplained 401s.
+    The process environment stays available as a fallback for the case where no
+    bootstrapped value is present.
+    """
+    keys = ("AUTH_TOKEN", "API_AUTH_TOKEN", "authToken", "AUTHTOKEN")
+    for lookup in (context.get, os.getenv):
+        for key in keys:
+            value = lookup(key)
+            if value:
+                return value
     return ""
 
 
