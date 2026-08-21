@@ -12,7 +12,7 @@
 
 The project has two complementary test tiers:
 
-1. **Newman business-rule tier.** `collections/Employee_Auth_API.json` tests successful and unsuccessful authentication, then `collections/Leave_API.json` uses the returned bearer token to test authenticated leave reports, invalid tokens, invalid input, response structure, and observed business rules. `scripts/run-newman.js` enforces run order, carries the token forward, retries only transient transport/server failures, and produces HTML and Allure results.
+1. **Newman business-rule tier.** `collections/auth/Employee_Auth_API.json` tests successful and unsuccessful authentication, then the Attendance collections and `collections/Leave_API.json` exercise their respective HCM workflows. `collections/auth/Login_Auth_UAT_API.json` retains the separate UAT login scenarios. `scripts/run-newman.js` enforces run order, carries the token forward, retries only transient transport/server failures, and produces HTML and Allure results.
 2. **Python generic-contract tier.** `tests/global_contract/` applies reusable protocol and OpenAPI checks to every active operation, while `tests/auto_generated/` contains generated endpoint smoke and response-shape checks. The generated suite is disposable output and must be regenerated rather than edited.
 
 `openapi/openapi.yaml` is the authoritative response contract for the active HCM scope. Before Newman sends a request, `scripts/run-newman.js` loads and compiles the required OpenAPI schemas with AJV, injects the bundle into Newman, and the collection scripts validate real response bodies against it. The Python `tests/global_contract/` suite independently loads the same OpenAPI document and uses it for operation discovery, documented status codes, content types, security requirements, and contract metadata.
@@ -21,15 +21,15 @@ The project has two complementary test tiers:
 
 ## 3. Why things are the way they are
 
-### Retired Login API and Approvals coverage
+### Retained UAT Login Auth and retired Approvals coverage
 
-`collections/Login_API.json` was removed because its authentication flow was superseded by the active Employee Auth `/auth/token` coverage. Approvals coverage was removed during the leave-report migration because no working replacement endpoint could be verified. Neither retired path belongs in the active inventory or generated suite unless a real endpoint and contract are supplied.
+Per team decision, the standalone UAT login coverage is retained as `collections/auth/Login_Auth_UAT_API.json`, with its data-driven cases in `test-data/auth/Login_Auth_UAT_API.csv`. It remains active while the development team resolves the pending dev/UAT authentication API consolidation; do not remove or merge it into `Employee_Auth_API.json` until that ownership decision is complete. Approvals coverage remains retired because no working replacement endpoint has been verified, so Approvals does not belong in the active inventory or generated suite unless a real endpoint and contract are supplied.
 
 ### Certificate pinning on the auth host
 
 `dev_mcdp_be.omfysgroup.com` has a legitimate, CA-trusted certificate, but the underscore in its hostname is rejected by strict RFC 6125 hostname validation. `scripts/pinned_tls.py` and `scripts/pinned-tls-agent.js` therefore skip only the invalid hostname-string comparison for this fixed host, retain certificate-chain and validity verification, and require the exact leaf-certificate SHA-256 fingerprint. This is certificate pinning, not disabled TLS verification.
 
-The pinned certificate expires on **August 11, 2026**. After renewal, requests will correctly fail closed until both helpers contain the renewed fingerprint and the pin regression tests pass.
+The current pinned leaf certificate is valid from **August 7, 2026 through February 21, 2027 (UTC)**. Requests will correctly fail closed if it rotates; update both helpers before rotation or expiry and rerun the pin regression tests.
 
 ### Nullable leave purpose
 
@@ -50,7 +50,7 @@ Only the Employee Auth parameters of `test_404_for_unknown_route` and `test_cont
 ## 4. Known open items
 
 - Rotate the previously exposed employee password/credential in the HCM identity system. This manual security action is still pending; see `SECURITY.md`.
-- Replace the pinned certificate fingerprint after the certificate renewal associated with the August 11, 2026 expiry, then rerun the live and fail-closed pin regression tests.
+- Monitor the pinned TLS certificate and rotate its fingerprint before February 21, 2027 or whenever the certificate changes sooner, then rerun the live and fail-closed pin regression tests.
 - Remove the stale `USERNAME` and `PASSWORD` GitHub secret injections from `.github/workflows/api-tests.yml`; current repository code has no consumer for either value.
 - Decide whether to invoke or retire `scripts/postman-cli-run.sh`. `POSTMAN_API_KEY` is wired into CI, but the workflow never calls the only script that consumes it.
 - Complete the five remaining Phase G checks. The global-contract model already reads the related extension fields, but assertions are still missing for:
@@ -67,7 +67,8 @@ See `README.md` for prerequisites, setup, exact run commands, reports, environme
 | Path | Role |
 |---|---|
 | `collections/` | Active hand-written Newman business-rule collections; `.pending.` files are excluded. |
-| `environments/` | Local, UAT, staging, and production environment definitions. |
+| `collections/auth/` | Employee authentication and retained UAT login Postman collections. |
+| `environments/` | Local and UAT environment definitions. |
 | `openapi/` | Authoritative active HCM contract and Spectral rules. |
 | `api-docs/` | Generated API inventory and history; current CSV/JSON files are not hand-edited. |
 | `scripts/` | Newman orchestration, certificate pinning, inventory/test generation, and report wrappers. |

@@ -41,7 +41,7 @@ python -m pip install -r dev-requirements.txt
 cp .env.example .env
 ```
 
-Open `.env` and replace the placeholder values for `EMP_CODE` and `EMP_PASSWORD` with valid UAT credentials. Keep `AUTH_TOKEN`, `API_AUTH_TOKEN`, `authToken`, and `AUTHTOKEN` as placeholders unless you intentionally supply a token, and fill `POSTMAN_*` only when using the related Postman account integrations. The public `BASE_URL`, `AUTH_BASE_URL`, and `LEAVE_BASE_URL` values already ship with the real UAT hosts and should not be changed for normal UAT use. `STAGING_BASE_URL` mirrors the current staging environment file, which is still a placeholder. Never commit `.env`.
+Open `.env` and replace the placeholder values for `EMP_CODE` and `EMP_PASSWORD` with valid UAT credentials. Keep `AUTH_TOKEN`, `API_AUTH_TOKEN`, `authToken`, and `AUTHTOKEN` as placeholders unless you intentionally supply a token, and fill `POSTMAN_*` only when using the related Postman account integrations. The public `BASE_URL`, `AUTH_BASE_URL`, and `LEAVE_BASE_URL` values already ship with the active hosts and should not be changed for normal UAT use. Never commit `.env`.
 
 ## Running the tests
 
@@ -85,18 +85,16 @@ Run Newman before the Python suites when building one combined local report beca
 
 `dev_mcdp_be.omfysgroup.com` presents a legitimate, CA-trusted, currently valid certificate. The problem is its underscore: strict hostname validation rejects that host name under RFC 6125. The suite handles this narrow exception with certificate pinning in `scripts/pinned_tls.py` and `scripts/pinned-tls-agent.js`. Normal certificate-chain, trusted-root, and validity checks remain enabled; TLS security is not disabled.
 
-**Expiry warning:** the certificate represented by the pinned SHA-256 fingerprint expires on **August 11, 2026**. After that date, requests will correctly fail closed until both pinning helpers are updated with the renewed certificate's fingerprint and the pin regression tests pass.
+**Expiry warning:** the current leaf certificate represented by the pinned SHA-256 fingerprint is valid from **August 7, 2026 through February 21, 2027 (UTC)**. Requests will correctly fail closed if it rotates; update both pinning helpers before rotation or expiry and rerun the pin regression tests.
 
 ## Environments
 
-The public hosts in `.env.example` now match the current environment definitions: its UAT `BASE_URL`, `AUTH_BASE_URL`, and `LEAVE_BASE_URL` values are real, while `STAGING_BASE_URL` intentionally mirrors the still-placeholder staging file. The following functional status was verified from those files, with UAT also confirmed by a successful live Newman run on August 5, 2026:
+The public hosts in `.env.example` match the active UAT environment definition. The following functional status was verified from those files, with UAT also confirmed by a successful live Newman run on August 5, 2026:
 
 | Environment | Current hosts | Functional status |
 |---|---|---|
 | `local` | `http://localhost:3000` | **Not a functional HCM target.** It is only a local/sample configuration. |
 | `uat` | Auth: `https://dev_mcdp_be.omfysgroup.com`; base: `https://uat-mcdp-be.omfysgroup.com`; Leave: `https://devmcdphcmplatform.omfysgroup.com` | **Functional and active.** This is the current Employee Auth and Leave Reports test target. |
-| `staging` | `https://staging-hcm-api.example.com` | **Placeholder/non-functional.** No real staging HCM host is configured. |
-| `production` | `https://production-hcm-api.example.com` | **Placeholder/non-functional.** No real production HCM host is configured. |
 
 The FastAPI application in `main.py` is an intentionally out-of-scope sample, not part of HCM testing. Unverified sample checks and requests are quarantined under `tests/unverified_endpoints/` and `bruno/unverified-endpoints/` and are excluded from the active HCM inventory and CI suite.
 
@@ -123,7 +121,8 @@ Do not hand-edit files under `tests/auto_generated/`, `api-docs/API_File.csv`, `
 | Path | Purpose |
 |---|---|
 | `collections/` | Active hand-written Postman/Newman business-rule suites; `.pending.` collections are skipped. |
-| `environments/` | Postman/Newman environment definitions for local, UAT, staging, and production. |
+| `collections/auth/` | Employee authentication and retained UAT login collections, discovered recursively by Newman. |
+| `environments/` | Postman/Newman environment definitions for local and UAT. |
 | `openapi/` | Authoritative HCM OpenAPI contract and Spectral rules. |
 | `scripts/` | Newman orchestration, TLS pinning, API inventory/test generation, and report wrappers. |
 | `tests/auto_generated/` | Regenerated generic endpoint smoke/schema tests; never edit these directly. |
