@@ -295,9 +295,6 @@ const sharedEnvVars = {
   baseUrl:           process.env.BASE_URL            ||
                      process.env.ATTENDANCE_BASE_URL ||
                      'https://uat_mcdp_hcm.omfysgroup.com',
-  baseurl:           process.env.BASE_URL            ||
-                     process.env.ATTENDANCE_BASE_URL ||
-                     'https://uat_mcdp_hcm.omfysgroup.com',
   attendanceBaseUrl: process.env.ATTENDANCE_BASE_URL ||
                      'https://uat_mcdp_hcm.omfysgroup.com',
   empCode:           process.env.EMP_CODE            || '',
@@ -306,6 +303,36 @@ const sharedEnvVars = {
                      LEAVE_REPORT_BASE_URL,
   openapiSchemaBundle: OPENAPI_SCHEMA_BUNDLE_JSON
 };
+
+const VARIABLE_REFERENCE_PATTERN = /{{\s*([A-Za-z0-9_-]+)\s*}}/g;
+
+// Collections are exported from Postman by hand and spell the same variable
+// with different casing: {{baseURL}} in the Attendance/Holiday/Late-Early/
+// Weekoff collections, {{baseUrl}} elsewhere. Newman resolves variables
+// case-sensitively, so any casing that is not defined is sent to the resolver
+// literally and fails with ENOTFOUND {{baseurl}}. Rather than hand-listing
+// casings (which already drifted once and missed {{baseURL}}), define every
+// casing the collection actually references.
+function withReferencedCasings(envVars, collection) {
+  const canonicalKeyByLowerCase = new Map(
+    Object.keys(envVars).map(key => [key.toLowerCase(), key])
+  );
+  const expanded = { ...envVars };
+
+  for (const [, reference] of JSON.stringify(collection)
+    .matchAll(VARIABLE_REFERENCE_PATTERN)) {
+    const canonicalKey = canonicalKeyByLowerCase.get(reference.toLowerCase());
+    const alreadyDefined = Object.prototype.hasOwnProperty.call(
+      expanded, reference
+    );
+
+    if (canonicalKey && !alreadyDefined) {
+      expanded[reference] = envVars[canonicalKey];
+    }
+  }
+
+  return expanded;
+}
 
 function runCollectionAttempt(collectionFile, attempt) {
   return new Promise((resolve) => {
@@ -338,7 +365,8 @@ function runCollectionAttempt(collectionFile, attempt) {
     });
 
     const environment = require(envFile);
-    const collectionEnvVars = {
+    const collection = require(collectionPath);
+    const collectionEnvVars = withReferencedCasings({
       ...sharedEnvVars,
       ...(collectionName === 'Employee_Auth_API'
         ? { authBaseUrl: PINNED_AUTH_BASE_URL }
@@ -346,9 +374,9 @@ function runCollectionAttempt(collectionFile, attempt) {
       ...(collectionName === 'Leave_API'
         ? { leaveBaseUrl: LEAVE_REPORT_BASE_URL }
         : {})
-    };
+    }, collection);
     const options = {
-      collection: require(collectionPath),
+      collection,
       environment: {
         ...environment,
         values: environment.values.map((variable) => (

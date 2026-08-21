@@ -41,11 +41,9 @@
         },
         "url": {
           "raw": "{{baseURL}}/api/attendance/late-early-policies/update/2",
-          "protocol": "http",
           "host": [
             "{{baseURL}}"
           ],
-          "port": "9078",
           "path": [
             "api",
             "attendance",
@@ -80,11 +78,9 @@
         ],
         "url": {
           "raw": "{{baseURL}}/api/attendance/late-early-policies/getById/5",
-          "protocol": "http",
           "host": [
             "{{baseURL}}"
           ],
-          "port": "9078",
           "path": [
             "api",
             "attendance",
@@ -132,11 +128,9 @@
         },
         "url": {
           "raw": "{{baseURL}}/api/attendance/late-early-policies/create",
-          "protocol": "http",
           "host": [
             "{{baseURL}}"
           ],
-          "port": "9078",
           "path": [
             "api",
             "attendance",
@@ -169,11 +163,9 @@
         ],
         "url": {
           "raw": "{{baseURL}}/api/attendance/late-early-policies/getAll?page=0&size=10&sort=policyId,desc",
-          "protocol": "http",
           "host": [
             "{{baseURL}}"
           ],
-          "port": "9078",
           "path": [
             "api",
             "attendance",
@@ -220,11 +212,9 @@
         ],
         "url": {
           "raw": "{{baseURL}}/api/attendance/late-early-policies/5/status?status=N",
-          "protocol": "http",
           "host": [
             "{{baseURL}}"
           ],
-          "port": "9078",
           "path": [
             "api",
             "attendance",
