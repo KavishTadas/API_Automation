@@ -1,4 +1,4 @@
-empCode,password,expectedStatus,expectedOutcome,testLabel
+empCode,empPassword,expectedStatus,expectedOutcome,testLabel
 OMI-0001,Omfys@123,200,token,TC-DD-01 Valid employee login
 INVALID-EMP,Omfys@123,400,message,TC-DD-02 Non-existent empCode
 OMI-0001,WrongPass@999,400,message,TC-DD-03 Wrong password

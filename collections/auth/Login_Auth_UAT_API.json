@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "Login API",
+    "name": "Login Auth UAT API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -66,15 +66,25 @@
       ],
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"empCode\": \"{{empCode}}\",\n  \"password\": \"{{password}}\"\n}"
+          "raw": "{\n  \"empCode\": \"{{empCode}}\",\n  \"password\": \"{{empPassword}}\"\n}"
         },
         "url": {
           "raw": "{{baseUrl}}/auth/token",
-          "host": ["{{baseUrl}}"],
-          "path": ["auth", "token"]
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "token"
+          ]
         }
       }
     }

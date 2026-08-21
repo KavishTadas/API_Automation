@@ -16,7 +16,7 @@ const COLLECTIONS_DIR = 'collections';
 const LOGS_DIR = path.join('monitoring', 'logs');
 const RESPONSE_TIME_DEGRADED_MS = 2000;
 const COLLECTION_RUN_ORDER = [
-  'Employee_Auth_API.json',
+  'auth/Employee_Auth_API.json',
   'Leave_API.json'
 ];
 const ENV = process.env.ENV || 'uat';
@@ -175,16 +175,35 @@ function validateRequiredCredentials() {
  *
  * @returns {string[]} Collection file paths.
  */
+function listCollectionJsonFiles(dirPath, relativeDir = '') {
+  return fs.readdirSync(dirPath, { withFileTypes: true }).flatMap((entry) => {
+    const relativePath = relativeDir
+      ? path.join(relativeDir, entry.name)
+      : entry.name;
+    const fullPath = path.join(dirPath, entry.name);
+
+    if (entry.isDirectory()) {
+      return listCollectionJsonFiles(fullPath, relativePath);
+    }
+
+    return entry.isFile() && entry.name.endsWith('.json')
+      ? [relativePath.split(path.sep).join('/')]
+      : [];
+  });
+}
+
 function discoverCollections() {
-  const discovered = fs
-    .readdirSync(COLLECTIONS_DIR)
-    .filter(f => f.endsWith('.json') && !f.includes('.pending.'))
+  const discovered = listCollectionJsonFiles(COLLECTIONS_DIR)
+    .filter(fileName => !fileName.includes('.pending.'))
     .sort();
 
   return [
     ...COLLECTION_RUN_ORDER.filter(fileName => discovered.includes(fileName)),
     ...discovered.filter(fileName => !COLLECTION_RUN_ORDER.includes(fileName))
-  ].map((fileName) => path.join(COLLECTIONS_DIR, fileName));
+  ].map((fileName) => path.join(
+    COLLECTIONS_DIR,
+    ...fileName.split('/')
+  ));
 }
 
 /**

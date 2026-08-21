@@ -124,18 +124,51 @@ function readDescription(description) {
   );
 }
 
+function gitAuthorForPath(gitPath) {
+  return execFileSync(
+    'git',
+    ['log', '-1', '--format=%an <%ae>', '--', gitPath],
+    {
+      cwd: ROOT_DIR,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore']
+    }
+  ).trim();
+}
+
+function stagedRenameSource(gitPath) {
+  const nameStatus = execFileSync(
+    'git',
+    ['diff', '--cached', '--name-status', '--find-renames'],
+    {
+      cwd: ROOT_DIR,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore']
+    }
+  );
+
+  for (const line of nameStatus.split(/\r?\n/)) {
+    const [status, source, destination] = line.split('\t');
+    if (status && status.startsWith('R') && destination === gitPath) {
+      return source;
+    }
+  }
+
+  return '';
+}
+
 function getGitAuthor(filePath) {
   try {
     const gitPath = path.relative(ROOT_DIR, filePath).split(path.sep).join('/');
-    return execFileSync(
-      'git',
-      ['log', '-1', '--format=%an <%ae>', '--', gitPath],
-      {
-        cwd: ROOT_DIR,
-        encoding: 'utf8',
-        stdio: ['ignore', 'pipe', 'ignore']
-      }
-    ).trim();
+    const author = gitAuthorForPath(gitPath);
+    if (author) {
+      return author;
+    }
+
+    const renameSource = stagedRenameSource(gitPath);
+    return renameSource
+      ? gitAuthorForPath(renameSource) || getHeadCommitAuthor()
+      : getHeadCommitAuthor();
   } catch (error) {
     return getHeadCommitAuthor();
   }
@@ -862,12 +895,21 @@ function getPostmanModuleNames(folderPath, itemName, collectionName) {
   };
 }
 
-function collectionDataFile(collectionName) {
+function collectionDataFile(collectionName, sourcePath) {
   const safeName = collectionName.replace(/\s+/g, '_');
-  const candidates = [
-    path.join(ROOT_DIR, 'test-data', `${collectionName}.csv`),
-    path.join(ROOT_DIR, 'test-data', `${safeName}.csv`)
-  ];
+  const relativeCollectionDir = sourcePath
+    ? path.dirname(path.relative(COLLECTIONS_DIR, sourcePath))
+    : '.';
+  const testDataDirs = relativeCollectionDir === '.'
+    ? [path.join(ROOT_DIR, 'test-data')]
+    : [
+        path.join(ROOT_DIR, 'test-data', relativeCollectionDir),
+        path.join(ROOT_DIR, 'test-data')
+      ];
+  const candidates = testDataDirs.flatMap((testDataDir) => [
+    path.join(testDataDir, `${collectionName}.csv`),
+    path.join(testDataDir, `${safeName}.csv`)
+  ]);
 
   return candidates.find((candidate) => fs.existsSync(candidate)) || '';
 }
@@ -906,7 +948,10 @@ function postmanItemToRow({ item, folderPath, collection, collectionName, source
     requestBody,
     scriptText
   ].join('\n');
-  const dataFilePath = collectionDataFile(collectionName.replace(/\s+API$/i, '_API'));
+  const dataFilePath = collectionDataFile(
+    collectionName.replace(/\s+API$/i, '_API'),
+    sourcePath
+  );
   const response = extractPostmanResponseDetails(item, scriptText, endpointPath);
   const row = {
     'Module Name': moduleName,
