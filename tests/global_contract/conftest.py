@@ -15,11 +15,6 @@ def _feature_for_test(request: pytest.FixtureRequest) -> str:
 
     if operation_case is not None:
         return f"{operation_case.method} {operation_case.path}"
-    if (
-        getattr(request.node, "originalname", None)
-        == "test_small_burst_does_not_trigger_immediate_blocking"
-    ):
-        return "GET /user/leaves/getAllLeaveReports"
     return "Cross-cutting API behavior"
 
 
