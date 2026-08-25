@@ -5,3 +5,7 @@ allure-pytest>=2.13.0,<3.0.0
 allure-combine>=1.0.11
 PyYAML>=6.0,<7.0
 jsonschema>=4.23.0,<5.0.0
+# Reads uploaded API definitions from api-docs/API_Documentation_Template.xlsx
+# (tests/global_contract/excel_adapter.py). Imported lazily, so the rest of the
+# tier still runs if it is absent.
+openpyxl>=3.1.0,<4.0.0

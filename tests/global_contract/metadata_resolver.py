@@ -327,6 +327,37 @@ class ApiDefinition:
 
 
 @dataclass(frozen=True)
+class BaseUrlResolution:
+    """The outcome of resolving one module's base URL.
+
+    ``url`` is ``None`` both when nothing matched and when *too much* matched —
+    :attr:`ambiguous_keys` tells the two apart. Never raises, so a caller turns
+    either into a NOT_APPLICABLE naming what it looked for.
+    """
+
+    url: str | None
+    key: str
+    searched_keys: tuple[str, ...] = ()
+    ambiguous_keys: tuple[str, ...] = ()
+
+    @property
+    def is_ambiguous(self) -> bool:
+        return bool(self.ambiguous_keys)
+
+    def describe_failure(self) -> str:
+        if self.is_ambiguous:
+            return (
+                f"module matches more than one registered base URL key "
+                f"({', '.join(self.ambiguous_keys)}); rename the module or "
+                "unregister one so exactly one matches"
+            )
+        return (
+            f"no base URL registered for {self.key} "
+            f"(looked for: {', '.join(self.searched_keys) or self.key})"
+        )
+
+
+@dataclass(frozen=True)
 class ContractSources:
     """The two git-tracked contract sources, loaded once per session."""
 
@@ -478,6 +509,15 @@ class MetadataResolver:
     def definition(self, method: str, path: str) -> ApiDefinition | None:
         return self._definitions.get((str(method).upper(), str(path)))
 
+    def register_definition(self, definition: ApiDefinition) -> None:
+        """Add a definition supplied by value, e.g. from a run manifest.
+
+        Definitions travel inside the manifest and live only for this run (DR-2).
+        Nothing is written to disk and ``openapi.yaml`` is not modified.
+        """
+        if definition is not None and definition.method and definition.path:
+            self._definitions[definition.operation_key] = definition
+
     def inventory_rows(self, method: str, path: str) -> tuple[dict[str, Any], ...]:
         """Every inventory row matching this method and path."""
         wanted_method = str(method).upper()
@@ -496,6 +536,65 @@ class MetadataResolver:
         if not match:
             return frozenset()
         return frozenset(int(code) for code in re.findall(r"\d{3}", match.group(1)))
+
+    def resolve_ref(self, ref: str) -> dict[str, Any] | None:
+        """Resolve a manifest ``ref`` to an inventory row, or ``None``.
+
+        ``api-docs/API_File.json`` carries no ``API ID`` column — it has
+        ``Sr. No`` and a synthesized ``API Identifier`` — so a ref is matched
+        against several spellings, most specific first:
+
+        1. exact ``API Identifier``
+        2. ``Sr. No``, and the ``API-NNN`` form the platform uses for it
+        3. ``METHOD /path``
+        4. ``Module Name / Sub-Module Name``
+
+        Returns ``None`` rather than raising: an unresolvable ref must degrade
+        that one API to NOT_APPLICABLE, never fail collection for the batch.
+        """
+        wanted = str(ref or "").strip()
+        if not wanted:
+            return None
+        folded = wanted.casefold()
+
+        def _sr_forms(row: dict[str, Any]) -> set[str]:
+            serial = str(row.get("Sr. No", "") or "").strip()
+            if not serial:
+                return set()
+            forms = {serial, f"api-{serial}"}
+            if serial.isdigit():
+                forms.add(f"api-{int(serial):03d}")
+            return {f.casefold() for f in forms}
+
+        for matches in (
+            lambda row: str(row.get("API Identifier", "")).casefold() == folded,
+            lambda row: folded in _sr_forms(row),
+            lambda row: (
+                f"{row.get('HTTP Method', '')} {row.get('Endpoint / Path', '')}"
+            ).strip().casefold()
+            == folded,
+            lambda row: (
+                f"{row.get('Module Name', '')} / {row.get('Sub-Module Name', '')}"
+            ).strip().casefold()
+            == folded,
+        ):
+            candidates = [row for row in self._sources.api_rows if matches(row)]
+            if not candidates:
+                continue
+            if len(candidates) == 1:
+                return candidates[0]
+            # Several rows describe the same operation — typically a Bruno row
+            # and a collections row, and they can point at *different hosts*.
+            # Defer to the same preference select_api_row() uses so a ref and
+            # the tier's own row selection cannot disagree: picking the wrong
+            # one here mints a token against the wrong host, and every request
+            # that uses it comes back 401 for no visible reason.
+            preferred = self.select_api_row(
+                str(candidates[0].get("HTTP Method", "")),
+                str(candidates[0].get("Endpoint / Path", "")),
+            )
+            return preferred if preferred is not None else candidates[0]
+        return None
 
     def select_api_row(self, method: str, path: str) -> dict[str, Any] | None:
         """Pick the best inventory row for this operation.
@@ -771,16 +870,14 @@ class MetadataResolver:
 
     @staticmethod
     def base_url_keys(module: str, environment: str | None = None) -> tuple[str, ...]:
-        """The environment-variable names to try, in precedence order.
+        """Every environment-variable name that could supply this module's host.
 
-        1. ``<MODULE>_BASE_URL_<ENV>``
-        2. ``<MODULE>_BASE_URL``
-
-        The literal ``Base URL`` column is the third step and is handled by
-        :meth:`resolve_base_url`, not by this method.
+        Ordered ``<MODULE>_BASE_URL_<ENV>`` before ``<MODULE>_BASE_URL``, and
+        within each tier the full normalized module name before its individual
+        tokens. Diagnostic — :meth:`resolve_base_url` is what actually picks.
         """
         stems = MetadataResolver.module_key_candidates(module)
-        env = re.sub(r"[^A-Za-z0-9]+", "_", str(environment or "")).strip("_").upper()
+        env = MetadataResolver._normalize_environment(environment)
 
         keys: list[str] = []
         if env:
@@ -788,31 +885,82 @@ class MetadataResolver:
         keys.extend(f"{stem}_BASE_URL" for stem in stems)
         return tuple(keys)
 
+    @staticmethod
+    def _normalize_environment(environment: str | None) -> str:
+        return re.sub(r"[^A-Za-z0-9]+", "_", str(environment or "")).strip("_").upper()
+
     def resolve_base_url(
         self,
         module: str,
         runtime_config: dict[str, str],
         environment: str | None = None,
         literal_base_url: str = "",
-    ) -> tuple[str | None, str]:
-        """Resolve a base URL. Returns ``(url_or_None, key_that_was_looked_for)``.
+    ) -> "BaseUrlResolution":
+        """Resolve a base URL to exactly one registered key, or to nothing.
 
-        Falls through ``<MODULE>_BASE_URL_<ENV>`` -> ``<MODULE>_BASE_URL`` ->
-        the literal ``Base URL`` column. When nothing resolves the caller reports
-        ``NOT_APPLICABLE`` naming the first key that was tried.
+        Order, per T0.3:
+
+        1. ``<MODULE>_BASE_URL_<ENV>`` — full normalized module name, then each
+           individual token
+        2. ``<MODULE>_BASE_URL`` — same two steps without the env suffix
+        3. the literal ``Base URL`` column on the definition
+        4. nothing — the caller reports NOT_APPLICABLE naming the key it wanted
+
+        Within a tier the match must be **unique**. If two tokens both name
+        registered keys the result is an explicit ambiguity, never a pick: a
+        silently misrouted host is exactly the failure CI's hardcoded URLs exist
+        to prevent, and it fails as a wrong-host pass rather than as an error.
         """
-        keys = self.base_url_keys(module, environment)
-        primary_key = keys[0] if keys else "BASE_URL"
+        config = runtime_config or {}
+        env = self._normalize_environment(environment)
+        stems = self.module_key_candidates(module)
+        suffixes = ([f"_BASE_URL_{env}"] if env else []) + ["_BASE_URL"]
 
-        for key in keys:
-            value = str((runtime_config or {}).get(key, "") or "").strip()
-            if value:
-                return value, key
+        for suffix in suffixes:
+            # Step 1 — the full normalized module name. A single candidate, so
+            # it can never be ambiguous; an exact module match always wins.
+            full_key = f"{stems[0]}{suffix}" if stems else ""
+            if full_key and str(config.get(full_key, "") or "").strip():
+                return BaseUrlResolution(
+                    url=str(config[full_key]).strip(),
+                    key=full_key,
+                    searched_keys=self.base_url_keys(module, environment),
+                )
+
+            # Step 2 — individual tokens, requiring exactly one registered hit.
+            token_keys = [
+                f"{stem}{suffix}"
+                for stem in stems[1:]
+                if str(config.get(f"{stem}{suffix}", "") or "").strip()
+            ]
+            if len(token_keys) > 1:
+                return BaseUrlResolution(
+                    url=None,
+                    key=token_keys[0],
+                    searched_keys=self.base_url_keys(module, environment),
+                    ambiguous_keys=tuple(token_keys),
+                )
+            if len(token_keys) == 1:
+                return BaseUrlResolution(
+                    url=str(config[token_keys[0]]).strip(),
+                    key=token_keys[0],
+                    searched_keys=self.base_url_keys(module, environment),
+                )
 
         literal = str(literal_base_url or "").strip()
         if literal:
-            return literal, "Base URL"
-        return None, primary_key
+            return BaseUrlResolution(
+                url=literal,
+                key="Base URL",
+                searched_keys=self.base_url_keys(module, environment),
+            )
+
+        keys = self.base_url_keys(module, environment)
+        return BaseUrlResolution(
+            url=None,
+            key=keys[0] if keys else "BASE_URL",
+            searched_keys=keys,
+        )
 
     # -------------------------------------------------------- field resolution
 
@@ -1023,3 +1171,163 @@ def get_resolver() -> MetadataResolver:
     """The shared resolver. Cached because parametrization calls it repeatedly."""
     definitions = _REGISTERED_DEFINITIONS or _load_definitions_from_env()
     return MetadataResolver(load_contract_sources(), definitions)
+
+
+# ---------------------------------------------------------------------------
+# Definition -> inventory row
+# ---------------------------------------------------------------------------
+# Both upload adapters (Excel, cURL) emit two things: an ApiDefinition for the
+# resolver, and a dict shaped like an api-docs/API_File.json row so
+# perform_api_request() works unchanged. The row projection lives here, next to
+# ApiDefinition, so there is exactly one of it rather than one per adapter.
+
+
+def _payloads_of(definition: ApiDefinition, kind: str) -> tuple[SamplePayload, ...]:
+    wanted = PayloadType.normalize(kind)
+    return tuple(p for p in definition.payloads if p.kind == wanted)
+
+
+def _sample_text(payload: SamplePayload | None) -> str:
+    """Render a sample back to JSON text for an inventory row."""
+    if payload is None or payload.sample_json is None:
+        return ""
+    if isinstance(payload.sample_json, str):
+        return payload.sample_json
+    return json.dumps(payload.sample_json, ensure_ascii=False)
+
+
+def build_request_parameters(
+    headers: dict[str, str] | None = None,
+    query: dict[str, str] | None = None,
+    path_variables: dict[str, str] | None = None,
+) -> str:
+    """Render the pipe-delimited `Request Parameters` string the helper parses.
+
+    Shape: ``headers: k=v; k2=v2 | query: k=v | path variables: id=1``
+    """
+    sections: list[str] = []
+    for label, values in (
+        ("headers", headers),
+        ("query", query),
+        ("path variables", path_variables),
+    ):
+        if not values:
+            continue
+        rendered = "; ".join(f"{k}={v}" for k, v in values.items() if k)
+        if rendered:
+            sections.append(f"{label}: {rendered}")
+    return " | ".join(sections)
+
+
+def definition_to_inventory_row(
+    definition: ApiDefinition,
+    *,
+    source: str = "uploaded",
+    base_url: str | None = None,
+) -> dict[str, Any]:
+    """Project an ApiDefinition into an `API_File.json`-shaped request row.
+
+    The key names below are not decorative — ``perform_api_request()`` and the
+    global tests read these exact strings. `Response (example/200)` in
+    particular must carry the ``Expected status(es): NNN`` prefix, because
+    ``_inventory_status_codes()`` scrapes the status back out of it with a regex.
+
+    Nothing is written to ``api-docs/API_File.json``; this row exists only for
+    the duration of the run (DR-2).
+    """
+    headers: dict[str, str] = {}
+    request_body = _payloads_of(definition, PayloadType.REQUEST_BODY)
+    body_text = _sample_text(request_body[0] if request_body else None)
+
+    if body_text.strip():
+        headers["Content-Type"] = DEFAULT_CONTENT_TYPE
+
+    requires_bearer = "bearer" in str(definition.auth_type or "").lower()
+    if requires_bearer:
+        # Written as a template so _build_headers() resolves it from the
+        # bootstrapped token rather than from anything baked into the row.
+        headers["Authorization"] = "Bearer {{authToken}}"
+
+    success = _payloads_of(definition, PayloadType.SUCCESS_RESPONSE)
+    success_payload = success[0] if success else None
+    success_status = (
+        success_payload.response_status
+        if success_payload is not None and success_payload.response_status is not None
+        else 200
+    )
+    response_spec = f"Expected status(es): {success_status}"
+    success_text = _sample_text(success_payload)
+    if success_text.strip():
+        response_spec = f"{response_spec}\n{success_text}"
+
+    return {
+        "Sr. No": "",
+        "Module Name": definition.module or "",
+        "Sub-Module Name": definition.name or "",
+        "Access": "public" if not requires_bearer else "authenticated",
+        "Functional Purpose": definition.purpose or "",
+        "Base URL": base_url if base_url is not None else (definition.base_url or ""),
+        "Endpoint / Path": definition.path or "",
+        "HTTP Method": str(definition.method or "GET").upper(),
+        "Request Parameters": build_request_parameters(headers=headers),
+        "Request Body": body_text,
+        "Example Request Payload": body_text,
+        "Request Body Schema": (
+            json.dumps(infer_json_schema(_parse_json_or_none(body_text)))
+            if body_text.strip()
+            else ""
+        ),
+        "Response (example/200)": response_spec,
+        "Example Response Payload": success_text,
+        # Left empty deliberately: auth is supplied by the manifest's
+        # authProviderApiId bootstrap, not by an inventory dependency string.
+        "Dependent APIs / Services": "",
+        "Owner / Developer": definition.owner or "",
+        "API Identifier": "|".join(
+            [
+                str(definition.method or "").lower(),
+                str(definition.base_url or "").lower(),
+                str(definition.path or ""),
+                str(definition.module or "").lower(),
+                str(definition.api_id or "").lower(),
+            ]
+        ),
+        "Comments": f"Source: {source}",
+    }
+
+
+def error_trigger_rows(
+    definition: ApiDefinition,
+    base_row: dict[str, Any],
+) -> tuple[dict[str, Any], ...]:
+    """Build one request row per `Error Request Body` / `Error Response` pair.
+
+    GUARDRAIL — these fire against UAT on every run. An `Error Request Body`
+    must provoke a *validation or auth* error, never a state change. A DELETE
+    with a malformed ID is a valid trigger; a DELETE with a real ID that
+    actually deletes something is not. Whoever authors the row owns that
+    distinction, and no amount of downstream care can undo a row that deletes.
+
+    Pairing is Nth-to-Nth in sheet order. Mismatched counts pair what they can;
+    the caller warns rather than raising.
+    """
+    requests = _payloads_of(definition, PayloadType.ERROR_REQUEST_BODY)
+    responses = _payloads_of(definition, PayloadType.ERROR_RESPONSE)
+
+    rows: list[dict[str, Any]] = []
+    for error_request, error_response in zip(requests, responses):
+        status = error_response.response_status
+        spec = f"Expected status(es): {status}" if status is not None else ""
+        sample = _sample_text(error_response)
+        if spec and sample.strip():
+            spec = f"{spec}\n{sample}"
+        rows.append(
+            {
+                **base_row,
+                "Request Body": _sample_text(error_request),
+                "Response (example/200)": spec,
+                "Example Response Payload": sample,
+                "Comments": f"{base_row.get('Comments', '')}; error-trigger pair",
+            }
+        )
+    return tuple(rows)

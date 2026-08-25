@@ -26,6 +26,7 @@ import time
 from dataclasses import dataclass, field
 from functools import lru_cache
 from typing import Any
+from urllib.parse import urlsplit
 
 import allure
 import httpx
@@ -33,16 +34,28 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from tests.auto_generated._api_test_helpers import (
+    _resolve_templates,
     load_runtime_config,
     perform_api_request,
+)
+from tests.global_contract.auth_bootstrap import (
+    TOKEN_RUNTIME_KEYS,
+    AuthBootstrap,
+    BootstrapResult,
 )
 from tests.global_contract.metadata_resolver import (
     ContractSources,
     MetadataResolver,
+    definition_to_inventory_row,
+    error_trigger_rows,
     get_resolver,
     load_contract_sources,
 )
 from tests.global_contract.result_states import ResultState, format_reason
+from tests.global_contract.run_manifest import (
+    ManifestValidationError,
+    load_manifest_from_env,
+)
 
 
 #: T7 — CORS preflight is opt-in. These are internal server-to-server APIs
@@ -57,6 +70,9 @@ ENVIRONMENT_FLAG = "API_TEST_ENV"
 #: Substituted into string fields of an API's own request-body sample by
 #: test_special_characters_in_input.
 SPECIAL_CHARACTER_SAMPLE = "ÉMP-测试-😀-🔒"
+
+#: The tier this module implements. A manifest must request it by name.
+GLOBAL_CONTRACT_TIER = "global_contract"
 
 #: The operation the session bootstraps a bearer token from.
 #:
@@ -83,6 +99,19 @@ class OperationCase:
     idempotent: bool | None
     max_payload_bytes: int | None
     paginated: bool | None
+    #: Manifest identity. Empty when running without a manifest.
+    entry_id: str = ""
+    auth_provider_api_id: str | None = None
+    credential_alias: str | None = None
+    #: Scheme+host this case targets, used to deduplicate host-level probes.
+    host: str = ""
+    #: Set when a manifest ref could not be resolved. The case still collects,
+    #: so the API reports NOT_APPLICABLE for all 12 tests rather than vanishing.
+    unresolved_reason: str | None = None
+
+    @property
+    def label(self) -> str:
+        return self.entry_id or f"{self.method} {self.path}"
 
 
 @dataclass
@@ -98,6 +127,33 @@ class GlobalContractContext:
     bootstrap_durations_ms: dict[tuple[str, str], float] = field(
         default_factory=dict, repr=False
     )
+    #: One entry per distinct (authProviderApiId, credentialAlias) pair.
+    auth_results: dict[tuple[str, str], BootstrapResult] = field(
+        default_factory=dict, repr=False
+    )
+
+    def auth_result_for(self, operation_case: OperationCase) -> BootstrapResult | None:
+        """The bootstrap outcome for this API, or ``None`` if it needs no auth."""
+        if not operation_case.auth_provider_api_id:
+            return None
+        key = (
+            operation_case.auth_provider_api_id,
+            operation_case.credential_alias or "",
+        )
+        return self.auth_results.get(key)
+
+    def config_for(self, operation_case: OperationCase) -> dict[str, str]:
+        """Runtime config carrying this API's own token.
+
+        Two APIs naming different providers get different tokens, and each one's
+        token is routed only to it. The bootstrapped value deliberately wins over
+        any ambient AUTH_TOKEN — a stale CI secret previously defeated the
+        bootstrap and surfaced as unexplained 401s.
+        """
+        result = self.auth_result_for(operation_case)
+        if result is None or not result.succeeded:
+            return self.runtime_config
+        return {**self.runtime_config, **result.runtime_overrides()}
 
 
 def _resolver() -> MetadataResolver:
@@ -138,14 +194,46 @@ def _skip_with_state(state: ResultState, detail: str) -> None:
     pytest.skip(_record_state(state, detail))
 
 
-def _require_api_row(operation_case: OperationCase) -> dict[str, Any]:
-    """Return the request row, or end the test as NOT_APPLICABLE."""
+def _require_runnable(
+    operation_case: OperationCase,
+    global_contract_context: GlobalContractContext | None = None,
+) -> dict[str, Any]:
+    """Return the request row, or end the test in the state that explains why not.
+
+    Three ways an API can be unrunnable, and they are not the same thing:
+
+    * the manifest entry never resolved      -> NOT_APPLICABLE
+    * no request row could be built          -> NOT_APPLICABLE
+    * its auth provider did not give a token -> SKIPPED_NO_TOKEN
+
+    The last one is why this is not just a null check. An API whose token
+    bootstrap failed was never executed; reporting it as FAIL would claim it was
+    tested and found broken.
+    """
+    if operation_case.unresolved_reason:
+        _skip_with_state(ResultState.NOT_APPLICABLE, operation_case.unresolved_reason)
+
     if operation_case.api_row is None:
         _skip_with_state(
             ResultState.NOT_APPLICABLE,
             f"no inventory row for {operation_case.method} {operation_case.path}",
         )
+
+    if global_contract_context is not None:
+        result = global_contract_context.auth_result_for(operation_case)
+        if result is not None and not result.succeeded:
+            _skip_with_state(
+                ResultState.SKIPPED_NO_TOKEN,
+                f"{operation_case.label} (BLOCKED: {result.provider_id} failed) — "
+                f"{result.reason}",
+            )
+
     return operation_case.api_row
+
+
+def _require_api_row(operation_case: OperationCase) -> dict[str, Any]:
+    """Backwards-compatible alias for :func:`_require_runnable`."""
+    return _require_runnable(operation_case)
 
 
 def _load_contract_sources() -> ContractSources:
@@ -158,15 +246,216 @@ def _inventory_status_codes(api_row: dict[str, Any]) -> frozenset[int]:
 
 
 @lru_cache(maxsize=1)
-def _build_operation_cases() -> tuple[OperationCase, ...]:
-    """Build one case per known operation. Never raises.
+def _load_manifest() -> Any:
+    """Load the run manifest, or ``None`` when none was supplied.
 
-    Both former ``ValueError`` sites are gone. An operation with no inventory
+    ``None`` is the pre-Sprint-2 path: the tier enumerates ``openapi.yaml``
+    exactly as before, which is what keeps the no-manifest run a regression-free
+    no-op.
+    """
+    try:
+        return load_manifest_from_env()
+    except ManifestValidationError as error:
+        # A malformed manifest is a caller error, not a test failure, and it is
+        # worth stopping for — running "some" of a batch the caller did not ask
+        # for is worse than refusing. The message names JSON paths, never values.
+        raise pytest.UsageError(str(error)) from error
+
+
+@lru_cache(maxsize=1)
+def _runtime_config_snapshot() -> dict[str, str]:
+    """Runtime config read at collection time, for host and base-URL resolution.
+
+    Layered environment-last so a CI-supplied ``<MODULE>_BASE_URL_<ENV>`` is
+    visible: ``load_runtime_config()`` reads ``.env`` and the Postman
+    environment file only, and it is a generated artifact this sprint must not
+    edit. An explicit local ``.env`` value still wins over the ambient one.
+    """
+    try:
+        config = load_runtime_config()
+    except Exception:  # pragma: no cover - config loading is defensive
+        config = {}
+    return {**os.environ, **config}
+
+
+def _derive_host(api_row: dict[str, Any] | None) -> str:
+    """Resolve a row's Base URL to ``scheme://host``, or ``""``.
+
+    Host-level probes are deduplicated on this, so a templated ``{{baseUrl}}``
+    has to be resolved before it can be compared.
+    """
+    if not api_row:
+        return ""
+    raw = str(api_row.get("Base URL", "") or "")
+    if not raw:
+        return ""
+    resolved = _resolve_templates(raw, _runtime_config_snapshot())
+    if "{{" in resolved:
+        return ""
+    split = urlsplit(resolved if "://" in resolved else f"https://{resolved}")
+    return f"{split.scheme}://{split.netloc}" if split.netloc else ""
+
+
+def _case_from_metadata(
+    metadata: Any,
+    *,
+    entry_id: str = "",
+    api_row: dict[str, Any] | None = None,
+    auth_provider_api_id: str | None = None,
+    credential_alias: str | None = None,
+    unresolved_reason: str | None = None,
+) -> OperationCase:
+    row = api_row if api_row is not None else metadata.api_row
+    return OperationCase(
+        method=metadata.method,
+        path=metadata.path,
+        api_row=row,
+        documented_status_codes=metadata.documented_status_codes,
+        documented_content_types=metadata.documented_content_types,
+        requires_bearer_auth=metadata.requires_bearer_auth,
+        sla_ms=metadata.sla_ms,
+        required_role=metadata.required_role,
+        idempotent=metadata.idempotent,
+        max_payload_bytes=metadata.max_payload_bytes,
+        paginated=metadata.paginated,
+        entry_id=entry_id,
+        auth_provider_api_id=auth_provider_api_id,
+        credential_alias=credential_alias,
+        host=_derive_host(row),
+        unresolved_reason=unresolved_reason,
+    )
+
+
+def _unresolved_case(entry: Any, reason: str) -> OperationCase:
+    """A placeholder case for an entry that could not be resolved.
+
+    The API still appears in the run and still produces a result for all twelve
+    tests — as NOT_APPLICABLE. Dropping it instead would leave the platform
+    showing an API that simply is not there, with nothing to join against.
+    """
+    return OperationCase(
+        method="",
+        path="",
+        api_row=None,
+        documented_status_codes=frozenset(),
+        documented_content_types={},
+        requires_bearer_auth=False,
+        sla_ms=None,
+        required_role=None,
+        idempotent=None,
+        max_payload_bytes=None,
+        paginated=None,
+        entry_id=entry.identifier,
+        auth_provider_api_id=entry.auth_provider_api_id,
+        credential_alias=entry.credential_alias,
+        unresolved_reason=reason,
+    )
+
+
+def _cases_from_manifest(manifest: Any) -> tuple[OperationCase, ...]:
+    """Enumerate from the manifest's ``apis[]`` instead of the OpenAPI paths.
+
+    Metadata still resolves through the Sprint 1 precedence chain (DR-1) — the
+    manifest chooses *which* APIs run, not where their metadata comes from.
+    """
+    resolver = _resolver()
+    environment = manifest.environment or _target_environment()
+    cases: list[OperationCase] = []
+
+    for entry in manifest.entries_for_tier(GLOBAL_CONTRACT_TIER):
+        try:
+            if entry.definition is not None:
+                definition = entry.definition
+                resolver.register_definition(definition)
+                base_url = _definition_base_url(resolver, definition, environment)
+                if base_url is None:
+                    cases.append(
+                        _unresolved_case(
+                            entry,
+                            resolver.resolve_base_url(
+                                definition.module,
+                                _runtime_config_snapshot(),
+                                environment,
+                                definition.base_url,
+                            ).describe_failure(),
+                        )
+                    )
+                    continue
+                api_row = definition_to_inventory_row(
+                    definition,
+                    source=f"uploaded/{_definition_source(definition)}",
+                    base_url=base_url,
+                )
+                metadata = resolver.resolve(
+                    definition.method, definition.path, environment=environment
+                )
+            else:
+                api_row = resolver.resolve_ref(entry.ref)
+                if api_row is None:
+                    cases.append(
+                        _unresolved_case(
+                            entry,
+                            f"manifest ref {entry.ref!r} matched no inventory row",
+                        )
+                    )
+                    continue
+                metadata = resolver.resolve(
+                    str(api_row.get("HTTP Method", "")).upper(),
+                    str(api_row.get("Endpoint / Path", "")),
+                    environment=environment,
+                )
+
+            cases.append(
+                _case_from_metadata(
+                    metadata,
+                    entry_id=entry.identifier,
+                    api_row=api_row,
+                    auth_provider_api_id=entry.auth_provider_api_id,
+                    credential_alias=entry.credential_alias,
+                )
+            )
+        except Exception as error:  # pragma: no cover - nothing escapes collection
+            cases.append(
+                _unresolved_case(
+                    entry,
+                    f"could not be prepared ({type(error).__name__})",
+                )
+            )
+
+    return tuple(cases)
+
+
+def _definition_source(definition: Any) -> str:
+    return "curl" if str(definition.curl or "").strip() else "excel"
+
+
+def _definition_base_url(resolver: Any, definition: Any, environment: str) -> str | None:
+    resolution = resolver.resolve_base_url(
+        definition.module,
+        _runtime_config_snapshot(),
+        environment,
+        definition.base_url,
+    )
+    return resolution.url
+
+
+@lru_cache(maxsize=1)
+def _build_operation_cases() -> tuple[OperationCase, ...]:
+    """Build one case per selected operation. Never raises.
+
+    With a manifest, the manifest's ``apis[]`` is the enumeration source. Without
+    one, this falls back to iterating ``openapi.yaml`` exactly as before.
+
+    Both former ``ValueError`` sites remain gone. An operation with no inventory
     row gets ``api_row=None``; an operation with no declared statuses gets an
     empty ``documented_status_codes``. Each is reported as NOT_APPLICABLE by the
     tests that need it, so one unusable API can no longer take collection down
     for every other API in the batch.
     """
+    manifest = _load_manifest()
+    if manifest is not None:
+        return _cases_from_manifest(manifest)
+
     resolver = _resolver()
     environment = _target_environment()
     cases: list[OperationCase] = []
@@ -186,23 +475,50 @@ def _build_operation_cases() -> tuple[OperationCase, ...]:
             )
             continue
 
-        cases.append(
-            OperationCase(
-                method=metadata.method,
-                path=metadata.path,
-                api_row=metadata.api_row,
-                documented_status_codes=metadata.documented_status_codes,
-                documented_content_types=metadata.documented_content_types,
-                requires_bearer_auth=metadata.requires_bearer_auth,
-                sla_ms=metadata.sla_ms,
-                required_role=metadata.required_role,
-                idempotent=metadata.idempotent,
-                max_payload_bytes=metadata.max_payload_bytes,
-                paginated=metadata.paginated,
-            )
-        )
+        cases.append(_case_from_metadata(metadata))
 
     return tuple(cases)
+
+
+@lru_cache(maxsize=1)
+def _host_representatives() -> dict[str, str]:
+    """The one case label that actually probes each distinct host.
+
+    The burst and oversized-payload checks measure **gateway** behaviour, not
+    endpoint behaviour. Running them per API meant a 45-API batch across three
+    hosts issued 450 burst requests and ~45 MB of uploads to test three hosts
+    forty-five times — against infrastructure this project does not own, and
+    against the repo's standing position that these probes stay bounded.
+
+    So the *probe* is deduplicated by host while the *result* stays per API:
+    every API still reports for all twelve tests, but only the representative
+    for its host sends traffic. The rest reference it. Three hosts costs 30
+    burst requests and 3 oversized payloads whether the batch holds 5 APIs or
+    500, and a 46th API on an existing host adds nothing.
+    """
+    representatives: dict[str, str] = {}
+    for case in _build_operation_cases():
+        if case.host and case.host not in representatives:
+            representatives[case.host] = case.label
+    return representatives
+
+
+def _require_host_representative(operation_case: OperationCase) -> None:
+    """End the test unless this case is the one that probes its host."""
+    if not operation_case.host:
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            f"{operation_case.label} has no resolvable host to probe",
+        )
+
+    representative = _host_representatives().get(operation_case.host)
+    if representative != operation_case.label:
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            f"host-level probe for {operation_case.host} is reported against "
+            f"{representative!r}; this is a gateway property, not an endpoint "
+            "property, so it is measured once per host rather than once per API",
+        )
 
 
 def build_contract_params(*, xfail_auth_waf: bool = False) -> list[Any]:
@@ -230,11 +546,15 @@ def build_contract_params(*, xfail_auth_waf: bool = False) -> list[Any]:
 
 
 def build_bearer_auth_negative_params() -> list[Any]:
-    """Build missing/invalid-token parameters for secured operations only."""
+    """Build missing/invalid-token parameters for every operation.
+
+    Unsecured operations are filtered inside the test body, not here: a case
+    filtered out at collection time produces no result at all, leaving the
+    platform with an unexplained gap and Sprint 3's catalogue nothing to join
+    against.
+    """
     params: list[Any] = []
     for case in _build_operation_cases():
-        if not case.requires_bearer_auth:
-            continue
         params.extend(
             [
                 pytest.param(
@@ -309,36 +629,112 @@ def global_contract_context() -> GlobalContractContext:
     bootstrap_durations_ms: dict[tuple[str, str], float] = {}
     operation_cases = _build_operation_cases()
 
-    auth_case = next(
-        (
-            case
-            for case in operation_cases
-            if (case.method, case.path) == BOOTSTRAP_AUTH_OPERATION
-            and case.api_row is not None
-        ),
-        None,
+    # -- Auth provider bootstrap (T5) -----------------------------------------
+    # Providers named by the manifest are called directly as token providers.
+    # Their own collections are never run: doing so would fire their assertions,
+    # and a failing auth assertion would then look like a failure of the API the
+    # user actually selected.
+    auth_bootstrap = AuthBootstrap(
+        runtime_config,
+        provider_row_for=lambda provider_id: _resolver().resolve_ref(provider_id),
     )
-    if auth_case is not None:
-        auth_key = (auth_case.method, auth_case.path)
-        auth_response, auth_duration = _timed_request(auth_case.api_row, runtime_config)
-        bootstrap_responses[auth_key] = auth_response
-        bootstrap_durations_ms[auth_key] = auth_duration
-        if auth_response.is_success:
-            token = auth_response.json().get("token")
-            if token:
-                runtime_config.update(
-                    {
-                        "AUTH_TOKEN": token,
-                        "API_AUTH_TOKEN": token,
-                        "authToken": token,
-                    }
-                )
+    for operation_case in operation_cases:
+        auth_bootstrap.token_for(
+            operation_case.auth_provider_api_id,
+            operation_case.credential_alias,
+        )
+    auth_results = auth_bootstrap.results
+
+    def _config_for(case: OperationCase) -> dict[str, str]:
+        key = (case.auth_provider_api_id or "", case.credential_alias or "")
+        result = auth_results.get(key)
+        if result is None or not result.succeeded:
+            return runtime_config
+        return {**runtime_config, **result.runtime_overrides()}
+
+    # Without a manifest there is no declared provider, so the suite's single
+    # known token provider still bootstraps the session exactly as before.
+    if not any(case.auth_provider_api_id for case in operation_cases):
+        auth_case = next(
+            (
+                case
+                for case in operation_cases
+                if (case.method, case.path) == BOOTSTRAP_AUTH_OPERATION
+                and case.api_row is not None
+            ),
+            None,
+        )
+        if auth_case is not None:
+            auth_key = (auth_case.method, auth_case.path)
+            auth_response, auth_duration = _timed_request(
+                auth_case.api_row, runtime_config
+            )
+            bootstrap_responses[auth_key] = auth_response
+            bootstrap_durations_ms[auth_key] = auth_duration
+            if auth_response.is_success:
+                token = auth_response.json().get("token")
+                if token:
+                    runtime_config.update(
+                        {
+                            "AUTH_TOKEN": token,
+                            "API_AUTH_TOKEN": token,
+                            "authToken": token,
+                        }
+                    )
 
     for operation_case in operation_cases:
         operation_key = (operation_case.method, operation_case.path)
         if operation_key in bootstrap_responses or operation_case.api_row is None:
             continue
-        response, duration_ms = _timed_request(operation_case.api_row, runtime_config)
+
+        # An API whose token bootstrap failed is not executed at all — firing it
+        # anyway would produce a 401 that looks like the API's own fault.
+        auth_key = (
+            operation_case.auth_provider_api_id or "",
+            operation_case.credential_alias or "",
+        )
+        blocked = auth_results.get(auth_key)
+        if operation_case.auth_provider_api_id and (
+            blocked is None or not blocked.succeeded
+        ):
+            continue
+
+        case_config = _config_for(operation_case)
+        if operation_case.requires_bearer_auth and not any(
+            case_config.get(key) for key in TOKEN_RUNTIME_KEYS
+        ):
+            # Secured, but nothing minted a token for it — most often a manifest
+            # entry that omitted authProviderApiId. Record it as a bootstrap
+            # miss so dependents report SKIPPED_NO_TOKEN, rather than letting the
+            # request helper assert its way out of the session fixture and take
+            # every other API in the batch down with it.
+            auth_results.setdefault(
+                auth_key,
+                BootstrapResult(
+                    provider_id=operation_case.auth_provider_api_id or "<none declared>",
+                    credential_alias=operation_case.credential_alias or "",
+                    reason=(
+                        "did not get token: the operation requires a bearer token and "
+                        "no authProviderApiId was declared for it"
+                    ),
+                ),
+            )
+            continue
+
+        try:
+            response, duration_ms = _timed_request(operation_case.api_row, case_config)
+        except Exception as error:
+            # Nothing an individual API does may abort the shared session
+            # fixture; that would turn one API's problem into the whole batch's.
+            print(
+                format_reason(
+                    ResultState.NOT_APPLICABLE,
+                    f"{operation_case.label} bootstrap request raised "
+                    f"{type(error).__name__}; no response sample recorded",
+                )
+            )
+            continue
+
         bootstrap_responses[operation_key] = response
         bootstrap_durations_ms[operation_key] = duration_ms
 
@@ -355,10 +751,25 @@ def global_contract_context() -> GlobalContractContext:
         # DELETE with a real ID that actually deletes something is not. The same
         # rule governs the template's `Error Request Body` rows, which
         # MetadataResolver.error_payload_pairs() pairs with their responses.
-        for api_row in resolver.error_inventory_rows(
-            operation_case.method, operation_case.path
-        ):
-            samples.append(perform_api_request(api_row, runtime_config))
+        if bootstrap_response is not None:
+            case_config = _config_for(operation_case)
+            for api_row in resolver.error_inventory_rows(
+                operation_case.method, operation_case.path
+            ):
+                try:
+                    samples.append(perform_api_request(api_row, case_config))
+                except Exception:
+                    continue
+
+            # An uploaded definition brings its own error triggers, paired
+            # Nth-to-Nth from its `Error Request Body` / `Error Response` rows.
+            definition = resolver.definition(operation_case.method, operation_case.path)
+            if definition is not None and operation_case.api_row is not None:
+                for trigger_row in error_trigger_rows(definition, operation_case.api_row):
+                    try:
+                        samples.append(perform_api_request(trigger_row, case_config))
+                    except Exception:
+                        continue
 
         response_samples[operation_key] = tuple(samples)
 
@@ -368,6 +779,7 @@ def global_contract_context() -> GlobalContractContext:
         bootstrap_responses=bootstrap_responses,
         response_samples=response_samples,
         bootstrap_durations_ms=bootstrap_durations_ms,
+        auth_results=auth_results,
     )
 
 
@@ -377,21 +789,24 @@ def test_status_code_matches_spec(
     operation_case: OperationCase,
     global_contract_context: GlobalContractContext,
 ) -> None:
+    # Checked before the status metadata: an entry that never resolved has no
+    # statuses *because* it never resolved, and "expected status not declared"
+    # would name the symptom instead of the cause.
+    api_row = _require_runnable(operation_case, global_contract_context)
+
     if not operation_case.documented_status_codes:
         # Never default to 200. tests/auto_generated/ hard-codes
         # `status_code == 200` regardless of method, so a DELETE returning 204
         # fails there on a contract nobody wrote. An undeclared status is
         # missing metadata, not a passing or failing assertion.
         _skip_with_state(ResultState.NOT_APPLICABLE, "expected status not declared")
-
-    api_row = _require_api_row(operation_case)
     response = global_contract_context.bootstrap_responses.get(
         (operation_case.method, operation_case.path)
     )
     if response is None:
         response = perform_api_request(
             api_row,
-            global_contract_context.runtime_config,
+            global_contract_context.config_for(operation_case),
         )
 
     assert response.status_code in operation_case.documented_status_codes, (
@@ -569,26 +984,28 @@ def test_response_time_within_sla(
 
 
 @allure.title("Repeated GET requests return a stable result — {param_id}")
-@pytest.mark.parametrize(
-    "operation_case",
-    [
-        pytest.param(case, id=f"{case.method} {case.path}")
-        for case in _build_operation_cases()
-        if case.idempotent is True
-    ],
-)
+@pytest.mark.parametrize("operation_case", build_contract_params())
 def test_idempotent_get_returns_stable_result(
     operation_case: OperationCase,
     global_contract_context: GlobalContractContext,
 ) -> None:
-    api_row = _require_api_row(operation_case)
+    api_row = _require_runnable(operation_case, global_contract_context)
+    # Filtered here rather than in the parametrize expression: a case filtered
+    # out at collection produces no result at all, so the platform sees 11 tests
+    # for one API and 12 for another with nothing explaining the difference.
+    if operation_case.idempotent is not True:
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            f"{operation_case.label} is not declared idempotent, so a repeated "
+            "request is not safe to send",
+        )
     first_response = perform_api_request(
         api_row,
-        global_contract_context.runtime_config,
+        global_contract_context.config_for(operation_case),
     )
     second_response = perform_api_request(
         api_row,
-        global_contract_context.runtime_config,
+        global_contract_context.config_for(operation_case),
     )
 
     assert first_response.status_code == second_response.status_code, (
@@ -661,11 +1078,12 @@ def test_small_burst_does_not_trigger_immediate_blocking(
     operation_case: OperationCase,
     global_contract_context: GlobalContractContext,
 ) -> None:
-    api_row = _require_api_row(operation_case)
+    api_row = _require_runnable(operation_case, global_contract_context)
+    _require_host_representative(operation_case)
     burst_row = api_row
 
     if operation_case.requires_bearer_auth:
-        token = global_contract_context.runtime_config.get("AUTH_TOKEN")
+        token = global_contract_context.config_for(operation_case).get("AUTH_TOKEN")
         if not token:
             _skip_with_state(
                 ResultState.SKIPPED_NO_TOKEN,
@@ -679,7 +1097,7 @@ def test_small_burst_does_not_trigger_immediate_blocking(
     for request_number in range(1, BURST_REQUEST_COUNT + 1):
         response = perform_api_request(
             burst_row,
-            global_contract_context.runtime_config,
+            global_contract_context.config_for(operation_case),
         )
         observed_statuses.append(response.status_code)
         # The known WAF fingerprint: HTTP 403 with a completely empty body.
@@ -701,25 +1119,29 @@ def test_small_burst_does_not_trigger_immediate_blocking(
 
 
 @allure.title("Oversized payload exercises the documented size limit — {param_id}")
-@pytest.mark.parametrize(
-    "operation_case",
-    [
-        pytest.param(case, id=f"{case.method} {case.path}")
-        for case in _build_operation_cases()
-        if case.max_payload_bytes is not None
-        # Routed through the resolver, never a direct dict index. The old
-        # expression subscripted the raw OpenAPI paths/method dicts inside the
-        # parametrize list comprehension, which KeyErrors at *collection* time
-        # for any API absent from the spec — i.e. every uploaded API.
-        and _resolver().has_request_body(case.method, case.path)
-    ],
-)
+@pytest.mark.parametrize("operation_case", build_contract_params())
 def test_request_payload_size_enforcement(
     operation_case: OperationCase,
     global_contract_context: GlobalContractContext,
 ) -> None:
-    assert operation_case.max_payload_bytes is not None
-    api_row = _require_api_row(operation_case)
+    api_row = _require_runnable(operation_case, global_contract_context)
+    _require_host_representative(operation_case)
+
+    if operation_case.max_payload_bytes is None:
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            f"{operation_case.label} has no payload ceiling to exercise",
+        )
+    # Routed through the resolver, never a direct dict index. The old expression
+    # subscripted the raw OpenAPI paths/method dicts inside the parametrize list
+    # comprehension, which KeyErrors at *collection* time for any API absent
+    # from the spec — i.e. every uploaded API.
+    if not _resolver().has_request_body(operation_case.method, operation_case.path):
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            f"{operation_case.label} takes no request body, so there is no "
+            "payload to oversize",
+        )
 
     oversized_body = _oversized_request_body(
         operation_case,
@@ -735,7 +1157,7 @@ def test_request_payload_size_enforcement(
     oversized_row = {**api_row, "Request Body": oversized_body}
     response = perform_api_request(
         oversized_row,
-        global_contract_context.runtime_config,
+        global_contract_context.config_for(operation_case),
     )
     actual_request_bytes = len(response.request.content)
     assert actual_request_bytes > operation_case.max_payload_bytes, (
@@ -800,10 +1222,16 @@ def test_401_without_valid_token(
     authorization: str | None,
     global_contract_context: GlobalContractContext,
 ) -> None:
-    api_row = _require_api_row(operation_case)
+    api_row = _require_runnable(operation_case, global_contract_context)
+    if not operation_case.requires_bearer_auth:
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            f"operation is not secured, so {operation_case.label} has no token "
+            "state to reject",
+        )
     response = perform_api_request(
         _api_row_with_authorization(api_row, authorization),
-        global_contract_context.runtime_config,
+        global_contract_context.config_for(operation_case),
     )
 
     assert response.status_code == 401, (
@@ -1008,14 +1436,14 @@ def test_404_for_unknown_route(
     operation_case: OperationCase,
     global_contract_context: GlobalContractContext,
 ) -> None:
-    api_row = _require_api_row(operation_case)
+    api_row = _require_runnable(operation_case, global_contract_context)
     unknown_route_row = {
         **api_row,
         "Endpoint / Path": f"{operation_case.path.rstrip('/')}/nonexistent-xyz",
     }
     response = perform_api_request(
         unknown_route_row,
-        global_contract_context.runtime_config,
+        global_contract_context.config_for(operation_case),
     )
 
     assert response.status_code == 404, (
@@ -1033,14 +1461,14 @@ def test_content_type_negotiation(
     operation_case: OperationCase,
     global_contract_context: GlobalContractContext,
 ) -> None:
-    api_row = _require_api_row(operation_case)
+    api_row = _require_runnable(operation_case, global_contract_context)
     response = global_contract_context.bootstrap_responses.get(
         (operation_case.method, operation_case.path)
     )
     if response is None:
         response = perform_api_request(
             api_row,
-            global_contract_context.runtime_config,
+            global_contract_context.config_for(operation_case),
         )
 
     xml_response = perform_api_request(
@@ -1048,7 +1476,7 @@ def test_content_type_negotiation(
             api_row,
             {"Accept": "application/xml"},
         ),
-        global_contract_context.runtime_config,
+        global_contract_context.config_for(operation_case),
     )
 
     expected_content_types = operation_case.documented_content_types.get(
@@ -1101,7 +1529,7 @@ def test_cors_preflight(
     operation_case: OperationCase,
     global_contract_context: GlobalContractContext,
 ) -> None:
-    api_row = _require_api_row(operation_case)
+    api_row = _require_runnable(operation_case, global_contract_context)
     preflight_row = {
         **api_row,
         "HTTP Method": "OPTIONS",
@@ -1115,7 +1543,7 @@ def test_cors_preflight(
     }
     response = perform_api_request(
         preflight_row,
-        global_contract_context.runtime_config,
+        global_contract_context.config_for(operation_case),
     )
 
     allow_origin = response.headers.get("access-control-allow-origin")
@@ -1139,7 +1567,7 @@ def test_special_characters_in_input(
     operation_case: OperationCase,
     global_contract_context: GlobalContractContext,
 ) -> None:
-    api_row = _require_api_row(operation_case)
+    api_row = _require_runnable(operation_case, global_contract_context)
     special_body = _special_character_body(operation_case)
     if special_body is None:
         _skip_with_state(
@@ -1150,7 +1578,7 @@ def test_special_characters_in_input(
 
     response = perform_api_request(
         {**api_row, "Request Body": special_body},
-        global_contract_context.runtime_config,
+        global_contract_context.config_for(operation_case),
     )
 
     print(
