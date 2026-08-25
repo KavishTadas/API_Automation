@@ -1,0 +1,293 @@
+# Platform Integration Guide
+
+How the Omfys Java QA Platform drives this test engine and renders what comes
+back. Everything here is reproducible from the four sample artifacts in this
+directory — you do not need repo access to build a renderer.
+
+> **The output schema is work-in-progress by design.** It is expected to change
+> once you start building against it. Say what you need and it will change.
+
+---
+
+## 1. The shape of an integration
+
+```
+                 run manifest (you send)
+platform  ─────────────────────────────────────►  engine
+          ◄─────────────────────────────────────
+                 result document (you render)
+
+          ◄─────────────────────────────────────
+                 catalogue (you fetch, ahead of any run)
+```
+
+Three documents, three jobs:
+
+| Artifact | Direction | Answers |
+|---|---|---|
+| [`sample-catalogue.json`](sample-catalogue.json) | engine → platform | What APIs and test cases exist? What will run for this API? |
+| [`sample-run-manifest.json`](sample-run-manifest.json) | platform → engine | Which APIs should I test, in which environment, with which credentials? |
+| [`sample-result-single-api.json`](sample-result-single-api.json) | engine → platform | What happened for one API? |
+| [`sample-result-batch.json`](sample-result-batch.json) | engine → platform | What happened across the batch? Contains **all seven states**. |
+
+---
+
+## 2. What you send: the run manifest
+
+```json
+{
+  "runId": "run-2026-08-25-001",
+  "environment": "UAT",
+  "requestedTiers": ["global_contract"],
+  "apis": [
+    { "ref": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - ...",
+      "credentialAlias": "leave-svc-uat-01",
+      "authProviderApiId": "post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - ..." },
+
+    { "definition": { "API ID": "API-001", "HTTP Method": "GET", "...": "..." },
+      "credentialAlias": "attendance-svc-uat-01",
+      "authProviderApiId": "post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - ..." }
+  ]
+}
+```
+
+**Each entry carries either `ref` or `definition`, never both.**
+
+- `ref` — an API already in the repo. The value is the catalogue's `apis[].ref`,
+  which is the inventory's `API Identifier`. There is **no fallback matching**:
+  an unrecognised `ref` degrades that one API to `NOT_APPLICABLE` and the rest of
+  the batch runs normally.
+- `definition` — an uploaded API, travelling **by value**. Parse the user's Excel
+  or cURL upload into the 15-column shape and inline it. The engine stores
+  nothing.
+
+**Unknown fields are rejected**, not ignored — a typo'd `authProviderApiID`
+would otherwise produce a run that looks fine and quietly skipped its auth.
+
+### Credentials never travel in a manifest
+
+`credentialAlias` is a **label**. The engine resolves it at run time from
+`CRED_<ALIAS>_EMP_CODE` / `CRED_<ALIAS>_EMP_PASSWORD` in the environment or CI
+secrets, with the alias uppercased and non-alphanumerics collapsed to
+underscores (`attendance-svc-uat-01` → `CRED_ATTENDANCE_SVC_UAT_01_EMP_CODE`).
+
+A manifest is rejected if a control field looks like it carries a secret — a
+credential-shaped key anywhere in the control region, or a `credentialAlias`
+holding a JWT or a `password=…` string. **Rejections name the JSON path and
+never echo the value.** Sample payload *content* is exempt: an auth API's
+`Success Response` legitimately documents a `token` field, and that is a
+description of the API, not a credential for it.
+
+### Environments
+
+Normalised to uppercase with non-alphanumerics collapsed, so `uat`, `UAT` and
+`Uat` are one environment. The **valid set is whatever is registered** — read it
+from the catalogue's `environments`. Naming an unregistered environment fails
+the run and lists what is registered.
+
+### Auth
+
+`authProviderApiId` names an API used as a **token provider, not a test
+subject**. It is called directly and its own collection is never run — otherwise
+a failing auth assertion would surface as a failure of the API the user actually
+selected.
+
+One login per distinct `(authProviderApiId, credentialAlias)` pair per run.
+Eight APIs sharing a pair perform one login between them. An API with no auth
+requirement attempts none.
+
+---
+
+## 3. What you get back: the result document
+
+```json
+{
+  "runId": "run-2026-08-25-001",
+  "status": "COMPLETED_WITH_ERRORS",
+  "statusReason": "auth bootstrap failed for: …",
+  "summary": { "counts": {…}, "passRate": 0.6667, "passRateApplicable": true, "clean": false },
+  "apis": [ { "apiRef": "…", "gatewayClassification": null, "summary": {…}, "results": [ … ] } ]
+}
+```
+
+### Run status is orthogonal to test outcomes
+
+| Status | Meaning |
+|---|---|
+| `COMPLETED` | Every requested tier executed. **Individual tests may have failed.** |
+| `COMPLETED_WITH_ERRORS` | A tier ran only partially — e.g. auth bootstrap failed for some APIs. |
+| `ABORTED` | A tier could not start — manifest invalid, environment unresolvable. |
+
+**A test `FAIL` is not a run failure.** A run in which every single test fails
+still reports `COMPLETED`. Conflating the two makes one failing assertion look
+like an engine outage.
+
+### Per-result fields
+
+| Field | Notes |
+|---|---|
+| `testId` | Joins to the catalogue. See §4. |
+| `apiRef` | The inventory `API Identifier`. |
+| `state` | One of seven. See §5. |
+| `reason` | Human-readable detail. Always present for non-`PASS`. |
+| `missingField` | **Present for `NOT_APPLICABLE`** — names the metadata to declare. |
+| `observed`, `threshold` | **Present for `WARN`** — both, always. |
+| `durationMs` | Wall-clock. |
+| `executed` | Whether the check actually ran. See the `WARN`/`INFORMATIONAL` trap in §5. |
+| `provenance` | `sourceType`, `sourceCollection`, `sourceModule`, `owner`. |
+| `hostLevel`, `host`, `referencesHostResult` | See §6. |
+| `gatewayClassification` | See §7. |
+
+---
+
+## 4. Joining catalogue to results
+
+Do **not** match positionally. The prototype's
+`assertions[index % assertions.length]` mismatches the moment anyone reorders a
+collection.
+
+| Scope | Catalogue id | Result join |
+|---|---|---|
+| Global | `global_contract::test_status_code_matches_spec` | `(testId, apiRef)` — the global set is published **once** and runs once per API |
+| Newman | `newman::{apiRef}::{slug}` | `testId` |
+| Generated | `generated::{apiRef}::status_code` | `testId` |
+
+Global tests appear once in `testCases.global`, not duplicated under all 45
+APIs — render them as a shared section.
+
+### Showing what will run, before a run
+
+`catalogue.applicability[apiRef][testId]` gives `PLANNED` or
+`NOT_APPLICABLE` with a reason, for every API in the catalogue, computed with
+**zero HTTP requests**.
+
+An *uploaded* API is not in the catalogue (see §8). You hold its definition, so
+call the engine's applicability resolver with it.
+
+---
+
+## 5. The seven states, and the pass-rate rule
+
+Read `catalogue.resultStates` — the definitions, the denominator set, and the
+classification rule are all published there. Do not re-derive them.
+
+| State | Meaning | In pass rate? | Executed? |
+|---|---|---|---|
+| `PASS` | Assertion ran and succeeded | ✅ | ✅ |
+| `FAIL` | Assertion ran and failed | ✅ | ✅ |
+| `WARN` | Ran; an advisory threshold was exceeded; run not failed | ❌ | ✅ |
+| `SKIPPED_NO_TOKEN` | Auth bootstrap failed; API never executed | ❌ | ❌ |
+| `NOT_APPLICABLE` | Cannot apply — required metadata absent | ❌ | ❌ |
+| `NOT_ASSERTED` | Request executed, but no assertion exists | ❌ | ❌ |
+| `INFORMATIONAL` | Observes and records; asserts nothing | ❌ | ✅ |
+
+### Pass rate is `PASS / (PASS + FAIL)`. Nothing else.
+
+37 of 43 Newman requests in this repo carry **no assertions at all**. If
+`NOT_ASSERTED` counts as a pass, your headline number is wrong on day one.
+
+- When `PASS + FAIL == 0`, `passRate` is `null` and `passRateApplicable` is
+  `false`. **Render that as "not applicable" — never as 100%.**
+- The other five states stay individually countable in `summary.counts`.
+- `summary.clean` is `false` if anything needs a human: any `FAIL`, any `WARN`,
+  any `SKIPPED_NO_TOKEN`. A batch with one `WARN` is not a clean pass.
+
+### The classification trap
+
+`WARN` and `INFORMATIONAL` are emitted through `pytest.skip`, because that is
+the only built-in non-failing outcome carrying a machine-readable reason.
+**Both mean the check ran.** Classify on the `state` field (or, if you ever read
+raw pytest output, on the reason prefix) — never on a pytest verdict. The
+`executed` boolean on each result is there so you never have to decide.
+
+---
+
+## 6. Host-level results are referenced, not repeated
+
+Two checks — `test_small_burst_does_not_trigger_immediate_blocking` and
+`test_request_payload_size_enforcement` — measure **gateway** behaviour, not
+endpoint behaviour. Running them per API meant a 45-API batch across three hosts
+issued 450 burst requests and ~45 MB of uploads to test three hosts forty-five
+times.
+
+So the probe runs once per host and the other APIs on that host carry a result
+that points at it:
+
+- `hostLevel: true`, `referencesHostResult: false` → this API carried the measurement
+- `hostLevel: true`, `referencesHostResult: true` → this API references it
+
+**Referencing records are excluded from `summary.total` and from all counts**
+(`summary.referencedHostResults` reports how many were excluded). Counting a
+shared host probe 45 times would distort the batch.
+
+---
+
+## 7. Gateway blocks are not application failures
+
+`gatewayClassification` distinguishes three auth-shaped failures:
+
+| Value | Meaning |
+|---|---|
+| `AUTH_FAILURE_401` | The application rejected the token. |
+| `APPLICATION_AUTH_FAILURE_403` | The application refused the request. |
+| `GATEWAY_WAF_EMPTY_BODY_403` | **The request never reached the application.** |
+
+An empty-bodied 403 with `content-length: 0` and a non-JSON content type is a
+WAF/gateway block. The Attendance host currently returns exactly this from the
+CI runner pending an allowlisting request. Rendering it as "your API failed"
+would be wrong for an entire module — say "blocked by gateway" instead.
+
+---
+
+## 8. Known limitations — read these before filing bugs
+
+**Renaming a `pm.test()` string retires one test case and introduces another.**
+Newman IDs are title-derived because a Postman assertion has no id and no stable
+position, and Newman reports results by assertion *name* — the name is the only
+thing that can join. History does not follow a rename. **Reordering assertions
+is safe**, which is the more common edit. Global and generated-tier IDs are
+derived from code identifiers and survive any title change.
+
+**Uploaded APIs never appear in the catalogue.** The engine is stateless: an
+upload travels by value inside the manifest and nothing is persisted. You hold
+the definition; use the applicability resolver to show which tests will run.
+Every run is reproducible from its manifest alone — preserve that.
+
+**`PLANNED` → `NOT_APPLICABLE` is expected; the reverse is not.** A test the
+catalogue predicted would run can still report `NOT_APPLICABLE` at run time —
+`test_content_type_negotiation` does this when an API returns a status nothing
+declared. This is not an inconsistency and the result document says so in
+`applicabilityNote`. A test predicted `NOT_APPLICABLE` will never suddenly run.
+
+**Credential handling after entry is yours.** The engine guarantees redaction of
+its own reports and logs — no credential value, length, or masked form appears
+in any output, verified by scan rather than inspection. Masking, storage, access
+control, and platform-side logging of a raw value the user typed into your UI
+are the platform's responsibility.
+
+**`api-docs/API_File.json` is generated.** Regenerating it reshuffles rows and
+renumbers `Sr. No`. All IDs in the catalogue are derived from content, not
+position, so they survive that — but do not build anything on `Sr. No`.
+
+---
+
+## 9. Reproducing these samples
+
+```bash
+# catalogue — zero HTTP requests
+python -m tests.global_contract.catalogue docs/platform-handoff/sample-catalogue.json
+
+# a run, driven by a manifest
+export GLOBAL_CONTRACT_RUN_MANIFEST=docs/platform-handoff/sample-run-manifest.json
+export CRED_LEAVE_SVC_UAT_01_EMP_CODE=...        # never committed
+export CRED_LEAVE_SVC_UAT_01_EMP_PASSWORD=...
+python -m pytest tests/global_contract -q
+# → reports/platform/global-contract-results.json
+
+# redaction regression
+python scripts/regression/verify-result-emitter-redaction.py
+```
+
+`sample-result-batch.json` is assembled deliberately so that **all seven states**
+appear — a live run only produces the states its APIs happen to reach, and you
+need every render path.

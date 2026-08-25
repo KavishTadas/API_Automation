@@ -1,0 +1,259 @@
+{
+  "runId": "run-2026-08-25-001",
+  "environment": "UAT",
+  "requestedTiers": [
+    "global_contract"
+  ],
+  "catalogueVersion": "1.0",
+  "status": "COMPLETED_WITH_ERRORS",
+  "statusReason": "auth bootstrap failed for: get|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|get all shifts",
+  "applicabilityNote": "A test predicted PLANNED by the catalogue may report NOT_APPLICABLE at run time; the reverse cannot happen. This is not an inconsistency.",
+  "summary": {
+    "total": 8,
+    "referencedHostResults": 1,
+    "counts": {
+      "PASS": 2,
+      "FAIL": 1,
+      "WARN": 1,
+      "SKIPPED_NO_TOKEN": 1,
+      "NOT_APPLICABLE": 1,
+      "NOT_ASSERTED": 1,
+      "INFORMATIONAL": 1
+    },
+    "passRate": 0.6667,
+    "passRateApplicable": true,
+    "passRateBasis": "PASS / (PASS + FAIL)",
+    "clean": false
+  },
+  "apis": [
+    {
+      "apiRef": "get|{{baseurl}}|/api/attendancepolicy|attendance policy master|get all policies",
+      "provenance": {
+        "sourceType": "newman",
+        "sourceCollection": "collections/Attendance_Management_API.json",
+        "sourceModule": "Attendance Policy Master",
+        "owner": null
+      },
+      "gatewayClassification": "GATEWAY_WAF_EMPTY_BODY_403",
+      "summary": {
+        "total": 2,
+        "referencedHostResults": 1,
+        "counts": {
+          "PASS": 0,
+          "FAIL": 1,
+          "WARN": 0,
+          "SKIPPED_NO_TOKEN": 0,
+          "NOT_APPLICABLE": 0,
+          "NOT_ASSERTED": 1,
+          "INFORMATIONAL": 0
+        },
+        "passRate": 0.0,
+        "passRateApplicable": true,
+        "passRateBasis": "PASS / (PASS + FAIL)",
+        "clean": false
+      },
+      "results": [
+        {
+          "testId": "global_contract::test_small_burst_does_not_trigger_immediate_blocking",
+          "apiRef": "get|{{baseurl}}|/api/attendancepolicy|attendance policy master|get all policies",
+          "state": "NOT_APPLICABLE",
+          "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against another API",
+          "durationMs": 0.2,
+          "executed": false,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Attendance_Management_API.json",
+            "sourceModule": "Attendance Policy Master",
+            "owner": null
+          },
+          "missingField": null,
+          "hostLevel": true,
+          "host": "https://uat-mcdp-be.omfysgroup.com",
+          "referencesHostResult": true,
+          "gatewayClassification": "GATEWAY_WAF_EMPTY_BODY_403"
+        },
+        {
+          "testId": "global_contract::test_status_code_matches_spec",
+          "apiRef": "get|{{baseurl}}|/api/attendancepolicy|attendance policy master|get all policies",
+          "state": "FAIL",
+          "reason": "GET /api/attendancepolicy returned 403; documented statuses are [200, 400]",
+          "durationMs": 221.5,
+          "executed": true,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Attendance_Management_API.json",
+            "sourceModule": "Attendance Policy Master",
+            "owner": null
+          },
+          "gatewayClassification": "GATEWAY_WAF_EMPTY_BODY_403"
+        },
+        {
+          "testId": "newman::get|{{baseurl}}|/api/attendancepolicy|attendance policy master|get all policies::<no-assertions>",
+          "apiRef": "get|{{baseurl}}|/api/attendancepolicy|attendance policy master|get all policies",
+          "state": "NOT_ASSERTED",
+          "reason": "request executed; the collection defines no assertions for it",
+          "durationMs": 180.0,
+          "executed": false,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Attendance_Management_API.json",
+            "sourceModule": "Attendance Policy Master",
+            "owner": null
+          },
+          "gatewayClassification": "GATEWAY_WAF_EMPTY_BODY_403"
+        }
+      ]
+    },
+    {
+      "apiRef": "get|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|get all shifts",
+      "provenance": {
+        "sourceType": "newman",
+        "sourceCollection": "collections/Attendance_Management_API.json",
+        "sourceModule": "Attendance Shift Master",
+        "owner": null
+      },
+      "gatewayClassification": null,
+      "summary": {
+        "total": 1,
+        "referencedHostResults": 0,
+        "counts": {
+          "PASS": 0,
+          "FAIL": 0,
+          "WARN": 0,
+          "SKIPPED_NO_TOKEN": 1,
+          "NOT_APPLICABLE": 0,
+          "NOT_ASSERTED": 0,
+          "INFORMATIONAL": 0
+        },
+        "passRate": null,
+        "passRateApplicable": false,
+        "passRateBasis": "PASS / (PASS + FAIL)",
+        "clean": false
+      },
+      "results": [
+        {
+          "testId": "global_contract::test_status_code_matches_spec",
+          "apiRef": "get|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|get all shifts",
+          "state": "SKIPPED_NO_TOKEN",
+          "reason": "(BLOCKED: auth provider failed) — did not get token: credentialAlias 'attendance-svc-uat-01' is not registered",
+          "durationMs": 0.3,
+          "executed": false,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Attendance_Management_API.json",
+            "sourceModule": "Attendance Shift Master",
+            "owner": null
+          }
+        }
+      ]
+    },
+    {
+      "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+      "provenance": {
+        "sourceType": "newman",
+        "sourceCollection": "collections/Leave_API.json",
+        "sourceModule": "Leave API",
+        "owner": null
+      },
+      "gatewayClassification": null,
+      "summary": {
+        "total": 5,
+        "referencedHostResults": 0,
+        "counts": {
+          "PASS": 2,
+          "FAIL": 0,
+          "WARN": 1,
+          "SKIPPED_NO_TOKEN": 0,
+          "NOT_APPLICABLE": 1,
+          "NOT_ASSERTED": 0,
+          "INFORMATIONAL": 1
+        },
+        "passRate": 1.0,
+        "passRateApplicable": true,
+        "passRateBasis": "PASS / (PASS + FAIL)",
+        "clean": false
+      },
+      "results": [
+        {
+          "testId": "global_contract::test_401_without_valid_token",
+          "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+          "state": "NOT_APPLICABLE",
+          "reason": "operation is not secured, so there is no token state to reject",
+          "durationMs": 0.3,
+          "executed": false,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Leave_API.json",
+            "sourceModule": "Leave API",
+            "owner": null
+          },
+          "missingField": "requires_bearer_auth"
+        },
+        {
+          "testId": "global_contract::test_request_payload_size_enforcement",
+          "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+          "state": "INFORMATIONAL",
+          "reason": "oversized payload observed, response not asserted — request_bytes=1048613; status=413",
+          "durationMs": 1204.6,
+          "executed": true,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Leave_API.json",
+            "sourceModule": "Leave API",
+            "owner": null
+          },
+          "hostLevel": true,
+          "host": "https://devmcdphcmplatform.omfysgroup.com",
+          "referencesHostResult": false
+        },
+        {
+          "testId": "global_contract::test_response_time_within_sla",
+          "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+          "state": "WARN",
+          "reason": "response time exceeded its advisory target: observed=812.4ms threshold=700ms",
+          "durationMs": 0.4,
+          "executed": true,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Leave_API.json",
+            "sourceModule": "Leave API",
+            "owner": null
+          },
+          "observed": 812.4,
+          "threshold": 700.0
+        },
+        {
+          "testId": "global_contract::test_small_burst_does_not_trigger_immediate_blocking",
+          "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+          "state": "PASS",
+          "reason": "",
+          "durationMs": 3204.1,
+          "executed": true,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Leave_API.json",
+            "sourceModule": "Leave API",
+            "owner": null
+          },
+          "hostLevel": true,
+          "host": "https://devmcdphcmplatform.omfysgroup.com",
+          "referencesHostResult": false
+        },
+        {
+          "testId": "global_contract::test_status_code_matches_spec",
+          "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+          "state": "PASS",
+          "reason": "",
+          "durationMs": 418.2,
+          "executed": true,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Leave_API.json",
+            "sourceModule": "Leave API",
+            "owner": null
+          }
+        }
+      ]
+    }
+  ]
+}

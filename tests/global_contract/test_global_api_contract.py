@@ -51,6 +51,7 @@ from tests.global_contract.metadata_resolver import (
     get_resolver,
     load_contract_sources,
 )
+from tests.global_contract.result_emitter import classify_gateway_failure
 from tests.global_contract.result_states import ResultState, format_reason
 from tests.global_contract.run_manifest import (
     ManifestValidationError,
@@ -114,6 +115,39 @@ class OperationCase:
     def label(self) -> str:
         return self.entry_id or f"{self.method} {self.path}"
 
+    @property
+    def api_ref(self) -> str:
+        """The key a result joins to the catalogue on.
+
+        The inventory's ``API Identifier`` wherever there is one — that is what
+        the catalogue emits. An uploaded API has no inventory row (DR-2), so it
+        falls back to its manifest identity.
+        """
+        identifier = str((self.api_row or {}).get("API Identifier", "") or "")
+        return identifier or self.label
+
+    @property
+    def provenance(self) -> dict[str, Any]:
+        """Where this API came from. Mirrors the existing report tagging."""
+        row = self.api_row or {}
+        comments = str(row.get("Comments", ""))
+        match = re.search(r"Source:\s*([^;]+)", comments)
+        source = match.group(1).strip() if match else ""
+        if source.startswith("collections/"):
+            source_type = "newman"
+        elif source.startswith("bruno/"):
+            source_type = "bruno"
+        elif source.startswith("uploaded/"):
+            source_type = source.split("/", 1)[1]
+        else:
+            source_type = "unknown"
+        return {
+            "sourceType": source_type,
+            "sourceCollection": source or None,
+            "sourceModule": str(row.get("Module Name", "")) or None,
+            "owner": str(row.get("Owner / Developer", "")) or None,
+        }
+
 
 @dataclass
 class GlobalContractContext:
@@ -174,13 +208,13 @@ def _cors_preflight_enabled() -> bool:
     }
 
 
-def _record_state(state: ResultState, detail: str) -> str:
+def _record_state(state: ResultState, detail: str, field: str = "") -> str:
     """Record a non-PASS/FAIL outcome so downstream tooling can read it back.
 
     Returns the formatted reason so callers can hand it straight to
     ``pytest.skip``.
     """
-    reason = format_reason(state, detail)
+    reason = format_reason(state, detail, field)
     print(reason)
     allure.attach(
         reason,
@@ -190,9 +224,13 @@ def _record_state(state: ResultState, detail: str) -> str:
     return reason
 
 
-def _skip_with_state(state: ResultState, detail: str) -> None:
-    """End the current test in ``state``, carrying a machine-readable reason."""
-    pytest.skip(_record_state(state, detail))
+def _skip_with_state(state: ResultState, detail: str, field: str = "") -> None:
+    """End the current test in ``state``, carrying a machine-readable reason.
+
+    ``field`` names the metadata that was missing, so a consumer can tell the
+    user what to fill in rather than making them read prose and guess.
+    """
+    pytest.skip(_record_state(state, detail, field))
 
 
 def _require_runnable(
@@ -218,6 +256,7 @@ def _require_runnable(
         _skip_with_state(
             ResultState.NOT_APPLICABLE,
             f"no inventory row for {operation_case.method} {operation_case.path}",
+            field="api_row",
         )
 
     if global_contract_context is not None:
@@ -623,7 +662,7 @@ def _timed_request(
 
 
 @pytest.fixture(scope="session")
-def global_contract_context() -> GlobalContractContext:
+def global_contract_context(request: pytest.FixtureRequest) -> GlobalContractContext:
     """Load both contracts and shared runtime credentials for the suite."""
     resolver = _resolver()
     sources = resolver.sources
@@ -776,6 +815,8 @@ def global_contract_context() -> GlobalContractContext:
 
         response_samples[operation_key] = tuple(samples)
 
+    _register_gateway_classifications(request, operation_cases, bootstrap_responses)
+
     return GlobalContractContext(
         sources=sources,
         runtime_config=runtime_config,
@@ -784,6 +825,35 @@ def global_contract_context() -> GlobalContractContext:
         bootstrap_durations_ms=bootstrap_durations_ms,
         auth_results=auth_results,
     )
+
+
+def _register_gateway_classifications(
+    request: pytest.FixtureRequest,
+    operation_cases: tuple[OperationCase, ...],
+    bootstrap_responses: dict[tuple[str, str], httpx.Response],
+) -> None:
+    """Tell the result collector which failures were gateway blocks.
+
+    An empty-bodied 403 means the request never reached the application, so
+    nothing about the application was demonstrated. Without this the platform
+    renders "blocked by the gateway" as "your API failed" — currently for the
+    whole Attendance module.
+    """
+    collector = getattr(request.config, "_global_contract_collector", None)
+    if collector is None:
+        return
+
+    request.config._global_contract_manifest = _load_manifest()
+    for case in operation_cases:
+        response = bootstrap_responses.get((case.method, case.path))
+        if response is None:
+            continue
+        collector.record_gateway(
+            case.api_ref,
+            classify_gateway_failure(
+                response.status_code, dict(response.headers), response.text
+            ),
+        )
 
 
 @allure.title("Response status matches the OpenAPI contract — {param_id}")
@@ -802,7 +872,11 @@ def test_status_code_matches_spec(
         # `status_code == 200` regardless of method, so a DELETE returning 204
         # fails there on a contract nobody wrote. An undeclared status is
         # missing metadata, not a passing or failing assertion.
-        _skip_with_state(ResultState.NOT_APPLICABLE, "expected status not declared")
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            "expected status not declared",
+            field="documented_status_codes",
+        )
     response = global_contract_context.bootstrap_responses.get(
         (operation_case.method, operation_case.path)
     )
@@ -958,7 +1032,9 @@ def test_response_time_within_sla(
     # flag fires at the target itself.
     threshold_ms = operation_case.sla_ms
     if threshold_ms is None:
-        _skip_with_state(ResultState.NOT_APPLICABLE, "no SLA target resolved")
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE, "no SLA target resolved", field="sla_ms"
+        )
 
     operation_key = (operation_case.method, operation_case.path)
     elapsed_ms = global_contract_context.bootstrap_durations_ms.get(operation_key)
@@ -1001,6 +1077,7 @@ def test_idempotent_get_returns_stable_result(
             ResultState.NOT_APPLICABLE,
             f"{operation_case.label} is not declared idempotent, so a repeated "
             "request is not safe to send",
+            field="idempotent",
         )
     first_response = perform_api_request(
         api_row,
@@ -1134,6 +1211,7 @@ def test_request_payload_size_enforcement(
         _skip_with_state(
             ResultState.NOT_APPLICABLE,
             f"{operation_case.label} has no payload ceiling to exercise",
+            field="max_payload_bytes",
         )
     # Routed through the resolver, never a direct dict index. The old expression
     # subscripted the raw OpenAPI paths/method dicts inside the parametrize list
@@ -1144,6 +1222,7 @@ def test_request_payload_size_enforcement(
             ResultState.NOT_APPLICABLE,
             f"{operation_case.label} takes no request body, so there is no "
             "payload to oversize",
+            field="request_body_sample",
         )
 
     oversized_body = _oversized_request_body(
@@ -1231,6 +1310,7 @@ def test_401_without_valid_token(
             ResultState.NOT_APPLICABLE,
             f"operation is not secured, so {operation_case.label} has no token "
             "state to reject",
+            field="requires_bearer_auth",
         )
     response = perform_api_request(
         _api_row_with_authorization(api_row, authorization),
@@ -1495,6 +1575,7 @@ def test_content_type_negotiation(
             ResultState.NOT_APPLICABLE,
             f"no content type declared for {operation_case.method} "
             f"{operation_case.path} HTTP {response.status_code}",
+            field="documented_content_types",
         )
 
     actual_content_type = _response_media_type(response)
@@ -1577,6 +1658,7 @@ def test_special_characters_in_input(
             ResultState.NOT_APPLICABLE,
             f"{operation_case.method} {operation_case.path} has no request body "
             "to substitute Unicode into",
+            field="request_body_sample",
         )
 
     response = perform_api_request(

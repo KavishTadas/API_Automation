@@ -1,0 +1,250 @@
+{
+  "runId": "run-2026-08-25-single",
+  "environment": "UAT",
+  "requestedTiers": [
+    "global_contract"
+  ],
+  "catalogueVersion": "1.0",
+  "status": "COMPLETED_WITH_ERRORS",
+  "statusReason": "auth bootstrap failed for: get|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|get all shifts",
+  "applicabilityNote": "A test predicted PLANNED by the catalogue may report NOT_APPLICABLE at run time; the reverse cannot happen. This is not an inconsistency.",
+  "summary": {
+    "total": 61,
+    "referencedHostResults": 4,
+    "counts": {
+      "PASS": 29,
+      "FAIL": 7,
+      "WARN": 0,
+      "SKIPPED_NO_TOKEN": 9,
+      "NOT_APPLICABLE": 16,
+      "NOT_ASSERTED": 0,
+      "INFORMATIONAL": 0
+    },
+    "passRate": 0.8056,
+    "passRateApplicable": true,
+    "passRateBasis": "PASS / (PASS + FAIL)",
+    "clean": false
+  },
+  "apis": [
+    {
+      "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+      "provenance": {
+        "sourceType": "newman",
+        "sourceCollection": "collections/Leave_API.json",
+        "sourceModule": "Leave API",
+        "owner": null
+      },
+      "gatewayClassification": null,
+      "summary": {
+        "total": 13,
+        "referencedHostResults": 0,
+        "counts": {
+          "PASS": 10,
+          "FAIL": 0,
+          "WARN": 0,
+          "SKIPPED_NO_TOKEN": 0,
+          "NOT_APPLICABLE": 3,
+          "NOT_ASSERTED": 0,
+          "INFORMATIONAL": 0
+        },
+        "passRate": 1.0,
+        "passRateApplicable": true,
+        "passRateBasis": "PASS / (PASS + FAIL)",
+        "clean": true
+      },
+      "results": [
+        {
+          "testId": "global_contract::test_401_without_valid_token",
+          "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+          "state": "PASS",
+          "reason": "",
+          "durationMs": 322.953,
+          "executed": true,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Leave_API.json",
+            "sourceModule": "Leave API",
+            "owner": null
+          }
+        },
+        {
+          "testId": "global_contract::test_401_without_valid_token",
+          "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+          "state": "PASS",
+          "reason": "",
+          "durationMs": 375.779,
+          "executed": true,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Leave_API.json",
+            "sourceModule": "Leave API",
+            "owner": null
+          }
+        },
+        {
+          "testId": "global_contract::test_404_for_unknown_route",
+          "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+          "state": "PASS",
+          "reason": "",
+          "durationMs": 329.236,
+          "executed": true,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Leave_API.json",
+            "sourceModule": "Leave API",
+            "owner": null
+          }
+        },
+        {
+          "testId": "global_contract::test_content_type_negotiation",
+          "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+          "state": "PASS",
+          "reason": "",
+          "durationMs": 470.646,
+          "executed": true,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Leave_API.json",
+            "sourceModule": "Leave API",
+            "owner": null
+          }
+        },
+        {
+          "testId": "global_contract::test_cors_preflight",
+          "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+          "state": "NOT_APPLICABLE",
+          "reason": "CORS preflight is opt-in; set GLOBAL_CONTRACT_ENABLE_CORS_PREFLIGHT=1 to enable it. These are internal server-to-server APIs behind a WAF and are not expected to emit Access-Control-* headers",
+          "durationMs": 0.146,
+          "executed": false,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Leave_API.json",
+            "sourceModule": "Leave API",
+            "owner": null
+          },
+          "missingField": null
+        },
+        {
+          "testId": "global_contract::test_idempotent_get_returns_stable_result",
+          "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+          "state": "PASS",
+          "reason": "",
+          "durationMs": 689.216,
+          "executed": true,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Leave_API.json",
+            "sourceModule": "Leave API",
+            "owner": null
+          }
+        },
+        {
+          "testId": "global_contract::test_no_credential_leakage_in_response",
+          "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+          "state": "PASS",
+          "reason": "",
+          "durationMs": 0.386,
+          "executed": true,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Leave_API.json",
+            "sourceModule": "Leave API",
+            "owner": null
+          }
+        },
+        {
+          "testId": "global_contract::test_request_payload_size_enforcement",
+          "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+          "state": "NOT_APPLICABLE",
+          "reason": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure takes no request body, so there is no payload to oversize",
+          "durationMs": 0.32,
+          "executed": false,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Leave_API.json",
+            "sourceModule": "Leave API",
+            "owner": null
+          },
+          "missingField": "request_body_sample",
+          "hostLevel": true,
+          "host": "https://devmcdphcmplatform.omfysgroup.com",
+          "referencesHostResult": false
+        },
+        {
+          "testId": "global_contract::test_response_matches_full_schema",
+          "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+          "state": "PASS",
+          "reason": "",
+          "durationMs": 1.803,
+          "executed": true,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Leave_API.json",
+            "sourceModule": "Leave API",
+            "owner": null
+          }
+        },
+        {
+          "testId": "global_contract::test_response_time_within_sla",
+          "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+          "state": "PASS",
+          "reason": "",
+          "durationMs": 0.249,
+          "executed": true,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Leave_API.json",
+            "sourceModule": "Leave API",
+            "owner": null
+          }
+        },
+        {
+          "testId": "global_contract::test_small_burst_does_not_trigger_immediate_blocking",
+          "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+          "state": "PASS",
+          "reason": "",
+          "durationMs": 3287.325,
+          "executed": true,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Leave_API.json",
+            "sourceModule": "Leave API",
+            "owner": null
+          },
+          "hostLevel": true,
+          "host": "https://devmcdphcmplatform.omfysgroup.com",
+          "referencesHostResult": false
+        },
+        {
+          "testId": "global_contract::test_special_characters_in_input",
+          "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+          "state": "NOT_APPLICABLE",
+          "reason": "GET /user/leaves/getAllLeaveReports has no request body to substitute Unicode into",
+          "durationMs": 0.397,
+          "executed": false,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Leave_API.json",
+            "sourceModule": "Leave API",
+            "owner": null
+          },
+          "missingField": "request_body_sample"
+        },
+        {
+          "testId": "global_contract::test_status_code_matches_spec",
+          "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+          "state": "PASS",
+          "reason": "",
+          "durationMs": 0.209,
+          "executed": true,
+          "provenance": {
+            "sourceType": "newman",
+            "sourceCollection": "collections/Leave_API.json",
+            "sourceModule": "Leave API",
+            "owner": null
+          }
+        }
+      ]
+    }
+  ]
+}

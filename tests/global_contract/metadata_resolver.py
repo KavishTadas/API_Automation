@@ -258,6 +258,12 @@ class ApiDefinition:
     last_updated: str = ""
     curl: str = ""
     collection_link: str = ""
+    #: Query parameters, kept apart from `path`. The template has no query
+    #: column, so a definition writes them into `Endpoint Path` as
+    #: `/leaves/report?month=4`; they are split off at construction so `path`
+    #: is always a bare path. A path carrying a query string would never match
+    #: an OpenAPI entry and would corrupt any URL built by appending to it.
+    query: dict[str, str] = field(default_factory=dict)
     payloads: tuple[SamplePayload, ...] = ()
     rules: tuple[ApiRule, ...] = ()
     #: No ``Auth Provider API ID`` column exists in the template. The run
@@ -293,7 +299,11 @@ class ApiDefinition:
             "curl": "curl",
             "postman collection link": "collection_link",
         }
-        known = {f for f in cls.__dataclass_fields__ if f not in {"payloads", "rules"}}
+        known = {
+            f
+            for f in cls.__dataclass_fields__
+            if f not in {"payloads", "rules", "query"}
+        }
         values: dict[str, Any] = {}
 
         for raw_key, raw_value in (data or {}).items():
@@ -323,7 +333,9 @@ class ApiDefinition:
             for row in (data.get("rules") or data.get("Rules_Dependencies_EdgeCases") or [])
             if isinstance(row, dict)
         )
-        return cls(**values, payloads=payloads, rules=rules)
+        path, query = _split_query(values.get("path", ""))
+        values["path"] = path
+        return cls(**values, query=query, payloads=payloads, rules=rules)
 
 
 @dataclass(frozen=True)
@@ -1172,6 +1184,40 @@ def get_resolver() -> MetadataResolver:
 # ApiDefinition, so there is exactly one of it rather than one per adapter.
 
 
+#: Methods that carry no request body. For these, a `Request Body` or
+#: `Error Request Body` sample is applied as query-parameter overrides.
+BODYLESS_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
+
+
+def _split_query(path: str) -> tuple[str, dict[str, str]]:
+    """Split `/leaves/report?month=4` into its path and its query parameters."""
+    raw = str(path or "")
+    if "?" not in raw:
+        return raw, {}
+
+    endpoint, _, query_text = raw.partition("?")
+    query: dict[str, str] = {}
+    for pair in query_text.split("&"):
+        if not pair:
+            continue
+        key, _, value = pair.partition("=")
+        if key:
+            query[key] = value
+    return endpoint, query
+
+
+def _flat_query_overrides(sample_text: str) -> dict[str, str]:
+    """Read a flat JSON object as query parameters. Nested values are ignored."""
+    parsed = _parse_json_or_none(sample_text)
+    if not isinstance(parsed, dict):
+        return {}
+    return {
+        str(key): ("" if value is None else str(value))
+        for key, value in parsed.items()
+        if not isinstance(value, (dict, list))
+    }
+
+
 def _payloads_of(definition: ApiDefinition, kind: str) -> tuple[SamplePayload, ...]:
     wanted = PayloadType.normalize(kind)
     return tuple(p for p in definition.payloads if p.kind == wanted)
@@ -1226,8 +1272,22 @@ def definition_to_inventory_row(
     the duration of the run (DR-2).
     """
     headers: dict[str, str] = {}
+    method = str(definition.method or "GET").upper()
+
+    # Query parameters were split off `Endpoint Path` when the definition was
+    # built, so `path` here is always bare.
+    endpoint_path, inline_query = _split_query(definition.path)
+    query = {**dict(definition.query or {}), **inline_query}
+
     request_body = _payloads_of(definition, PayloadType.REQUEST_BODY)
     body_text = _sample_text(request_body[0] if request_body else None)
+
+    if method in BODYLESS_METHODS:
+        # A GET has no body to carry a sample in, so a flat `Request Body`
+        # object is read as query overrides instead. This is what lets a GET API
+        # have a happy path and an error trigger at all — see error_trigger_rows.
+        query.update(_flat_query_overrides(body_text))
+        body_text = ""
 
     if body_text.strip():
         headers["Content-Type"] = DEFAULT_CONTENT_TYPE
@@ -1257,9 +1317,9 @@ def definition_to_inventory_row(
         "Access": "public" if not requires_bearer else "authenticated",
         "Functional Purpose": definition.purpose or "",
         "Base URL": base_url if base_url is not None else (definition.base_url or ""),
-        "Endpoint / Path": definition.path or "",
-        "HTTP Method": str(definition.method or "GET").upper(),
-        "Request Parameters": build_request_parameters(headers=headers),
+        "Endpoint / Path": endpoint_path,
+        "HTTP Method": method,
+        "Request Parameters": build_request_parameters(headers=headers, query=query),
         "Request Body": body_text,
         "Example Request Payload": body_text,
         "Request Body Schema": (
@@ -1304,20 +1364,65 @@ def error_trigger_rows(
     requests = _payloads_of(definition, PayloadType.ERROR_REQUEST_BODY)
     responses = _payloads_of(definition, PayloadType.ERROR_RESPONSE)
 
+    method = str(base_row.get("HTTP Method", "")).upper()
     rows: list[dict[str, Any]] = []
+
     for error_request, error_response in zip(requests, responses):
         status = error_response.response_status
         spec = f"Expected status(es): {status}" if status is not None else ""
         sample = _sample_text(error_response)
         if spec and sample.strip():
             spec = f"{spec}\n{sample}"
-        rows.append(
-            {
-                **base_row,
-                "Request Body": _sample_text(error_request),
-                "Response (example/200)": spec,
-                "Example Response Payload": sample,
-                "Comments": f"{base_row.get('Comments', '')}; error-trigger pair",
-            }
-        )
+
+        trigger_row = {
+            **base_row,
+            "Response (example/200)": spec,
+            "Example Response Payload": sample,
+            "Comments": f"{base_row.get('Comments', '')}; error-trigger pair",
+        }
+
+        request_text = _sample_text(error_request)
+        if method in BODYLESS_METHODS:
+            # A GET's invalid request is an invalid *query*, not an invalid body.
+            # Overriding the happy-path parameters is what makes a validation
+            # trigger expressible for a read-only endpoint — and read-only is the
+            # only kind that can be triggered safely in the first place.
+            trigger_row["Request Parameters"] = _with_query_overrides(
+                str(base_row.get("Request Parameters", "")),
+                _flat_query_overrides(request_text),
+            )
+        else:
+            trigger_row["Request Body"] = request_text
+
+        rows.append(trigger_row)
     return tuple(rows)
+
+
+def _with_query_overrides(
+    request_parameters: str,
+    overrides: dict[str, str],
+) -> str:
+    """Return ``request_parameters`` with its query section overridden."""
+    if not overrides:
+        return request_parameters
+
+    sections: list[str] = []
+    query: dict[str, str] = {}
+    for raw_section in str(request_parameters or "").split("|"):
+        section = raw_section.strip()
+        if not section or ":" not in section:
+            continue
+        label, value = section.split(":", 1)
+        if label.strip().lower() == "query":
+            for pair in value.split(";"):
+                key, _, item = pair.partition("=")
+                if key.strip():
+                    query[key.strip()] = item.strip()
+        else:
+            sections.append(section)
+
+    query.update(overrides)
+    rendered = "; ".join(f"{k}={v}" for k, v in query.items())
+    if rendered:
+        sections.append(f"query: {rendered}")
+    return " | ".join(sections)

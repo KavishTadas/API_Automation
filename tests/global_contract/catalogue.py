@@ -44,6 +44,7 @@ from tests.global_contract.metadata_resolver import (
     MetadataResolver,
     get_resolver,
 )
+from tests.global_contract.result_states import classification_rules
 from tests.global_contract.run_manifest import (
     normalize_environment,
     registered_environments_from,
@@ -60,6 +61,7 @@ __all__ = [
     "global_test_id",
     "global_tests",
     "newman_test_id",
+    "ASSERTION_GAP_ID_TEMPLATE",
     "resolve_applicability",
     "write_catalogue",
 ]
@@ -69,7 +71,15 @@ COLLECTIONS_DIR = ROOT_DIR / "collections"
 GLOBAL_TIER_SOURCE = Path(__file__).with_name("test_global_api_contract.py")
 GENERATED_TESTS_DIR = ROOT_DIR / "tests" / "auto_generated"
 
-CATALOGUE_VERSION = "1.0"
+CATALOGUE_VERSION = "1.1"
+
+#: Test-case id published for a request that runs but asserts nothing.
+#:
+#: A joinable placeholder, so NOT_ASSERTED has somewhere to land. Without it the
+#: 37 unasserted Attendance requests contribute no test cases at all, and a
+#: platform showing "0 tests" for them reads as "not covered yet" rather than
+#: "runs green while checking nothing".
+ASSERTION_GAP_ID_TEMPLATE = "newman::{api_ref}::<no-assertions>"
 
 #: Category per global test. Sprint 4 groups results by this.
 GLOBAL_TEST_CATEGORIES = {
@@ -498,10 +508,38 @@ def _api_entry(
         "owner": str(api_row.get("Owner / Developer", "")) or None,
         "sourceType": source_type,
         "sourceCollection": source or None,
-        "assertionState": (
-            "asserted" if asserted else "not-asserted" if asserted is False else "unknown"
-        ),
+        "assertionState": _assertion_state(api_row, asserted, source),
     }
+
+
+#: What `assertionState` can say about an API.
+#:
+#: `asserted-not-executed` exists because a Bruno flow carries real `test(...)`
+#: blocks that `run-newman.js` never runs. Calling that `asserted` would show
+#: the platform assertions that cannot fire — the same failure as rendering the
+#: 37 unasserted Attendance requests green, just harder to spot. It is a partial
+#: state, not zero coverage: the generated tier still exercises these APIs.
+ASSERTION_STATES = (
+    "asserted",
+    "asserted-not-executed",
+    "not-asserted",
+    "unknown",
+)
+
+
+def _assertion_state(
+    api_row: dict[str, Any],
+    asserted: bool | None,
+    source: str,
+) -> str:
+    if asserted is None:
+        return "unknown"
+    if not asserted:
+        return "not-asserted"
+    if source.startswith("collections/"):
+        return "asserted"
+    # Assertions exist in the source file, but no runner executes them.
+    return "asserted-not-executed"
 
 
 def _api_specific_tests(api_row: dict[str, Any]) -> list[dict[str, Any]]:
@@ -509,13 +547,33 @@ def _api_specific_tests(api_row: dict[str, Any]) -> list[dict[str, Any]]:
     ref = str(api_row.get("API Identifier", ""))
     cases: list[dict[str, Any]] = []
 
+    source = _source_collection(api_row)
+    asserted = _row_has_assertions(api_row)
+
+    if source.startswith("collections/") and asserted is False:
+        # The request runs and asserts nothing. Publishing an explicit entry for
+        # that gap is the whole point of D7: without one, a not-asserted API
+        # contributes zero test cases and the platform has nothing to render the
+        # absence against — so 37 unasserted requests would simply look like
+        # APIs nobody had got to yet, rather than APIs running green on nothing.
+        cases.append(
+            {
+                "id": ASSERTION_GAP_ID_TEMPLATE.format(api_ref=ref),
+                "title": "No assertions defined for this request",
+                "scope": "API_SPECIFIC",
+                "tier": "newman",
+                "category": "coverage-gap",
+                "apiRef": ref,
+                "assertionGap": True,
+                "expectedState": "NOT_ASSERTED",
+            }
+        )
+
     # Newman-tier cases only for requests Newman actually runs. A Bruno flow has
-    # assertions of its own — so it is still `asserted` — but `run-newman.js`
-    # never executes it, and publishing its checks under the newman tier would
-    # promise results no run will produce.
-    if _source_collection(api_row).startswith("collections/") and _row_has_assertions(
-        api_row
-    ):
+    # assertions of its own — so it is `asserted-not-executed` — but
+    # `run-newman.js` never executes it, and publishing its checks under the
+    # newman tier would promise results no run will produce.
+    if source.startswith("collections/") and asserted:
         seen: dict[str, int] = {}
         for title in _assertion_titles(api_row):
             slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-") or "assertion"
@@ -599,6 +657,9 @@ def build_catalogue(
 
     return {
         "catalogueVersion": CATALOGUE_VERSION,
+        # The full result-state contract, published so a consumer never has to
+        # re-derive it. Re-deriving is how NOT_ASSERTED ends up counted as a pass.
+        "resultStates": classification_rules(),
         "apis": sorted(apis, key=lambda entry: entry["ref"]),
         "testCases": {
             "global": [test.as_dict() for test in global_tests()],

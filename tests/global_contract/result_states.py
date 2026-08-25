@@ -27,6 +27,7 @@ excluded from the denominator but stay individually countable — see
 
 from __future__ import annotations
 
+import re
 from enum import Enum
 
 
@@ -37,12 +38,21 @@ __all__ = [
     "REASON_SEPARATOR",
     "classify",
     "counts_toward_pass_rate",
+    "extract_field",
+    "extract_measurement",
     "format_reason",
     "split_reason",
 ]
 
 
 REASON_SEPARATOR = ": "
+
+#: Marks the metadata field a NOT_APPLICABLE result is missing.
+FIELD_MARKER = re.compile(r"\[field=([A-Za-z0-9_.]+)\]")
+
+#: A WARN carries both numbers so the threshold is never implicit.
+MEASUREMENT_OBSERVED = re.compile(r"observed=([0-9]+(?:\.[0-9]+)?)")
+MEASUREMENT_THRESHOLD = re.compile(r"threshold=([0-9]+(?:\.[0-9]+)?)")
 
 
 class ResultState(Enum):
@@ -69,17 +79,62 @@ PASS_RATE_DENOMINATOR_STATES = frozenset({ResultState.PASS, ResultState.FAIL})
 #: Counting NOT_ASSERTED as a pass is the failure mode this guards against.
 PASS_RATE_EXCLUDED_STATES = frozenset(ResultState) - PASS_RATE_DENOMINATOR_STATES
 
+#: States that mean the check actually ran against the API.
+#:
+#: WARN and INFORMATIONAL belong here even though pytest reports them as skips —
+#: they are emitted through ``pytest.skip`` only because that is the one
+#: built-in non-failing outcome carrying a machine-readable reason. Treating
+#: them as "did not execute" understates real coverage.
+EXECUTED_STATES = frozenset(
+    {
+        ResultState.PASS,
+        ResultState.FAIL,
+        ResultState.WARN,
+        ResultState.INFORMATIONAL,
+    }
+)
 
-def format_reason(state: ResultState, detail: str = "") -> str:
+
+def format_reason(state: ResultState, detail: str = "", field: str = "") -> str:
     """Render ``state`` and ``detail`` as a machine-readable reason string.
 
     >>> format_reason(ResultState.NOT_APPLICABLE, "no inventory row")
     'NOT_APPLICABLE: no inventory row'
+    >>> format_reason(ResultState.NOT_APPLICABLE, "not declared", "documented_status_codes")
+    'NOT_APPLICABLE: not declared [field=documented_status_codes]'
+
+    ``field`` names the metadata that was missing. A consumer showing a
+    NOT_APPLICABLE result needs to tell the user *what to fill in*; prose alone
+    makes them guess.
     """
     detail_text = str(detail).strip()
+    field_text = str(field or "").strip()
+    if field_text:
+        detail_text = f"{detail_text} [field={field_text}]".strip()
     if not detail_text:
         return state.name
     return f"{state.name}{REASON_SEPARATOR}{detail_text}"
+
+
+def extract_field(reason: str | None) -> str:
+    """Return the ``[field=...]`` marker from a reason string, or ``""``."""
+    match = FIELD_MARKER.search(str(reason or ""))
+    return match.group(1) if match else ""
+
+
+def extract_measurement(reason: str | None) -> tuple[float | None, float | None]:
+    """Return ``(observed, threshold)`` from a WARN reason, or ``(None, None)``.
+
+    A WARN is only actionable with both numbers, so the tier always writes them
+    as ``observed=<n>ms threshold=<n>ms``.
+    """
+    text = str(reason or "")
+    observed = MEASUREMENT_OBSERVED.search(text)
+    threshold = MEASUREMENT_THRESHOLD.search(text)
+    return (
+        float(observed.group(1)) if observed else None,
+        float(threshold.group(1)) if threshold else None,
+    )
 
 
 def classify(reason: str | None) -> ResultState | None:
@@ -107,9 +162,55 @@ def split_reason(reason: str | None) -> tuple[ResultState | None, str]:
         return None, str(reason or "").strip()
 
     remainder = str(reason).strip()[len(state.name) :]
-    return state, remainder.lstrip(REASON_SEPARATOR.strip()).strip()
+    detail = remainder.lstrip(REASON_SEPARATOR.strip()).strip()
+    return state, FIELD_MARKER.sub("", detail).strip()
 
 
 def counts_toward_pass_rate(state: ResultState) -> bool:
     """Return whether ``state`` belongs in the pass-rate denominator."""
     return state in PASS_RATE_DENOMINATOR_STATES
+
+
+def classification_rules() -> dict[str, object]:
+    """The full classification contract, as publishable data.
+
+    Everything a consumer needs to classify a result correctly without reading
+    any engine source. Published into the catalogue so the platform cannot
+    re-derive it and get it wrong.
+
+    The trap this closes: ``WARN`` and ``INFORMATIONAL`` are emitted through
+    ``pytest.skip`` because that is the only built-in non-failing outcome that
+    carries a machine-readable reason. A consumer that reads the pytest verdict
+    will record both as "did not execute" — but both mean the check *ran*.
+    **Classify on the reason prefix, never on the pytest verdict.**
+    """
+    return {
+        "reasonSeparator": REASON_SEPARATOR,
+        "reasonFormat": "<STATE>: <detail>",
+        "classifyOn": "reasonPrefix",
+        "classifyOnNote": (
+            "Split the reason on the first ':' and match the prefix against "
+            "states[].name. Never infer state from the pytest verdict: WARN and "
+            "INFORMATIONAL are reported as skips but both mean the check ran."
+        ),
+        "states": [
+            {
+                "name": state.name,
+                "definition": state.description,
+                "reasonPrefix": state.name,
+                "countsTowardPassRate": counts_toward_pass_rate(state),
+                "executed": state in EXECUTED_STATES,
+            }
+            for state in ResultState
+        ],
+        "passRateDenominatorStates": sorted(
+            s.name for s in PASS_RATE_DENOMINATOR_STATES
+        ),
+        "passRateExcludedStates": sorted(s.name for s in PASS_RATE_EXCLUDED_STATES),
+        "passRateFormula": "PASS / (PASS + FAIL)",
+        "passRateNote": (
+            "Undefined when PASS + FAIL is zero — report 'not applicable', never "
+            "100%. A batch of entirely NOT_ASSERTED APIs has no pass rate."
+        ),
+        "executedStates": sorted(s.name for s in EXECUTED_STATES),
+    }

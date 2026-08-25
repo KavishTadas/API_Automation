@@ -1,0 +1,4304 @@
+{
+  "catalogueVersion": "1.1",
+  "resultStates": {
+    "reasonSeparator": ": ",
+    "reasonFormat": "<STATE>: <detail>",
+    "classifyOn": "reasonPrefix",
+    "classifyOnNote": "Split the reason on the first ':' and match the prefix against states[].name. Never infer state from the pytest verdict: WARN and INFORMATIONAL are reported as skips but both mean the check ran.",
+    "states": [
+      {
+        "name": "PASS",
+        "definition": "Assertion ran and succeeded",
+        "reasonPrefix": "PASS",
+        "countsTowardPassRate": true,
+        "executed": true
+      },
+      {
+        "name": "FAIL",
+        "definition": "Assertion ran and failed",
+        "reasonPrefix": "FAIL",
+        "countsTowardPassRate": true,
+        "executed": true
+      },
+      {
+        "name": "WARN",
+        "definition": "Ran; an advisory threshold was exceeded; the run is not failed",
+        "reasonPrefix": "WARN",
+        "countsTowardPassRate": false,
+        "executed": true
+      },
+      {
+        "name": "SKIPPED_NO_TOKEN",
+        "definition": "Auth bootstrap failed, so the API was never executed",
+        "reasonPrefix": "SKIPPED_NO_TOKEN",
+        "countsTowardPassRate": false,
+        "executed": false
+      },
+      {
+        "name": "NOT_APPLICABLE",
+        "definition": "The check cannot apply because required metadata is absent",
+        "reasonPrefix": "NOT_APPLICABLE",
+        "countsTowardPassRate": false,
+        "executed": false
+      },
+      {
+        "name": "NOT_ASSERTED",
+        "definition": "The request executed but no assertion exists for it",
+        "reasonPrefix": "NOT_ASSERTED",
+        "countsTowardPassRate": false,
+        "executed": false
+      },
+      {
+        "name": "INFORMATIONAL",
+        "definition": "Observes and records; asserts nothing about the response",
+        "reasonPrefix": "INFORMATIONAL",
+        "countsTowardPassRate": false,
+        "executed": true
+      }
+    ],
+    "passRateDenominatorStates": [
+      "FAIL",
+      "PASS"
+    ],
+    "passRateExcludedStates": [
+      "INFORMATIONAL",
+      "NOT_APPLICABLE",
+      "NOT_ASSERTED",
+      "SKIPPED_NO_TOKEN",
+      "WARN"
+    ],
+    "passRateFormula": "PASS / (PASS + FAIL)",
+    "passRateNote": "Undefined when PASS + FAIL is zero — report 'not applicable', never 100%. A batch of entirely NOT_ASSERTED APIs has no pass rate.",
+    "executedStates": [
+      "FAIL",
+      "INFORMATIONAL",
+      "PASS",
+      "WARN"
+    ]
+  },
+  "apis": [
+    {
+      "ref": "delete|http://localhost:9078|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete",
+      "displayId": null,
+      "name": "Delete",
+      "module": "Holiday Template APIs Copy",
+      "subModule": "Delete",
+      "method": "DELETE",
+      "path": "/api/attendance/holiday-templates/delete/%7BholidayTemplateId%7D",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Holiday_Template_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "delete|{{baseurl}}|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold",
+      "displayId": null,
+      "name": "Delete Threshold",
+      "module": "Attendance Status Threshold API",
+      "subModule": "Delete Threshold",
+      "method": "DELETE",
+      "path": "/api/attendance/status-thresholds/delete/1",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Attendance_Threshold_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "delete|{{baseurl}}|/api/attendancepolicy/2|attendance policy master|delete policy by id",
+      "displayId": null,
+      "name": "Delete Policy By Id",
+      "module": "Attendance Policy Master",
+      "subModule": "Delete Policy By Id",
+      "method": "DELETE",
+      "path": "/api/attendancepolicy/2",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Attendance_Management_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "delete|{{baseurl}}|/api/v1/attendance/shift/master/6|attendance shift master|delete shift",
+      "displayId": null,
+      "name": "Delete Shift",
+      "module": "Attendance Shift Master",
+      "subModule": "Delete Shift",
+      "method": "DELETE",
+      "path": "/api/v1/attendance/shift/master/6",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Attendance_Management_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "get|http://localhost:9078|/api/attendance/holiday-templates/getall|holiday template apis copy|get all",
+      "displayId": null,
+      "name": "Get All",
+      "module": "Holiday Template APIs Copy",
+      "subModule": "Get All",
+      "method": "GET",
+      "path": "/api/attendance/holiday-templates/getAll",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Holiday_Template_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "get|http://localhost:9078|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id",
+      "displayId": null,
+      "name": "Get By Id",
+      "module": "Holiday Template APIs Copy",
+      "subModule": "Get By Id",
+      "method": "GET",
+      "path": "/api/attendance/holiday-templates/getById/19",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Holiday_Template_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "get|http://localhost:9078|/api/attendance/late-early-policies/getall|latearly-policy|getall",
+      "displayId": null,
+      "name": "getAll",
+      "module": "Latearly-Policy",
+      "subModule": "getAll",
+      "method": "GET",
+      "path": "/api/attendance/late-early-policies/getAll",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Late_Early_Policy_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "get|http://localhost:9078|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1",
+      "displayId": null,
+      "name": "getById/1",
+      "module": "Latearly-Policy",
+      "subModule": "getById/1",
+      "method": "GET",
+      "path": "/api/attendance/late-early-policies/getById/5",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Late_Early_Policy_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall",
+      "displayId": null,
+      "name": "WeekOffGetAll",
+      "module": "Attenedance-july2026",
+      "subModule": "WeekOffGetAll",
+      "method": "GET",
+      "path": "/api/attendance/week-offs/getAll",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Weekoff_Policy_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid",
+      "displayId": null,
+      "name": "WeekOffGetById",
+      "module": "Attenedance-july2026",
+      "subModule": "WeekOffGetById",
+      "method": "GET",
+      "path": "/api/attendance/week-offs/getById/1",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Weekoff_Policy_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "get|{{base_url}}|/users/me|users|get profile",
+      "displayId": null,
+      "name": "Get profile",
+      "module": "users",
+      "subModule": "Get profile",
+      "method": "GET",
+      "path": "/users/me",
+      "owner": null,
+      "sourceType": "bruno",
+      "sourceCollection": "bruno/users/get-profile.bru",
+      "assertionState": "asserted-not-executed"
+    },
+    {
+      "ref": "get|{{baseurl}}|/api/attendance/status-threshold/getall|attendance status threshold api|get all",
+      "displayId": null,
+      "name": "Get All",
+      "module": "Attendance Status Threshold API",
+      "subModule": "Get All",
+      "method": "GET",
+      "path": "/api/attendance/status-threshold/getAll",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Attendance_Threshold_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "get|{{baseurl}}|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id",
+      "displayId": null,
+      "name": "Get By Id",
+      "module": "Attendance Status Threshold API",
+      "subModule": "Get By Id",
+      "method": "GET",
+      "path": "/api/attendance/status-threshold/getById/8",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Attendance_Threshold_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "get|{{baseurl}}|/api/attendancepolicy/1|attendance policy master|get policy by id",
+      "displayId": null,
+      "name": "Get Policy By Id",
+      "module": "Attendance Policy Master",
+      "subModule": "Get Policy By Id",
+      "method": "GET",
+      "path": "/api/attendancepolicy/1",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Attendance_Management_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "get|{{baseurl}}|/api/attendancepolicy|attendance policy master|get all policies",
+      "displayId": null,
+      "name": "Get All Policies",
+      "module": "Attendance Policy Master",
+      "subModule": "Get All Policies",
+      "method": "GET",
+      "path": "/api/attendancepolicy",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Attendance_Management_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "get|{{baseurl}}|/api/v1/attendance/shift/master/7|attendance shift master|get by id",
+      "displayId": null,
+      "name": "Get By Id",
+      "module": "Attendance Shift Master",
+      "subModule": "Get By Id",
+      "method": "GET",
+      "path": "/api/v1/attendance/shift/master/7",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Attendance_Management_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "get|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|get all shifts",
+      "displayId": null,
+      "name": "Get All Shifts",
+      "module": "Attendance Shift Master",
+      "subModule": "Get All Shifts",
+      "method": "GET",
+      "path": "/api/v1/attendance/shift/master",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Attendance_Management_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+      "displayId": null,
+      "name": "TC01/TC03 - Get all leave reports and validate structure",
+      "module": "Leave API",
+      "subModule": "TC01/TC03 - Get all leave reports and validate structure",
+      "method": "GET",
+      "path": "/user/leaves/getAllLeaveReports",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Leave_API.json",
+      "assertionState": "asserted"
+    },
+    {
+      "ref": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status",
+      "displayId": null,
+      "name": "TC02 - Invalid token returns observed authorization status",
+      "module": "Leave API",
+      "subModule": "TC02 - Invalid token returns observed authorization status",
+      "method": "GET",
+      "path": "/user/leaves/getAllLeaveReports",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Leave_API.json",
+      "assertionState": "asserted"
+    },
+    {
+      "ref": "patch|http://localhost:9078|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status",
+      "displayId": null,
+      "name": "Change Status",
+      "module": "Holiday Template APIs Copy",
+      "subModule": "Change Status",
+      "method": "PATCH",
+      "path": "/api/attendance/holiday-templates/19/status",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Holiday_Template_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "patch|http://localhost:9078|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus",
+      "displayId": null,
+      "name": "ChangeStatus",
+      "module": "Latearly-Policy",
+      "subModule": "ChangeStatus",
+      "method": "PATCH",
+      "path": "/api/attendance/late-early-policies/5/status",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Late_Early_Policy_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus",
+      "displayId": null,
+      "name": "week-off-assignment/changeStatus",
+      "module": "Attenedance-july2026",
+      "subModule": "week-off-assignment/changeStatus",
+      "method": "PATCH",
+      "path": "/api/attendance/week-off-assignment/changeStatus",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Weekoff_Policy_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact",
+      "displayId": null,
+      "name": "WeekOffActDeact",
+      "module": "Attenedance-july2026",
+      "subModule": "WeekOffActDeact",
+      "method": "PATCH",
+      "path": "/api/attendance/week-offs/actDeact/3/status",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Weekoff_Policy_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "patch|{{baseurl}}|/api/attendance/status-threshold/1/status|attendance status threshold api|change status",
+      "displayId": null,
+      "name": "Change Status",
+      "module": "Attendance Status Threshold API",
+      "subModule": "Change Status",
+      "method": "PATCH",
+      "path": "/api/attendance/status-threshold/1/status",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Attendance_Threshold_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "patch|{{baseurl}}|/api/attendancepolicy/4/status|attendance policy master|activate deactivate",
+      "displayId": null,
+      "name": "Activate Deactivate",
+      "module": "Attendance Policy Master",
+      "subModule": "Activate Deactivate",
+      "method": "PATCH",
+      "path": "/api/attendancepolicy/4/status",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Attendance_Management_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "patch|{{baseurl}}|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete",
+      "displayId": null,
+      "name": "Toggle Delete",
+      "module": "Attendance Shift Master",
+      "subModule": "Toggle Delete",
+      "method": "PATCH",
+      "path": "/api/v1/attendance/shift/master/status/7",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Attendance_Management_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "post|http://localhost:9078|/api/attendance/holiday-templates/create|holiday template apis copy|create",
+      "displayId": null,
+      "name": "Create",
+      "module": "Holiday Template APIs Copy",
+      "subModule": "Create",
+      "method": "POST",
+      "path": "/api/attendance/holiday-templates/create",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Holiday_Template_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "post|http://localhost:9078|/api/attendance/late-early-policies/create|latearly-policy|create",
+      "displayId": null,
+      "name": "create",
+      "module": "Latearly-Policy",
+      "subModule": "create",
+      "method": "POST",
+      "path": "/api/attendance/late-early-policies/create",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Late_Early_Policy_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "post|http://localhost:9078|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate",
+      "displayId": null,
+      "name": "WeekOffMasterCreate",
+      "module": "Attenedance-july2026",
+      "subModule": "WeekOffMasterCreate",
+      "method": "POST",
+      "path": "/api/attendance/week-offs/create",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Weekoff_Policy_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "post|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid",
+      "displayId": null,
+      "name": "week-off-assignment/getByWeekOffId",
+      "module": "Attenedance-july2026",
+      "subModule": "week-off-assignment/getByWeekOffId",
+      "method": "POST",
+      "path": "/api/attendance/week-off-assignment/getByWeekOff",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Weekoff_Policy_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
+      "displayId": null,
+      "name": "TC01 - Valid credentials return JWT token",
+      "module": "Employee Auth API",
+      "subModule": "TC01 - Valid credentials return JWT token",
+      "method": "POST",
+      "path": "/auth/token",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/auth/Employee_Auth_API.json",
+      "assertionState": "asserted"
+    },
+    {
+      "ref": "post|{{authbaseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400",
+      "displayId": null,
+      "name": "TC02 - Invalid empCode returns 400",
+      "module": "Employee Auth API",
+      "subModule": "TC02 - Invalid empCode returns 400",
+      "method": "POST",
+      "path": "/auth/token",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/auth/Employee_Auth_API.json",
+      "assertionState": "asserted"
+    },
+    {
+      "ref": "post|{{authbaseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400",
+      "displayId": null,
+      "name": "TC03 - Missing password returns 400",
+      "module": "Employee Auth API",
+      "subModule": "TC03 - Missing password returns 400",
+      "method": "POST",
+      "path": "/auth/token",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/auth/Employee_Auth_API.json",
+      "assertionState": "asserted"
+    },
+    {
+      "ref": "post|{{baseurl}}|/api/attendance/status-threshold/create|attendance status threshold api|create threshold",
+      "displayId": null,
+      "name": "Create Threshold",
+      "module": "Attendance Status Threshold API",
+      "subModule": "Create Threshold",
+      "method": "POST",
+      "path": "/api/attendance/status-threshold/create",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Attendance_Threshold_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "post|{{baseurl}}|/api/attendancepolicy|attendance policy master|create new policy",
+      "displayId": null,
+      "name": "Create New Policy",
+      "module": "Attendance Policy Master",
+      "subModule": "Create New Policy",
+      "method": "POST",
+      "path": "/api/attendancepolicy",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Attendance_Management_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "post|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)",
+      "displayId": null,
+      "name": "Create CUSTOM Shift (FIXED Type)",
+      "module": "Attendance Shift Master",
+      "subModule": "Create CUSTOM Shift (FIXED Type)",
+      "method": "POST",
+      "path": "/api/v1/attendance/shift/master",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Attendance_Management_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "post|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|create new shift",
+      "displayId": null,
+      "name": "Create New Shift",
+      "module": "Attendance Shift Master",
+      "subModule": "Create New Shift",
+      "method": "POST",
+      "path": "/api/v1/attendance/shift/master",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Attendance_Management_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "post|{{baseurl}}|/auth/token|auth|login",
+      "displayId": null,
+      "name": "Login",
+      "module": "auth",
+      "subModule": "Login",
+      "method": "POST",
+      "path": "/auth/token",
+      "owner": null,
+      "sourceType": "bruno",
+      "sourceCollection": "bruno/auth/login.bru",
+      "assertionState": "asserted-not-executed"
+    },
+    {
+      "ref": "post|{{baseurl}}|/auth/token|login auth uat api|tc01 - valid credentials return token",
+      "displayId": null,
+      "name": "TC01 - Valid credentials return token",
+      "module": "Login Auth UAT API",
+      "subModule": "TC01 - Valid credentials return token",
+      "method": "POST",
+      "path": "/auth/token",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/auth/Login_Auth_UAT_API.json",
+      "assertionState": "asserted"
+    },
+    {
+      "ref": "put|http://localhost:9078|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update",
+      "displayId": null,
+      "name": "Update",
+      "module": "Holiday Template APIs Copy",
+      "subModule": "Update",
+      "method": "PUT",
+      "path": "/api/attendance/holiday-templates/update/%7BholidayTemplateId%7D",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Holiday_Template_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "put|http://localhost:9078|/api/attendance/late-early-policies/update/2|latearly-policy|update",
+      "displayId": null,
+      "name": "update",
+      "module": "Latearly-Policy",
+      "subModule": "update",
+      "method": "PUT",
+      "path": "/api/attendance/late-early-policies/update/2",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Late_Early_Policy_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "put|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate",
+      "displayId": null,
+      "name": "WeekOffUpdate",
+      "module": "Attenedance-july2026",
+      "subModule": "WeekOffUpdate",
+      "method": "PUT",
+      "path": "/api/attendance/week-offs/update/1",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Weekoff_Policy_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "put|{{baseurl}}|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold",
+      "displayId": null,
+      "name": "Update Threshold",
+      "module": "Attendance Status Threshold API",
+      "subModule": "Update Threshold",
+      "method": "PUT",
+      "path": "/api/attendance/status-threshold/update/1",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Attendance_Threshold_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "put|{{baseurl}}|/api/attendancepolicy/2|attendance policy master|update policy by id",
+      "displayId": null,
+      "name": "Update Policy By Id",
+      "module": "Attendance Policy Master",
+      "subModule": "Update Policy By Id",
+      "method": "PUT",
+      "path": "/api/attendancepolicy/2",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Attendance_Management_API.json",
+      "assertionState": "not-asserted"
+    },
+    {
+      "ref": "put|{{baseurl}}|/api/v1/attendance/shift/master/2|attendance shift master|update shift",
+      "displayId": null,
+      "name": "Update Shift",
+      "module": "Attendance Shift Master",
+      "subModule": "Update Shift",
+      "method": "PUT",
+      "path": "/api/v1/attendance/shift/master/2",
+      "owner": null,
+      "sourceType": "newman",
+      "sourceCollection": "collections/Attendance_Management_API.json",
+      "assertionState": "not-asserted"
+    }
+  ],
+  "testCases": {
+    "global": [
+      {
+        "id": "global_contract::test_401_without_valid_token",
+        "title": "Missing or invalid Bearer token returns HTTP 401",
+        "scope": "GLOBAL",
+        "tier": "global_contract",
+        "category": "security",
+        "hostLevel": false
+      },
+      {
+        "id": "global_contract::test_404_for_unknown_route",
+        "title": "Unknown route returns HTTP 404",
+        "scope": "GLOBAL",
+        "tier": "global_contract",
+        "category": "functional",
+        "hostLevel": false
+      },
+      {
+        "id": "global_contract::test_content_type_negotiation",
+        "title": "Response honors documented content negotiation",
+        "scope": "GLOBAL",
+        "tier": "global_contract",
+        "category": "schema",
+        "hostLevel": false
+      },
+      {
+        "id": "global_contract::test_cors_preflight",
+        "title": "CORS preflight permits the documented method",
+        "scope": "GLOBAL",
+        "tier": "global_contract",
+        "category": "security",
+        "hostLevel": false
+      },
+      {
+        "id": "global_contract::test_idempotent_get_returns_stable_result",
+        "title": "Repeated GET requests return a stable result",
+        "scope": "GLOBAL",
+        "tier": "global_contract",
+        "category": "functional",
+        "hostLevel": false
+      },
+      {
+        "id": "global_contract::test_no_credential_leakage_in_response",
+        "title": "Response exposes no credentials or tokens",
+        "scope": "GLOBAL",
+        "tier": "global_contract",
+        "category": "security",
+        "hostLevel": false
+      },
+      {
+        "id": "global_contract::test_request_payload_size_enforcement",
+        "title": "Oversized payload exercises the documented size limit",
+        "scope": "GLOBAL",
+        "tier": "global_contract",
+        "category": "resilience",
+        "hostLevel": true
+      },
+      {
+        "id": "global_contract::test_response_matches_full_schema",
+        "title": "Response body matches the full OpenAPI schema",
+        "scope": "GLOBAL",
+        "tier": "global_contract",
+        "category": "schema",
+        "hostLevel": false
+      },
+      {
+        "id": "global_contract::test_response_time_within_sla",
+        "title": "Response completes within the documented SLA",
+        "scope": "GLOBAL",
+        "tier": "global_contract",
+        "category": "performance",
+        "hostLevel": false
+      },
+      {
+        "id": "global_contract::test_small_burst_does_not_trigger_immediate_blocking",
+        "title": "A small valid request burst is not immediately blocked",
+        "scope": "GLOBAL",
+        "tier": "global_contract",
+        "category": "resilience",
+        "hostLevel": true
+      },
+      {
+        "id": "global_contract::test_special_characters_in_input",
+        "title": "Unicode input is handled without a server error",
+        "scope": "GLOBAL",
+        "tier": "global_contract",
+        "category": "security",
+        "hostLevel": false
+      },
+      {
+        "id": "global_contract::test_status_code_matches_spec",
+        "title": "Response status matches the OpenAPI contract",
+        "scope": "GLOBAL",
+        "tier": "global_contract",
+        "category": "functional",
+        "hostLevel": false
+      }
+    ],
+    "apiSpecific": [
+      {
+        "id": "generated::delete|http://localhost:9078|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete::response_schema",
+        "title": "Delete — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "delete|http://localhost:9078|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete"
+      },
+      {
+        "id": "generated::delete|http://localhost:9078|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete::status_code",
+        "title": "Delete — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "delete|http://localhost:9078|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete"
+      },
+      {
+        "id": "generated::delete|{{baseurl}}|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold::response_schema",
+        "title": "Delete Threshold — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "delete|{{baseurl}}|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold"
+      },
+      {
+        "id": "generated::delete|{{baseurl}}|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold::status_code",
+        "title": "Delete Threshold — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "delete|{{baseurl}}|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold"
+      },
+      {
+        "id": "generated::delete|{{baseurl}}|/api/attendancepolicy/2|attendance policy master|delete policy by id::response_schema",
+        "title": "Delete Policy By Id — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "delete|{{baseurl}}|/api/attendancepolicy/2|attendance policy master|delete policy by id"
+      },
+      {
+        "id": "generated::delete|{{baseurl}}|/api/attendancepolicy/2|attendance policy master|delete policy by id::status_code",
+        "title": "Delete Policy By Id — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "delete|{{baseurl}}|/api/attendancepolicy/2|attendance policy master|delete policy by id"
+      },
+      {
+        "id": "generated::delete|{{baseurl}}|/api/v1/attendance/shift/master/6|attendance shift master|delete shift::response_schema",
+        "title": "Delete Shift — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "delete|{{baseurl}}|/api/v1/attendance/shift/master/6|attendance shift master|delete shift"
+      },
+      {
+        "id": "generated::delete|{{baseurl}}|/api/v1/attendance/shift/master/6|attendance shift master|delete shift::status_code",
+        "title": "Delete Shift — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "delete|{{baseurl}}|/api/v1/attendance/shift/master/6|attendance shift master|delete shift"
+      },
+      {
+        "id": "generated::get|http://localhost:9078|/api/attendance/holiday-templates/getall|holiday template apis copy|get all::response_schema",
+        "title": "Get All — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "get|http://localhost:9078|/api/attendance/holiday-templates/getall|holiday template apis copy|get all"
+      },
+      {
+        "id": "generated::get|http://localhost:9078|/api/attendance/holiday-templates/getall|holiday template apis copy|get all::status_code",
+        "title": "Get All — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "get|http://localhost:9078|/api/attendance/holiday-templates/getall|holiday template apis copy|get all"
+      },
+      {
+        "id": "generated::get|http://localhost:9078|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id::response_schema",
+        "title": "Get By Id — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "get|http://localhost:9078|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id"
+      },
+      {
+        "id": "generated::get|http://localhost:9078|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id::status_code",
+        "title": "Get By Id — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "get|http://localhost:9078|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id"
+      },
+      {
+        "id": "generated::get|http://localhost:9078|/api/attendance/late-early-policies/getall|latearly-policy|getall::response_schema",
+        "title": "getAll — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "get|http://localhost:9078|/api/attendance/late-early-policies/getall|latearly-policy|getall"
+      },
+      {
+        "id": "generated::get|http://localhost:9078|/api/attendance/late-early-policies/getall|latearly-policy|getall::status_code",
+        "title": "getAll — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "get|http://localhost:9078|/api/attendance/late-early-policies/getall|latearly-policy|getall"
+      },
+      {
+        "id": "generated::get|http://localhost:9078|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1::response_schema",
+        "title": "getById/1 — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "get|http://localhost:9078|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1"
+      },
+      {
+        "id": "generated::get|http://localhost:9078|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1::status_code",
+        "title": "getById/1 — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "get|http://localhost:9078|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1"
+      },
+      {
+        "id": "generated::get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall::response_schema",
+        "title": "WeekOffGetAll — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall"
+      },
+      {
+        "id": "generated::get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall::status_code",
+        "title": "WeekOffGetAll — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall"
+      },
+      {
+        "id": "generated::get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid::response_schema",
+        "title": "WeekOffGetById — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid"
+      },
+      {
+        "id": "generated::get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid::status_code",
+        "title": "WeekOffGetById — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid"
+      },
+      {
+        "id": "generated::get|{{base_url}}|/users/me|users|get profile::response_schema",
+        "title": "Get profile — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "get|{{base_url}}|/users/me|users|get profile"
+      },
+      {
+        "id": "generated::get|{{base_url}}|/users/me|users|get profile::status_code",
+        "title": "Get profile — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "get|{{base_url}}|/users/me|users|get profile"
+      },
+      {
+        "id": "generated::get|{{baseurl}}|/api/attendance/status-threshold/getall|attendance status threshold api|get all::response_schema",
+        "title": "Get All — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "get|{{baseurl}}|/api/attendance/status-threshold/getall|attendance status threshold api|get all"
+      },
+      {
+        "id": "generated::get|{{baseurl}}|/api/attendance/status-threshold/getall|attendance status threshold api|get all::status_code",
+        "title": "Get All — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "get|{{baseurl}}|/api/attendance/status-threshold/getall|attendance status threshold api|get all"
+      },
+      {
+        "id": "generated::get|{{baseurl}}|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id::response_schema",
+        "title": "Get By Id — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "get|{{baseurl}}|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id"
+      },
+      {
+        "id": "generated::get|{{baseurl}}|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id::status_code",
+        "title": "Get By Id — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "get|{{baseurl}}|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id"
+      },
+      {
+        "id": "generated::get|{{baseurl}}|/api/attendancepolicy/1|attendance policy master|get policy by id::response_schema",
+        "title": "Get Policy By Id — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "get|{{baseurl}}|/api/attendancepolicy/1|attendance policy master|get policy by id"
+      },
+      {
+        "id": "generated::get|{{baseurl}}|/api/attendancepolicy/1|attendance policy master|get policy by id::status_code",
+        "title": "Get Policy By Id — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "get|{{baseurl}}|/api/attendancepolicy/1|attendance policy master|get policy by id"
+      },
+      {
+        "id": "generated::get|{{baseurl}}|/api/attendancepolicy|attendance policy master|get all policies::response_schema",
+        "title": "Get All Policies — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "get|{{baseurl}}|/api/attendancepolicy|attendance policy master|get all policies"
+      },
+      {
+        "id": "generated::get|{{baseurl}}|/api/attendancepolicy|attendance policy master|get all policies::status_code",
+        "title": "Get All Policies — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "get|{{baseurl}}|/api/attendancepolicy|attendance policy master|get all policies"
+      },
+      {
+        "id": "generated::get|{{baseurl}}|/api/v1/attendance/shift/master/7|attendance shift master|get by id::response_schema",
+        "title": "Get By Id — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "get|{{baseurl}}|/api/v1/attendance/shift/master/7|attendance shift master|get by id"
+      },
+      {
+        "id": "generated::get|{{baseurl}}|/api/v1/attendance/shift/master/7|attendance shift master|get by id::status_code",
+        "title": "Get By Id — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "get|{{baseurl}}|/api/v1/attendance/shift/master/7|attendance shift master|get by id"
+      },
+      {
+        "id": "generated::get|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|get all shifts::response_schema",
+        "title": "Get All Shifts — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "get|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|get all shifts"
+      },
+      {
+        "id": "generated::get|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|get all shifts::status_code",
+        "title": "Get All Shifts — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "get|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|get all shifts"
+      },
+      {
+        "id": "generated::get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::response_schema",
+        "title": "TC01/TC03 - Get all leave reports and validate structure — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+      },
+      {
+        "id": "generated::get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::status_code",
+        "title": "TC01/TC03 - Get all leave reports and validate structure — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+      },
+      {
+        "id": "generated::get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status::response_schema",
+        "title": "TC02 - Invalid token returns observed authorization status — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status"
+      },
+      {
+        "id": "generated::get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status::status_code",
+        "title": "TC02 - Invalid token returns observed authorization status — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status"
+      },
+      {
+        "id": "generated::patch|http://localhost:9078|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status::response_schema",
+        "title": "Change Status — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "patch|http://localhost:9078|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status"
+      },
+      {
+        "id": "generated::patch|http://localhost:9078|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status::status_code",
+        "title": "Change Status — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "patch|http://localhost:9078|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status"
+      },
+      {
+        "id": "generated::patch|http://localhost:9078|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus::response_schema",
+        "title": "ChangeStatus — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "patch|http://localhost:9078|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus"
+      },
+      {
+        "id": "generated::patch|http://localhost:9078|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus::status_code",
+        "title": "ChangeStatus — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "patch|http://localhost:9078|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus"
+      },
+      {
+        "id": "generated::patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus::response_schema",
+        "title": "week-off-assignment/changeStatus — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus"
+      },
+      {
+        "id": "generated::patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus::status_code",
+        "title": "week-off-assignment/changeStatus — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus"
+      },
+      {
+        "id": "generated::patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact::response_schema",
+        "title": "WeekOffActDeact — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact"
+      },
+      {
+        "id": "generated::patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact::status_code",
+        "title": "WeekOffActDeact — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact"
+      },
+      {
+        "id": "generated::patch|{{baseurl}}|/api/attendance/status-threshold/1/status|attendance status threshold api|change status::response_schema",
+        "title": "Change Status — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "patch|{{baseurl}}|/api/attendance/status-threshold/1/status|attendance status threshold api|change status"
+      },
+      {
+        "id": "generated::patch|{{baseurl}}|/api/attendance/status-threshold/1/status|attendance status threshold api|change status::status_code",
+        "title": "Change Status — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "patch|{{baseurl}}|/api/attendance/status-threshold/1/status|attendance status threshold api|change status"
+      },
+      {
+        "id": "generated::patch|{{baseurl}}|/api/attendancepolicy/4/status|attendance policy master|activate deactivate::response_schema",
+        "title": "Activate Deactivate — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "patch|{{baseurl}}|/api/attendancepolicy/4/status|attendance policy master|activate deactivate"
+      },
+      {
+        "id": "generated::patch|{{baseurl}}|/api/attendancepolicy/4/status|attendance policy master|activate deactivate::status_code",
+        "title": "Activate Deactivate — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "patch|{{baseurl}}|/api/attendancepolicy/4/status|attendance policy master|activate deactivate"
+      },
+      {
+        "id": "generated::patch|{{baseurl}}|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete::response_schema",
+        "title": "Toggle Delete — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "patch|{{baseurl}}|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete"
+      },
+      {
+        "id": "generated::patch|{{baseurl}}|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete::status_code",
+        "title": "Toggle Delete — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "patch|{{baseurl}}|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete"
+      },
+      {
+        "id": "generated::post|http://localhost:9078|/api/attendance/holiday-templates/create|holiday template apis copy|create::response_schema",
+        "title": "Create — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "post|http://localhost:9078|/api/attendance/holiday-templates/create|holiday template apis copy|create"
+      },
+      {
+        "id": "generated::post|http://localhost:9078|/api/attendance/holiday-templates/create|holiday template apis copy|create::status_code",
+        "title": "Create — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "post|http://localhost:9078|/api/attendance/holiday-templates/create|holiday template apis copy|create"
+      },
+      {
+        "id": "generated::post|http://localhost:9078|/api/attendance/late-early-policies/create|latearly-policy|create::response_schema",
+        "title": "create — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "post|http://localhost:9078|/api/attendance/late-early-policies/create|latearly-policy|create"
+      },
+      {
+        "id": "generated::post|http://localhost:9078|/api/attendance/late-early-policies/create|latearly-policy|create::status_code",
+        "title": "create — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "post|http://localhost:9078|/api/attendance/late-early-policies/create|latearly-policy|create"
+      },
+      {
+        "id": "generated::post|http://localhost:9078|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate::response_schema",
+        "title": "WeekOffMasterCreate — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "post|http://localhost:9078|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate"
+      },
+      {
+        "id": "generated::post|http://localhost:9078|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate::status_code",
+        "title": "WeekOffMasterCreate — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "post|http://localhost:9078|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate"
+      },
+      {
+        "id": "generated::post|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid::response_schema",
+        "title": "week-off-assignment/getByWeekOffId — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "post|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid"
+      },
+      {
+        "id": "generated::post|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid::status_code",
+        "title": "week-off-assignment/getByWeekOffId — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "post|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid"
+      },
+      {
+        "id": "generated::post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token::response_schema",
+        "title": "TC01 - Valid credentials return JWT token — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+      },
+      {
+        "id": "generated::post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token::status_code",
+        "title": "TC01 - Valid credentials return JWT token — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+      },
+      {
+        "id": "generated::post|{{authbaseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400::response_schema",
+        "title": "TC02 - Invalid empCode returns 400 — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "post|{{authbaseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400"
+      },
+      {
+        "id": "generated::post|{{authbaseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400::status_code",
+        "title": "TC02 - Invalid empCode returns 400 — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "post|{{authbaseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400"
+      },
+      {
+        "id": "generated::post|{{authbaseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400::response_schema",
+        "title": "TC03 - Missing password returns 400 — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "post|{{authbaseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400"
+      },
+      {
+        "id": "generated::post|{{authbaseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400::status_code",
+        "title": "TC03 - Missing password returns 400 — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "post|{{authbaseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400"
+      },
+      {
+        "id": "generated::post|{{baseurl}}|/api/attendance/status-threshold/create|attendance status threshold api|create threshold::response_schema",
+        "title": "Create Threshold — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "post|{{baseurl}}|/api/attendance/status-threshold/create|attendance status threshold api|create threshold"
+      },
+      {
+        "id": "generated::post|{{baseurl}}|/api/attendance/status-threshold/create|attendance status threshold api|create threshold::status_code",
+        "title": "Create Threshold — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "post|{{baseurl}}|/api/attendance/status-threshold/create|attendance status threshold api|create threshold"
+      },
+      {
+        "id": "generated::post|{{baseurl}}|/api/attendancepolicy|attendance policy master|create new policy::response_schema",
+        "title": "Create New Policy — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "post|{{baseurl}}|/api/attendancepolicy|attendance policy master|create new policy"
+      },
+      {
+        "id": "generated::post|{{baseurl}}|/api/attendancepolicy|attendance policy master|create new policy::status_code",
+        "title": "Create New Policy — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "post|{{baseurl}}|/api/attendancepolicy|attendance policy master|create new policy"
+      },
+      {
+        "id": "generated::post|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)::response_schema",
+        "title": "Create CUSTOM Shift (FIXED Type) — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "post|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)"
+      },
+      {
+        "id": "generated::post|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)::status_code",
+        "title": "Create CUSTOM Shift (FIXED Type) — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "post|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)"
+      },
+      {
+        "id": "generated::post|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|create new shift::response_schema",
+        "title": "Create New Shift — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "post|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|create new shift"
+      },
+      {
+        "id": "generated::post|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|create new shift::status_code",
+        "title": "Create New Shift — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "post|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|create new shift"
+      },
+      {
+        "id": "generated::post|{{baseurl}}|/auth/token|auth|login::response_schema",
+        "title": "Login — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "post|{{baseurl}}|/auth/token|auth|login"
+      },
+      {
+        "id": "generated::post|{{baseurl}}|/auth/token|auth|login::status_code",
+        "title": "Login — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "post|{{baseurl}}|/auth/token|auth|login"
+      },
+      {
+        "id": "generated::post|{{baseurl}}|/auth/token|login auth uat api|tc01 - valid credentials return token::response_schema",
+        "title": "TC01 - Valid credentials return token — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "post|{{baseurl}}|/auth/token|login auth uat api|tc01 - valid credentials return token"
+      },
+      {
+        "id": "generated::post|{{baseurl}}|/auth/token|login auth uat api|tc01 - valid credentials return token::status_code",
+        "title": "TC01 - Valid credentials return token — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "post|{{baseurl}}|/auth/token|login auth uat api|tc01 - valid credentials return token"
+      },
+      {
+        "id": "generated::put|http://localhost:9078|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update::response_schema",
+        "title": "Update — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "put|http://localhost:9078|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update"
+      },
+      {
+        "id": "generated::put|http://localhost:9078|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update::status_code",
+        "title": "Update — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "put|http://localhost:9078|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update"
+      },
+      {
+        "id": "generated::put|http://localhost:9078|/api/attendance/late-early-policies/update/2|latearly-policy|update::response_schema",
+        "title": "update — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "put|http://localhost:9078|/api/attendance/late-early-policies/update/2|latearly-policy|update"
+      },
+      {
+        "id": "generated::put|http://localhost:9078|/api/attendance/late-early-policies/update/2|latearly-policy|update::status_code",
+        "title": "update — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "put|http://localhost:9078|/api/attendance/late-early-policies/update/2|latearly-policy|update"
+      },
+      {
+        "id": "generated::put|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate::response_schema",
+        "title": "WeekOffUpdate — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "put|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate"
+      },
+      {
+        "id": "generated::put|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate::status_code",
+        "title": "WeekOffUpdate — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "put|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate"
+      },
+      {
+        "id": "generated::put|{{baseurl}}|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold::response_schema",
+        "title": "Update Threshold — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "put|{{baseurl}}|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold"
+      },
+      {
+        "id": "generated::put|{{baseurl}}|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold::status_code",
+        "title": "Update Threshold — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "put|{{baseurl}}|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold"
+      },
+      {
+        "id": "generated::put|{{baseurl}}|/api/attendancepolicy/2|attendance policy master|update policy by id::response_schema",
+        "title": "Update Policy By Id — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "put|{{baseurl}}|/api/attendancepolicy/2|attendance policy master|update policy by id"
+      },
+      {
+        "id": "generated::put|{{baseurl}}|/api/attendancepolicy/2|attendance policy master|update policy by id::status_code",
+        "title": "Update Policy By Id — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "put|{{baseurl}}|/api/attendancepolicy/2|attendance policy master|update policy by id"
+      },
+      {
+        "id": "generated::put|{{baseurl}}|/api/v1/attendance/shift/master/2|attendance shift master|update shift::response_schema",
+        "title": "Update Shift — response matches the documented schema",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "schema",
+        "apiRef": "put|{{baseurl}}|/api/v1/attendance/shift/master/2|attendance shift master|update shift"
+      },
+      {
+        "id": "generated::put|{{baseurl}}|/api/v1/attendance/shift/master/2|attendance shift master|update shift::status_code",
+        "title": "Update Shift — returns the documented HTTP status",
+        "scope": "API_SPECIFIC",
+        "tier": "generated",
+        "category": "functional",
+        "apiRef": "put|{{baseurl}}|/api/v1/attendance/shift/master/2|attendance shift master|update shift"
+      },
+      {
+        "id": "newman::delete|http://localhost:9078|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "delete|http://localhost:9078|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::delete|{{baseurl}}|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "delete|{{baseurl}}|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::delete|{{baseurl}}|/api/attendancepolicy/2|attendance policy master|delete policy by id::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "delete|{{baseurl}}|/api/attendancepolicy/2|attendance policy master|delete policy by id",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::delete|{{baseurl}}|/api/v1/attendance/shift/master/6|attendance shift master|delete shift::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "delete|{{baseurl}}|/api/v1/attendance/shift/master/6|attendance shift master|delete shift",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::get|http://localhost:9078|/api/attendance/holiday-templates/getall|holiday template apis copy|get all::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "get|http://localhost:9078|/api/attendance/holiday-templates/getall|holiday template apis copy|get all",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::get|http://localhost:9078|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "get|http://localhost:9078|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::get|http://localhost:9078|/api/attendance/late-early-policies/getall|latearly-policy|getall::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "get|http://localhost:9078|/api/attendance/late-early-policies/getall|latearly-policy|getall",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::get|http://localhost:9078|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "get|http://localhost:9078|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::get|{{baseurl}}|/api/attendance/status-threshold/getall|attendance status threshold api|get all::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "get|{{baseurl}}|/api/attendance/status-threshold/getall|attendance status threshold api|get all",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::get|{{baseurl}}|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "get|{{baseurl}}|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::get|{{baseurl}}|/api/attendancepolicy/1|attendance policy master|get policy by id::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "get|{{baseurl}}|/api/attendancepolicy/1|attendance policy master|get policy by id",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::get|{{baseurl}}|/api/attendancepolicy|attendance policy master|get all policies::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "get|{{baseurl}}|/api/attendancepolicy|attendance policy master|get all policies",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::get|{{baseurl}}|/api/v1/attendance/shift/master/7|attendance shift master|get by id::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "get|{{baseurl}}|/api/v1/attendance/shift/master/7|attendance shift master|get by id",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::get|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|get all shifts::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "get|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|get all shifts",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::tc01-count-contains-observed-integer-fields",
+        "title": "TC01 - Count contains observed integer fields -",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+      },
+      {
+        "id": "newman::get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::tc01-full-response-matches-openapi-getallleavereportsresponse",
+        "title": "TC01 - Full response matches OpenAPI GetAllLeaveReportsResponse -",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+      },
+      {
+        "id": "newman::get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::tc01-response-has-status-message-data-count-and-data-leavereport",
+        "title": "TC01 - Response has status, message, data.count and data.leaveReport -",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+      },
+      {
+        "id": "newman::get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::tc01-status-is-200",
+        "title": "TC01 - Status is 200 -",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+      },
+      {
+        "id": "newman::get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::tc03-at-least-two-records-available-for-required-spot-check",
+        "title": "TC03 - At least two records available for required spot-check -",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+      },
+      {
+        "id": "newman::get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::tc03-every-leavereport-item-matches-openapi-getallleavereportsitem",
+        "title": "TC03 - Every leaveReport item matches OpenAPI GetAllLeaveReportsItem -",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+      },
+      {
+        "id": "newman::get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::tc03-every-record-contains-all-13-expected-fields",
+        "title": "TC03 - Every record contains all 13 expected fields -",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+      },
+      {
+        "id": "newman::get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::tc04-full-response-matches-openapi-getallleavereportserrorresponse",
+        "title": "TC04 - Full response matches OpenAPI GetAllLeaveReportsErrorResponse -",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+      },
+      {
+        "id": "newman::get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::tc04-invalid-month-returns-observed-error-structure",
+        "title": "TC04 - Invalid month returns observed error structure -",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+      },
+      {
+        "id": "newman::get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status::tc02-full-response-matches-openapi-getallleavereportserrorresponse",
+        "title": "TC02 - Full response matches OpenAPI GetAllLeaveReportsErrorResponse",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status"
+      },
+      {
+        "id": "newman::get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status::tc02-invalid-token-response-has-observed-error-structure",
+        "title": "TC02 - Invalid token response has observed error structure",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status"
+      },
+      {
+        "id": "newman::get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status::tc02-invalid-token-returns-observed-http-401",
+        "title": "TC02 - Invalid token returns observed HTTP 401",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status"
+      },
+      {
+        "id": "newman::patch|http://localhost:9078|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "patch|http://localhost:9078|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::patch|http://localhost:9078|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "patch|http://localhost:9078|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::patch|{{baseurl}}|/api/attendance/status-threshold/1/status|attendance status threshold api|change status::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "patch|{{baseurl}}|/api/attendance/status-threshold/1/status|attendance status threshold api|change status",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::patch|{{baseurl}}|/api/attendancepolicy/4/status|attendance policy master|activate deactivate::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "patch|{{baseurl}}|/api/attendancepolicy/4/status|attendance policy master|activate deactivate",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::patch|{{baseurl}}|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "patch|{{baseurl}}|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::post|http://localhost:9078|/api/attendance/holiday-templates/create|holiday template apis copy|create::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "post|http://localhost:9078|/api/attendance/holiday-templates/create|holiday template apis copy|create",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::post|http://localhost:9078|/api/attendance/late-early-policies/create|latearly-policy|create::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "post|http://localhost:9078|/api/attendance/late-early-policies/create|latearly-policy|create",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::post|http://localhost:9078|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "post|http://localhost:9078|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::post|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "post|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token::tc01-empcode-and-username-returned",
+        "title": "TC01 - empCode and username returned",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+      },
+      {
+        "id": "newman::post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token::tc01-full-response-matches-openapi-loginresponse",
+        "title": "TC01 - Full response matches OpenAPI LoginResponse",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+      },
+      {
+        "id": "newman::post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token::tc01-roles-is-non-empty-array",
+        "title": "TC01 - roles is non-empty array",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+      },
+      {
+        "id": "newman::post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token::tc01-status-is-200",
+        "title": "TC01 - Status is 200",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+      },
+      {
+        "id": "newman::post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token::tc01-token-is-three-part-jwt",
+        "title": "TC01 - Token is three-part JWT",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+      },
+      {
+        "id": "newman::post|{{authbaseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400::tc02-error-message-returned",
+        "title": "TC02 - Error message returned",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "post|{{authbaseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400"
+      },
+      {
+        "id": "newman::post|{{authbaseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400::tc02-full-response-matches-openapi-errorresponse",
+        "title": "TC02 - Full response matches OpenAPI ErrorResponse",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "post|{{authbaseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400"
+      },
+      {
+        "id": "newman::post|{{authbaseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400::tc02-status-is-400-for-bad-empcode",
+        "title": "TC02 - Status is 400 for bad empCode",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "post|{{authbaseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400"
+      },
+      {
+        "id": "newman::post|{{authbaseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400::tc03-full-response-matches-openapi-errorresponse",
+        "title": "TC03 - Full response matches OpenAPI ErrorResponse",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "post|{{authbaseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400"
+      },
+      {
+        "id": "newman::post|{{authbaseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400::tc03-status-is-400-for-missing-password",
+        "title": "TC03 - Status is 400 for missing password",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "post|{{authbaseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400"
+      },
+      {
+        "id": "newman::post|{{authbaseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400::tc03-validation-message-returned",
+        "title": "TC03 - Validation message returned",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "post|{{authbaseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400"
+      },
+      {
+        "id": "newman::post|{{baseurl}}|/api/attendance/status-threshold/create|attendance status threshold api|create threshold::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "post|{{baseurl}}|/api/attendance/status-threshold/create|attendance status threshold api|create threshold",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::post|{{baseurl}}|/api/attendancepolicy|attendance policy master|create new policy::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "post|{{baseurl}}|/api/attendancepolicy|attendance policy master|create new policy",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::post|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "post|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::post|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|create new shift::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "post|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|create new shift",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::post|{{baseurl}}|/auth/token|login auth uat api|tc01 - valid credentials return token::tc01-valid-credentials-return-token",
+        "title": "TC01 - Valid credentials return token",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "functional",
+        "apiRef": "post|{{baseurl}}|/auth/token|login auth uat api|tc01 - valid credentials return token"
+      },
+      {
+        "id": "newman::put|http://localhost:9078|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "put|http://localhost:9078|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::put|http://localhost:9078|/api/attendance/late-early-policies/update/2|latearly-policy|update::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "put|http://localhost:9078|/api/attendance/late-early-policies/update/2|latearly-policy|update",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::put|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "put|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::put|{{baseurl}}|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "put|{{baseurl}}|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::put|{{baseurl}}|/api/attendancepolicy/2|attendance policy master|update policy by id::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "put|{{baseurl}}|/api/attendancepolicy/2|attendance policy master|update policy by id",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      },
+      {
+        "id": "newman::put|{{baseurl}}|/api/v1/attendance/shift/master/2|attendance shift master|update shift::<no-assertions>",
+        "title": "No assertions defined for this request",
+        "scope": "API_SPECIFIC",
+        "tier": "newman",
+        "category": "coverage-gap",
+        "apiRef": "put|{{baseurl}}|/api/v1/attendance/shift/master/2|attendance shift master|update shift",
+        "assertionGap": true,
+        "expectedState": "NOT_ASSERTED"
+      }
+    ]
+  },
+  "applicability": {
+    "delete|http://localhost:9078|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "delete|{{baseurl}}|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "delete|{{baseurl}}|/api/attendancepolicy/2|attendance policy master|delete policy by id": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "delete|{{baseurl}}|/api/v1/attendance/shift/master/6|attendance shift master|delete shift": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "get|http://localhost:9078|/api/attendance/holiday-templates/getall|holiday template apis copy|get all": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "get|http://localhost:9078|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "get|http://localhost:9078|/api/attendance/late-early-policies/getall|latearly-policy|getall": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "get|http://localhost:9078|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "get|{{base_url}}|/users/me|users|get profile": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "NOT_APPLICABLE",
+        "reason": "operation is not secured, so there is no token state to reject"
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "PLANNED",
+        "reason": ""
+      }
+    },
+    "get|{{baseurl}}|/api/attendance/status-threshold/getall|attendance status threshold api|get all": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "get|{{baseurl}}|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "get|{{baseurl}}|/api/attendancepolicy/1|attendance policy master|get policy by id": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "get|{{baseurl}}|/api/attendancepolicy|attendance policy master|get all policies": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "get|{{baseurl}}|/api/v1/attendance/shift/master/7|attendance shift master|get by id": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "get|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|get all shifts": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "takes no request body to oversize"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "PLANNED",
+        "reason": ""
+      }
+    },
+    "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "PLANNED",
+        "reason": ""
+      }
+    },
+    "patch|http://localhost:9078|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "patch|http://localhost:9078|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "patch|{{baseurl}}|/api/attendance/status-threshold/1/status|attendance status threshold api|change status": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "patch|{{baseurl}}|/api/attendancepolicy/4/status|attendance policy master|activate deactivate": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "patch|{{baseurl}}|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no request body to substitute Unicode into"
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "post|http://localhost:9078|/api/attendance/holiday-templates/create|holiday template apis copy|create": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "post|http://localhost:9078|/api/attendance/late-early-policies/create|latearly-policy|create": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "post|http://localhost:9078|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "post|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "NOT_APPLICABLE",
+        "reason": "operation is not secured, so there is no token state to reject"
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "PLANNED",
+        "reason": ""
+      }
+    },
+    "post|{{authbaseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "NOT_APPLICABLE",
+        "reason": "operation is not secured, so there is no token state to reject"
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://dev_mcdp_be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://dev_mcdp_be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "PLANNED",
+        "reason": ""
+      }
+    },
+    "post|{{authbaseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "NOT_APPLICABLE",
+        "reason": "operation is not secured, so there is no token state to reject"
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://dev_mcdp_be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://dev_mcdp_be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "PLANNED",
+        "reason": ""
+      }
+    },
+    "post|{{baseurl}}|/api/attendance/status-threshold/create|attendance status threshold api|create threshold": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "post|{{baseurl}}|/api/attendancepolicy|attendance policy master|create new policy": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "post|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "post|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|create new shift": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "post|{{baseurl}}|/auth/token|auth|login": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "NOT_APPLICABLE",
+        "reason": "operation is not secured, so there is no token state to reject"
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "PLANNED",
+        "reason": ""
+      }
+    },
+    "post|{{baseurl}}|/auth/token|login auth uat api|tc01 - valid credentials return token": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "NOT_APPLICABLE",
+        "reason": "operation is not secured, so there is no token state to reject"
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "PLANNED",
+        "reason": ""
+      }
+    },
+    "put|http://localhost:9078|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "put|http://localhost:9078|/api/attendance/late-early-policies/update/2|latearly-policy|update": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "put|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "put|{{baseurl}}|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "put|{{baseurl}}|/api/attendancepolicy/2|attendance policy master|update policy by id": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    },
+    "put|{{baseurl}}|/api/v1/attendance/shift/master/2|attendance shift master|update shift": {
+      "global_contract::test_401_without_valid_token": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_404_for_unknown_route": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_content_type_negotiation": {
+        "state": "NOT_APPLICABLE",
+        "reason": "no content type declared"
+      },
+      "global_contract::test_cors_preflight": {
+        "state": "NOT_APPLICABLE",
+        "reason": "CORS preflight is opt-in and currently disabled"
+      },
+      "global_contract::test_idempotent_get_returns_stable_result": {
+        "state": "NOT_APPLICABLE",
+        "reason": "not declared idempotent, so a repeat is not safe to send"
+      },
+      "global_contract::test_no_credential_leakage_in_response": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_request_payload_size_enforcement": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_response_matches_full_schema": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_response_time_within_sla": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
+        "state": "NOT_APPLICABLE",
+        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+      },
+      "global_contract::test_special_characters_in_input": {
+        "state": "PLANNED",
+        "reason": ""
+      },
+      "global_contract::test_status_code_matches_spec": {
+        "state": "NOT_APPLICABLE",
+        "reason": "expected status not declared"
+      }
+    }
+  },
+  "environments": [],
+  "credentialAliases": []
+}

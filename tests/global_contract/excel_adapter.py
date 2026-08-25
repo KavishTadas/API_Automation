@@ -34,6 +34,7 @@ from tests.global_contract.metadata_resolver import (
     SamplePayload,
     _coerce_status,
     _parse_json_or_none,
+    _split_query,
     definition_to_inventory_row,
     error_trigger_rows,
 )
@@ -216,9 +217,13 @@ def parse_workbook(path: str | Path) -> tuple[tuple[ApiDefinition, ...], tuple[s
 
         api_id = values["api_id"]
         payloads = tuple(payloads_by_api.get(api_id, ()))
+        # `Endpoint Path` may carry query parameters — the template has no
+        # column for them — so they are split off here and `path` stays bare.
+        values["path"], query = _split_query(values["path"])
         definitions.append(
             ApiDefinition(
                 **values,
+                query=query,
                 payloads=payloads,
                 rules=tuple(rules_by_api.get(api_id, ())),
             )
