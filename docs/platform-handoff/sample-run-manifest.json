@@ -86,7 +86,7 @@
           }
         ]
       },
-      "credentialAlias": "attendance-svc-uat-01",
+      "credentialAlias": "leave-svc-uat-01",
       "authProviderApiId": "post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
     }
   ]

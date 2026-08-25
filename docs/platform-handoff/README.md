@@ -271,23 +271,66 @@ position, so they survive that — but do not build anything on `Sr. No`.
 
 ---
 
-## 9. Reproducing these samples
+## 9. Running it
+
+### Start here — one working run, from a clean checkout
 
 ```bash
-# catalogue — zero HTTP requests
-python -m tests.global_contract.catalogue docs/platform-handoff/sample-catalogue.json
+# 1. Register the credential alias the sample manifest names.
+#    .env is gitignored; these values are never committed.
+cat >> .env <<'EOF'
+CRED_LEAVE_SVC_UAT_01_EMP_CODE=<your employee code>
+CRED_LEAVE_SVC_UAT_01_EMP_PASSWORD=<your password>
+EOF
 
-# a run, driven by a manifest
-export GLOBAL_CONTRACT_RUN_MANIFEST=docs/platform-handoff/sample-run-manifest.json
-export CRED_LEAVE_SVC_UAT_01_EMP_CODE=...        # never committed
-export CRED_LEAVE_SVC_UAT_01_EMP_PASSWORD=...
-python -m pytest tests/global_contract -q
-# → reports/platform/global-contract-results.json
+# 2. Run the shipped sample.
+python -m tests.global_contract.run docs/platform-handoff/sample-run-manifest.json \
+       --out reports/platform/results.json
+```
+
+Expected on a working setup: `status: COMPLETED`, `passRate: 1.0`, **exit 0**.
+
+If the alias is not registered, the run still completes and every API reports
+`SKIPPED_NO_TOKEN` naming the alias it looked for — a good first look at how the
+engine reports blocked work rather than pretending it passed.
+
+### The CLI is what you should call
+
+```
+python -m tests.global_contract.run <manifest> [--out <path>] [--quiet]
+```
+
+| Exit | Meaning |
+|---|---|
+| `0` | `COMPLETED` or `COMPLETED_WITH_ERRORS` — the run did what it was asked |
+| `2` | `ABORTED` — invalid manifest, unregistered environment, nothing collected |
+| `3` | The runner itself broke |
+
+**A failing test exits 0.** That is the point of the CLI: pytest's own exit code
+is non-zero whenever any assertion fails, which would report an engine outage
+every time an API misbehaved. Read `status` from the result document; use the
+exit code only to tell "the run happened" from "the run could not start".
+
+A result document is written on **every** path, ABORTED included, so you never
+have to special-case an empty response.
+
+`GLOBAL_CONTRACT_RUN_MANIFEST` and a direct `pytest tests/global_contract`
+invocation both still work unchanged — but they expose you to pytest's exit
+code, so prefer the CLI.
+
+### Other commands
+
+```bash
+# catalogue — zero HTTP requests, byte-stable output
+python -m tests.global_contract.catalogue docs/platform-handoff/sample-catalogue.json
 
 # redaction regression
 python scripts/regression/verify-result-emitter-redaction.py
 ```
 
-`sample-result-batch.json` is assembled deliberately so that **all seven states**
-appear — a live run only produces the states its APIs happen to reach, and you
-need every render path.
+### About the samples
+
+`sample-run-manifest.json` runs green as shipped, once the alias above is
+registered. `sample-result-batch.json` is assembled deliberately so that **all
+seven states** appear — a live run only produces the states its APIs happen to
+reach, and you need every render path.
