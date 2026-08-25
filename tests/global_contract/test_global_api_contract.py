@@ -55,6 +55,7 @@ from tests.global_contract.result_states import ResultState, format_reason
 from tests.global_contract.run_manifest import (
     ManifestValidationError,
     load_manifest_from_env,
+    registered_environments_from,
 )
 
 
@@ -254,7 +255,9 @@ def _load_manifest() -> Any:
     no-op.
     """
     try:
-        return load_manifest_from_env()
+        return load_manifest_from_env(
+            registered_environments_from(_runtime_config_snapshot())
+        )
     except ManifestValidationError as error:
         # A malformed manifest is a caller error, not a test failure, and it is
         # worth stopping for — running "some" of a batch the caller did not ask

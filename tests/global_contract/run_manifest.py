@@ -21,10 +21,13 @@ resolved at run time from environment or CI secrets — see
 looks like it carries a secret is rejected outright, and the rejection names the
 JSON path without ever echoing the value.
 
-Because that scan walks *keys*, sample payloads should be supplied the way the
-template writes them — as JSON **strings** in ``Sample JSON`` — which keeps a
-response sample's own field names (``token`` and friends) out of the manifest's
-key space.
+That scan is scoped to the manifest's **control** region — ``runId``,
+``environment``, ``credentialAlias``, ``authProviderApiId``, ``ref``, and a
+definition's metadata columns. Sample-payload content is explicitly excluded,
+because an auth API's ``Success Response`` legitimately documents a ``token``
+field and that is a description of the API, not a credential for it. Control
+*values* are checked too: a ``credentialAlias`` holding a JWT or a
+``password=...`` string is rejected the same way a bad key is.
 """
 
 from __future__ import annotations
@@ -46,6 +49,8 @@ __all__ = [
     "CREDENTIAL_KEY_PATTERN",
     "RUN_MANIFEST_ENV_VAR",
     "load_manifest",
+    "normalize_environment",
+    "registered_environments_from",
     "definition_to_manifest_block",
     "load_manifest_from_env",
     "validate_manifest",
@@ -96,6 +101,57 @@ _MANIFEST_FIELDS = frozenset({"runId", "environment", "requestedTiers", "apis"})
 
 _PAYLOAD_FIELDS = frozenset({"API ID", "Payload Type", "Response status", "Sample JSON"})
 _RULE_FIELDS = frozenset({"API ID", "Category", "Description"})
+
+#: Sample-payload and prose content. Explicitly excluded from the credential
+#: key scan: an auth API's `Success Response` legitimately documents a `token`
+#: field, and a `Rules_Dependencies_EdgeCases` note may legitimately discuss
+#: passwords. Both are data about the API, not credentials for it.
+_PAYLOAD_CONTENT_FIELDS = frozenset({"Sample JSON", "Description", "payloads", "rules"})
+
+#: A JWT-shaped string: the `eyJ` base64url header marker followed by two more
+#: dot-separated segments. Deliberately loose on segment length — a real token is
+#: far longer than this, and an alias that genuinely begins `eyJ` and carries two
+#: dots is not a label anyone meant to write.
+_JWT_SHAPED = re.compile(r"eyJ[A-Za-z0-9_-]{3,}\.[A-Za-z0-9_-]{3,}\.[A-Za-z0-9_-]*")
+
+#: `password=...`, `secret: ...`, `token=...` and friends embedded in a value.
+_SECRET_ASSIGNMENT = re.compile(
+    r"(?:password|passwd|secret|token|api[_-]?key)\s*[:=]\s*\S", re.IGNORECASE
+)
+
+#: What a credentialAlias may look like: a short, boring label.
+_ALIAS_LABEL = re.compile(r"[A-Za-z0-9._-]{1,64}")
+
+#: Control fields whose *values* are checked for credential-shaped content.
+_SCANNED_CONTROL_VALUES = frozenset(
+    {"runId", "environment", "credentialAlias", "authProviderApiId", "ref"}
+)
+
+
+def normalize_environment(environment: Any) -> str:
+    """Normalize an environment name to its canonical form.
+
+    Uppercased, with every non-alphanumeric run collapsed to one underscore, so
+    ``uat``, ``UAT`` and ``Uat`` are the same environment. This lives in the
+    contract rather than in a resolver's private helper: which spellings mean
+    the same environment is a question about the input format, and the platform
+    needs the same answer the engine uses.
+    """
+    return re.sub(r"[^A-Za-z0-9]+", "_", str(environment or "")).strip("_").upper()
+
+
+def registered_environments_from(config: dict[str, str] | None) -> frozenset[str]:
+    """Derive the valid environment set from registered ``<MODULE>_BASE_URL_<ENV>`` keys.
+
+    Never a hardcoded list. Registering ``ATTENDANCE_BASE_URL_QA`` is all it
+    takes to make ``QA`` selectable.
+    """
+    found: set[str] = set()
+    for key in (config or {}):
+        match = re.fullmatch(r"(?P<module>.+)_BASE_URL_(?P<env>[A-Za-z0-9]+)", str(key))
+        if match:
+            found.add(match.group("env").upper())
+    return frozenset(found)
 
 
 class ManifestValidationError(ValueError):
@@ -160,12 +216,18 @@ class RunManifest:
         return self.apis
 
 
-def _scan_for_credential_keys(node: Any, path: str, errors: list[str]) -> None:
-    """Reject any key that looks like it carries a secret.
+def _scan_control_keys(node: Any, path: str, errors: list[str]) -> None:
+    """Reject secret-looking keys, but only within a manifest's *control* region.
 
-    Names the JSON path and **never** echoes the value — that is the whole point
-    of the check, and an error message that quoted the offending value would
-    reintroduce the leak it exists to prevent.
+    Scoped deliberately. Scanning every key in the document rejected a perfectly
+    correct definition whose ``Success Response`` sample contains a ``token``
+    field — that is documentation of the response shape, not a credential. The
+    engine could dodge that by always emitting samples as strings, but the
+    platform's own code has no way to know that constraint, so the rule moves
+    here instead: **payload content is data and is never scanned**.
+
+    Names the JSON path and **never** echoes the value — an error message that
+    quoted the offending value would reintroduce the leak it exists to prevent.
     """
     if isinstance(node, dict):
         for key, child in node.items():
@@ -176,10 +238,38 @@ def _scan_for_credential_keys(node: Any, path: str, errors: list[str]) -> None:
                     "a credentialAlias label instead (value withheld)"
                 )
                 continue
-            _scan_for_credential_keys(child, child_path, errors)
+            if key in _PAYLOAD_CONTENT_FIELDS:
+                continue  # data, not control — see above
+            _scan_control_keys(child, child_path, errors)
     elif isinstance(node, list):
         for index, child in enumerate(node):
-            _scan_for_credential_keys(child, f"{path}[{index}]", errors)
+            _scan_control_keys(child, f"{path}[{index}]", errors)
+
+
+def _scan_control_value(key: str, value: Any, path: str, errors: list[str]) -> None:
+    """Reject a control *value* that carries a credential rather than a label.
+
+    ``credentialAlias`` is the one a caller is most likely to get wrong — pasting
+    the password in where the label belongs is an easy mistake, and it would put
+    a live secret into a manifest that gets stored and replayed.
+    """
+    if not isinstance(value, str) or not value.strip():
+        return
+
+    text = value.strip()
+    if _JWT_SHAPED.search(text) or _SECRET_ASSIGNMENT.search(text):
+        errors.append(
+            f"{path}: {key} must be a label, but its value looks like a raw "
+            "credential (value withheld)"
+        )
+        return
+
+    if key == "credentialAlias" and not _ALIAS_LABEL.fullmatch(text):
+        errors.append(
+            f"{path}: credentialAlias must be a short label matching "
+            "[A-Za-z0-9._-]{1,64}; register the real value as "
+            "CRED_<ALIAS>_EMP_CODE / _EMP_PASSWORD (value withheld)"
+        )
 
 
 def _reject_unknown(
@@ -271,6 +361,10 @@ def _validate_entry(raw: Any, index: int, errors: list[str]) -> ManifestApiEntry
         if value is not None and not isinstance(value, str):
             errors.append(f"{path}.{optional}: must be a string")
 
+    for control in _SCANNED_CONTROL_VALUES:
+        if control in raw:
+            _scan_control_value(control, raw[control], f"{path}.{control}", errors)
+
     return ManifestApiEntry(
         ref=str(raw["ref"]).strip() if has_ref else None,
         definition=definition,
@@ -280,7 +374,10 @@ def _validate_entry(raw: Any, index: int, errors: list[str]) -> ManifestApiEntry
     )
 
 
-def validate_manifest(data: Any) -> RunManifest:
+def validate_manifest(
+    data: Any,
+    registered_environments: frozenset[str] | None = None,
+) -> RunManifest:
     """Validate a manifest document. Raises :class:`ManifestValidationError`.
 
     Every problem found is reported at once rather than one per run, so a
@@ -293,7 +390,10 @@ def validate_manifest(data: Any) -> RunManifest:
 
     # Run this first: a manifest carrying a raw credential is rejected on that
     # ground alone, before any of its structure is reported on.
-    _scan_for_credential_keys(data, "$", errors)
+    _scan_control_keys(data, "$", errors)
+    for control in _SCANNED_CONTROL_VALUES:
+        if control in data:
+            _scan_control_value(control, data[control], f"$.{control}", errors)
     if errors:
         raise ManifestValidationError(errors)
 
@@ -303,9 +403,21 @@ def validate_manifest(data: Any) -> RunManifest:
     if not run_id:
         errors.append("$.runId: required")
 
-    environment = str(data.get("environment", "") or "").strip()
+    environment = normalize_environment(data.get("environment"))
     if not environment:
         errors.append("$.environment: required")
+    elif registered_environments is not None and registered_environments:
+        # The valid set is whatever `<MODULE>_BASE_URL_<ENV>` keys are actually
+        # registered — never a hardcoded list, so registering a new key makes
+        # that environment selectable with no code change. An empty set means no
+        # environment-scoped hosts are configured at all, and the unsuffixed
+        # `<MODULE>_BASE_URL` keys serve every environment; nothing to check.
+        if environment not in registered_environments:
+            errors.append(
+                f"$.environment: {environment!r} is not registered; known "
+                f"environments are {sorted(registered_environments)} "
+                "(derived from the registered <MODULE>_BASE_URL_<ENV> keys)"
+            )
 
     raw_tiers = data.get("requestedTiers")
     tiers: tuple[str, ...] = ()
@@ -399,7 +511,10 @@ def definition_to_manifest_block(definition: ApiDefinition) -> dict[str, Any]:
     }
 
 
-def load_manifest(path: str | Path) -> RunManifest:
+def load_manifest(
+    path: str | Path,
+    registered_environments: frozenset[str] | None = None,
+) -> RunManifest:
     """Read and validate a manifest file."""
     manifest_path = Path(path)
     try:
@@ -414,10 +529,12 @@ def load_manifest(path: str | Path) -> RunManifest:
             [f"$: manifest file is not valid JSON ({error.__class__.__name__})"]
         ) from error
 
-    return validate_manifest(data)
+    return validate_manifest(data, registered_environments)
 
 
-def load_manifest_from_env() -> RunManifest | None:
+def load_manifest_from_env(
+    registered_environments: frozenset[str] | None = None,
+) -> RunManifest | None:
     """Load the manifest named by the environment, or ``None`` if none is set.
 
     ``None`` means the tier enumerates ``openapi.yaml`` exactly as it did before
@@ -426,4 +543,4 @@ def load_manifest_from_env() -> RunManifest | None:
     location = os.environ.get(RUN_MANIFEST_ENV_VAR, "").strip()
     if not location:
         return None
-    return load_manifest(location)
+    return load_manifest(location, registered_environments)

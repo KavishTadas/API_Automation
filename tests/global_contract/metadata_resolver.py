@@ -540,14 +540,19 @@ class MetadataResolver:
     def resolve_ref(self, ref: str) -> dict[str, Any] | None:
         """Resolve a manifest ``ref`` to an inventory row, or ``None``.
 
-        ``api-docs/API_File.json`` carries no ``API ID`` column — it has
-        ``Sr. No`` and a synthesized ``API Identifier`` — so a ref is matched
-        against several spellings, most specific first:
+        A ``ref`` points at exactly one thing: the inventory's
+        ``API Identifier``. There is deliberately **no fallback chain**.
 
-        1. exact ``API Identifier``
-        2. ``Sr. No``, and the ``API-NNN`` form the platform uses for it
-        3. ``METHOD /path``
-        4. ``Module Name / Sub-Module Name``
+        Sprint 2 matched ``Sr. No``, ``METHOD /path`` and
+        ``Module / Sub-Module`` as well, because nothing said what a ref pointed
+        at. Every one of those was a chance to resolve to something the caller
+        did not mean, and a ref is never needed for an uploaded API anyway:
+        under DR-2 an upload always travels by value, so re-running one re-sends
+        its ``definition``.
+
+        The template's ``API-001`` style IDs are **platform display labels**.
+        They are scoped to whoever filled in the sheet, will collide across
+        uploads, and must never be used for resolution.
 
         Returns ``None`` rather than raising: an unresolvable ref must degrade
         that one API to NOT_APPLICABLE, never fail collection for the batch.
@@ -557,44 +562,29 @@ class MetadataResolver:
             return None
         folded = wanted.casefold()
 
-        def _sr_forms(row: dict[str, Any]) -> set[str]:
-            serial = str(row.get("Sr. No", "") or "").strip()
-            if not serial:
-                return set()
-            forms = {serial, f"api-{serial}"}
-            if serial.isdigit():
-                forms.add(f"api-{int(serial):03d}")
-            return {f.casefold() for f in forms}
+        candidates = [
+            row
+            for row in self._sources.api_rows
+            if str(row.get("API Identifier", "")).casefold() == folded
+        ]
+        if not candidates:
+            return None
+        if len(candidates) == 1:
+            return candidates[0]
 
-        for matches in (
-            lambda row: str(row.get("API Identifier", "")).casefold() == folded,
-            lambda row: folded in _sr_forms(row),
-            lambda row: (
-                f"{row.get('HTTP Method', '')} {row.get('Endpoint / Path', '')}"
-            ).strip().casefold()
-            == folded,
-            lambda row: (
-                f"{row.get('Module Name', '')} / {row.get('Sub-Module Name', '')}"
-            ).strip().casefold()
-            == folded,
-        ):
-            candidates = [row for row in self._sources.api_rows if matches(row)]
-            if not candidates:
-                continue
-            if len(candidates) == 1:
-                return candidates[0]
-            # Several rows describe the same operation — typically a Bruno row
-            # and a collections row, and they can point at *different hosts*.
-            # Defer to the same preference select_api_row() uses so a ref and
-            # the tier's own row selection cannot disagree: picking the wrong
-            # one here mints a token against the wrong host, and every request
-            # that uses it comes back 401 for no visible reason.
-            preferred = self.select_api_row(
-                str(candidates[0].get("HTTP Method", "")),
-                str(candidates[0].get("Endpoint / Path", "")),
-            )
-            return preferred if preferred is not None else candidates[0]
-        return None
+        # Several rows share one identifier — typically a Bruno row and a
+        # collections row for the same operation, and they can point at
+        # *different hosts*. This is disambiguation within a single identifier,
+        # not a fallback to a different one, so it stays: deferring to
+        # select_api_row() keeps a ref and the tier's own row selection from
+        # disagreeing. Picking the wrong row here mints a token against the
+        # wrong host, and every request that uses it comes back 401 for no
+        # visible reason.
+        preferred = self.select_api_row(
+            str(candidates[0].get("HTTP Method", "")),
+            str(candidates[0].get("Endpoint / Path", "")),
+        )
+        return preferred if preferred is not None else candidates[0]
 
     def select_api_row(self, method: str, path: str) -> dict[str, Any] | None:
         """Pick the best inventory row for this operation.
