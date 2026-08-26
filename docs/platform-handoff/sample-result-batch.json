@@ -23,7 +23,12 @@
     "passRate": 0.6667,
     "passRateApplicable": true,
     "passRateBasis": "PASS / (PASS + FAIL)",
-    "clean": false
+    "clean": false,
+    "cleanBlockers": [
+      "FAIL",
+      "WARN",
+      "SKIPPED_NO_TOKEN"
+    ]
   },
   "apis": [
     {
@@ -50,7 +55,10 @@
         "passRate": 0.0,
         "passRateApplicable": true,
         "passRateBasis": "PASS / (PASS + FAIL)",
-        "clean": false
+        "clean": false,
+        "cleanBlockers": [
+          "FAIL"
+        ]
       },
       "results": [
         {
@@ -70,6 +78,7 @@
           "hostLevel": true,
           "host": "https://uat-mcdp-be.omfysgroup.com",
           "referencesHostResult": true,
+          "measuredBy": "get|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|get all shifts",
           "gatewayClassification": "GATEWAY_WAF_EMPTY_BODY_403"
         },
         {
@@ -128,7 +137,10 @@
         "passRate": null,
         "passRateApplicable": false,
         "passRateBasis": "PASS / (PASS + FAIL)",
-        "clean": false
+        "clean": false,
+        "cleanBlockers": [
+          "SKIPPED_NO_TOKEN"
+        ]
       },
       "results": [
         {
@@ -136,6 +148,7 @@
           "apiRef": "get|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|get all shifts",
           "state": "SKIPPED_NO_TOKEN",
           "reason": "(BLOCKED: auth provider failed) — did not get token: credentialAlias 'attendance-svc-uat-01' is not registered",
+          "blockedBy": "post|{{baseurl}}|/auth/token|login auth uat api|tc01 - valid credentials return token",
           "durationMs": 0.3,
           "executed": false,
           "provenance": {
@@ -171,7 +184,10 @@
         "passRate": 1.0,
         "passRateApplicable": true,
         "passRateBasis": "PASS / (PASS + FAIL)",
-        "clean": false
+        "clean": false,
+        "cleanBlockers": [
+          "WARN"
+        ]
       },
       "results": [
         {
@@ -204,7 +220,8 @@
           },
           "hostLevel": true,
           "host": "https://devmcdphcmplatform.omfysgroup.com",
-          "referencesHostResult": false
+          "referencesHostResult": false,
+          "measuredBy": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
         },
         {
           "testId": "global_contract::test_response_time_within_sla",
@@ -237,7 +254,8 @@
           },
           "hostLevel": true,
           "host": "https://devmcdphcmplatform.omfysgroup.com",
-          "referencesHostResult": false
+          "referencesHostResult": false,
+          "measuredBy": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
         },
         {
           "testId": "global_contract::test_status_code_matches_spec",

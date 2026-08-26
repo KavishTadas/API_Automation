@@ -23,7 +23,11 @@
     "passRate": 0.8056,
     "passRateApplicable": true,
     "passRateBasis": "PASS / (PASS + FAIL)",
-    "clean": false
+    "clean": false,
+    "cleanBlockers": [
+      "FAIL",
+      "SKIPPED_NO_TOKEN"
+    ]
   },
   "apis": [
     {
@@ -50,7 +54,8 @@
         "passRate": 1.0,
         "passRateApplicable": true,
         "passRateBasis": "PASS / (PASS + FAIL)",
-        "clean": true
+        "clean": true,
+        "cleanBlockers": []
       },
       "results": [
         {
@@ -168,7 +173,8 @@
           "missingField": "request_body_sample",
           "hostLevel": true,
           "host": "https://devmcdphcmplatform.omfysgroup.com",
-          "referencesHostResult": false
+          "referencesHostResult": false,
+          "measuredBy": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
         },
         {
           "testId": "global_contract::test_response_matches_full_schema",
@@ -213,7 +219,8 @@
           },
           "hostLevel": true,
           "host": "https://devmcdphcmplatform.omfysgroup.com",
-          "referencesHostResult": false
+          "referencesHostResult": false,
+          "measuredBy": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
         },
         {
           "testId": "global_contract::test_special_characters_in_input",

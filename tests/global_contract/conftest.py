@@ -69,6 +69,27 @@ def pytest_configure(config: pytest.Config) -> None:
 def _collector(config: pytest.Config) -> ResultCollector | None:
     return getattr(config, "_global_contract_collector", None)
 
+def _measured_by(item: pytest.Item, host: str) -> str:
+    """The apiRef carrying ``host``'s measurement, or ``""`` if unresolvable.
+
+    Read off the test module rather than recomputed here, so there is exactly
+    one definition of which case represents a host.
+
+    Resolved through ``item.module`` — the module object pytest already holds
+    for this test — rather than by looking a name up in ``sys.modules``. There
+    is no ``__init__.py`` under ``tests/global_contract``, so pytest's default
+    prepend import mode registers this module as ``test_global_api_contract``,
+    not by its dotted path; a name-based lookup silently missed and every
+    ``measuredBy`` came out null. Asking the item removes the guess.
+    """
+    if not host:
+        return ""
+    resolver = getattr(getattr(item, "module", None), "host_measured_by", None)
+    if resolver is None:
+        return ""
+    return resolver().get(host, "")
+
+
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo) -> Any:
     outcome = yield
@@ -114,6 +135,7 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo) -> Any:
 
     host_level = function_name in HOST_LEVEL_TESTS
     references_host = host_level and "is reported against" in str(reason or "")
+    measured_by = _measured_by(item, operation_case.host) if host_level else ""
 
     collector.record_api(api_ref, operation_case.provenance)
     collector.add(
@@ -128,6 +150,7 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo) -> Any:
             host_level=host_level,
             host=operation_case.host,
             references_host_result=references_host,
+            measured_by=measured_by,
             provenance=operation_case.provenance,
         )
     )

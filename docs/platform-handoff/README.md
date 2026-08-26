@@ -127,7 +127,8 @@ they issue tokens that different platforms accept.
   "runId": "run-2026-08-25-001",
   "status": "COMPLETED_WITH_ERRORS",
   "statusReason": "auth bootstrap failed for: …",
-  "summary": { "counts": {…}, "passRate": 0.6667, "passRateApplicable": true, "clean": false },
+  "summary": { "counts": {…}, "passRate": 0.6667, "passRateApplicable": true,
+                "clean": false, "cleanBlockers": ["FAIL", "WARN"] },
   "apis": [ { "apiRef": "…", "gatewayClassification": null, "summary": {…}, "results": [ … ] } ]
 }
 ```
@@ -157,7 +158,9 @@ like an engine outage.
 | `durationMs` | Wall-clock. |
 | `executed` | Whether the check actually ran. See the `WARN`/`INFORMATIONAL` trap in §5. |
 | `provenance` | `sourceType`, `sourceCollection`, `sourceModule`, `owner`. |
+| `blockedBy` | **Present for `SKIPPED_NO_TOKEN`** — the `authProviderApiId` whose bootstrap failed. `null` when the block had no named provider. |
 | `hostLevel`, `host`, `referencesHostResult` | See §6. |
+| `measuredBy` | **Present for every `hostLevel: true` result** — the `apiRef` that carried the measurement. See §6. |
 | `gatewayClassification` | See §7. |
 
 ---
@@ -213,6 +216,14 @@ classification rule are all published there. Do not re-derive them.
 - The other five states stay individually countable in `summary.counts`.
 - `summary.clean` is `false` if anything needs a human: any `FAIL`, any `WARN`,
   any `SKIPPED_NO_TOKEN`. A batch with one `WARN` is not a clean pass.
+- `summary.cleanBlockers` names which of those are actually present, worst
+  first — e.g. `["WARN"]`. **Render it whenever you render `clean: false`.**
+  `passRate: 1.0` beside `clean: false` reads as an engine bug otherwise; it
+  is not one, and this field is the sentence that says so. There is no separate
+  warnings count — `summary.counts` already carries the per-state numbers.
+- `cleanBlockers` is a list of *states*, so it is empty in exactly one
+  non-clean case: nothing landed in `PASS + FAIL` at all, which
+  `passRateApplicable: false` already tells you.
 
 ### The classification trap
 
@@ -233,14 +244,32 @@ issued 450 burst requests and ~45 MB of uploads to test three hosts forty-five
 times.
 
 So the probe runs once per host and the other APIs on that host carry a result
-that points at it:
+that points at it. **`measuredBy` names which `apiRef` did the measuring**, and
+it is present on every `hostLevel: true` result — including the one that did the
+measuring, where it equals the result's own `apiRef`:
 
-- `hostLevel: true`, `referencesHostResult: false` → this API carried the measurement
-- `hostLevel: true`, `referencesHostResult: true` → this API references it
+```json
+"hostLevel": true,
+"host": "https://devmcdphcmplatform.omfysgroup.com",
+"referencesHostResult": true,
+"measuredBy": "get|{{baseurl}}|/api/v1/attendance/shift/master|…"
+```
+
+Render "measured by X" straight from that one field. It is populated even when
+it points at the row itself, so there is no self-case to special-case, and no
+reason string to parse.
 
 **Referencing records are excluded from `summary.total` and from all counts**
 (`summary.referencedHostResults` reports how many were excluded). Counting a
 shared host probe 45 times would distort the batch.
+
+`referencesHostResult` answers a narrower question than `measuredBy != apiRef`:
+it means *this row was dropped from the tally*. The two agree except for a
+host-level row whose API was blocked by auth before the deduplication check ran
+— that row is a genuine `SKIPPED_NO_TOKEN` and stays counted, while `measuredBy`
+still correctly names the API that carries the host's measurement. **Use
+`referencesHostResult` to decide what to count, `measuredBy` to decide what to
+display.**
 
 ---
 

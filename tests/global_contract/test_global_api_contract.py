@@ -208,13 +208,15 @@ def _cors_preflight_enabled() -> bool:
     }
 
 
-def _record_state(state: ResultState, detail: str, field: str = "") -> str:
+def _record_state(
+    state: ResultState, detail: str, field: str = "", provider: str = ""
+) -> str:
     """Record a non-PASS/FAIL outcome so downstream tooling can read it back.
 
     Returns the formatted reason so callers can hand it straight to
     ``pytest.skip``.
     """
-    reason = format_reason(state, detail, field)
+    reason = format_reason(state, detail, field, provider)
     print(reason)
     allure.attach(
         reason,
@@ -224,13 +226,19 @@ def _record_state(state: ResultState, detail: str, field: str = "") -> str:
     return reason
 
 
-def _skip_with_state(state: ResultState, detail: str, field: str = "") -> None:
+def _skip_with_state(
+    state: ResultState, detail: str, field: str = "", provider: str = ""
+) -> None:
     """End the current test in ``state``, carrying a machine-readable reason.
 
     ``field`` names the metadata that was missing, so a consumer can tell the
     user what to fill in rather than making them read prose and guess.
+
+    ``provider`` names the auth provider whose bootstrap blocked the API, which
+    the emitter surfaces as ``blockedBy``. Same motivation: a blocked row is
+    only actionable once the consumer knows which credential to fix.
     """
-    pytest.skip(_record_state(state, detail, field))
+    pytest.skip(_record_state(state, detail, field, provider))
 
 
 def _require_runnable(
@@ -266,6 +274,7 @@ def _require_runnable(
                 ResultState.SKIPPED_NO_TOKEN,
                 f"{operation_case.label} (BLOCKED: {result.provider_id} failed) — "
                 f"{result.reason}",
+                provider=result.provider_id,
             )
 
     return operation_case.api_row
@@ -599,11 +608,43 @@ def _host_representatives() -> dict[str, str]:
     burst requests and 3 oversized payloads whether the batch holds 5 APIs or
     500, and a 46th API on an existing host adds nothing.
     """
-    representatives: dict[str, str] = {}
+    return {
+        host: case.label for host, case in _host_representative_cases().items()
+    }
+
+
+@lru_cache(maxsize=1)
+def _host_representative_cases() -> dict[str, OperationCase]:
+    """The single case that probes each host. One source of truth.
+
+    Both the label used in the skip message and the ``apiRef`` published as
+    ``measuredBy`` are derived from this, so the two can never name different
+    cases for the same host.
+    """
+    representatives: dict[str, OperationCase] = {}
     for case in _build_operation_cases():
         if case.host and case.host not in representatives:
-            representatives[case.host] = case.label
+            representatives[case.host] = case
     return representatives
+
+
+@lru_cache(maxsize=1)
+def host_measured_by() -> dict[str, str]:
+    """Map each host to the ``apiRef`` that actually carries its measurement.
+
+    Public because ``conftest.py`` reads it when building result records. This
+    is what the result document publishes as ``measuredBy``, and it is present
+    on *every* host-level result — including the representative's own, where it
+    equals the result's ``apiRef``. Emitting it unconditionally is the point:
+    a consumer renders "measured by X" from one field without having to know
+    whether this row is the one that did the measuring.
+
+    It replaces inferring that relationship from the skip reason's prose, which
+    only ever worked for rows that reached the dedup check.
+    """
+    return {
+        host: case.api_ref for host, case in _host_representative_cases().items()
+    }
 
 
 def _require_host_representative(operation_case: OperationCase) -> None:

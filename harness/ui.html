@@ -247,6 +247,22 @@ function passRate(counts){
   return (counts.PASS || 0) / denom;
 }
 
+// Why the run is not clean, read from the document. The engine publishes
+// summary.cleanBlockers precisely so this string is not guesswork: passRate 1.0
+// beside clean:false reads as a bug until something names the cause. Empty
+// blockers with clean:false means nothing landed in PASS+FAIL at all, which
+// passRateApplicable already reports.
+function shortRef(ref){
+  const parts = String(ref || "").split("|");
+  return parts.length > 2 ? parts[2] : String(ref || "");
+}
+
+function cleanBlockers(s){
+  const blockers = s.cleanBlockers || [];
+  if (blockers.length) return `${blockers.join(", ")} present`;
+  return s.passRateApplicable === false ? "no assertion ran" : "see counts";
+}
+
 function render(doc){
   const s = doc.summary || {}, counts = s.counts || {};
   const rate = passRate(counts);
@@ -255,7 +271,7 @@ function render(doc){
     banner("warn", `<b>COMPLETED_WITH_ERRORS</b> — ${esc(doc.statusReason || "a tier ran partially")}`);
   else if (doc.status === "COMPLETED")
     banner(s.clean ? "ok" : "warn",
-      `<b>COMPLETED</b>${s.clean ? "" : " — needs attention (a FAIL, WARN or blocked API is present)"}`);
+      `<b>COMPLETED</b>${s.clean ? "" : ` — needs attention (${cleanBlockers(s)})`}`);
 
   const metrics = [
     ["Pass rate", rate === null
@@ -329,7 +345,10 @@ function section(title, rows, titles){
     return `<tr>
       <td><span class="state s-${esc(r.state)}">${esc(r.state)}</span></td>
       <td>${esc(meta?.title || r.testId.split("::").pop())}${gap}
-        ${r.hostLevel ? `<span class="pill">${r.referencesHostResult?"host result referenced":"host probe"}</span>`:""}</td>
+        ${r.hostLevel ? `<span class="pill" title="${esc(r.measuredBy||"")}">${
+            r.measuredBy && r.measuredBy !== r.apiRef
+              ? `measured by ${esc(shortRef(r.measuredBy))}`
+              : "host probe (measured here)"}</span>`:""}</td>
       <td class="reason">${detail || "—"}</td>
       <td class="reason">${r.durationMs != null ? Math.round(r.durationMs)+" ms" : "—"}</td>
     </tr>`;

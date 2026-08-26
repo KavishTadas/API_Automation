@@ -176,7 +176,25 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         pytest.main(pytest_args)
-    except Exception as error:  # pragma: no cover - defensive
+    except (KeyboardInterrupt, SystemExit):
+        # An operator Ctrl-C and an explicit interpreter exit are the two
+        # signals that genuinely mean "stop", not "the runner broke". Let them
+        # through untouched rather than reporting them as an internal error.
+        raise
+    except BaseException as error:  # pragma: no cover - defensive
+        # BaseException, not Exception. pytest's outcome exceptions do not share
+        # one base: on pytest 9.0.3 ``Exit`` (from ``pytest.exit()``) subclasses
+        # Exception, but ``Skipped``, ``Failed`` and ``XFailed`` all derive from
+        # ``OutcomeException``, which inherits BaseException directly. So the
+        # old ``except Exception`` did catch ``pytest.exit()`` — and silently let
+        # a ``skip``/``fail`` raised outside a test escape: from a conftest
+        # import, a ``pytest_configure`` hook, or this suite's own
+        # ``pytest_sessionfinish``. Any of those took down the guarantee this CLI
+        # publishes — that a result document is written on every path, ABORTED
+        # included, so a caller never has to special-case an empty response.
+        #
+        # Same class of hole as a4f20b0's fail-soft guards, and the split is on
+        # the same line: interrupts re-raise above, everything else is reported.
         write_result_document(
             out_path,
             _aborted_document(

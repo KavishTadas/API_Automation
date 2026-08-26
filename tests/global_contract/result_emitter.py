@@ -43,6 +43,7 @@ from tests.global_contract.result_states import (
     classify,
     extract_field,
     extract_measurement,
+    extract_provider,
     split_reason,
 )
 
@@ -54,6 +55,7 @@ __all__ = [
     "RunStatus",
     "build_result_document",
     "classify_gateway_failure",
+    "clean_blockers",
     "pass_rate",
     "redact",
     "sensitive_values",
@@ -130,7 +132,19 @@ class ResultRecord:
     host_level: bool = False
     host: str = ""
     #: True when this API references a measurement carried by another API.
+    #:
+    #: This drives *counting* — a row that merely references a measurement is
+    #: dropped from the tally by :func:`_countable`. It is deliberately not the
+    #: same question as ``measured_by != api_ref``: a host-level row blocked by
+    #: auth before the dedup check ever ran is a genuine SKIPPED_NO_TOKEN that
+    #: must stay counted, even though another API carries its host measurement.
     references_host_result: bool = False
+    #: The apiRef that carried this host measurement — this row's own ref when
+    #: it is the one that measured. Always populated for a host-level result.
+    measured_by: str = ""
+    #: The authProviderApiId whose bootstrap blocked this API. Only meaningful
+    #: for SKIPPED_NO_TOKEN, and empty when the block had no named provider.
+    blocked_by: str = ""
     gateway_classification: str = ""
     provenance: dict[str, Any] = field(default_factory=dict)
     node_id: str = ""
@@ -156,10 +170,17 @@ class ResultRecord:
         if self.state == ResultState.WARN.name:
             payload["observed"] = self.observed
             payload["threshold"] = self.threshold
+        if self.state == ResultState.SKIPPED_NO_TOKEN.name:
+            # Required for SKIPPED_NO_TOKEN, null where nothing named a
+            # provider: "blocked" without naming what to fix is not actionable.
+            payload["blockedBy"] = self.blocked_by or None
         if self.host_level:
             payload["hostLevel"] = True
             payload["host"] = self.host or None
             payload["referencesHostResult"] = self.references_host_result
+            # Present on every host-level result, self included, so a consumer
+            # never has to special-case "this row did its own measuring".
+            payload["measuredBy"] = self.measured_by or None
         if self.gateway_classification:
             payload["gatewayClassification"] = self.gateway_classification
         return payload
@@ -272,10 +293,38 @@ def _countable(records: list[ResultRecord]) -> list[ResultRecord]:
     return [record for record in records if not record.references_host_result]
 
 
+#: The states that, if present at all, mean a batch is not clean.
+#:
+#: Order is fixed rather than alphabetical so ``cleanBlockers`` reads worst
+#: first and a consumer can render element zero as the headline cause.
+CLEAN_BLOCKING_STATES = (
+    ResultState.FAIL,
+    ResultState.WARN,
+    ResultState.SKIPPED_NO_TOKEN,
+)
+
+
+def clean_blockers(counts: dict[str, int]) -> list[str]:
+    """The blocking states actually present, worst first.
+
+    ``clean: false`` beside ``passRate: 1.0`` reads as an engine bug unless the
+    document says *why* — every assertion really did pass, and a WARN or a
+    blocked API is still waiting on a human. Naming the cause turns an apparent
+    contradiction into a statement.
+
+    Empty while ``clean`` is false means exactly one thing: no blocking state is
+    present and the pass rate is inapplicable, i.e. nothing landed in
+    ``PASS + FAIL`` at all. ``passRateApplicable`` already says so, which is why
+    this list stays strictly a list of states.
+    """
+    return [state.name for state in CLEAN_BLOCKING_STATES if counts.get(state.name, 0)]
+
+
 def _summary(records: list[ResultRecord]) -> dict[str, Any]:
     countable = _countable(records)
     counts = _counts(countable)
     rate = pass_rate(counts)
+    blockers = clean_blockers(counts)
     return {
         "total": len(countable),
         "referencedHostResults": len(records) - len(countable),
@@ -285,12 +334,10 @@ def _summary(records: list[ResultRecord]) -> dict[str, Any]:
         "passRateBasis": "PASS / (PASS + FAIL)",
         # A batch is only clean if nothing needs a human to look at it. One WARN
         # or one SKIPPED_NO_TOKEN is not a clean pass.
-        "clean": (
-            counts[ResultState.FAIL.name] == 0
-            and counts[ResultState.WARN.name] == 0
-            and counts[ResultState.SKIPPED_NO_TOKEN.name] == 0
-            and rate is not None
-        ),
+        "clean": not blockers and rate is not None,
+        # Why it is not clean, named. Derived from the same counts, so it can
+        # never disagree with the flag it explains.
+        "cleanBlockers": blockers,
     }
 
 
@@ -486,6 +533,7 @@ def record_from_report(
     host_level: bool = False,
     host: str = "",
     references_host_result: bool = False,
+    measured_by: str = "",
     provenance: dict[str, Any] | None = None,
 ) -> ResultRecord:
     """Build a record from one pytest report."""
@@ -505,6 +553,8 @@ def record_from_report(
         host_level=host_level,
         host=host,
         references_host_result=references_host_result,
+        measured_by=measured_by,
+        blocked_by=extract_provider(full_reason),
         provenance=dict(provenance or {}),
         node_id=node_id,
     )

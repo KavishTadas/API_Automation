@@ -40,6 +40,7 @@ __all__ = [
     "counts_toward_pass_rate",
     "extract_field",
     "extract_measurement",
+    "extract_provider",
     "format_reason",
     "split_reason",
 ]
@@ -49,6 +50,16 @@ REASON_SEPARATOR = ": "
 
 #: Marks the metadata field a NOT_APPLICABLE result is missing.
 FIELD_MARKER = re.compile(r"\[field=([A-Za-z0-9_.]+)\]")
+
+#: Marks the auth provider whose bootstrap blocked a SKIPPED_NO_TOKEN result.
+#:
+#: A marker rather than prose for the same reason ``[field=...]`` is one: the
+#: provider id is the thing a consumer acts on — it names which credential to
+#: fix — and recovering it by parsing a sentence breaks the first time anyone
+#: rewords the sentence. Provider ids are ``|``-delimited inventory
+#: identifiers, so the character class is deliberately wider than
+#: ``FIELD_MARKER``'s and stops at the closing bracket.
+PROVIDER_MARKER = re.compile(r"\[provider=([^\]]+)\]")
 
 #: A WARN carries both numbers so the threshold is never implicit.
 MEASUREMENT_OBSERVED = re.compile(r"observed=([0-9]+(?:\.[0-9]+)?)")
@@ -95,22 +106,37 @@ EXECUTED_STATES = frozenset(
 )
 
 
-def format_reason(state: ResultState, detail: str = "", field: str = "") -> str:
+def format_reason(
+    state: ResultState,
+    detail: str = "",
+    field: str = "",
+    provider: str = "",
+) -> str:
     """Render ``state`` and ``detail`` as a machine-readable reason string.
 
     >>> format_reason(ResultState.NOT_APPLICABLE, "no inventory row")
     'NOT_APPLICABLE: no inventory row'
     >>> format_reason(ResultState.NOT_APPLICABLE, "not declared", "documented_status_codes")
     'NOT_APPLICABLE: not declared [field=documented_status_codes]'
+    >>> format_reason(ResultState.SKIPPED_NO_TOKEN, "blocked", provider="auth-api")
+    'SKIPPED_NO_TOKEN: blocked [provider=auth-api]'
 
     ``field`` names the metadata that was missing. A consumer showing a
     NOT_APPLICABLE result needs to tell the user *what to fill in*; prose alone
     makes them guess.
+
+    ``provider`` names the auth provider whose bootstrap failed, for the same
+    reason: a blocked API is actionable only once you know *which* credential to
+    go and fix. Both markers are stripped out of the human-readable detail by
+    :func:`split_reason`, so they cost the prose nothing.
     """
     detail_text = str(detail).strip()
     field_text = str(field or "").strip()
     if field_text:
         detail_text = f"{detail_text} [field={field_text}]".strip()
+    provider_text = str(provider or "").strip()
+    if provider_text:
+        detail_text = f"{detail_text} [provider={provider_text}]".strip()
     if not detail_text:
         return state.name
     return f"{state.name}{REASON_SEPARATOR}{detail_text}"
@@ -120,6 +146,18 @@ def extract_field(reason: str | None) -> str:
     """Return the ``[field=...]`` marker from a reason string, or ``""``."""
     match = FIELD_MARKER.search(str(reason or ""))
     return match.group(1) if match else ""
+
+
+def extract_provider(reason: str | None) -> str:
+    """Return the ``[provider=...]`` marker from a reason string, or ``""``.
+
+    Empty for a SKIPPED_NO_TOKEN that was not blocked by a named provider — a
+    check that needed a bearer token when the session never bootstrapped one,
+    say. The emitter renders that absence as ``blockedBy: null`` rather than
+    inventing a provider that did not fail.
+    """
+    match = PROVIDER_MARKER.search(str(reason or ""))
+    return match.group(1).strip() if match else ""
 
 
 def extract_measurement(reason: str | None) -> tuple[float | None, float | None]:
@@ -163,7 +201,8 @@ def split_reason(reason: str | None) -> tuple[ResultState | None, str]:
 
     remainder = str(reason).strip()[len(state.name) :]
     detail = remainder.lstrip(REASON_SEPARATOR.strip()).strip()
-    return state, FIELD_MARKER.sub("", detail).strip()
+    detail = FIELD_MARKER.sub("", detail)
+    return state, PROVIDER_MARKER.sub("", detail).strip()
 
 
 def counts_toward_pass_rate(state: ResultState) -> bool:
