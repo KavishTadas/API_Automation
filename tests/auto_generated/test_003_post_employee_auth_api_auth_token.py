@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "{\n  \"token\": \"<jwt-token>\"\n}",
   "Dependent APIs / Services": "",
   "Owner / Developer": "",
-  "API Identifier": "post|{{authbaseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400",
+  "API Identifier": "post|/auth/token|employee auth api|tc02 - invalid empcode returns 400",
   "Comments": "Source: collections/auth/Employee_Auth_API.json; No saved response example in source file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "Employee Auth API")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("post|{{authbaseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400", name="API Identifier")
+@allure.link("post|/auth/token|employee auth api|tc02 - invalid empcode returns 400", name="API Identifier")
 @pytest.mark.skip(reason="Temporarily disabled per user request due to negative scenario mismatch")
 def test_employee_auth_api_auth_token_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
@@ -69,7 +69,7 @@ def test_employee_auth_api_auth_token_status_code(api_runtime_config: dict[str, 
 @allure.label("sourceModule", "Employee Auth API")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("post|{{authbaseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400", name="API Identifier")
+@allure.link("post|/auth/token|employee auth api|tc02 - invalid empcode returns 400", name="API Identifier")
 @pytest.mark.skip(reason="Temporarily disabled per user request due to negative scenario mismatch")
 def test_employee_auth_api_auth_token_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")

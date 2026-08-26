@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "",
   "Dependent APIs / Services": "",
   "Owner / Developer": "",
-  "API Identifier": "patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus",
+  "API Identifier": "patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus",
   "Comments": "Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "Attenedance-july2026")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus", name="API Identifier")
+@allure.link("patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus", name="API Identifier")
 def test_attenedance_july2026_api_attendance_week_off_assignment_changestatus_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PATCH")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/week-off-assignment/changeStatus")
@@ -68,7 +68,7 @@ def test_attenedance_july2026_api_attendance_week_off_assignment_changestatus_st
 @allure.label("sourceModule", "Attenedance-july2026")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus", name="API Identifier")
+@allure.link("patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus", name="API Identifier")
 def test_attenedance_july2026_api_attendance_week_off_assignment_changestatus_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PATCH")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/week-off-assignment/changeStatus")

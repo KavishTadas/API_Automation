@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "",
   "Dependent APIs / Services": "",
   "Owner / Developer": "",
-  "API Identifier": "put|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate",
+  "API Identifier": "put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate",
   "Comments": "Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "Attenedance-july2026")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("put|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate", name="API Identifier")
+@allure.link("put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate", name="API Identifier")
 def test_attenedance_july2026_api_attendance_week_offs_update_1_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PUT")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/week-offs/update/1")
@@ -68,7 +68,7 @@ def test_attenedance_july2026_api_attendance_week_offs_update_1_status_code(api_
 @allure.label("sourceModule", "Attenedance-july2026")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("put|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate", name="API Identifier")
+@allure.link("put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate", name="API Identifier")
 def test_attenedance_july2026_api_attendance_week_offs_update_1_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PUT")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/week-offs/update/1")

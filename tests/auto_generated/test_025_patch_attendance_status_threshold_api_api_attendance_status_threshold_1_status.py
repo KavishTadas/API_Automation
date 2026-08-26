@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "",
   "Dependent APIs / Services": "",
   "Owner / Developer": "",
-  "API Identifier": "patch|{{baseurl}}|/api/attendance/status-threshold/1/status|attendance status threshold api|change status",
+  "API Identifier": "patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status",
   "Comments": "Source: collections/Attendance_Threshold_API.json; No saved response example in source file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "Attendance Status Threshold API")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("patch|{{baseurl}}|/api/attendance/status-threshold/1/status|attendance status threshold api|change status", name="API Identifier")
+@allure.link("patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status", name="API Identifier")
 def test_attendance_status_threshold_api_api_attendance_status_threshold_1_status_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PATCH")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/status-threshold/1/status")
@@ -68,7 +68,7 @@ def test_attendance_status_threshold_api_api_attendance_status_threshold_1_statu
 @allure.label("sourceModule", "Attendance Status Threshold API")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("patch|{{baseurl}}|/api/attendance/status-threshold/1/status|attendance status threshold api|change status", name="API Identifier")
+@allure.link("patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status", name="API Identifier")
 def test_attendance_status_threshold_api_api_attendance_status_threshold_1_status_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PATCH")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/status-threshold/1/status")

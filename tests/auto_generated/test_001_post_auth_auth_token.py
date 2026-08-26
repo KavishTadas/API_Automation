@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "{\n  \"token\": \"<jwt-token>\"\n}",
   "Dependent APIs / Services": "Produces authToken for downstream APIs",
   "Owner / Developer": "",
-  "API Identifier": "post|{{baseurl}}|/auth/token|auth|login",
+  "API Identifier": "post|/auth/token|auth|login",
   "Comments": "Source: bruno/auth/login.bru; No saved response example in source file; Parsed from Bruno file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "auth")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("post|{{baseurl}}|/auth/token|auth|login", name="API Identifier")
+@allure.link("post|/auth/token|auth|login", name="API Identifier")
 def test_auth_auth_token_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
     allure.dynamic.parameter("Endpoint Path", "/auth/token")
@@ -68,7 +68,7 @@ def test_auth_auth_token_status_code(api_runtime_config: dict[str, str]) -> None
 @allure.label("sourceModule", "auth")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("post|{{baseurl}}|/auth/token|auth|login", name="API Identifier")
+@allure.link("post|/auth/token|auth|login", name="API Identifier")
 def test_auth_auth_token_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
     allure.dynamic.parameter("Endpoint Path", "/auth/token")

@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "",
   "Dependent APIs / Services": "",
   "Owner / Developer": "",
-  "API Identifier": "get|{{baseurl}}|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id",
+  "API Identifier": "get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id",
   "Comments": "Source: collections/Attendance_Threshold_API.json; No saved response example in source file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "Attendance Status Threshold API")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("get|{{baseurl}}|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id", name="API Identifier")
+@allure.link("get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id", name="API Identifier")
 def test_attendance_status_threshold_api_api_attendance_status_threshold_getbyid_8_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/status-threshold/getById/8")
@@ -68,7 +68,7 @@ def test_attendance_status_threshold_api_api_attendance_status_threshold_getbyid
 @allure.label("sourceModule", "Attendance Status Threshold API")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("get|{{baseurl}}|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id", name="API Identifier")
+@allure.link("get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id", name="API Identifier")
 def test_attendance_status_threshold_api_api_attendance_status_threshold_getbyid_8_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/status-threshold/getById/8")

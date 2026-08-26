@@ -64,7 +64,7 @@ def main() -> int:
     collector.add(
         ResultRecord(
             test_id="global_contract::test_no_credential_leakage_in_response",
-            api_ref="post|host|/auth/token|auth|login",
+            api_ref="post|/auth/token|auth|login",
             state=ResultState.FAIL.name,
             reason=(
                 "response body contained "
@@ -85,7 +85,7 @@ def main() -> int:
     collector.add(
         ResultRecord(
             test_id="global_contract::test_status_code_matches_spec",
-            api_ref="get|host|/leaves|leave|all",
+            api_ref="get|/leaves|leave|all",
             state=ResultState.PASS.name,
             reason="",
             provenance={"sourceType": "newman", "owner": "QA Platform"},
@@ -95,7 +95,7 @@ def main() -> int:
     collector.add(
         ResultRecord(
             test_id="global_contract::test_404_for_unknown_route",
-            api_ref="get|host|/leaves|leave|all",
+            api_ref="get|/leaves|leave|all",
             state=ResultState.SKIPPED_NO_TOKEN.name,
             reason="did not get token",
         )

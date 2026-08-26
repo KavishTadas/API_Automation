@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "",
   "Dependent APIs / Services": "",
   "Owner / Developer": "",
-  "API Identifier": "get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid",
+  "API Identifier": "get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid",
   "Comments": "Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "Attenedance-july2026")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid", name="API Identifier")
+@allure.link("get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid", name="API Identifier")
 def test_attenedance_july2026_api_attendance_week_offs_getbyid_1_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/week-offs/getById/1")
@@ -68,7 +68,7 @@ def test_attenedance_july2026_api_attendance_week_offs_getbyid_1_status_code(api
 @allure.label("sourceModule", "Attenedance-july2026")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid", name="API Identifier")
+@allure.link("get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid", name="API Identifier")
 def test_attenedance_july2026_api_attendance_week_offs_getbyid_1_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/week-offs/getById/1")

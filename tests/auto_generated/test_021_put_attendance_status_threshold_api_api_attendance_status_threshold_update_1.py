@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "",
   "Dependent APIs / Services": "",
   "Owner / Developer": "",
-  "API Identifier": "put|{{baseurl}}|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold",
+  "API Identifier": "put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold",
   "Comments": "Source: collections/Attendance_Threshold_API.json; No saved response example in source file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "Attendance Status Threshold API")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("put|{{baseurl}}|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold", name="API Identifier")
+@allure.link("put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold", name="API Identifier")
 def test_attendance_status_threshold_api_api_attendance_status_threshold_update_1_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PUT")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/status-threshold/update/1")
@@ -68,7 +68,7 @@ def test_attendance_status_threshold_api_api_attendance_status_threshold_update_
 @allure.label("sourceModule", "Attendance Status Threshold API")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("put|{{baseurl}}|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold", name="API Identifier")
+@allure.link("put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold", name="API Identifier")
 def test_attendance_status_threshold_api_api_attendance_status_threshold_update_1_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PUT")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/status-threshold/update/1")

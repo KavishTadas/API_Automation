@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "",
   "Dependent APIs / Services": "",
   "Owner / Developer": "",
-  "API Identifier": "get|http://localhost:9078|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id",
+  "API Identifier": "get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id",
   "Comments": "Source: collections/Holiday_Template_API.json; No saved response example in source file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "Holiday Template APIs Copy")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("get|http://localhost:9078|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id", name="API Identifier")
+@allure.link("get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id", name="API Identifier")
 def test_holiday_template_apis_copy_api_attendance_holiday_templates_getbyid_19_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/holiday-templates/getById/19")
@@ -68,7 +68,7 @@ def test_holiday_template_apis_copy_api_attendance_holiday_templates_getbyid_19_
 @allure.label("sourceModule", "Holiday Template APIs Copy")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("get|http://localhost:9078|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id", name="API Identifier")
+@allure.link("get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id", name="API Identifier")
 def test_holiday_template_apis_copy_api_attendance_holiday_templates_getbyid_19_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/holiday-templates/getById/19")

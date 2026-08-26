@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "",
   "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
   "Owner / Developer": "",
-  "API Identifier": "put|{{baseurl}}|/api/v1/attendance/shift/master/2|attendance shift master|update shift",
+  "API Identifier": "put|/api/v1/attendance/shift/master/2|attendance shift master|update shift",
   "Comments": "Source: collections/Attendance_Management_API.json; No saved response example in source file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "Attendance Shift Master")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("put|{{baseurl}}|/api/v1/attendance/shift/master/2|attendance shift master|update shift", name="API Identifier")
+@allure.link("put|/api/v1/attendance/shift/master/2|attendance shift master|update shift", name="API Identifier")
 def test_attendance_shift_master_api_v1_attendance_shift_master_2_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PUT")
     allure.dynamic.parameter("Endpoint Path", "/api/v1/attendance/shift/master/2")
@@ -68,7 +68,7 @@ def test_attendance_shift_master_api_v1_attendance_shift_master_2_status_code(ap
 @allure.label("sourceModule", "Attendance Shift Master")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("put|{{baseurl}}|/api/v1/attendance/shift/master/2|attendance shift master|update shift", name="API Identifier")
+@allure.link("put|/api/v1/attendance/shift/master/2|attendance shift master|update shift", name="API Identifier")
 def test_attendance_shift_master_api_v1_attendance_shift_master_2_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PUT")
     allure.dynamic.parameter("Endpoint Path", "/api/v1/attendance/shift/master/2")

@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "",
   "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
   "Owner / Developer": "",
-  "API Identifier": "get|{{baseurl}}|/api/attendancepolicy|attendance policy master|get all policies",
+  "API Identifier": "get|/api/attendancepolicy|attendance policy master|get all policies",
   "Comments": "Source: collections/Attendance_Management_API.json; No saved response example in source file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "Attendance Policy Master")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("get|{{baseurl}}|/api/attendancepolicy|attendance policy master|get all policies", name="API Identifier")
+@allure.link("get|/api/attendancepolicy|attendance policy master|get all policies", name="API Identifier")
 @pytest.mark.skip(reason="Temporarily disabled per user request due to negative scenario mismatch")
 def test_attendance_policy_master_api_attendancepolicy_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")
@@ -69,7 +69,7 @@ def test_attendance_policy_master_api_attendancepolicy_status_code(api_runtime_c
 @allure.label("sourceModule", "Attendance Policy Master")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("get|{{baseurl}}|/api/attendancepolicy|attendance policy master|get all policies", name="API Identifier")
+@allure.link("get|/api/attendancepolicy|attendance policy master|get all policies", name="API Identifier")
 @pytest.mark.skip(reason="Temporarily disabled per user request due to negative scenario mismatch")
 def test_attendance_policy_master_api_attendancepolicy_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")

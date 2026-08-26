@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "",
   "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
   "Owner / Developer": "",
-  "API Identifier": "post|{{baseurl}}|/api/attendancepolicy|attendance policy master|create new policy",
+  "API Identifier": "post|/api/attendancepolicy|attendance policy master|create new policy",
   "Comments": "Source: collections/Attendance_Management_API.json; No saved response example in source file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "Attendance Policy Master")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("post|{{baseurl}}|/api/attendancepolicy|attendance policy master|create new policy", name="API Identifier")
+@allure.link("post|/api/attendancepolicy|attendance policy master|create new policy", name="API Identifier")
 def test_attendance_policy_master_api_attendancepolicy_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
     allure.dynamic.parameter("Endpoint Path", "/api/attendancepolicy")
@@ -68,7 +68,7 @@ def test_attendance_policy_master_api_attendancepolicy_status_code(api_runtime_c
 @allure.label("sourceModule", "Attendance Policy Master")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("post|{{baseurl}}|/api/attendancepolicy|attendance policy master|create new policy", name="API Identifier")
+@allure.link("post|/api/attendancepolicy|attendance policy master|create new policy", name="API Identifier")
 def test_attendance_policy_master_api_attendancepolicy_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
     allure.dynamic.parameter("Endpoint Path", "/api/attendancepolicy")

@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "{\n  \"empCode\": \"<empCode>\",\n  \"roles\": [\n    \"<role>\"\n  ],\n  \"token\": \"<jwt-token>\",\n  \"username\": \"<username>\"\n}",
   "Dependent APIs / Services": "Produces authToken for downstream APIs",
   "Owner / Developer": "",
-  "API Identifier": "post|{{baseurl}}|/auth/token|login auth uat api|tc01 - valid credentials return token",
+  "API Identifier": "post|/auth/token|login auth uat api|tc01 - valid credentials return token",
   "Comments": "Source: collections/auth/Login_Auth_UAT_API.json; Data-driven: test-data/auth/Login_Auth_UAT_API.csv; No saved response example in source file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "Login Auth UAT API")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("post|{{baseurl}}|/auth/token|login auth uat api|tc01 - valid credentials return token", name="API Identifier")
+@allure.link("post|/auth/token|login auth uat api|tc01 - valid credentials return token", name="API Identifier")
 def test_login_auth_uat_api_auth_token_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
     allure.dynamic.parameter("Endpoint Path", "/auth/token")
@@ -68,7 +68,7 @@ def test_login_auth_uat_api_auth_token_status_code(api_runtime_config: dict[str,
 @allure.label("sourceModule", "Login Auth UAT API")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("post|{{baseurl}}|/auth/token|login auth uat api|tc01 - valid credentials return token", name="API Identifier")
+@allure.link("post|/auth/token|login auth uat api|tc01 - valid credentials return token", name="API Identifier")
 def test_login_auth_uat_api_auth_token_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
     allure.dynamic.parameter("Endpoint Path", "/auth/token")

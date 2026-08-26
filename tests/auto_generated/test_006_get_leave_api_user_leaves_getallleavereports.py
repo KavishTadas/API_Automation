@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "{\n  \"token\": \"<jwt-token>\"\n}",
   "Dependent APIs / Services": "",
   "Owner / Developer": "",
-  "API Identifier": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status",
+  "API Identifier": "get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status",
   "Comments": "Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "Leave API")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status", name="API Identifier")
+@allure.link("get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status", name="API Identifier")
 @pytest.mark.skip(reason="Temporarily disabled per user request due to negative scenario mismatch")
 def test_leave_api_user_leaves_getallleavereports_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")
@@ -69,7 +69,7 @@ def test_leave_api_user_leaves_getallleavereports_status_code(api_runtime_config
 @allure.label("sourceModule", "Leave API")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status", name="API Identifier")
+@allure.link("get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status", name="API Identifier")
 @pytest.mark.skip(reason="Temporarily disabled per user request due to negative scenario mismatch")
 def test_leave_api_user_leaves_getallleavereports_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")

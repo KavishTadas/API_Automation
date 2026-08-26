@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "{\n  \"status\": \"<status>\",\n  \"message\": \"<message>\",\n  \"data\": {\n    \"count\": {\n      \"rejected\": 0,\n      \"cancelled\": 0,\n      \"pending\": 0,\n      \"approved\": 0\n    },\n    \"leaveReport\": []\n  }\n}",
   "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
   "Owner / Developer": "",
-  "API Identifier": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+  "API Identifier": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
   "Comments": "Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "Leave API")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure", name="API Identifier")
+@allure.link("get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure", name="API Identifier")
 def test_leave_api_user_leaves_getallleavereports_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")
     allure.dynamic.parameter("Endpoint Path", "/user/leaves/getAllLeaveReports")
@@ -68,7 +68,7 @@ def test_leave_api_user_leaves_getallleavereports_status_code(api_runtime_config
 @allure.label("sourceModule", "Leave API")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure", name="API Identifier")
+@allure.link("get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure", name="API Identifier")
 def test_leave_api_user_leaves_getallleavereports_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")
     allure.dynamic.parameter("Endpoint Path", "/user/leaves/getAllLeaveReports")

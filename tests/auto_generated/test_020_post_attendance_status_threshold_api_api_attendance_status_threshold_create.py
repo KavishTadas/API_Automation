@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "",
   "Dependent APIs / Services": "",
   "Owner / Developer": "",
-  "API Identifier": "post|{{baseurl}}|/api/attendance/status-threshold/create|attendance status threshold api|create threshold",
+  "API Identifier": "post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold",
   "Comments": "Source: collections/Attendance_Threshold_API.json; No saved response example in source file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "Attendance Status Threshold API")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("post|{{baseurl}}|/api/attendance/status-threshold/create|attendance status threshold api|create threshold", name="API Identifier")
+@allure.link("post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold", name="API Identifier")
 def test_attendance_status_threshold_api_api_attendance_status_threshold_create_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/status-threshold/create")
@@ -68,7 +68,7 @@ def test_attendance_status_threshold_api_api_attendance_status_threshold_create_
 @allure.label("sourceModule", "Attendance Status Threshold API")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("post|{{baseurl}}|/api/attendance/status-threshold/create|attendance status threshold api|create threshold", name="API Identifier")
+@allure.link("post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold", name="API Identifier")
 def test_attendance_status_threshold_api_api_attendance_status_threshold_create_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/status-threshold/create")

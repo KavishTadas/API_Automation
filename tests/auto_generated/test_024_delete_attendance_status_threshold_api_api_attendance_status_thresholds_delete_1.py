@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "",
   "Dependent APIs / Services": "",
   "Owner / Developer": "",
-  "API Identifier": "delete|{{baseurl}}|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold",
+  "API Identifier": "delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold",
   "Comments": "Source: collections/Attendance_Threshold_API.json; No saved response example in source file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "Attendance Status Threshold API")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("delete|{{baseurl}}|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold", name="API Identifier")
+@allure.link("delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold", name="API Identifier")
 def test_attendance_status_threshold_api_api_attendance_status_thresholds_delete_1_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "DELETE")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/status-thresholds/delete/1")
@@ -68,7 +68,7 @@ def test_attendance_status_threshold_api_api_attendance_status_thresholds_delete
 @allure.label("sourceModule", "Attendance Status Threshold API")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("delete|{{baseurl}}|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold", name="API Identifier")
+@allure.link("delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold", name="API Identifier")
 def test_attendance_status_threshold_api_api_attendance_status_thresholds_delete_1_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "DELETE")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/status-thresholds/delete/1")

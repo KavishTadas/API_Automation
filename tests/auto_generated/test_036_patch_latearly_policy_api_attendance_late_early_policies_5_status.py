@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "",
   "Dependent APIs / Services": "",
   "Owner / Developer": "",
-  "API Identifier": "patch|http://localhost:9078|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus",
+  "API Identifier": "patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus",
   "Comments": "Source: collections/Late_Early_Policy_API.json; No saved response example in source file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "Latearly-Policy")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("patch|http://localhost:9078|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus", name="API Identifier")
+@allure.link("patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus", name="API Identifier")
 def test_latearly_policy_api_attendance_late_early_policies_5_status_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PATCH")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/late-early-policies/5/status")
@@ -68,7 +68,7 @@ def test_latearly_policy_api_attendance_late_early_policies_5_status_status_code
 @allure.label("sourceModule", "Latearly-Policy")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("patch|http://localhost:9078|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus", name="API Identifier")
+@allure.link("patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus", name="API Identifier")
 def test_latearly_policy_api_attendance_late_early_policies_5_status_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PATCH")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/late-early-policies/5/status")

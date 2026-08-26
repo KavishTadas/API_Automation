@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "",
   "Dependent APIs / Services": "",
   "Owner / Developer": "",
-  "API Identifier": "patch|http://localhost:9078|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status",
+  "API Identifier": "patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status",
   "Comments": "Source: collections/Holiday_Template_API.json; No saved response example in source file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "Holiday Template APIs Copy")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("patch|http://localhost:9078|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status", name="API Identifier")
+@allure.link("patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status", name="API Identifier")
 def test_holiday_template_apis_copy_api_attendance_holiday_templates_19_status_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PATCH")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/holiday-templates/19/status")
@@ -68,7 +68,7 @@ def test_holiday_template_apis_copy_api_attendance_holiday_templates_19_status_s
 @allure.label("sourceModule", "Holiday Template APIs Copy")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("patch|http://localhost:9078|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status", name="API Identifier")
+@allure.link("patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status", name="API Identifier")
 def test_holiday_template_apis_copy_api_attendance_holiday_templates_19_status_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PATCH")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/holiday-templates/19/status")

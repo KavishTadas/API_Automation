@@ -1256,9 +1256,20 @@ function readBrunoRows() {
 }
 
 function makeApiIdentifier(row) {
+  // Deliberately excludes Base URL. The identifier is a join key the platform
+  // stores, so every component of it has to be immutable; a base URL is not.
+  // The same endpoint moves between {{baseUrl}}, a literal DEV host and a
+  // literal UAT host over its life -- attenedance-july2026 already carries two
+  // different base URLs across its own rows -- and each move silently reminted
+  // the ref, orphaning anything holding the old one. An orphaned ref reports
+  // NOT_APPLICABLE, which reads as a metadata gap rather than a broken
+  // reference, so the failure is quiet and misleading.
+  //
+  // Method + path + module + sub-module is unique across all 45 inventory rows
+  // (verified: 45 distinct keys, zero collisions), so dropping the segment
+  // costs no identity.
   return [
     row['HTTP Method'],
-    row['Base URL'],
     row['Endpoint / Path'],
     row['Module Name'],
     row['Sub-Module Name']

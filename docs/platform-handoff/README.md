@@ -40,13 +40,13 @@ Three documents, three jobs:
   "environment": "UAT",
   "requestedTiers": ["global_contract"],
   "apis": [
-    { "ref": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - ...",
+    { "ref": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - ...",
       "credentialAlias": "leave-svc-uat-01",
-      "authProviderApiId": "post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - ..." },
+      "authProviderApiId": "post|/auth/token|employee auth api|tc01 - ..." },
 
     { "definition": { "API ID": "API-001", "HTTP Method": "GET", "...": "..." },
       "credentialAlias": "attendance-svc-uat-01",
-      "authProviderApiId": "post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - ..." }
+      "authProviderApiId": "post|/auth/token|employee auth api|tc01 - ..." }
   ]
 }
 ```
@@ -57,6 +57,15 @@ Three documents, three jobs:
   which is the inventory's `API Identifier`. There is **no fallback matching**:
   an unrecognised `ref` degrades that one API to `NOT_APPLICABLE` and the rest of
   the batch runs normally.
+
+  The ref is `method|path|module|sub-module`, lower-cased. **It deliberately does
+  not contain the base URL.** The same endpoint moves between `{{baseUrl}}`, a
+  literal DEV host and a literal UAT host over its life, and a ref that embedded
+  that segment was reminted every time — silently orphaning any ref you had
+  stored. Because an unrecognised ref reports `NOT_APPLICABLE`, that break would
+  reach you as a metadata gap rather than as a broken reference. Safe to store:
+  the ref survives a base-URL change, and a full reshuffle and renumbering of the
+  inventory, byte-identical.
 - `definition` — an uploaded API, travelling **by value**. Parse the user's Excel
   or cURL upload into the 15-column shape and inline it. The engine stores
   nothing.
@@ -252,7 +261,7 @@ measuring, where it equals the result's own `apiRef`:
 "hostLevel": true,
 "host": "https://devmcdphcmplatform.omfysgroup.com",
 "referencesHostResult": true,
-"measuredBy": "get|{{baseurl}}|/api/v1/attendance/shift/master|…"
+"measuredBy": "get|/api/v1/attendance/shift/master|attendance shift master|…"
 ```
 
 Render "measured by X" straight from that one field. It is populated even when

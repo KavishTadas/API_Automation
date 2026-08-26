@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "",
   "Dependent APIs / Services": "",
   "Owner / Developer": "",
-  "API Identifier": "post|http://localhost:9078|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate",
+  "API Identifier": "post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate",
   "Comments": "Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "Attenedance-july2026")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("post|http://localhost:9078|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate", name="API Identifier")
+@allure.link("post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate", name="API Identifier")
 def test_attenedance_july2026_api_attendance_week_offs_create_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/week-offs/create")
@@ -68,7 +68,7 @@ def test_attenedance_july2026_api_attendance_week_offs_create_status_code(api_ru
 @allure.label("sourceModule", "Attenedance-july2026")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("post|http://localhost:9078|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate", name="API Identifier")
+@allure.link("post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate", name="API Identifier")
 def test_attenedance_july2026_api_attendance_week_offs_create_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/week-offs/create")

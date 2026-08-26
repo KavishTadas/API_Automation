@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "",
   "Dependent APIs / Services": "",
   "Owner / Developer": "",
-  "API Identifier": "delete|http://localhost:9078|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete",
+  "API Identifier": "delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete",
   "Comments": "Source: collections/Holiday_Template_API.json; No saved response example in source file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "Holiday Template APIs Copy")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("delete|http://localhost:9078|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete", name="API Identifier")
+@allure.link("delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete", name="API Identifier")
 def test_holiday_template_apis_copy_api_attendance_holiday_templates_delete_7bholidaytemplateid_7d_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "DELETE")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/holiday-templates/delete/%7BholidayTemplateId%7D")
@@ -68,7 +68,7 @@ def test_holiday_template_apis_copy_api_attendance_holiday_templates_delete_7bho
 @allure.label("sourceModule", "Holiday Template APIs Copy")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("delete|http://localhost:9078|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete", name="API Identifier")
+@allure.link("delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete", name="API Identifier")
 def test_holiday_template_apis_copy_api_attendance_holiday_templates_delete_7bholidaytemplateid_7d_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "DELETE")
     allure.dynamic.parameter("Endpoint Path", "/api/attendance/holiday-templates/delete/%7BholidayTemplateId%7D")

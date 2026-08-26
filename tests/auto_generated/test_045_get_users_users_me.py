@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Example Response Payload": "{\n  \"email\": \"<email>\"\n}",
   "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
   "Owner / Developer": "",
-  "API Identifier": "get|{{base_url}}|/users/me|users|get profile",
+  "API Identifier": "get|/users/me|users|get profile",
   "Comments": "Source: bruno/users/get-profile.bru; No saved response example in source file; Parsed from Bruno file"
 }""")
 
@@ -49,7 +49,7 @@ API = json.loads(r"""{
 @allure.label("sourceModule", "users")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("get|{{base_url}}|/users/me|users|get profile", name="API Identifier")
+@allure.link("get|/users/me|users|get profile", name="API Identifier")
 def test_users_users_me_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")
     allure.dynamic.parameter("Endpoint Path", "/users/me")
@@ -68,7 +68,7 @@ def test_users_users_me_status_code(api_runtime_config: dict[str, str]) -> None:
 @allure.label("sourceModule", "users")
 @allure.label("sourceType", "Python auto-generated")
 @allure.label("owner", "")
-@allure.link("get|{{base_url}}|/users/me|users|get profile", name="API Identifier")
+@allure.link("get|/users/me|users|get profile", name="API Identifier")
 def test_users_users_me_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")
     allure.dynamic.parameter("Endpoint Path", "/users/me")

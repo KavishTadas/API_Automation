@@ -16,7 +16,7 @@
     "Example Response Payload": "{\n  \"token\": \"<jwt-token>\"\n}",
     "Dependent APIs / Services": "Produces authToken for downstream APIs",
     "Owner / Developer": "",
-    "API Identifier": "post|{{baseurl}}|/auth/token|auth|login",
+    "API Identifier": "post|/auth/token|auth|login",
     "Comments": "Source: bruno/auth/login.bru; No saved response example in source file; Parsed from Bruno file"
   },
   {
@@ -36,7 +36,7 @@
     "Example Response Payload": "{\n  \"empCode\": \"<empCode>\",\n  \"roles\": [\n    \"<role>\"\n  ],\n  \"token\": \"<jwt-token>\",\n  \"username\": \"<username>\"\n}",
     "Dependent APIs / Services": "Produces authToken for downstream APIs",
     "Owner / Developer": "",
-    "API Identifier": "post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
+    "API Identifier": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
     "Comments": "Source: collections/auth/Employee_Auth_API.json; No saved response example in source file"
   },
   {
@@ -56,7 +56,7 @@
     "Example Response Payload": "{\n  \"token\": \"<jwt-token>\"\n}",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "post|{{authbaseurl}}|/auth/token|employee auth api|tc02 - invalid empcode returns 400",
+    "API Identifier": "post|/auth/token|employee auth api|tc02 - invalid empcode returns 400",
     "Comments": "Source: collections/auth/Employee_Auth_API.json; No saved response example in source file"
   },
   {
@@ -76,7 +76,7 @@
     "Example Response Payload": "{\n  \"token\": \"<jwt-token>\"\n}",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "post|{{authbaseurl}}|/auth/token|employee auth api|tc03 - missing password returns 400",
+    "API Identifier": "post|/auth/token|employee auth api|tc03 - missing password returns 400",
     "Comments": "Source: collections/auth/Employee_Auth_API.json; No saved response example in source file"
   },
   {
@@ -96,7 +96,7 @@
     "Example Response Payload": "{\n  \"status\": \"<status>\",\n  \"message\": \"<message>\",\n  \"data\": {\n    \"count\": {\n      \"rejected\": 0,\n      \"cancelled\": 0,\n      \"pending\": 0,\n      \"approved\": 0\n    },\n    \"leaveReport\": []\n  }\n}",
     "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
     "Owner / Developer": "",
-    "API Identifier": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+    "API Identifier": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
     "Comments": "Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
   },
   {
@@ -116,7 +116,7 @@
     "Example Response Payload": "{\n  \"token\": \"<jwt-token>\"\n}",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "get|{{leavebaseurl}}|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status",
+    "API Identifier": "get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status",
     "Comments": "Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
   },
   {
@@ -136,7 +136,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
     "Owner / Developer": "",
-    "API Identifier": "post|{{baseurl}}|/api/attendancepolicy|attendance policy master|create new policy",
+    "API Identifier": "post|/api/attendancepolicy|attendance policy master|create new policy",
     "Comments": "Source: collections/Attendance_Management_API.json; No saved response example in source file"
   },
   {
@@ -156,7 +156,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
     "Owner / Developer": "",
-    "API Identifier": "get|{{baseurl}}|/api/attendancepolicy|attendance policy master|get all policies",
+    "API Identifier": "get|/api/attendancepolicy|attendance policy master|get all policies",
     "Comments": "Source: collections/Attendance_Management_API.json; No saved response example in source file"
   },
   {
@@ -176,7 +176,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
     "Owner / Developer": "",
-    "API Identifier": "get|{{baseurl}}|/api/attendancepolicy/1|attendance policy master|get policy by id",
+    "API Identifier": "get|/api/attendancepolicy/1|attendance policy master|get policy by id",
     "Comments": "Source: collections/Attendance_Management_API.json; No saved response example in source file"
   },
   {
@@ -196,7 +196,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
     "Owner / Developer": "",
-    "API Identifier": "put|{{baseurl}}|/api/attendancepolicy/2|attendance policy master|update policy by id",
+    "API Identifier": "put|/api/attendancepolicy/2|attendance policy master|update policy by id",
     "Comments": "Source: collections/Attendance_Management_API.json; No saved response example in source file"
   },
   {
@@ -216,7 +216,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
     "Owner / Developer": "",
-    "API Identifier": "delete|{{baseurl}}|/api/attendancepolicy/2|attendance policy master|delete policy by id",
+    "API Identifier": "delete|/api/attendancepolicy/2|attendance policy master|delete policy by id",
     "Comments": "Source: collections/Attendance_Management_API.json; No saved response example in source file"
   },
   {
@@ -236,7 +236,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
     "Owner / Developer": "",
-    "API Identifier": "patch|{{baseurl}}|/api/attendancepolicy/4/status|attendance policy master|activate deactivate",
+    "API Identifier": "patch|/api/attendancepolicy/4/status|attendance policy master|activate deactivate",
     "Comments": "Source: collections/Attendance_Management_API.json; No saved response example in source file"
   },
   {
@@ -256,7 +256,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
     "Owner / Developer": "",
-    "API Identifier": "post|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|create new shift",
+    "API Identifier": "post|/api/v1/attendance/shift/master|attendance shift master|create new shift",
     "Comments": "Source: collections/Attendance_Management_API.json; No saved response example in source file"
   },
   {
@@ -276,7 +276,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
     "Owner / Developer": "",
-    "API Identifier": "post|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)",
+    "API Identifier": "post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)",
     "Comments": "Source: collections/Attendance_Management_API.json; No saved response example in source file"
   },
   {
@@ -296,7 +296,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
     "Owner / Developer": "",
-    "API Identifier": "put|{{baseurl}}|/api/v1/attendance/shift/master/2|attendance shift master|update shift",
+    "API Identifier": "put|/api/v1/attendance/shift/master/2|attendance shift master|update shift",
     "Comments": "Source: collections/Attendance_Management_API.json; No saved response example in source file"
   },
   {
@@ -316,7 +316,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
     "Owner / Developer": "",
-    "API Identifier": "get|{{baseurl}}|/api/v1/attendance/shift/master/7|attendance shift master|get by id",
+    "API Identifier": "get|/api/v1/attendance/shift/master/7|attendance shift master|get by id",
     "Comments": "Source: collections/Attendance_Management_API.json; No saved response example in source file"
   },
   {
@@ -336,7 +336,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
     "Owner / Developer": "",
-    "API Identifier": "delete|{{baseurl}}|/api/v1/attendance/shift/master/6|attendance shift master|delete shift",
+    "API Identifier": "delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift",
     "Comments": "Source: collections/Attendance_Management_API.json; No saved response example in source file"
   },
   {
@@ -356,7 +356,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
     "Owner / Developer": "",
-    "API Identifier": "patch|{{baseurl}}|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete",
+    "API Identifier": "patch|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete",
     "Comments": "Source: collections/Attendance_Management_API.json; No saved response example in source file"
   },
   {
@@ -376,7 +376,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
     "Owner / Developer": "",
-    "API Identifier": "get|{{baseurl}}|/api/v1/attendance/shift/master|attendance shift master|get all shifts",
+    "API Identifier": "get|/api/v1/attendance/shift/master|attendance shift master|get all shifts",
     "Comments": "Source: collections/Attendance_Management_API.json; No saved response example in source file"
   },
   {
@@ -396,7 +396,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "post|{{baseurl}}|/api/attendance/status-threshold/create|attendance status threshold api|create threshold",
+    "API Identifier": "post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold",
     "Comments": "Source: collections/Attendance_Threshold_API.json; No saved response example in source file"
   },
   {
@@ -416,7 +416,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "put|{{baseurl}}|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold",
+    "API Identifier": "put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold",
     "Comments": "Source: collections/Attendance_Threshold_API.json; No saved response example in source file"
   },
   {
@@ -436,7 +436,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "get|{{baseurl}}|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id",
+    "API Identifier": "get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id",
     "Comments": "Source: collections/Attendance_Threshold_API.json; No saved response example in source file"
   },
   {
@@ -456,7 +456,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "get|{{baseurl}}|/api/attendance/status-threshold/getall|attendance status threshold api|get all",
+    "API Identifier": "get|/api/attendance/status-threshold/getall|attendance status threshold api|get all",
     "Comments": "Source: collections/Attendance_Threshold_API.json; No saved response example in source file"
   },
   {
@@ -476,7 +476,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "delete|{{baseurl}}|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold",
+    "API Identifier": "delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold",
     "Comments": "Source: collections/Attendance_Threshold_API.json; No saved response example in source file"
   },
   {
@@ -496,7 +496,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "patch|{{baseurl}}|/api/attendance/status-threshold/1/status|attendance status threshold api|change status",
+    "API Identifier": "patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status",
     "Comments": "Source: collections/Attendance_Threshold_API.json; No saved response example in source file"
   },
   {
@@ -516,7 +516,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "post|http://localhost:9078|/api/attendance/holiday-templates/create|holiday template apis copy|create",
+    "API Identifier": "post|/api/attendance/holiday-templates/create|holiday template apis copy|create",
     "Comments": "Source: collections/Holiday_Template_API.json; No saved response example in source file"
   },
   {
@@ -536,7 +536,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "put|http://localhost:9078|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update",
+    "API Identifier": "put|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update",
     "Comments": "Source: collections/Holiday_Template_API.json; No saved response example in source file"
   },
   {
@@ -556,7 +556,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "get|http://localhost:9078|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id",
+    "API Identifier": "get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id",
     "Comments": "Source: collections/Holiday_Template_API.json; No saved response example in source file"
   },
   {
@@ -576,7 +576,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "get|http://localhost:9078|/api/attendance/holiday-templates/getall|holiday template apis copy|get all",
+    "API Identifier": "get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all",
     "Comments": "Source: collections/Holiday_Template_API.json; No saved response example in source file"
   },
   {
@@ -596,7 +596,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "patch|http://localhost:9078|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status",
+    "API Identifier": "patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status",
     "Comments": "Source: collections/Holiday_Template_API.json; No saved response example in source file"
   },
   {
@@ -616,7 +616,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "delete|http://localhost:9078|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete",
+    "API Identifier": "delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete",
     "Comments": "Source: collections/Holiday_Template_API.json; No saved response example in source file"
   },
   {
@@ -636,7 +636,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "put|http://localhost:9078|/api/attendance/late-early-policies/update/2|latearly-policy|update",
+    "API Identifier": "put|/api/attendance/late-early-policies/update/2|latearly-policy|update",
     "Comments": "Source: collections/Late_Early_Policy_API.json; No saved response example in source file"
   },
   {
@@ -656,7 +656,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "get|http://localhost:9078|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1",
+    "API Identifier": "get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1",
     "Comments": "Source: collections/Late_Early_Policy_API.json; No saved response example in source file"
   },
   {
@@ -676,7 +676,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "post|http://localhost:9078|/api/attendance/late-early-policies/create|latearly-policy|create",
+    "API Identifier": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
     "Comments": "Source: collections/Late_Early_Policy_API.json; No saved response example in source file"
   },
   {
@@ -696,7 +696,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "get|http://localhost:9078|/api/attendance/late-early-policies/getall|latearly-policy|getall",
+    "API Identifier": "get|/api/attendance/late-early-policies/getall|latearly-policy|getall",
     "Comments": "Source: collections/Late_Early_Policy_API.json; No saved response example in source file"
   },
   {
@@ -716,7 +716,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "patch|http://localhost:9078|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus",
+    "API Identifier": "patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus",
     "Comments": "Source: collections/Late_Early_Policy_API.json; No saved response example in source file"
   },
   {
@@ -736,7 +736,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact",
+    "API Identifier": "patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact",
     "Comments": "Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
   },
   {
@@ -756,7 +756,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall",
+    "API Identifier": "get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall",
     "Comments": "Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
   },
   {
@@ -776,7 +776,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "get|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid",
+    "API Identifier": "get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid",
     "Comments": "Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
   },
   {
@@ -796,7 +796,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "put|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate",
+    "API Identifier": "put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate",
     "Comments": "Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
   },
   {
@@ -816,7 +816,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "post|http://localhost:9078|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate",
+    "API Identifier": "post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate",
     "Comments": "Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
   },
   {
@@ -836,7 +836,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "post|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid",
+    "API Identifier": "post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid",
     "Comments": "Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
   },
   {
@@ -856,7 +856,7 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Owner / Developer": "",
-    "API Identifier": "patch|https://devmcdphcmplatform.omfysgroup.com|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus",
+    "API Identifier": "patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus",
     "Comments": "Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
   },
   {
@@ -876,7 +876,7 @@
     "Example Response Payload": "{\n  \"empCode\": \"<empCode>\",\n  \"roles\": [\n    \"<role>\"\n  ],\n  \"token\": \"<jwt-token>\",\n  \"username\": \"<username>\"\n}",
     "Dependent APIs / Services": "Produces authToken for downstream APIs",
     "Owner / Developer": "",
-    "API Identifier": "post|{{baseurl}}|/auth/token|login auth uat api|tc01 - valid credentials return token",
+    "API Identifier": "post|/auth/token|login auth uat api|tc01 - valid credentials return token",
     "Comments": "Source: collections/auth/Login_Auth_UAT_API.json; Data-driven: test-data/auth/Login_Auth_UAT_API.csv; No saved response example in source file"
   },
   {
@@ -896,7 +896,7 @@
     "Example Response Payload": "{\n  \"email\": \"<email>\"\n}",
     "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
     "Owner / Developer": "",
-    "API Identifier": "get|{{base_url}}|/users/me|users|get profile",
+    "API Identifier": "get|/users/me|users|get profile",
     "Comments": "Source: bruno/users/get-profile.bru; No saved response example in source file; Parsed from Bruno file"
   }
 ]
