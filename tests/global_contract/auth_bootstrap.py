@@ -177,7 +177,13 @@ class AuthBootstrap:
         self._login_count += 1
         try:
             response = perform_api_request(provider_row, login_config)
-        except Exception as error:
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except BaseException as error:
+            # BaseException, not Exception: perform_api_request signals an
+            # unusable provider row with pytest.skip, whose Skipped derives from
+            # BaseException and would otherwise abort the whole run.
+            #
             # The helper already redacts its own attachments; only the exception
             # type is repeated here, never its message, which could embed a URL
             # carrying query-string credentials.

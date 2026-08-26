@@ -71,7 +71,7 @@ COLLECTIONS_DIR = ROOT_DIR / "collections"
 GLOBAL_TIER_SOURCE = Path(__file__).with_name("test_global_api_contract.py")
 GENERATED_TESTS_DIR = ROOT_DIR / "tests" / "auto_generated"
 
-CATALOGUE_VERSION = "1.1"
+CATALOGUE_VERSION = "1.2"
 
 #: Test-case id published for a request that runs but asserts nothing.
 #:
@@ -319,7 +319,14 @@ def resolve_applicability(
         if metadata.idempotent is True
         else _not_applicable("not declared idempotent, so a repeat is not safe to send"),
     )
-    record("test_404_for_unknown_route", _PLANNED)
+    record(
+        "test_404_for_unknown_route",
+        _not_applicable(
+            "endpoint accepts path variables; unknown-route mutation is ambiguous"
+        )
+        if resolver.declares_path_variables(method, path)
+        else _PLANNED,
+    )
     record(
         "test_401_without_valid_token",
         _PLANNED
@@ -343,24 +350,32 @@ def resolve_applicability(
         else _not_applicable("no request body to substitute Unicode into"),
     )
 
-    # Host-level probes: PLANNED only for the representative case, matching the
-    # probe/result split the tier uses. Every other API on the host still gets a
-    # verdict, pointing at where the measurement is reported.
-    host_note = f"host-level probe for {host or 'this host'} is reported against the host's representative API"
+    # Host-level probes measure a gateway property, so at run time exactly one
+    # API per host carries the measurement and the rest reference it.
+    #
+    # Which API that is depends on *batch composition*, which the catalogue
+    # cannot know: an API that is not the representative across all 45 is the
+    # representative in a batch of one. Predicting NOT_APPLICABLE here therefore
+    # produced NOT_APPLICABLE -> PASS at run time — the one transition the
+    # contract says cannot happen, and the direction a consumer is entitled to
+    # trust. So these are PLANNED wherever a host resolves, and the run-time
+    # result says which API actually measured.
+    host_note = (
+        "runs once per host: at run time one API on this host carries the "
+        "measurement and the others reference it"
+    )
     for function in sorted(HOST_LEVEL_TESTS):
-        if not host:
+        if not host and not is_host_representative:
             record(function, _not_applicable("no resolvable host to probe"))
-        elif not is_host_representative:
-            record(function, _not_applicable(host_note))
         elif function == "test_request_payload_size_enforcement":
             if metadata.max_payload_bytes is None:
                 record(function, _not_applicable("no payload ceiling to exercise"))
             elif not has_body:
                 record(function, _not_applicable("takes no request body to oversize"))
             else:
-                record(function, _PLANNED)
+                record(function, {"state": ApplicabilityState.PLANNED, "reason": host_note})
         else:
-            record(function, _PLANNED)
+            record(function, {"state": ApplicabilityState.PLANNED, "reason": host_note})
 
     return verdicts
 

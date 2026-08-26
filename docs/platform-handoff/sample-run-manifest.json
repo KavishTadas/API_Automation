@@ -11,83 +11,9 @@
       "authProviderApiId": "post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
     },
     {
-      "definition": {
-        "API ID": "API-001",
-        "API / Feature Name": "Get All Leave Reports",
-        "Module": "HCM - Leave Management",
-        "Purpose": "Return every leave request for a month and year, with aggregate status counts",
-        "Owner / Dev Contact": "QA Platform",
-        "HTTP Method": "GET",
-        "Base URL": "https://devmcdphcmplatform.omfysgroup.com",
-        "Endpoint Path": "/user/leaves/getAllLeaveReports",
-        "Auth Type": "Bearer Token",
-        "Idempotent (Y/N)": "Yes",
-        "Environment(s)": "Dev, QA, UAT",
-        "API Version": "v1",
-        "Last Updated": "2026-08-25",
-        "cURL": "curl -X GET 'https://devmcdphcmplatform.omfysgroup.com/user/leaves/getAllLeaveReports?month=4&year=2026' -H 'Authorization: Bearer <token>'",
-        "Postman Collection Link": "API_Automation repo /collections/Leave_API.json",
-        "payloads": [
-          {
-            "API ID": "API-001",
-            "Payload Type": "Request Body",
-            "Response status": "na",
-            "Sample JSON": "{\"month\": 4, \"year\": 2026}"
-          },
-          {
-            "API ID": "API-001",
-            "Payload Type": "Success Response",
-            "Response status": "200",
-            "Sample JSON": "{\"status\": \"success\", \"errorCode\": null, \"message\": \"Leave report fetched successfully\", \"data\": {\"count\": {\"approved\": 12, \"pending\": 3, \"cancelled\": 1, \"rejected\": 2}, \"leaveReport\": [{\"lr_no\": 1042, \"lr_id\": 5311, \"subject\": \"Sick Leave\", \"application_date\": \"15-Apr-2026\", \"status\": \"Approved\", \"start_date\": \"17-Apr-2026\", \"end_date\": \"17-Apr-2026\", \"leave_type\": \"Sick Leave\", \"emp_name\": \"Sample Employee\", \"day_type\": \"Full Day\", \"empid\": 4471, \"purpose\": \"Medical appointment\", \"reason\": \"Approved by reporting manager\"}]}, \"timestamp\": \"04-Aug-2026 T09:53:23\"}"
-          },
-          {
-            "API ID": "API-001",
-            "Payload Type": "Error Request Body",
-            "Response status": "na",
-            "Sample JSON": "{\"month\": 13, \"year\": 2026}"
-          },
-          {
-            "API ID": "API-001",
-            "Payload Type": "Error Response",
-            "Response status": "400",
-            "Sample JSON": "{\"status\": \"error\", \"errorCode\": \"INVALID_MONTH\", \"message\": \"Month must be between 1 and 12.\", \"data\": null, \"timestamp\": \"04-Aug-2026 T09:53:23\"}"
-          }
-        ],
-        "rules": [
-          {
-            "API ID": "API-001",
-            "Category": "Business Rule",
-            "Description": "month must be between 1 and 12; year is a four-digit calendar year."
-          },
-          {
-            "API ID": "API-001",
-            "Category": "Business Rule",
-            "Description": "purpose and reason may be null for bulk or administratively created entries."
-          },
-          {
-            "API ID": "API-001",
-            "Category": "Dependency",
-            "Description": "Requires a valid Bearer token from POST /auth/token before it can be called."
-          },
-          {
-            "API ID": "API-001",
-            "Category": "Edge Case",
-            "Description": "A month with no leave requests returns an empty leaveReport array with zeroed counts."
-          },
-          {
-            "API ID": "API-001",
-            "Category": "Edge Case",
-            "Description": "An invalid month returns HTTP 400 with errorCode INVALID_MONTH."
-          },
-          {
-            "API ID": "API-001",
-            "Category": "Non-Functional",
-            "Description": "Read-only endpoint; safe to call repeatedly. Observed responses are large for busy months."
-          }
-        ]
-      },
-      "credentialAlias": "leave-svc-uat-01",
-      "authProviderApiId": "post|{{authbaseurl}}|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+      "ref": "get|{{baseurl}}|/api/attendancepolicy|attendance policy master|get all policies",
+      "credentialAlias": "attendance-svc-uat-01",
+      "authProviderApiId": "post|{{baseurl}}|/auth/token|login auth uat api|tc01 - valid credentials return token"
     }
   ]
 }

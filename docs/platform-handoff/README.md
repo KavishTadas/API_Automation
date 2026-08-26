@@ -96,6 +96,28 @@ One login per distinct `(authProviderApiId, credentialAlias)` pair per run.
 Eight APIs sharing a pair perform one login between them. An API with no auth
 requirement attempts none.
 
+### Why the provider is per-API and not one global setting
+
+This looks like over-engineering until you hit it. It is load-bearing today:
+
+| API | Platform | Working provider |
+|---|---|---|
+| Leave | `devmcdphcmplatform` | `Employee_Auth_API` (dev host) |
+| Attendance | `uatmcdphcmplatform` | **`Login_Auth_UAT_API`** (UAT host) |
+
+A token minted by `Employee_Auth_API` is **rejected by the UAT Attendance
+platform** with `INVALID_TOKEN`. The token from `Login_Auth_UAT_API` returns 200
+against the same endpoint. Verified directly, not inferred.
+
+So a single global auth setting cannot drive a batch spanning both platforms —
+which is exactly what an integration run does. The shipped
+`sample-run-manifest.json` shows both providers side by side for this reason.
+
+This is also why `Login_Auth_UAT_API` must not be merged into
+`Employee_Auth_API` until the dev/UAT auth consolidation is settled. The two
+collections look near-duplicate and reviewing them invites exactly that merge;
+they issue tokens that different platforms accept.
+
 ---
 
 ## 3. What you get back: the result document

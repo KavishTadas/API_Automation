@@ -99,6 +99,19 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo) -> Any:
     if was_xfail and not reason:
         reason = getattr(report, "wasxfail", "") or None
 
+    if reason is None and report.failed:
+        # A failure's longrepr is a traceback object, not the tuple a skip uses,
+        # so the skip path above leaves it empty — and a FAIL with no reason is
+        # a red row the platform cannot explain. Take the assertion's own crash
+        # message: it is the one line that says what was expected and what came
+        # back. The emitter redacts it on write like every other string.
+        crash = getattr(getattr(report, "longrepr", None), "reprcrash", None)
+        message = str(getattr(crash, "message", "") or "").strip()
+        if not message:
+            message = str(getattr(report, "longreprtext", "") or "").strip()
+        # Assertion messages are multi-line; the first two carry the claim.
+        reason = " ".join(message.splitlines()[:2]).strip() or None
+
     host_level = function_name in HOST_LEVEL_TESTS
     references_host = host_level and "is reported against" in str(reason or "")
 

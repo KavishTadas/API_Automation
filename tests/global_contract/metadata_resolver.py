@@ -105,6 +105,17 @@ GENERIC_MODULE_TOKENS = frozenset(
 
 _DEFINITIONS_ENV_VAR = "GLOBAL_CONTRACT_API_DEFINITIONS"
 
+#: A `{var}` path template, raw or percent-encoded as the inventory records it.
+_PATH_VARIABLE_MARKER = re.compile(r"\{[^/}]+\}|%7B[^/]*?%7D", re.IGNORECASE)
+
+#: A path segment that looks like a *value* rather than a sub-resource name:
+#: a number, a uuid, or an explicit template. `/foo/1` is an id beneath `/foo`;
+#: `/foo/status` is a different endpoint.
+_VALUE_SHAPED_SEGMENT = re.compile(
+    r"\d+|\{[^/}]+\}|%7B[^/]*?%7D|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+    re.IGNORECASE,
+)
+
 
 def _is_null_token(value: Any) -> bool:
     """Return whether ``value`` is one of the template's "no value" spellings."""
@@ -548,6 +559,58 @@ class MetadataResolver:
         if not match:
             return frozenset()
         return frozenset(int(code) for code in re.findall(r"\d{3}", match.group(1)))
+
+    def declares_path_variables(self, method: str, path: str) -> bool:
+        """Whether this endpoint routes a path variable beneath it.
+
+        Matters because ``test_404_for_unknown_route`` probes for an unknown
+        route by appending a segment. Where the endpoint accepts a path variable
+        the appended segment is a *valid route with a malformed id*, so a 400 is
+        correct and the mutation cannot tell the two cases apart. Asserting 404
+        there produces a failure that is neither an API defect nor a tier defect.
+
+        Four signals, any one sufficient:
+
+        1. the OpenAPI path template contains ``{...}``
+        2. the declared path contains ``{...}`` — raw or percent-encoded, which
+           is how the inventory records it
+        3. an inventory row declares a ``path variables:`` section
+        4. a sibling row extends this exact path by one *value-shaped* segment
+
+        The fourth carries the weight in practice. ``/api/attendancepolicy``
+        declares no variable of its own, but ``/api/attendancepolicy/1`` and
+        ``/2`` exist alongside it, which is what proves the family routes an id
+        beneath it. A sub-resource name like ``/status`` is deliberately not
+        value-shaped, so ``/foo`` plus ``/foo/status`` is not treated as
+        parameterized.
+        """
+        method = str(method).upper()
+
+        for path_key in self._openapi_paths():
+            if "{" in str(path_key) and str(path_key) != path:
+                if str(path_key).split("{", 1)[0].rstrip("/") == str(path).rstrip("/"):
+                    return True
+
+        if _PATH_VARIABLE_MARKER.search(str(path or "")):
+            return True
+
+        for row in self.inventory_rows(method, path):
+            if "path variables" in str(row.get("Request Parameters", "")).lower():
+                return True
+
+        base = str(path or "").rstrip("/")
+        if not base:
+            return False
+        for row in self._sources.api_rows:
+            candidate = str(row.get("Endpoint / Path", "") or "").rstrip("/")
+            if not candidate.startswith(f"{base}/"):
+                continue
+            remainder = candidate[len(base) + 1 :]
+            if "/" in remainder:
+                continue  # two or more segments deeper; not this endpoint's id
+            if _VALUE_SHAPED_SEGMENT.fullmatch(remainder):
+                return True
+        return False
 
     def resolve_ref(self, ref: str) -> dict[str, Any] | None:
         """Resolve a manifest ``ref`` to an inventory row, or ``None``.

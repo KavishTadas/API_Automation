@@ -441,6 +441,7 @@ def _cases_from_manifest(manifest: Any) -> tuple[OperationCase, ...]:
                         )
                     )
                     continue
+                api_row = _with_registered_base_url(resolver, api_row, environment)
                 metadata = resolver.resolve(
                     str(api_row.get("HTTP Method", "")).upper(),
                     str(api_row.get("Endpoint / Path", "")),
@@ -465,6 +466,66 @@ def _cases_from_manifest(manifest: Any) -> tuple[OperationCase, ...]:
             )
 
     return tuple(cases)
+
+
+def _with_registered_base_url(
+    resolver: Any,
+    api_row: dict[str, Any],
+    environment: str,
+) -> dict[str, Any]:
+    """Apply module-based base-URL precedence to an inventory row.
+
+    A `ref` entry previously took the inventory's ``Base URL`` verbatim, while an
+    inline definition resolved its host from the registered
+    ``<MODULE>_BASE_URL_<ENV>`` keys. That split meant the same API reached two
+    different hosts depending on how it was named — and since the platform uses
+    `ref` for every repo-defined API, the referenced form was the one getting the
+    stale host. The 13 Attendance rows carry ``{{baseURL}}``, which resolves to
+    ``BASE_URL`` rather than ``ATTENDANCE_BASE_URL``.
+
+    Precedence matches the inline path exactly: registered env-scoped key,
+    registered unscoped key, then the row's own ``Base URL``. Where a module's
+    registered key holds the same value the row already had — Auth and Leave —
+    this is a no-op.
+
+    The row is copied, never mutated: ``api-docs/API_File.json`` is a generated
+    artifact and the fix that belongs in it is a regeneration, not an edit.
+    """
+    module = str(api_row.get("Module Name", "") or "")
+    declared = str(api_row.get("Base URL", "") or "")
+    if not module or not declared:
+        return api_row
+
+    config = _runtime_config_snapshot()
+
+    # Only rows that name no host of their own are re-pointed. A row written as
+    # `{{authBaseUrl}}` or as a literal URL has already chosen; overriding that
+    # would silently move traffic somebody deliberately aimed. Only the generic
+    # `{{baseURL}}` fallback — which is what all 13 Attendance rows carry — is
+    # treated as "unspecified".
+    if _resolve_templates(declared, config).strip() != str(
+        config.get("BASE_URL", "") or ""
+    ).strip():
+        return api_row
+
+    # The registered key must match the module's *leading* token, not any token.
+    # Matching any token lets a generic word hijack a specific module: "Login
+    # Auth UAT API" contains AUTH, and AUTH_BASE_URL points at the dev host —
+    # which would have moved the one provider that mints tokens the UAT
+    # Attendance platform accepts. "Attendance Policy Master" leads with
+    # ATTENDANCE and is re-pointed correctly.
+    stems = resolver.module_key_candidates(module)
+    leading = stems[-1] if len(stems) == 1 else (stems[1] if len(stems) > 1 else "")
+    if not leading:
+        return api_row
+
+    resolution = resolver.resolve_base_url(leading, config, environment, "")
+    if resolution.url is None or resolution.is_ambiguous:
+        # Nothing registered for this module, or more than one candidate matched.
+        # Either way, leave the row as authored rather than guessing at a host.
+        return api_row
+
+    return {**api_row, "Base URL": resolution.url}
 
 
 def _definition_source(definition: Any) -> str:
@@ -651,6 +712,21 @@ def _api_row_with_authorization(
     }
 
 
+def _is_recoverable(error: BaseException) -> bool:
+    """Whether one API's failure may be absorbed without ending the run.
+
+    ``perform_api_request`` reports an unusable request row by calling
+    ``pytest.skip``, and pytest's ``Skipped`` derives from ``BaseException`` —
+    not ``Exception``. A plain ``except Exception`` therefore lets it escape the
+    session fixture, and one API with, say, an unresolvable ``{{token}}``
+    placeholder aborts the bootstrap for every other API in the batch. That is
+    exactly the fail-soft invariant this tier exists to hold.
+
+    Interrupts still propagate: the operator asked for those.
+    """
+    return not isinstance(error, (KeyboardInterrupt, SystemExit))
+
+
 def _timed_request(
     api_row: dict[str, Any],
     runtime_config: dict[str, str],
@@ -765,7 +841,9 @@ def global_contract_context(request: pytest.FixtureRequest) -> GlobalContractCon
 
         try:
             response, duration_ms = _timed_request(operation_case.api_row, case_config)
-        except Exception as error:
+        except BaseException as error:
+            if not _is_recoverable(error):
+                raise
             # Nothing an individual API does may abort the shared session
             # fixture; that would turn one API's problem into the whole batch's.
             print(
@@ -800,7 +878,9 @@ def global_contract_context(request: pytest.FixtureRequest) -> GlobalContractCon
             ):
                 try:
                     samples.append(perform_api_request(api_row, case_config))
-                except Exception:
+                except BaseException as error:
+                    if not _is_recoverable(error):
+                        raise
                     continue
 
             # An uploaded definition brings its own error triggers, paired
@@ -810,7 +890,9 @@ def global_contract_context(request: pytest.FixtureRequest) -> GlobalContractCon
                 for trigger_row in error_trigger_rows(definition, operation_case.api_row):
                     try:
                         samples.append(perform_api_request(trigger_row, case_config))
-                    except Exception:
+                    except BaseException as error:
+                        if not _is_recoverable(error):
+                            raise
                         continue
 
         response_samples[operation_key] = tuple(samples)
@@ -1520,6 +1602,20 @@ def test_404_for_unknown_route(
     global_contract_context: GlobalContractContext,
 ) -> None:
     api_row = _require_runnable(operation_case, global_contract_context)
+
+    # This check probes for an unknown route by appending a segment. Where the
+    # endpoint routes a path variable beneath it, the appended segment is a
+    # *valid route carrying a malformed id* — 400 is the correct answer, and the
+    # mutation cannot tell that apart from a genuinely unknown route. Asserting
+    # 404 there manufactures a failure that is neither an API defect nor a tier
+    # defect, and it would recur across most Attendance write endpoints.
+    if _resolver().declares_path_variables(operation_case.method, operation_case.path):
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            "endpoint accepts path variables; unknown-route mutation is ambiguous",
+            field="path_variables",
+        )
+
     unknown_route_row = {
         **api_row,
         "Endpoint / Path": f"{operation_case.path.rstrip('/')}/nonexistent-xyz",

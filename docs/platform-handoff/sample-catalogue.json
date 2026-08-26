@@ -1,5 +1,5 @@
 {
-  "catalogueVersion": "1.1",
+  "catalogueVersion": "1.2",
   "resultStates": {
     "reasonSeparator": ": ",
     "reasonFormat": "<STATE>: <detail>",
@@ -2054,8 +2054,8 @@
         "reason": ""
       },
       "global_contract::test_404_for_unknown_route": {
-        "state": "PLANNED",
-        "reason": ""
+        "state": "NOT_APPLICABLE",
+        "reason": "endpoint accepts path variables; unknown-route mutation is ambiguous"
       },
       "global_contract::test_content_type_negotiation": {
         "state": "NOT_APPLICABLE",
@@ -2075,7 +2075,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "reason": "takes no request body to oversize"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -2086,8 +2086,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -2125,7 +2125,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "reason": "takes no request body to oversize"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -2136,8 +2136,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -2175,7 +2175,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "reason": "takes no request body to oversize"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -2186,8 +2186,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -2224,8 +2224,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -2236,8 +2236,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -2275,7 +2275,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "reason": "takes no request body to oversize"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -2286,8 +2286,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -2325,7 +2325,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "reason": "takes no request body to oversize"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -2336,8 +2336,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -2375,7 +2375,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "reason": "takes no request body to oversize"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -2386,8 +2386,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -2425,7 +2425,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "reason": "takes no request body to oversize"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -2436,8 +2436,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -2475,7 +2475,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+        "reason": "takes no request body to oversize"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -2486,8 +2486,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -2525,7 +2525,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+        "reason": "takes no request body to oversize"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -2536,8 +2536,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -2575,7 +2575,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "reason": "takes no request body to oversize"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -2586,8 +2586,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -2625,7 +2625,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "reason": "takes no request body to oversize"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -2636,8 +2636,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -2675,7 +2675,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "reason": "takes no request body to oversize"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -2686,8 +2686,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -2725,7 +2725,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "reason": "takes no request body to oversize"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -2736,8 +2736,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -2754,8 +2754,8 @@
         "reason": ""
       },
       "global_contract::test_404_for_unknown_route": {
-        "state": "PLANNED",
-        "reason": ""
+        "state": "NOT_APPLICABLE",
+        "reason": "endpoint accepts path variables; unknown-route mutation is ambiguous"
       },
       "global_contract::test_content_type_negotiation": {
         "state": "NOT_APPLICABLE",
@@ -2775,7 +2775,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "reason": "takes no request body to oversize"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -2786,8 +2786,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -2825,7 +2825,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "reason": "takes no request body to oversize"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -2836,8 +2836,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -2854,8 +2854,8 @@
         "reason": ""
       },
       "global_contract::test_404_for_unknown_route": {
-        "state": "PLANNED",
-        "reason": ""
+        "state": "NOT_APPLICABLE",
+        "reason": "endpoint accepts path variables; unknown-route mutation is ambiguous"
       },
       "global_contract::test_content_type_negotiation": {
         "state": "NOT_APPLICABLE",
@@ -2875,7 +2875,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "reason": "takes no request body to oversize"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -2886,8 +2886,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -2937,7 +2937,7 @@
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
-        "reason": ""
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -2975,7 +2975,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+        "reason": "takes no request body to oversize"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -2986,8 +2986,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -3024,8 +3024,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -3036,8 +3036,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -3075,7 +3075,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "reason": "takes no request body to oversize"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -3086,8 +3086,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -3124,8 +3124,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -3136,8 +3136,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -3174,8 +3174,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -3186,8 +3186,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -3224,8 +3224,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -3236,8 +3236,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -3275,7 +3275,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "reason": "takes no request body to oversize"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -3286,8 +3286,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -3325,7 +3325,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "reason": "takes no request body to oversize"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -3336,8 +3336,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "NOT_APPLICABLE",
@@ -3375,7 +3375,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
-        "reason": ""
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -3387,7 +3387,7 @@
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
-        "reason": ""
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -3424,8 +3424,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -3436,8 +3436,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -3474,8 +3474,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -3486,8 +3486,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -3524,8 +3524,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -3536,8 +3536,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -3575,7 +3575,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
-        "reason": ""
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -3587,7 +3587,7 @@
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
-        "reason": ""
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -3624,8 +3624,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://dev_mcdp_be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -3636,8 +3636,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://dev_mcdp_be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -3674,8 +3674,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://dev_mcdp_be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -3686,8 +3686,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://dev_mcdp_be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -3724,8 +3724,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -3736,8 +3736,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -3754,8 +3754,8 @@
         "reason": ""
       },
       "global_contract::test_404_for_unknown_route": {
-        "state": "PLANNED",
-        "reason": ""
+        "state": "NOT_APPLICABLE",
+        "reason": "endpoint accepts path variables; unknown-route mutation is ambiguous"
       },
       "global_contract::test_content_type_negotiation": {
         "state": "NOT_APPLICABLE",
@@ -3774,8 +3774,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -3786,8 +3786,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -3804,8 +3804,8 @@
         "reason": ""
       },
       "global_contract::test_404_for_unknown_route": {
-        "state": "PLANNED",
-        "reason": ""
+        "state": "NOT_APPLICABLE",
+        "reason": "endpoint accepts path variables; unknown-route mutation is ambiguous"
       },
       "global_contract::test_content_type_negotiation": {
         "state": "NOT_APPLICABLE",
@@ -3824,8 +3824,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -3836,8 +3836,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -3854,8 +3854,8 @@
         "reason": ""
       },
       "global_contract::test_404_for_unknown_route": {
-        "state": "PLANNED",
-        "reason": ""
+        "state": "NOT_APPLICABLE",
+        "reason": "endpoint accepts path variables; unknown-route mutation is ambiguous"
       },
       "global_contract::test_content_type_negotiation": {
         "state": "NOT_APPLICABLE",
@@ -3874,8 +3874,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -3886,8 +3886,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -3925,7 +3925,7 @@
       },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
-        "reason": ""
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -3937,7 +3937,7 @@
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
-        "reason": ""
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -3974,8 +3974,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -3986,8 +3986,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -4004,8 +4004,8 @@
         "reason": ""
       },
       "global_contract::test_404_for_unknown_route": {
-        "state": "PLANNED",
-        "reason": ""
+        "state": "NOT_APPLICABLE",
+        "reason": "endpoint accepts path variables; unknown-route mutation is ambiguous"
       },
       "global_contract::test_content_type_negotiation": {
         "state": "NOT_APPLICABLE",
@@ -4024,8 +4024,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -4036,8 +4036,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -4074,8 +4074,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -4086,8 +4086,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for http://localhost:9078 is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -4124,8 +4124,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -4136,8 +4136,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://devmcdphcmplatform.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -4174,8 +4174,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -4186,8 +4186,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -4224,8 +4224,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -4236,8 +4236,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -4274,8 +4274,8 @@
         "reason": ""
       },
       "global_contract::test_request_payload_size_enforcement": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_response_matches_full_schema": {
         "state": "PLANNED",
@@ -4286,8 +4286,8 @@
         "reason": ""
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "NOT_APPLICABLE",
-        "reason": "host-level probe for https://uat-mcdp-be.omfysgroup.com is reported against the host's representative API"
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_special_characters_in_input": {
         "state": "PLANNED",
@@ -4299,6 +4299,11 @@
       }
     }
   },
-  "environments": [],
-  "credentialAliases": []
+  "environments": [
+    "UAT"
+  ],
+  "credentialAliases": [
+    "ATTENDANCE_SVC_UAT_01",
+    "LEAVE_SVC_UAT_01"
+  ]
 }
