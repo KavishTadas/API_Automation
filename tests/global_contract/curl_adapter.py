@@ -42,6 +42,7 @@ __all__ = [
     "ParsedCurl",
     "definition_to_inventory_row",
     "error_trigger_rows",
+    "curl_to_definition",
     "parse_curl",
     "curl_to_inventory_row",
 ]
@@ -123,6 +124,19 @@ def _tokenize(command: str) -> list[str]:
     return tokens[1:]
 
 
+def _header_name_hint(raw_header: str) -> str:
+    """A safe-to-print description of a malformed header.
+
+    Returns the leading token when it looks like a header name, and
+    ``'<withheld>'`` otherwise -- because a bare pasted token has no name to
+    report and printing it is exactly what this avoids.
+    """
+    leading = str(raw_header or "").strip().split(" ", 1)[0].strip()
+    if leading and len(leading) <= 40 and re.fullmatch(r"[A-Za-z0-9_-]+", leading):
+        return repr(leading)
+    return "<withheld>"
+
+
 def parse_curl(command: str) -> ParsedCurl:
     """Parse a cURL command. Raises :class:`CurlParseError` with a clear message."""
     tokens = _tokenize(command)
@@ -149,8 +163,14 @@ def parse_curl(command: str) -> ParsedCurl:
                 raise CurlParseError("-H/--header was given without a header")
             raw_header = tokens[index]
             if ":" not in raw_header:
+                # Never echo the header text. "-H 'Authorization Bearer <token>'"
+                # is a plausible paste error, and quoting it back put a live
+                # token into an exception message -- which reaches a log, a
+                # report, or a platform's error surface. Report the name only,
+                # and only when it is shaped like a header name.
                 raise CurlParseError(
-                    f"header {raw_header!r} is not in 'Name: value' form"
+                    f"header {_header_name_hint(raw_header)} is not in "
+                    "'Name: value' form (value withheld)"
                 )
             name, value = raw_header.split(":", 1)
             name = name.strip()

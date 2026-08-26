@@ -66,9 +66,11 @@ Three documents, three jobs:
   reach you as a metadata gap rather than as a broken reference. Safe to store:
   the ref survives a base-URL change, and a full reshuffle and renumbering of the
   inventory, byte-identical.
-- `definition` — an uploaded API, travelling **by value**. Parse the user's Excel
-  or cURL upload into the 15-column shape and inline it. The engine stores
-  nothing.
+- `definition` — an uploaded API, travelling **by value**, in the 15-column
+  shape. The engine stores nothing.
+
+  **Do not write your own cURL parser. The engine owns cURL parsing — shell out
+  to it.** See §2.1.
 
 **Unknown fields are rejected**, not ignored — a typo'd `authProviderApiID`
 would otherwise produce a run that looks fine and quietly skipped its auth.
@@ -86,6 +88,36 @@ holding a JWT or a `password=…` string. **Rejections name the JSON path and
 never echo the value.** Sample payload *content* is exempt: an auth API's
 `Success Response` legitimately documents a `token` field, and that is a
 description of the API, not a credential for it.
+
+### 2.1 Turning a cURL upload into a `definition`
+
+```bash
+python -m tests.global_contract.parse_curl <file>      # or '-' for stdin
+```
+
+It prints a `definition` block on stdout, ready to drop into `apis[]`. Add
+`--entry` to get the whole entry wrapped, and `--api-id` / `--name` / `--module`
+to fill the identity fields. Warnings go to stderr, so stdout pipes straight
+into a manifest. Exit `0` parsed, `2` unparseable, `3` the tool broke.
+
+**Why this is a command and not a spec.** People paste working commands, and
+working commands carry live tokens. `Authorization`, `Proxy-Authorization`,
+`Cookie` and `-u/--user` credentials are discarded at parse time — they reach
+neither the definition, the stored `cURL` text, a warning, an error message, nor
+this command's output. What survives is the *fact* that the endpoint is secured:
+`"Auth Type": "Bearer Token"`. The credential itself comes from
+`credentialAlias` at run time.
+
+A second parser would have to reimplement that, and the failure mode of getting
+it wrong is a user's live token sitting in your logs. It is not a detail worth
+re-deriving from a document, so it is a command you call instead.
+
+`scripts/regression/verify-curl-authorization-stripped.py` holds the line: it
+checks stdout, stderr, warnings, the stored command, the manifest block and the
+exception messages raised by malformed input — including a header missing its
+colon, which is the shape of a real paste error.
+
+Excel uploads still parse platform-side into the same 15-column shape.
 
 ### Environments
 
@@ -386,6 +418,12 @@ python -m tests.global_contract.catalogue docs/platform-handoff/sample-catalogue
 
 # redaction regression
 python scripts/regression/verify-result-emitter-redaction.py
+
+# cURL upload -> manifest definition block (see §2.1)
+python -m tests.global_contract.parse_curl request.curl --api-id API-001
+
+# proves a pasted token survives nowhere, including error messages
+python scripts/regression/verify-curl-authorization-stripped.py
 ```
 
 ### About the samples
