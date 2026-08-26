@@ -1,0 +1,1339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HCM API Test Console &amp; Enterprise Analytics</title>
+<style>
+/* ============================================================
+   Design tokens. Light is the base; dark overrides only colour.
+   ============================================================ */
+:root{
+  --bg:#f6f8fa; --rail:#ffffff; --panel:#ffffff; --panel-2:#f1f4f8;
+  --panel-hover:#e7ecf3; --line:#d6dee8; --line-soft:#e6ecf3;
+  --text:#111827; --text-dim:#5b6875; --text-faint:#8a97a6;
+  --accent:#0f766e; --accent-ink:#ffffff; --accent-bg:rgba(15,118,110,.10);
+  --accent-line:rgba(15,118,110,.32);
+  --blue:#2563eb; --blue-bg:rgba(37,99,235,.10);
+  --purple:#7c3aed; --purple-bg:rgba(124,58,237,.10);
+  --amber:#b45309; --amber-bg:rgba(180,83,9,.10);
+  --rose:#be123c; --rose-bg:rgba(190,18,60,.10);
+  --cyan:#0e7490; --cyan-bg:rgba(14,116,144,.10);
+  --slate:#64748b; --slate-bg:rgba(100,116,139,.12);
+  --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.10);
+  --shadow-lg:0 12px 32px rgba(16,24,40,.16);
+  --mono:ui-monospace,"SF Mono","Cascadia Code",Consolas,"Liberation Mono",monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --r:10px;
+}
+:root[data-theme="dark"]{
+  --bg:#0b0e13; --rail:#0f141c; --panel:#131922; --panel-2:#1a212c;
+  --panel-hover:#222b38; --line:#28323f; --line-soft:#1f2833;
+  --text:#e6ecf3; --text-dim:#93a1b2; --text-faint:#697687;
+  --accent:#2dd4bf; --accent-ink:#04231f; --accent-bg:rgba(45,212,191,.10);
+  --accent-line:rgba(45,212,191,.30);
+  --blue:#60a5fa; --blue-bg:rgba(96,165,250,.12);
+  --purple:#a78bfa; --purple-bg:rgba(167,139,250,.12);
+  --amber:#fbbf24; --amber-bg:rgba(251,191,36,.12);
+  --rose:#fb7185; --rose-bg:rgba(251,113,133,.12);
+  --cyan:#22d3ee; --cyan-bg:rgba(34,211,238,.12);
+  --slate:#94a3b8; --slate-bg:rgba(148,163,184,.14);
+  --shadow:0 1px 2px rgba(0,0,0,.4); --shadow-lg:0 16px 40px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--text);font:14px/1.55 var(--sans);display:flex;overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ---------- Rail ---------- */
+.rail{width:60px;background:var(--rail);border-right:1px solid var(--line);display:flex;
+  flex-direction:column;align-items:center;padding:14px 0;gap:10px;flex-shrink:0;z-index:20}
+.rail-logo{width:36px;height:36px;border-radius:9px;background:var(--accent-bg);
+  border:1px solid var(--accent-line);color:var(--accent);font:700 12px/1 var(--mono);
+  display:flex;align-items:center;justify-content:center;margin-bottom:6px}
+.rail-btn{width:42px;height:42px;border-radius:9px;border:1px solid transparent;background:none;
+  color:var(--text-dim);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;cursor:pointer;transition:.15s;font-size:9px;font-weight:600}
+.rail-btn svg{width:18px;height:18px}
+.rail-btn:hover{background:var(--panel-2);color:var(--text)}
+.rail-btn.active{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-line)}
+.rail-sp{flex:1}
+
+/* ---------- Shell ---------- */
+.shell{flex:1;display:flex;flex-direction:column;min-width:0;height:100vh}
+.topbar{display:flex;align-items:center;gap:14px;padding:10px 20px;border-bottom:1px solid var(--line);
+  background:var(--panel);flex-shrink:0;flex-wrap:wrap}
+.brand h1{margin:0;font-size:14.5px;font-weight:650;letter-spacing:.2px}
+.brand .sub{color:var(--text-dim);font-size:11.5px;margin-top:1px}
+.tb-sp{flex:1}
+.field{display:flex;align-items:center;gap:6px}
+.field label{font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+select,input[type=text],input[type=search],textarea{background:var(--panel-2);border:1px solid var(--line);
+  border-radius:7px;padding:6px 9px;font-size:12.5px;outline:none;transition:.15s;max-width:100%}
+select:focus,input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg)}
+textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;width:100%}
+
+.btn{border:1px solid var(--line);background:var(--panel-2);border-radius:7px;padding:7px 12px;
+  font-size:12.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+  transition:.15s;white-space:nowrap}
+.btn:hover:not(:disabled){background:var(--panel-hover);border-color:var(--text-faint)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn svg{width:14px;height:14px}
+.btn-primary{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:700}
+.btn-primary:hover:not(:disabled){filter:brightness(1.08);background:var(--accent)}
+.btn-icon{padding:7px;width:32px;justify-content:center}
+.btn-sm{padding:4px 8px;font-size:11.5px}
+
+/* ---------- Banner ---------- */
+.banner{display:flex;align-items:flex-start;gap:9px;padding:8px 20px;font-size:11.5px;
+  background:var(--amber-bg);color:var(--amber);border-bottom:1px solid var(--line);flex-shrink:0}
+.banner svg{width:15px;height:15px;flex-shrink:0;margin-top:1px}
+.banner b{font-weight:700}
+
+/* ---------- Views ---------- */
+.view{flex:1;display:none;min-height:0}
+.view.active{display:flex}
+.scroll{overflow-y:auto;padding:18px 20px}
+
+/* ---------- Console layout ---------- */
+.console-left{width:380px;flex-shrink:0;border-right:1px solid var(--line);background:var(--panel);
+  display:flex;flex-direction:column;min-height:0}
+.console-right{flex:1;min-width:0;display:flex;flex-direction:column}
+.pane-head{padding:12px 16px;border-bottom:1px solid var(--line);flex-shrink:0}
+.pane-head h2{margin:0;font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-dim);font-weight:700}
+.pane-head .hint{font-size:11.5px;color:var(--text-faint);margin-top:3px}
+
+.tree{flex:1;overflow-y:auto;padding:8px}
+.tree-group{margin-bottom:6px}
+.tree-group-head{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:7px;
+  cursor:pointer;user-select:none}
+.tree-group-head:hover{background:var(--panel-2)}
+.tree-group-head .caret{width:14px;height:14px;transition:transform .15s;color:var(--text-faint);flex-shrink:0}
+.tree-group.collapsed .caret{transform:rotate(-90deg)}
+.tree-group.collapsed .tree-items{display:none}
+.tree-group-head .nm{font-weight:650;font-size:12.5px;flex:1;min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.tree-items{padding-left:10px}
+.tree-item{display:flex;gap:8px;align-items:flex-start;padding:5px 8px;border-radius:6px;cursor:pointer}
+.tree-item:hover{background:var(--panel-2)}
+.tree-item.sel{background:var(--accent-bg)}
+.tree-item input{margin:3px 0 0;accent-color:var(--accent);flex-shrink:0}
+.tree-item .meta{min-width:0;flex:1}
+.tree-item .l1{font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tree-item .l2{font-size:11px;color:var(--text-faint);font-family:var(--mono);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.m{font:700 9.5px/1 var(--mono);padding:3px 5px;border-radius:4px;letter-spacing:.4px;
+  display:inline-block;min-width:42px;text-align:center;flex-shrink:0}
+.m.GET{background:var(--blue-bg);color:var(--blue)}
+.m.POST{background:var(--accent-bg);color:var(--accent)}
+.m.PUT{background:var(--amber-bg);color:var(--amber)}
+.m.DELETE{background:var(--rose-bg);color:var(--rose)}
+.m.PATCH{background:var(--purple-bg);color:var(--purple)}
+
+/* ---------- State chips ---------- */
+.st{font:700 10px/1 var(--sans);padding:3px 7px;border-radius:5px;letter-spacing:.03em;
+  display:inline-block;white-space:nowrap}
+.st-PASS{background:var(--accent-bg);color:var(--accent)}
+.st-FAIL{background:var(--rose-bg);color:var(--rose)}
+.st-WARN{background:var(--amber-bg);color:var(--amber)}
+.st-NOT_APPLICABLE{background:var(--slate-bg);color:var(--slate)}
+.st-NOT_ASSERTED{background:var(--purple-bg);color:var(--purple)}
+.st-INFORMATIONAL{background:var(--cyan-bg);color:var(--cyan)}
+.st-SKIPPED_NO_TOKEN{background:var(--amber-bg);color:var(--amber)}
+.st-PLANNED{background:var(--blue-bg);color:var(--blue)}
+.pill{font:600 10px/1 var(--sans);padding:2px 6px;border-radius:99px;border:1px solid var(--line);
+  color:var(--text-faint);white-space:nowrap}
+.pill.gap{color:var(--purple);border-color:var(--purple)}
+.pill.partial{color:var(--amber);border-color:var(--amber)}
+.pill.ok{color:var(--accent);border-color:var(--accent-line)}
+
+/* ---------- Cards / KPIs ---------- */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.card-h{padding:11px 14px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:9px}
+.card-h h3{margin:0;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim)}
+.card-h .sp{flex:1}
+.card-b{padding:14px}
+.grid{display:grid;gap:14px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-bottom:14px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:13px 15px;box-shadow:var(--shadow)}
+.kpi .k{font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.05em;
+  display:flex;align-items:center;gap:6px}
+.kpi .k svg{width:14px;height:14px}
+.kpi .v{font-size:27px;font-weight:750;margin-top:5px;letter-spacing:-.5px;line-height:1.1}
+.kpi .d{font-size:11.5px;color:var(--text-faint);margin-top:3px}
+
+/* ---------- Tabs ---------- */
+.tabs{display:flex;gap:2px;padding:0 20px;border-bottom:1px solid var(--line);background:var(--panel);
+  flex-shrink:0;overflow-x:auto}
+.tab{border:none;background:none;padding:10px 12px;font-size:12.5px;font-weight:600;color:var(--text-dim);
+  cursor:pointer;border-bottom:2px solid transparent;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.tab svg{width:14px;height:14px}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab .badge{background:var(--rose);color:#fff;font:700 9.5px/1 var(--sans);padding:2.5px 5px;border-radius:99px}
+.tabpane{display:none}
+.tabpane.active{display:block}
+
+/* ---------- Tables ---------- */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);
+  font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+tbody tr:hover{background:var(--panel-2)}
+tbody tr:last-child td{border-bottom:none}
+.mono{font-family:var(--mono);font-size:11.5px}
+.dim{color:var(--text-dim)}
+.faint{color:var(--text-faint)}
+.right{text-align:right}
+.nowrap{white-space:nowrap}
+.trunc{max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---------- Misc ---------- */
+.empty{padding:44px 20px;text-align:center;color:var(--text-faint);font-size:13px}
+.empty svg{width:34px;height:34px;opacity:.4;margin-bottom:10px}
+pre{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:11px 13px;
+  font:11.5px/1.6 var(--mono);overflow-x:auto;margin:0;white-space:pre-wrap;word-break:break-word}
+code{font-family:var(--mono);font-size:11.5px;background:var(--panel-2);padding:1px 5px;border-radius:4px}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:5px 12px;font-size:12.5px}
+.kv dt{color:var(--text-dim);font-weight:600}
+.kv dd{margin:0;font-family:var(--mono);font-size:11.5px;word-break:break-word}
+.sect{margin-bottom:16px}
+.sect:last-child{margin-bottom:0}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.stack{display:flex;flex-direction:column;gap:10px}
+hr{border:none;border-top:1px solid var(--line-soft);margin:12px 0}
+
+/* ---------- Modal ---------- */
+.overlay{position:fixed;inset:0;background:rgba(8,12,18,.62);display:none;align-items:center;
+  justify-content:center;z-index:100;padding:20px;backdrop-filter:blur(3px)}
+.overlay.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-lg);
+  width:100%;max-width:760px;max-height:88vh;display:flex;flex-direction:column}
+.modal-h{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.modal-h h3{margin:0;font-size:14px;font-weight:700;flex:1}
+.modal-b{padding:18px;overflow-y:auto}
+.modal-f{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:9px;justify-content:flex-end}
+
+/* ---------- Toast ---------- */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--panel);border:1px solid var(--accent-line);
+  border-left:3px solid var(--accent);border-radius:9px;padding:11px 15px;box-shadow:var(--shadow-lg);
+  display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;z-index:200;
+  transform:translateY(150%);transition:transform .28s cubic-bezier(.2,.8,.3,1)}
+.toast.show{transform:translateY(0)}
+.toast svg{width:16px;height:16px;color:var(--accent)}
+
+/* ---------- Charts ---------- */
+.chart-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.legend{display:flex;flex-direction:column;gap:6px;font-size:12px;min-width:180px}
+.legend .li{display:flex;align-items:center;gap:8px}
+.legend .sw{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.legend .ln{flex:1;color:var(--text-dim)}
+.legend .lv{font-weight:700;font-variant-numeric:tabular-nums}
+.bar-row{display:grid;grid-template-columns:190px 1fr 54px;gap:11px;align-items:center;
+  padding:5px 0;font-size:12px}
+.bar-track{height:17px;background:var(--panel-2);border-radius:4px;overflow:hidden;display:flex}
+.bar-seg{height:100%}
+.spark{display:block}
+
+/* ---------- Run progress ---------- */
+.prog{height:3px;background:var(--panel-2);border-radius:2px;overflow:hidden;margin-top:8px}
+.prog-fill{height:100%;background:var(--accent);width:0;transition:width .2s}
+
+/* ---------- Persona ---------- */
+.seg{display:inline-flex;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:2px}
+.seg button{border:none;background:none;padding:5px 10px;border-radius:6px;font-size:11.5px;
+  font-weight:650;color:var(--text-dim);cursor:pointer;transition:.15s}
+.seg button.active{background:var(--panel);color:var(--accent);box-shadow:var(--shadow)}
+[data-persona-hide]{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- ===================== RAIL ===================== -->
+<nav class="rail">
+  <div class="rail-logo">HCM</div>
+  <button class="rail-btn active" data-view="console" title="Console">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+    Console
+  </button>
+  <button class="rail-btn" data-view="analytics" title="Analytics">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    Report
+  </button>
+  <div class="rail-sp"></div>
+  <button class="rail-btn" id="btnTheme" title="Toggle theme">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+</nav>
+
+<div class="shell">
+
+  <!-- ===================== TOPBAR ===================== -->
+  <header class="topbar">
+    <div class="brand">
+      <h1>HCM API Test Console &amp; Enterprise Analytics</h1>
+      <div class="sub" id="brandSub">Catalogue v— · 0 APIs · UAT</div>
+    </div>
+    <div class="tb-sp"></div>
+    <div class="field">
+      <label for="envSel">Env</label>
+      <select id="envSel"></select>
+    </div>
+    <div class="field">
+      <label for="credSel">Credential alias</label>
+      <select id="credSel"></select>
+    </div>
+    <div class="seg" id="personaSeg">
+      <button data-persona="qa" class="active">QA</button>
+      <button data-persona="dev">Dev</button>
+      <button data-persona="exec">Exec</button>
+      <button data-persona="devops">DevOps</button>
+    </div>
+    <button class="btn btn-icon" id="btnExport" title="Export result document (JSON)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    </button>
+  </header>
+
+  <div class="banner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span><b>UI mock — no engine attached.</b> The catalogue, hosts, modules, credential aliases and result schema are real (loaded from <code>docs/platform-handoff/</code>). Runs are <b>simulated in the browser</b>: no HTTP request leaves this page and no credential is ever read. Wire <code>runBatch()</code> to <code>POST /run</code> to make it live.</span>
+  </div>
+
+  <!-- ===================== CONSOLE ===================== -->
+  <section class="view active" id="view-console">
+    <div class="console-left">
+      <div class="pane-head">
+        <h2>API Selection</h2>
+        <div class="hint" id="selHint">0 selected</div>
+        <div style="margin-top:9px" class="row">
+          <input type="search" id="apiSearch" placeholder="Filter by path, module or method…" style="flex:1;min-width:0">
+        </div>
+        <div style="margin-top:8px" class="row">
+          <button class="btn btn-sm" id="btnSelAll">Select all</button>
+          <button class="btn btn-sm" id="btnSelNone">Clear</button>
+          <button class="btn btn-sm" id="btnSelGaps">Only assertion gaps</button>
+        </div>
+      </div>
+      <div class="tree" id="apiTree"></div>
+      <div style="padding:12px 16px;border-top:1px solid var(--line)">
+        <button class="btn btn-primary" id="btnRun" style="width:100%;justify-content:center" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Run selected batch
+        </button>
+        <div class="prog" id="runProg" style="display:none"><div class="prog-fill" id="runProgFill"></div></div>
+        <button class="btn btn-sm" id="btnCurl" style="width:100%;justify-content:center;margin-top:8px">
+          + Import API from cURL
+        </button>
+      </div>
+    </div>
+
+    <div class="console-right">
+      <div class="pane-head row">
+        <div style="flex:1;min-width:0">
+          <h2 id="detailTitle">Endpoint detail</h2>
+          <div class="hint" id="detailSub">Select an endpoint on the left to inspect it.</div>
+        </div>
+      </div>
+      <div class="scroll" id="detailPane"></div>
+    </div>
+  </section>
+
+  <!-- ===================== ANALYTICS ===================== -->
+  <section class="view" id="view-analytics">
+    <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+      <div class="tabs" id="anTabs">
+        <button class="tab active" data-tab="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Overview</button>
+        <button class="tab" data-tab="defects" data-persona-for="qa,dev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>Defects <span class="badge" id="badgeDefects">0</span></button>
+        <button class="tab" data-tab="suites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Modules</button>
+        <button class="tab" data-tab="behaviors" data-persona-for="qa,dev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>Behaviors</button>
+        <button class="tab" data-tab="timeline" data-persona-for="qa,dev,devops"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Timeline</button>
+        <button class="tab" data-tab="payloads" data-persona-for="qa,dev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg>Payloads</button>
+        <button class="tab" data-tab="perf" data-persona-for="qa,dev,devops,exec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Performance</button>
+        <button class="tab" data-tab="compliance" data-persona-for="qa,devops,exec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Contract</button>
+        <button class="tab" data-tab="json" data-persona-for="dev,devops"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>JSON</button>
+      </div>
+      <div class="scroll" id="anBody"></div>
+    </div>
+  </section>
+</div>
+
+<!-- ===================== MODALS ===================== -->
+<div class="overlay" id="ovModal">
+  <div class="modal">
+    <div class="modal-h"><h3 id="mTitle">Detail</h3><button class="btn btn-icon" data-close>✕</button></div>
+    <div class="modal-b" id="mBody"></div>
+    <div class="modal-f" id="mFoot"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+  <span id="toastMsg"></span>
+</div>
+
+<script id="seed" type="application/json">__SEED__</script>
+<script>
+"use strict";
+/* ==========================================================================
+   HCM API Test Console & Enterprise Analytics — unified single-file UI.
+
+   Data model is the project's real output contract, not an invented one:
+     - seven result states + PLANNED (catalogue-only, pre-run)
+     - passRate = PASS / (PASS + FAIL); null when the denominator is zero
+     - `ref` is an opaque join key and is NEVER rendered as a label
+     - SLA is advisory at 700ms and produces WARN, never FAIL
+   ========================================================================== */
+
+const SEED = JSON.parse(document.getElementById('seed').textContent);
+const STATES = SEED.resultStates.states.map(s => s.name);
+const DENOM = SEED.resultStates.passRateDenominatorStates;   // ["PASS","FAIL"]
+const SLA_MS = 700;
+
+/* States that prevent `clean`, in the order the shipped result documents list
+   them. This is NOT "everything that is not PASS": NOT_APPLICABLE, NOT_ASSERTED
+   and INFORMATIONAL are all counted and displayed, but none of them blocks a
+   clean run. Deriving the set by exclusion instead of naming it produced a run
+   that reported itself dirty over an INFORMATIONAL observation. */
+const CLEAN_BLOCKERS = ['FAIL', 'WARN', 'SKIPPED_NO_TOKEN'];
+const STATE_VAR = {
+  PASS:'--accent', FAIL:'--rose', WARN:'--amber', NOT_APPLICABLE:'--slate',
+  NOT_ASSERTED:'--purple', INFORMATIONAL:'--cyan', SKIPPED_NO_TOKEN:'--amber',
+  PLANNED:'--blue'
+};
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/* ---------------------------------------------------------------- state -- */
+const STATE = {
+  view:'console', tab:'overview', persona:'qa',
+  env:SEED.environments[0] || 'UAT',
+  alias:SEED.credentialAliases[0] || '',
+  selected:new Set(),
+  focus:null,
+  result:null,
+  imported:[],          // APIs added via cURL (travel by value, DR-2)
+  running:false
+};
+const LS = 'hcm-console-v1';
+function persist(){
+  try{ localStorage.setItem(LS, JSON.stringify({
+    view:STATE.view, tab:STATE.tab, persona:STATE.persona, env:STATE.env,
+    alias:STATE.alias, selected:[...STATE.selected], focus:STATE.focus,
+    imported:STATE.imported, result:STATE.result,
+    theme:document.documentElement.getAttribute('data-theme')
+  })); }catch(e){/* private mode — the UI must still work */}
+}
+function restore(){
+  let s=null;
+  try{ s = JSON.parse(localStorage.getItem(LS)||'null'); }catch(e){}
+  if(!s) return;
+  if(s.theme) document.documentElement.setAttribute('data-theme', s.theme);
+  STATE.view=s.view||'console'; STATE.tab=s.tab||'overview';
+  STATE.persona=s.persona||'qa'; STATE.env=s.env||STATE.env; STATE.alias=s.alias||STATE.alias;
+  STATE.selected=new Set(s.selected||[]); STATE.focus=s.focus||null;
+  STATE.imported=s.imported||[]; STATE.result=s.result||null;
+}
+
+/* cross-tab bridge: console in one tab, report in another */
+let BUS=null;
+try{ BUS=new BroadcastChannel('hcm-console'); BUS.onmessage=e=>{
+  if(e.data && e.data.type==='result'){ STATE.result=e.data.result; renderAnalytics(); }
+}; }catch(e){}
+
+/* ---------------------------------------------------------------- utils -- */
+const $  = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtMs = n => n==null ? '—' : (n>=1000 ? (n/1000).toFixed(2)+'s' : n.toFixed(1)+'ms');
+const pct = n => n==null ? 'n/a' : (n*100).toFixed(1)+'%';
+
+/** Label an API the way a human reads it. Never the opaque ref. */
+function label(a){ return a.method+' '+a.path; }
+function subLabel(a){ return a.module + (a.subModule && a.subModule!==a.module ? ' › '+a.subModule : ''); }
+
+function allApis(){ return SEED.apis.concat(STATE.imported); }
+function apiByRef(ref){ return allApis().find(a=>a.ref===ref) || null; }
+
+function toast(msg){
+  $('#toastMsg').textContent=msg; const t=$('#toast');
+  t.classList.add('show'); clearTimeout(toast._t);
+  toast._t=setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+/* --------------------------------------------------- summary arithmetic -- */
+/** The project invariant, implemented once and reused everywhere. */
+function summarise(results){
+  /* A result that merely points at another API's host-level measurement is
+     tallied in `referencedHostResults` and excluded from `total` and `counts`.
+     Counting it as a NOT_APPLICABLE would inflate every batch by one row per
+     API per host probe — the same double-count the host-level design exists to
+     avoid. Verified against the shipped sample-result-batch.json. */
+  const counted = results.filter(r=>!r.referencesHostResult);
+  const refHost = results.length - counted.length;
+
+  const counts={}; STATES.forEach(s=>counts[s]=0);
+  counted.forEach(r=>{ counts[r.state]=(counts[r.state]||0)+1; });
+  const denom = DENOM.reduce((n,s)=>n+(counts[s]||0),0);
+  const applicable = denom>0;
+  const blockers = CLEAN_BLOCKERS.filter(s=>counts[s]>0);
+  return {
+    total:counted.length, referencedHostResults:refHost, counts,
+    passRate: applicable ? +( (counts.PASS/denom).toFixed(4) ) : null,
+    passRateApplicable: applicable,
+    passRateBasis:'PASS / (PASS + FAIL)',
+    clean: blockers.length===0,
+    cleanBlockers: blockers
+  };
+}
+
+/* ========================================================================
+   SIMULATED ENGINE
+   Deterministic per (ref, testId) so a re-render never reshuffles verdicts.
+   Produces a document with exactly the shape of the real result contract.
+   ======================================================================== */
+function hash(s){ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return (h>>>0)/4294967296; }
+
+function planFor(ref){
+  const app = SEED.applicability && SEED.applicability[ref];
+  return app || null;
+}
+
+function runBatch(refs){
+  const runId = 'run-sim-'+Date.now().toString(36);
+  const apis=[];
+  let anyBlocked=null;
+
+  /* Host-level probes are measured once per host, not once per API — a 45-API
+     batch across 3 hosts issues 3 oversized uploads, not 45.
+
+     Ownership is resolved per (host, check), not per host: if the first API on
+     a host is pre-empted for that particular check by the catalogue, the probe
+     falls through to the next eligible API on the same host. Picking one owner
+     per host and stopping there would silently leave the host unmeasured
+     whenever that owner happened to be pre-empted. */
+  const owners = new Map();            // `${host}||${testId}` -> ref
+  refs.forEach(ref=>{
+    const api = apiByRef(ref); if(!api) return;
+    const host = api.baseUrl || hostForModule(api);
+    const plan = planFor(ref);
+    SEED.globalTestCases.filter(tc=>tc.hostLevel).forEach(tc=>{
+      const key = host+'||'+tc.id;
+      if(owners.has(key)) return;
+      const pred = plan && plan.global ? plan.global[tc.id] : null;
+      if(pred && pred.state!=='PLANNED') return;   // cannot carry this probe
+      owners.set(key, ref);
+    });
+  });
+  const ownerOf = (host, testId) => owners.get(host+'||'+testId) || null;
+
+  refs.forEach(ref=>{
+    const api = apiByRef(ref); if(!api) return;
+    const host = api.baseUrl || hostForModule(api);
+    const prov = {
+      sourceType: api.sourceType||'newman',
+      sourceCollection: api.sourceCollection||null,
+      sourceModule: api.module||null,
+      owner: api.owner||null
+    };
+    const results=[];
+
+    SEED.globalTestCases.forEach(tc=>{
+      const seed = hash(ref+'::'+tc.id);
+      const plan = planFor(ref);
+      const pred = plan && plan.global ? plan.global[tc.id] : null;
+      const planned = !pred || pred.state==='PLANNED';
+
+      // Auth bootstrap: Attendance needs Login_Auth_UAT_API. Alias must be registered.
+      const needsAuth = /attendance/i.test(api.module||'');
+      const aliasOk = SEED.credentialAliases.includes(STATE.alias);
+      if(needsAuth && !aliasOk){
+        anyBlocked = anyBlocked || ref;
+        results.push(base(tc,ref,'SKIPPED_NO_TOKEN',
+          `(BLOCKED: auth provider failed) — did not get token: credentialAlias '${STATE.alias||'<none>'}' is not registered`,
+          0.3, false, prov, {blockedBy: SEED.authProviderRef || null}));
+        return;
+      }
+      // Host-level attribution is settled before applicability: a probe carried
+      // by another API on this host must say so, rather than being reported as
+      // missing metadata it never needed.
+      if(tc.hostLevel){
+        const owner = ownerOf(host, tc.id);
+        if(owner && owner!==ref){
+          results.push(base(tc,ref,'NOT_APPLICABLE',
+            `host-level probe for ${host} is reported against another API`,
+            0.2, false, prov, {hostLevel:true, host, referencesHostResult:true, measuredBy:owner}));
+          return;
+        }
+        if(!owner){
+          results.push(base(tc,ref,'NOT_APPLICABLE',
+            `no API in this batch can carry the host-level probe for ${host}`,
+            0.2, false, prov, {hostLevel:true, host, referencesHostResult:false, measuredBy:null}));
+          return;
+        }
+      }
+      if(!planned){
+        results.push(base(tc,ref, pred.state, pred.reason || 'required metadata is absent',
+          0.3, false, prov, {missingField: null}));
+        return;
+      }
+      if(tc.id.endsWith('test_request_payload_size_enforcement')){
+        results.push(base(tc,ref,'INFORMATIONAL',
+          `oversized payload observed, response not asserted — request_bytes=1048613; status=${seed>.5?413:400}`,
+          900+seed*600, true, prov, {hostLevel:true, host, referencesHostResult:false, measuredBy:ref}));
+        return;
+      }
+      if(tc.id.endsWith('test_response_time_within_sla')){
+        const observed = +(180 + seed*900).toFixed(1);
+        const over = observed>SLA_MS;
+        results.push(base(tc,ref, over?'WARN':'PASS',
+          over ? `response time exceeded its advisory target: observed=${observed}ms threshold=${SLA_MS}ms` : '',
+          0.4, true, prov, {observed, threshold:SLA_MS}));
+        return;
+      }
+      // Ordinary asserted check.
+      const fail = seed < 0.14;
+      results.push(base(tc,ref, fail?'FAIL':'PASS',
+        fail ? failReason(tc, api, seed) : '',
+        +(90+seed*520).toFixed(1), true, prov,
+        tc.hostLevel ? {hostLevel:true, host, referencesHostResult:false, measuredBy:ref} : {}));
+    });
+
+    if(api.assertionState==='not-asserted'){
+      results.push({
+        testId:`newman::${ref}::<no-assertions>`, apiRef:ref, state:'NOT_ASSERTED',
+        reason:'request executed; the collection defines no assertions for it',
+        durationMs:+(120+hash(ref)*260).toFixed(1), executed:false, provenance:prov
+      });
+    }
+
+    apis.push({apiRef:ref, provenance:prov, gatewayClassification:null,
+               summary:summarise(results), results});
+  });
+
+  const flat = apis.flatMap(a=>a.results);
+  return {
+    runId, environment:STATE.env, requestedTiers:['global_contract'],
+    catalogueVersion:SEED.catalogueVersion,
+    status: anyBlocked ? 'COMPLETED_WITH_ERRORS' : 'COMPLETED',
+    statusReason: anyBlocked ? `auth bootstrap failed for: ${anyBlocked}` : null,
+    applicabilityNote:'A test predicted PLANNED by the catalogue may report NOT_APPLICABLE at run time; the reverse cannot happen. This is not an inconsistency.',
+    simulated:true,
+    summary:summarise(flat), apis
+  };
+}
+function base(tc,ref,state,reason,dur,executed,prov,extra){
+  return Object.assign({testId:tc.id, apiRef:ref, state, reason,
+    durationMs:+(+dur).toFixed(1), executed, provenance:prov}, extra||{});
+}
+function failReason(tc, api, seed){
+  if(tc.id.endsWith('test_status_code_matches_spec'))
+    return `${api.method} ${api.path} returned ${seed<.07?500:403}; documented statuses are [200, 400]`;
+  if(tc.id.endsWith('test_response_matches_full_schema'))
+    return `SchemaValidationError: 'null' is not of type 'string' (Path: /properties/email)`;
+  if(tc.id.endsWith('test_no_credential_leakage_in_response'))
+    return `a credential-shaped value appeared in the response body`;
+  if(tc.id.endsWith('test_404_for_unknown_route'))
+    return `unknown route returned 200; expected 404`;
+  return `assertion failed for ${tc.title}`;
+}
+function hostForModule(a){
+  const m=(a.module||'').toLowerCase();
+  if(m.includes('leave')) return SEED.hosts.leave;
+  if(m.includes('auth'))  return SEED.hosts.auth;
+  return SEED.hosts.attendance;
+}
+
+/* ========================================================================
+   RENDER — CONSOLE
+   ======================================================================== */
+function renderTopbar(){
+  const envSel=$('#envSel'), credSel=$('#credSel');
+  envSel.innerHTML = SEED.environments.map(e=>`<option${e===STATE.env?' selected':''}>${esc(e)}</option>`).join('');
+  credSel.innerHTML = SEED.credentialAliases.map(a=>`<option${a===STATE.alias?' selected':''}>${esc(a)}</option>`).join('');
+  $('#brandSub').textContent =
+    `Catalogue v${SEED.catalogueVersion} · ${allApis().length} APIs · ${SEED.environments.join(', ')}`;
+}
+
+function renderTree(){
+  const q = ($('#apiSearch').value||'').toLowerCase().trim();
+  const byModule = new Map();
+  allApis().forEach(a=>{
+    if(q && !(a.path+' '+a.module+' '+a.method+' '+(a.name||'')).toLowerCase().includes(q)) return;
+    if(!byModule.has(a.module)) byModule.set(a.module, []);
+    byModule.get(a.module).push(a);
+  });
+  const tree=$('#apiTree');
+  if(!byModule.size){ tree.innerHTML=`<div class="empty">No endpoint matches “${esc(q)}”.</div>`; return; }
+
+  tree.innerHTML = [...byModule.entries()].map(([mod, list])=>{
+    const gaps = list.filter(a=>a.assertionState==='not-asserted').length;
+    const selN = list.filter(a=>STATE.selected.has(a.ref)).length;
+    return `<div class="tree-group" data-mod="${esc(mod)}">
+      <div class="tree-group-head">
+        <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        <span class="nm">${esc(mod)}</span>
+        ${gaps?`<span class="pill gap" title="${gaps} request(s) execute but assert nothing">${gaps} gap</span>`:''}
+        <span class="pill${selN?' ok':''}">${selN}/${list.length}</span>
+      </div>
+      <div class="tree-items">${list.map(a=>`
+        <label class="tree-item${STATE.focus===a.ref?' sel':''}" data-ref="${esc(a.ref)}">
+          <input type="checkbox" ${STATE.selected.has(a.ref)?'checked':''} data-chk="${esc(a.ref)}">
+          <span class="m ${esc(a.method)}">${esc(a.method)}</span>
+          <span class="meta">
+            <span class="l1">${esc(a.name||a.subModule||a.path)}</span>
+            <span class="l2">${esc(a.path)}</span>
+          </span>
+          ${a.assertionState==='not-asserted'?'<span class="pill gap">no assert</span>':''}
+        </label>`).join('')}</div>
+    </div>`;
+  }).join('');
+
+  tree.querySelectorAll('.tree-group-head').forEach(h=>
+    h.onclick = e => { if(e.target.closest('input')) return; h.parentElement.classList.toggle('collapsed'); });
+  tree.querySelectorAll('[data-chk]').forEach(cb=>
+    cb.onchange = () => { cb.checked ? STATE.selected.add(cb.dataset.chk) : STATE.selected.delete(cb.dataset.chk);
+                          syncSel(); persist(); renderTree(); });
+  tree.querySelectorAll('.tree-item').forEach(it=>
+    it.onclick = e => { if(e.target.closest('input')) return;
+                        STATE.focus=it.dataset.ref; persist(); renderTree(); renderDetail(); });
+  syncSel();
+}
+
+function syncSel(){
+  const n=STATE.selected.size;
+  $('#selHint').textContent = n===0 ? 'Nothing selected' : `${n} endpoint${n>1?'s':''} selected`;
+  $('#btnRun').disabled = n===0 || STATE.running;
+}
+
+function renderDetail(){
+  const pane=$('#detailPane');
+  const a = STATE.focus ? apiByRef(STATE.focus) : null;
+  if(!a){
+    $('#detailTitle').textContent='Endpoint detail';
+    $('#detailSub').textContent='Select an endpoint on the left to inspect it.';
+    pane.innerHTML=`<div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+      <div>No endpoint selected.</div></div>`;
+    return;
+  }
+  $('#detailTitle').innerHTML = `<span class="m ${esc(a.method)}">${esc(a.method)}</span> <span class="mono">${esc(a.path)}</span>`;
+  $('#detailSub').textContent = subLabel(a);
+
+  const plan = planFor(a.ref);
+  const prev = STATE.result && STATE.result.apis.find(x=>x.apiRef===a.ref);
+
+  pane.innerHTML = `
+  <div class="grid" style="grid-template-columns:1fr 1fr">
+    <div class="card sect" style="grid-column:1/-1">
+      <div class="card-h"><h3>Provenance</h3></div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>Module</dt><dd>${esc(a.module)}</dd>
+          <dt>Sub-module</dt><dd>${esc(a.subModule||'—')}</dd>
+          <dt>Method / path</dt><dd>${esc(a.method)} ${esc(a.path)}</dd>
+          <dt>Host (${esc(STATE.env)})</dt><dd>${esc(a.baseUrl||hostForModule(a))}</dd>
+          <dt>Source</dt><dd>${esc(a.sourceType||'newman')} · ${esc(a.sourceCollection||'—')}</dd>
+          <dt>Owner</dt><dd>${esc(a.owner||'—')}</dd>
+          <dt>Assertion state</dt><dd>${a.assertionState==='not-asserted'
+              ? '<span class="pill gap">not asserted</span> executes, asserts nothing (D7)'
+              : '<span class="pill ok">'+esc(a.assertionState||'asserted')+'</span>'}</dd>
+        </dl>
+        <hr>
+        <div class="faint" style="font-size:11.5px">
+          Join key (opaque — not a label): <code>${esc(a.ref)}</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="card sect" style="grid-column:1/-1">
+      <div class="card-h"><h3>Global contract checks</h3><span class="sp"></span>
+        <span class="faint" style="font-size:11.5px">${SEED.globalTestCases.length} checks · applied to every selected API (D2)</span></div>
+      <div class="card-b" style="padding:0">
+        <table>
+          <thead><tr><th style="width:38%">Check</th><th>Category</th><th>Scope</th>
+            <th>Pre-run</th><th class="right">Last run</th></tr></thead>
+          <tbody>${SEED.globalTestCases.map(tc=>{
+            const p = plan && plan.global && plan.global[tc.id];
+            const pre = p ? p.state : 'PLANNED';
+            const last = prev && prev.results.find(r=>r.testId===tc.id);
+            return `<tr>
+              <td>${esc(tc.title)}<div class="faint mono" style="font-size:10.5px">${esc(tc.id.split('::').pop())}</div></td>
+              <td class="dim">${esc(tc.category)}</td>
+              <td class="dim">${tc.hostLevel?'host':'api'}</td>
+              <td><span class="st st-${esc(pre)}">${esc(pre)}</span></td>
+              <td class="right">${last?`<span class="st st-${esc(last.state)}">${esc(last.state)}</span>`:'<span class="faint">—</span>'}</td>
+            </tr>`;}).join('')}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card sect" style="grid-column:1/-1">
+      <div class="card-h"><h3>Request payload</h3><span class="sp"></span>
+        <span class="pill">read-only (D6)</span></div>
+      <div class="card-b">
+        <pre>${esc(JSON.stringify(a.samplePayload||{}, null, 2))}</pre>
+        <div class="faint" style="font-size:11.5px;margin-top:9px">
+          Payloads are authored in the repo, never in the platform. Credentials never appear here —
+          the run carries the alias <code>${esc(STATE.alias||'—')}</code> and the engine resolves the value server-side.
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ========================================================================
+   RENDER — ANALYTICS
+   ======================================================================== */
+function renderAnalytics(){
+  const body=$('#anBody');
+  const R=STATE.result;
+  $('#badgeDefects').textContent = R ? (R.summary.counts.FAIL||0) : 0;
+  $('#badgeDefects').style.display = (R && R.summary.counts.FAIL) ? '' : 'none';
+
+  if(!R){
+    body.innerHTML=`<div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <div>No run yet.</div>
+      <div style="margin-top:6px;font-size:12px">Select endpoints in the Console and run a batch — this view reflects
+      <b>only</b> what that run executed.</div></div>`;
+    return;
+  }
+  const fn = {overview:tabOverview, defects:tabDefects, suites:tabSuites, behaviors:tabBehaviors,
+              timeline:tabTimeline, payloads:tabPayloads, perf:tabPerf, compliance:tabCompliance, json:tabJson}[STATE.tab];
+  body.innerHTML = fn(R);
+  wireAnalytics(R);
+}
+
+/* ---- shared bits ---- */
+function kpiRow(R){
+  const c=R.summary.counts;
+  const exec = R.apis.flatMap(a=>a.results).filter(r=>r.executed).length;
+  return `<div class="grid kpis">
+    <div class="kpi">
+      <div class="k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>Pass rate</div>
+      <div class="v" style="color:${R.summary.passRateApplicable?'var(--accent)':'var(--slate)'}">${pct(R.summary.passRate)}</div>
+      <div class="d">${esc(R.summary.passRateBasis)}${R.summary.passRateApplicable?'':' · no assertion ran'}</div>
+    </div>
+    <div class="kpi">
+      <div class="k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Clean</div>
+      <div class="v" style="color:${R.summary.clean?'var(--accent)':'var(--amber)'}">${R.summary.clean?'Yes':'No'}</div>
+      <div class="d">${R.summary.cleanBlockers.length?'Blocked by '+R.summary.cleanBlockers.map(b=>`<span class="st st-${b}">${b}</span>`).join(' '):'No blocking states'}</div>
+    </div>
+    <div class="kpi">
+      <div class="k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Results</div>
+      <div class="v">${R.summary.total}</div>
+      <div class="d">${exec} executed · ${R.apis.length} API${R.apis.length>1?'s':''}</div>
+    </div>
+    <div class="kpi">
+      <div class="k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>Failures</div>
+      <div class="v" style="color:${c.FAIL?'var(--rose)':'var(--text)'}">${c.FAIL||0}</div>
+      <div class="d">${c.SKIPPED_NO_TOKEN||0} blocked · ${c.NOT_ASSERTED||0} unasserted</div>
+    </div>
+    <div class="kpi">
+      <div class="k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Run status</div>
+      <div class="v" style="font-size:19px;color:${R.status==='COMPLETED'?'var(--accent)':'var(--amber)'}">${esc(R.status)}</div>
+      <div class="d">${esc(R.runId)} · ${esc(R.environment)}</div>
+    </div>
+  </div>`;
+}
+
+/** Donut over all seven states — never a binary pass/fail split. */
+function donut(counts){
+  const items = STATES.map(s=>({s, n:counts[s]||0})).filter(x=>x.n>0);
+  const total = items.reduce((n,x)=>n+x.n,0);
+  if(!total) return '<div class="faint">Nothing to chart.</div>';
+  const R=62, r=40, C=2*Math.PI*R;
+  let off=0;
+  const rings = items.map(x=>{
+    const frac=x.n/total, len=frac*C;
+    const el=`<circle cx="72" cy="72" r="${R}" fill="none" stroke="${cssv(STATE_VAR[x.s])}"
+      stroke-width="20" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}"
+      transform="rotate(-90 72 72)"><title>${x.s}: ${x.n}</title></circle>`;
+    off+=len; return el;
+  }).join('');
+  return `<div class="chart-wrap">
+    <svg width="144" height="144" viewBox="0 0 144 144" class="spark">
+      ${rings}
+      <text x="72" y="68" text-anchor="middle" font-size="24" font-weight="700" fill="${cssv('--text')}">${total}</text>
+      <text x="72" y="86" text-anchor="middle" font-size="10" fill="${cssv('--text-dim')}">results</text>
+    </svg>
+    <div class="legend">${items.map(x=>`<div class="li">
+      <span class="sw" style="background:${cssv(STATE_VAR[x.s])}"></span>
+      <span class="ln">${x.s}</span><span class="lv">${x.n}</span>
+      <span class="faint">${((x.n/total)*100).toFixed(0)}%</span></div>`).join('')}</div>
+  </div>`;
+}
+
+function stateBar(counts, total){
+  return `<div class="bar-track">${STATES.filter(s=>counts[s]).map(s=>
+    `<div class="bar-seg" style="width:${(counts[s]/total*100).toFixed(2)}%;background:${cssv(STATE_VAR[s])}" title="${s}: ${counts[s]}"></div>`).join('')}</div>`;
+}
+
+/* ---- tabs ---- */
+function tabOverview(R){
+  const perMod = new Map();
+  R.apis.forEach(a=>{
+    const api=apiByRef(a.apiRef); const m=api?api.module:'—';
+    if(!perMod.has(m)) perMod.set(m,[]);
+    perMod.get(m).push(...a.results);
+  });
+  return kpiRow(R) + `
+  <div class="grid" style="grid-template-columns:minmax(320px,1fr) minmax(340px,1.3fr)">
+    <div class="card"><div class="card-h"><h3>Result distribution</h3></div>
+      <div class="card-b">${donut(R.summary.counts)}
+        <hr><div class="faint" style="font-size:11.5px">
+        Only <b>PASS</b> and <b>FAIL</b> enter the pass-rate denominator. The other five states are
+        counted and shown, never silently folded into a pass.</div>
+      </div></div>
+    <div class="card"><div class="card-h"><h3>By module</h3></div>
+      <div class="card-b">${[...perMod.entries()].map(([m,rs])=>{
+        const s=summarise(rs);
+        return `<div class="bar-row"><div class="trunc" title="${esc(m)}">${esc(m)}</div>
+          ${stateBar(s.counts, s.total)}
+          <div class="right mono">${pct(s.passRate)}</div></div>`;
+      }).join('')}</div></div>
+  </div>
+  ${R.statusReason?`<div class="card sect" style="margin-top:14px;border-color:var(--amber)">
+    <div class="card-b row"><span class="st st-SKIPPED_NO_TOKEN">BLOCKED</span>
+    <span class="mono" style="font-size:11.5px">${esc(R.statusReason)}</span></div></div>`:''}
+  <div class="card" style="margin-top:14px"><div class="card-b faint" style="font-size:11.5px">
+    ${esc(R.applicabilityNote)}</div></div>`;
+}
+
+function tabDefects(R){
+  const fails = R.apis.flatMap(a=>a.results.filter(r=>r.state==='FAIL')
+    .map(r=>({r, api:apiByRef(a.apiRef)})));
+  const blocked = R.apis.flatMap(a=>a.results.filter(r=>r.state==='SKIPPED_NO_TOKEN')
+    .map(r=>({r, api:apiByRef(a.apiRef)})));
+  const gaps = R.apis.flatMap(a=>a.results.filter(r=>r.state==='NOT_ASSERTED')
+    .map(r=>({r, api:apiByRef(a.apiRef)})));
+
+  const cat = r => {
+    const t=r.testId;
+    if(/credential_leakage|401_without/.test(t)) return ['Security / credential exposure','--rose'];
+    if(/schema|content_type/.test(t))            return ['Contract breach (OpenAPI)','--amber'];
+    if(/status_code/.test(t))                    return ['Product defect (status mismatch)','--rose'];
+    return ['Functional defect','--purple'];
+  };
+
+  const sec = (title, rows, note, render) => rows.length ? `
+    <div class="card sect"><div class="card-h"><h3>${title}</h3><span class="sp"></span>
+      <span class="pill">${rows.length}</span></div>
+      <div class="card-b" style="padding:0">${render(rows)}</div>
+      ${note?`<div class="card-b faint" style="font-size:11.5px;border-top:1px solid var(--line-soft)">${note}</div>`:''}
+    </div>` : '';
+
+  return `
+  ${sec('Failures — assertion ran and failed', fails, '', rows=>`<table>
+    <thead><tr><th>Endpoint</th><th>Category</th><th>Reason</th><th class="right">Action</th></tr></thead>
+    <tbody>${rows.map(({r,api},i)=>{const[c,v]=cat(r);return `<tr>
+      <td><span class="m ${esc(api.method)}">${esc(api.method)}</span>
+        <div class="mono faint" style="font-size:11px;margin-top:3px">${esc(api.path)}</div></td>
+      <td><span class="st" style="background:${cssv(v)}22;color:${cssv(v)}">${esc(c)}</span></td>
+      <td class="dim">${esc(r.reason)}</td>
+      <td class="right"><button class="btn btn-sm" data-jira="${i}">Jira ticket</button></td>
+    </tr>`;}).join('')}</tbody></table>`)}
+
+  ${sec('Blocked — never executed', blocked,
+    'These are <b>not</b> failures. Auth bootstrap failed, so the API was never called. They are excluded from the pass-rate denominator (K1b).',
+    rows=>`<table><thead><tr><th>Endpoint</th><th>Blocked by</th><th>Reason</th></tr></thead>
+    <tbody>${rows.map(({r,api})=>`<tr>
+      <td><span class="m ${esc(api.method)}">${esc(api.method)}</span> <span class="mono">${esc(api.path)}</span></td>
+      <td class="mono faint" style="font-size:11px">${esc(r.blockedBy||'—')}</td>
+      <td class="dim">${esc(r.reason)}</td></tr>`).join('')}</tbody></table>`)}
+
+  ${sec('Assertion gaps — executed, asserted nothing', gaps,
+    'D7: an unasserted request must never render as a pass. It is counted separately and excluded from the denominator.',
+    rows=>`<table><thead><tr><th>Endpoint</th><th>Module</th><th>Reason</th></tr></thead>
+    <tbody>${rows.map(({r,api})=>`<tr>
+      <td><span class="m ${esc(api.method)}">${esc(api.method)}</span> <span class="mono">${esc(api.path)}</span></td>
+      <td class="dim">${esc(api.module)}</td>
+      <td class="dim">${esc(r.reason)}</td></tr>`).join('')}</tbody></table>`)}
+
+  ${(!fails.length&&!blocked.length&&!gaps.length)?'<div class="empty">No failures, blocks or assertion gaps in this run.</div>':''}`;
+}
+
+function tabSuites(R){
+  return `<div class="card"><div class="card-h"><h3>Modules executed in this run</h3><span class="sp"></span>
+    <span class="faint" style="font-size:11.5px">${R.apis.length} API(s)</span></div>
+    <div class="card-b" style="padding:0"><table>
+      <thead><tr><th>Endpoint</th><th>Module</th><th>Source</th><th style="width:190px">States</th>
+        <th class="right">Pass rate</th><th class="right">Clean</th></tr></thead>
+      <tbody>${R.apis.map(a=>{const api=apiByRef(a.apiRef); const s=a.summary; return `<tr>
+        <td><span class="m ${esc(api.method)}">${esc(api.method)}</span>
+          <div class="mono faint" style="font-size:11px;margin-top:3px">${esc(api.path)}</div></td>
+        <td class="dim">${esc(api.module)}</td>
+        <td class="dim">${esc(a.provenance.sourceType)}</td>
+        <td>${stateBar(s.counts, s.total)}</td>
+        <td class="right mono">${pct(s.passRate)}</td>
+        <td class="right">${s.clean?'<span class="pill ok">clean</span>':
+          `<span class="pill partial" title="${esc(s.cleanBlockers.join(', '))}">${s.cleanBlockers.length} blocker(s)</span>`}</td>
+      </tr>`;}).join('')}</tbody></table></div></div>`;
+}
+
+function tabBehaviors(R){
+  // Epic = module, Feature = endpoint, Story = check.
+  const tree=new Map();
+  R.apis.forEach(a=>{
+    const api=apiByRef(a.apiRef);
+    if(!tree.has(api.module)) tree.set(api.module, new Map());
+    tree.get(api.module).set(a.apiRef, a.results);
+  });
+  return `<div class="card"><div class="card-h"><h3>Behaviors — Epic › Feature › Story</h3></div>
+  <div class="card-b">${[...tree.entries()].map(([mod, feats])=>`
+    <div class="sect">
+      <div class="row" style="font-weight:700;font-size:12.5px;margin-bottom:6px">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-6l-2-2H5a2 2 0 0 0-2 2z"/></svg>
+        @Epic: ${esc(mod)}
+      </div>
+      ${[...feats.entries()].map(([ref, rs])=>{
+        const api=apiByRef(ref); const s=summarise(rs);
+        return `<div style="margin-left:20px;margin-bottom:9px">
+          <div class="row" style="font-size:12px;font-weight:650">
+            <span class="m ${esc(api.method)}">${esc(api.method)}</span>
+            <span class="mono">${esc(api.path)}</span>
+            ${s.clean?'<span class="pill ok">clean</span>':`<span class="pill partial">${esc(s.cleanBlockers.join(' '))}</span>`}
+          </div>
+          <div style="margin-left:16px;margin-top:4px">${rs.map(r=>`
+            <div class="row" style="font-size:11.5px;padding:2px 0">
+              <span class="st st-${esc(r.state)}">${esc(r.state)}</span>
+              <span class="dim">@Story: ${esc(titleFor(r.testId))}</span>
+            </div>`).join('')}</div>
+        </div>`;}).join('')}
+    </div>`).join('')}</div></div>`;
+}
+function titleFor(testId){
+  const tc = SEED.globalTestCases.find(t=>t.id===testId);
+  if(tc) return tc.title;
+  if(testId.endsWith('<no-assertions>')) return 'Request executed — collection defines no assertions';
+  return testId.split('::').pop();
+}
+
+function tabTimeline(R){
+  const rows = R.apis.flatMap(a=>a.results.map(r=>({r, api:apiByRef(a.apiRef)})))
+    .filter(x=>x.r.durationMs>0).sort((a,b)=>b.r.durationMs-a.r.durationMs);
+  const max = Math.max(...rows.map(x=>x.r.durationMs), 1);
+  const totalMs = rows.reduce((n,x)=>n+x.r.durationMs,0);
+  return `<div class="card"><div class="card-h"><h3>Execution timeline</h3><span class="sp"></span>
+    <span class="faint" style="font-size:11.5px">${rows.length} steps · ${fmtMs(totalMs)} cumulative</span></div>
+    <div class="card-b">${rows.map(({r,api})=>`
+      <div class="bar-row" style="grid-template-columns:250px 1fr 74px">
+        <div class="trunc" title="${esc(titleFor(r.testId))}">
+          <span class="m ${esc(api.method)}">${esc(api.method)}</span>
+          <span class="mono" style="font-size:11px">${esc(titleFor(r.testId))}</span></div>
+        <div class="bar-track"><div class="bar-seg"
+          style="width:${(r.durationMs/max*100).toFixed(2)}%;background:${cssv(STATE_VAR[r.state])}"></div></div>
+        <div class="right mono">${fmtMs(r.durationMs)}</div>
+      </div>`).join('')}</div></div>`;
+}
+
+function tabPayloads(R){
+  return `<div class="stack">${R.apis.map(a=>{
+    const api=apiByRef(a.apiRef);
+    const hostRes = a.results.find(r=>r.hostLevel);
+    return `<div class="card">
+      <div class="card-h">
+        <span class="m ${esc(api.method)}">${esc(api.method)}</span>
+        <h3 style="text-transform:none;letter-spacing:0;font-size:12.5px;font-family:var(--mono)">${esc(api.path)}</h3>
+        <span class="sp"></span>${stateBar(a.summary.counts, a.summary.total)}
+      </div>
+      <div class="card-b">
+        <dl class="kv">
+          <dt>Host</dt><dd>${esc(api.baseUrl||hostForModule(api))}</dd>
+          <dt>Credential alias</dt><dd>${esc(STATE.alias||'—')} <span class="faint">(value resolved server-side, never sent to this page)</span></dd>
+          <dt>Authorization</dt><dd>Bearer [REDACTED]</dd>
+          ${hostRes&&hostRes.measuredBy?`<dt>Host probe measured by</dt><dd>${esc(hostRes.measuredBy===a.apiRef?'this API':labelRef(hostRes.measuredBy))}</dd>`:''}
+        </dl>
+        <hr>
+        <div class="row" style="justify-content:space-between;margin-bottom:6px">
+          <b style="font-size:11.5px">Request body</b>
+          <button class="btn btn-sm" data-curl-ref="${esc(a.apiRef)}">Copy cURL</button>
+        </div>
+        <pre>${esc(JSON.stringify(api.samplePayload||{},null,2))}</pre>
+      </div></div>`;}).join('')}</div>`;
+}
+function labelRef(ref){ const a=apiByRef(ref); return a? label(a) : ref; }
+
+function tabPerf(R){
+  const timed = R.apis.flatMap(a=>a.results.filter(r=>r.executed && r.durationMs>1)
+    .map(r=>({r, api:apiByRef(a.apiRef)})));
+  const ds = timed.map(x=>x.r.durationMs).sort((a,b)=>a-b);
+  const p = q => ds.length ? ds[Math.min(ds.length-1, Math.floor(q*ds.length))] : null;
+  const warns = R.apis.flatMap(a=>a.results.filter(r=>r.state==='WARN').map(r=>({r, api:apiByRef(a.apiRef)})));
+  const max = Math.max(...ds, SLA_MS);
+
+  return `
+  <div class="grid kpis">
+    ${[['p50',p(.5)],['p95',p(.95)],['p99',p(.99)],['max',ds.length?ds[ds.length-1]:null]].map(([k,v])=>`
+      <div class="kpi"><div class="k">${k} latency</div>
+        <div class="v" style="color:${v>SLA_MS?'var(--amber)':'var(--text)'}">${fmtMs(v)}</div>
+        <div class="d">advisory target ${SLA_MS}ms</div></div>`).join('')}
+  </div>
+  <div class="card sect"><div class="card-h"><h3>SLA — advisory, never a failure (D11)</h3><span class="sp"></span>
+    <span class="pill partial">${warns.length} over target</span></div>
+    <div class="card-b">
+      ${warns.length?warns.map(({r,api})=>`<div class="bar-row" style="grid-template-columns:250px 1fr 90px">
+        <div class="trunc"><span class="m ${esc(api.method)}">${esc(api.method)}</span>
+          <span class="mono" style="font-size:11px">${esc(api.path)}</span></div>
+        <div class="bar-track">
+          <div class="bar-seg" style="width:${(SLA_MS/max*100).toFixed(1)}%;background:${cssv('--accent')}"></div>
+          <div class="bar-seg" style="width:${((r.observed-SLA_MS)/max*100).toFixed(1)}%;background:${cssv('--amber')}"></div>
+        </div>
+        <div class="right mono">${fmtMs(r.observed)}</div></div>`).join('')
+      :'<div class="faint">Every measured response was inside the advisory target.</div>'}
+      <hr>
+      <div class="faint" style="font-size:11.5px">A breach emits <span class="st st-WARN">WARN</span>, which is
+      outside the pass-rate denominator. <b>A run can therefore show 100% pass and still not be clean</b> —
+      the two must always be read together.</div>
+    </div></div>
+  <div class="card"><div class="card-h"><h3>All measured steps</h3></div>
+    <div class="card-b" style="padding:0"><table>
+      <thead><tr><th>Endpoint</th><th>Check</th><th>State</th><th class="right">Duration</th></tr></thead>
+      <tbody>${timed.sort((a,b)=>b.r.durationMs-a.r.durationMs).map(({r,api})=>`<tr>
+        <td class="mono" style="font-size:11px">${esc(api.method)} ${esc(api.path)}</td>
+        <td class="dim">${esc(titleFor(r.testId))}</td>
+        <td><span class="st st-${esc(r.state)}">${esc(r.state)}</span></td>
+        <td class="right mono" style="color:${r.durationMs>SLA_MS?'var(--amber)':'inherit'}">${fmtMs(r.durationMs)}</td>
+      </tr>`).join('')}</tbody></table></div></div>`;
+}
+
+function tabCompliance(R){
+  const flat=R.apis.flatMap(a=>a.results);
+  const rules=[
+    ['Seven states are represented, not two',
+      `${new Set(flat.map(r=>r.state)).size} distinct state(s) present of ${STATES.length} possible`, true],
+    ['Pass rate uses PASS / (PASS + FAIL) only',
+      R.summary.passRateApplicable ? `denominator = ${(R.summary.counts.PASS||0)+(R.summary.counts.FAIL||0)}`
+        : 'no assertion ran — pass rate reported as n/a, not 0%', true],
+    ['Unasserted requests never render as passes (D7)',
+      `${R.summary.counts.NOT_ASSERTED||0} NOT_ASSERTED, counted separately`, true],
+    ['Auth bootstrap failure is SKIPPED_NO_TOKEN, never FAIL (K1b)',
+      `${R.summary.counts.SKIPPED_NO_TOKEN||0} blocked result(s)`, true],
+    ['SLA breach is advisory WARN, never FAIL (D11)',
+      `${R.summary.counts.WARN||0} over the ${SLA_MS}ms target`, true],
+    ['Host-level probes measured once per host, not per API',
+      `${R.summary.referencedHostResults} result(s) reference another API's measurement`, true],
+    ['No credential value reaches the browser',
+      `alias '${STATE.alias||'—'}' carried by label only`, true],
+    ['Opaque ref never rendered as a label',
+      'every row shows method + path + module', true],
+    ['clean and passRate always displayed together',
+      R.summary.clean?'clean':'blocked by '+R.summary.cleanBlockers.join(', '), true]
+  ];
+  return `<div class="card"><div class="card-h"><h3>Contract invariants</h3><span class="sp"></span>
+    <span class="pill ok">${rules.filter(r=>r[2]).length}/${rules.length} upheld</span></div>
+    <div class="card-b" style="padding:0"><table>
+      <thead><tr><th style="width:44%">Invariant</th><th>Observed in this run</th><th class="right">Status</th></tr></thead>
+      <tbody>${rules.map(([t,d,ok])=>`<tr><td><b>${esc(t)}</b></td><td class="dim">${esc(d)}</td>
+        <td class="right"><span class="st st-${ok?'PASS':'FAIL'}">${ok?'UPHELD':'VIOLATED'}</span></td></tr>`).join('')}</tbody>
+    </table></div></div>`;
+}
+
+function tabJson(R){
+  return `<div class="card"><div class="card-h"><h3>Result document</h3><span class="sp"></span>
+    <button class="btn btn-sm" id="btnCopyJson">Copy</button></div>
+    <div class="card-b"><pre style="max-height:60vh;overflow:auto">${esc(JSON.stringify(R,null,2))}</pre></div></div>`;
+}
+
+/* ---- analytics wiring ---- */
+function wireAnalytics(R){
+  const fails = R.apis.flatMap(a=>a.results.filter(r=>r.state==='FAIL').map(r=>({r, api:apiByRef(a.apiRef)})));
+  $$('[data-jira]').forEach(b=> b.onclick=()=>jiraModal(fails[+b.dataset.jira], R));
+  $$('[data-curl-ref]').forEach(b=> b.onclick=()=>{
+    const api=apiByRef(b.dataset.curlRef);
+    copy(curlFor(api)); toast('cURL copied — token redacted');
+  });
+  const cj=$('#btnCopyJson'); if(cj) cj.onclick=()=>{ copy(JSON.stringify(R,null,2)); toast('Result document copied'); };
+}
+function curlFor(api){
+  const host=api.baseUrl||hostForModule(api);
+  const body=(api.samplePayload && Object.keys(api.samplePayload).length)
+    ? ` \\\n  -d '${JSON.stringify(api.samplePayload)}'` : '';
+  return `curl -X ${api.method} '${host}${api.path}' \\\n  -H 'Accept: application/json' \\\n  -H 'Content-Type: application/json' \\\n  -H 'Authorization: Bearer [REDACTED]'${body}`;
+}
+function jiraModal(item, R){
+  const {r, api}=item;
+  const md =
+`h2. ${api.method} ${api.path} — ${titleFor(r.testId)}
+
+*Environment:* ${R.environment}
+*Run:* ${R.runId}${R.simulated?' (SIMULATED — no live engine)':''}
+*Module:* ${api.module}
+*Source:* ${api.sourceType} — ${api.sourceCollection||'n/a'}
+*Test id:* {{${r.testId}}}
+*State:* ${r.state}
+
+h3. Expected
+Assertion "${titleFor(r.testId)}" passes against the documented contract.
+
+h3. Actual
+{{${r.reason}}}
+
+h3. Reproduce
+{code}
+${curlFor(api)}
+{code}
+
+h3. Notes
+* Pass-rate basis: ${R.summary.passRateBasis}
+* Run clean: ${R.summary.clean} ${R.summary.cleanBlockers.length?'(blocked by '+R.summary.cleanBlockers.join(', ')+')':''}
+* Credentials are carried as the alias "${STATE.alias}" only; no secret is present in this ticket.`;
+  openModal('Jira ticket — '+api.method+' '+api.path,
+    `<pre style="max-height:52vh;overflow:auto">${esc(md)}</pre>`,
+    `<button class="btn" data-close>Close</button>
+     <button class="btn btn-primary" id="btnCopyJira">Copy ticket</button>`);
+  $('#btnCopyJira').onclick=()=>{ copy(md); toast('Jira ticket copied'); };
+}
+
+/* ---------------------------------------------------------------- modal -- */
+function openModal(title, body, foot){
+  $('#mTitle').textContent=title; $('#mBody').innerHTML=body; $('#mFoot').innerHTML=foot||'';
+  $('#ovModal').classList.add('open');
+  $$('#ovModal [data-close]').forEach(b=>b.onclick=closeModal);
+}
+function closeModal(){ $('#ovModal').classList.remove('open'); }
+$('#ovModal').onclick = e => { if(e.target.id==='ovModal') closeModal(); };
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+function copy(text){
+  if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(text).catch(()=>fallbackCopy(text)); }
+  else fallbackCopy(text);
+}
+function fallbackCopy(text){
+  const ta=document.createElement('textarea'); ta.value=text;
+  ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta);
+  ta.select(); try{ document.execCommand('copy'); }catch(e){} ta.remove();
+}
+
+/* ----------------------------------------------------------- cURL import -- */
+function curlModal(){
+  openModal('Import API from cURL',
+    `<label style="font-size:11.5px;color:var(--text-dim);font-weight:600">Paste a cURL command</label>
+     <textarea id="curlIn" rows="8" placeholder="curl -X POST 'https://uatmcdphcmplatform.omfysgroup.com/api/v1/…' -H 'Content-Type: application/json' -d '{}'"></textarea>
+     <div class="faint" style="font-size:11.5px;margin-top:9px">
+       The definition travels <b>by value</b> with the run and is never written to the repo (DR-2).
+       Any <code>Authorization</code> header is stripped on import — send the credential alias instead.
+     </div>
+     <div id="curlErr" style="color:var(--rose);font-size:11.5px;margin-top:8px"></div>`,
+    `<button class="btn" data-close>Cancel</button>
+     <button class="btn btn-primary" id="btnCurlSave">Add endpoint</button>`);
+  $('#btnCurlSave').onclick=()=>{
+    const parsed=parseCurl($('#curlIn').value);
+    if(!parsed){ $('#curlErr').textContent='Could not find a URL in that command.'; return; }
+    STATE.imported.push(parsed); STATE.selected.add(parsed.ref);
+    persist(); renderTopbar(); renderTree(); closeModal();
+    toast('Endpoint added — credentials stripped');
+  };
+}
+function parseCurl(txt){
+  if(!txt || !txt.trim()) return null;
+  const urlM = txt.match(/(?:--url\s+)?['"]?(https?:\/\/[^\s'"]+)['"]?/);
+  if(!urlM) return null;
+  let url; try{ url=new URL(urlM[1]); }catch(e){ return null; }
+  const mM = txt.match(/-X\s+([A-Z]+)/);
+  const dM = txt.match(/(?:-d|--data(?:-raw)?)\s+'([\s\S]*?)'/) || txt.match(/(?:-d|--data(?:-raw)?)\s+"([\s\S]*?)"/);
+  const method = (mM ? mM[1] : (dM ? 'POST' : 'GET')).toUpperCase();
+  let payload={}; if(dM){ try{ payload=JSON.parse(dM[1]); }catch(e){ payload={raw:dM[1]}; } }
+  const path = url.pathname + (url.search||'');
+  return {
+    ref:`${method.toLowerCase()}|${path.toLowerCase()}|imported|${Date.now().toString(36)}`,
+    name:path.split('/').filter(Boolean).pop() || path,
+    module:'Imported (cURL)', subModule:null, method, path,
+    baseUrl:url.origin, owner:null, sourceType:'curl', sourceCollection:null,
+    assertionState:'global-only', samplePayload:payload
+  };
+}
+
+/* ---------------------------------------------------------------- events -- */
+$$('.rail-btn[data-view]').forEach(b=> b.onclick=()=>{
+  STATE.view=b.dataset.view; persist(); syncView();
+});
+function syncView(){
+  $$('.rail-btn[data-view]').forEach(b=>b.classList.toggle('active', b.dataset.view===STATE.view));
+  $$('.view').forEach(v=>v.classList.toggle('active', v.id==='view-'+STATE.view));
+  if(STATE.view==='analytics') renderAnalytics();
+}
+$$('#anTabs .tab').forEach(t=> t.onclick=()=>{
+  STATE.tab=t.dataset.tab; persist();
+  $$('#anTabs .tab').forEach(x=>x.classList.toggle('active', x===t));
+  renderAnalytics();
+});
+$('#apiSearch').oninput = () => renderTree();
+$('#btnSelAll').onclick = () => { allApis().forEach(a=>STATE.selected.add(a.ref)); persist(); renderTree(); };
+$('#btnSelNone').onclick = () => { STATE.selected.clear(); persist(); renderTree(); };
+$('#btnSelGaps').onclick = () => { STATE.selected.clear();
+  allApis().filter(a=>a.assertionState==='not-asserted').forEach(a=>STATE.selected.add(a.ref));
+  persist(); renderTree(); toast('Selected every endpoint with no assertions'); };
+$('#envSel').onchange = e => { STATE.env=e.target.value; persist(); };
+$('#credSel').onchange = e => { STATE.alias=e.target.value; persist(); renderDetail(); };
+$('#btnCurl').onclick = curlModal;
+$('#btnTheme').onclick = () => {
+  const cur=document.documentElement.getAttribute('data-theme');
+  const next = cur==='dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  persist(); if(STATE.view==='analytics') renderAnalytics();
+};
+$('#btnExport').onclick = () => {
+  if(!STATE.result){ toast('Nothing to export — run a batch first'); return; }
+  copy(JSON.stringify(STATE.result,null,2));
+  toast('Result document copied to clipboard');
+};
+$$('#personaSeg button').forEach(b=> b.onclick=()=>{
+  STATE.persona=b.dataset.persona; persist(); syncPersona();
+});
+function syncPersona(){
+  $$('#personaSeg button').forEach(b=>b.classList.toggle('active', b.dataset.persona===STATE.persona));
+  $$('#anTabs .tab').forEach(t=>{
+    const only=t.dataset.personaFor;
+    if(!only){ t.removeAttribute('data-persona-hide'); return; }
+    only.split(',').includes(STATE.persona)
+      ? t.removeAttribute('data-persona-hide') : t.setAttribute('data-persona-hide','');
+  });
+  const active=$('#anTabs .tab.active');
+  if(active && active.hasAttribute('data-persona-hide')){
+    STATE.tab='overview';
+    $$('#anTabs .tab').forEach(x=>x.classList.toggle('active', x.dataset.tab==='overview'));
+  }
+  if(STATE.view==='analytics') renderAnalytics();
+}
+
+$('#btnRun').onclick = () => {
+  if(STATE.running || !STATE.selected.size) return;
+  STATE.running=true; syncSel();
+  const prog=$('#runProg'), fill=$('#runProgFill');
+  prog.style.display='block'; fill.style.width='0';
+  const refs=[...STATE.selected];
+  let i=0;
+  const step=()=>{
+    i++; fill.style.width=Math.round(i/refs.length*100)+'%';
+    if(i<refs.length){ setTimeout(step, 90); return; }
+    setTimeout(()=>{
+      STATE.result = runBatch(refs);
+      STATE.running=false; prog.style.display='none';
+      STATE.view='analytics'; STATE.tab='overview';
+      $$('#anTabs .tab').forEach(x=>x.classList.toggle('active', x.dataset.tab==='overview'));
+      persist(); syncSel(); syncView(); renderDetail();
+      if(BUS) try{ BUS.postMessage({type:'result', result:STATE.result}); }catch(e){}
+      const s=STATE.result.summary;
+      toast(`Run complete — ${pct(s.passRate)} pass${s.clean?'':', not clean'}`);
+    }, 160);
+  };
+  step();
+};
+
+/* ---------------------------------------------------------------- boot -- */
+(function init(){
+  if(!document.documentElement.getAttribute('data-theme') &&
+     window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){
+    document.documentElement.setAttribute('data-theme','dark');
+  }
+  restore();
+  renderTopbar(); renderTree(); renderDetail(); syncPersona(); syncView();
+})();
+</script>
+</body>
+</html>
