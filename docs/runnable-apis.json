@@ -1,0 +1,363 @@
+{
+  "$comment": "POINT-IN-TIME PROBE, NOT A GENERATED ARTIFACT. Nothing regenerates this; it records what was reachable and runnable on the date below. Re-probe before relying on it - hosts, certificates and credentials all move.",
+  "probedOn": "2026-08-26",
+  "probedAgainst": {
+    "environment": "UAT",
+    "tier": "global_contract",
+    "inventoryRows": 45,
+    "refFormat": "method|path|module|sub-module"
+  },
+  "criterion": "host reachable by the path the engine uses + no unresolved {{token}} placeholder + at least 5 of 13 contract checks actually executed",
+  "hosts": {
+    "https://uatmcdphcmplatform.omfysgroup.com": {
+      "inventoryRows": 19,
+      "dns": "80.225.201.144",
+      "tcp": "open",
+      "tls": "ok TLSv1.3",
+      "usable": 13,
+      "excluded": 6,
+      "note": "Reachable; usable as a test target."
+    },
+    "http://localhost:9078": {
+      "inventoryRows": 12,
+      "dns": "127.0.0.1",
+      "tcp": "FAIL ConnectionRefusedError",
+      "tls": null,
+      "usable": 0,
+      "excluded": 12,
+      "note": "TCP connection refused. A developer-laptop port; unreachable from CI or any shared runner."
+    },
+    "https://devmcdphcmplatform.omfysgroup.com": {
+      "inventoryRows": 8,
+      "dns": "161.118.163.126",
+      "tcp": "open",
+      "tls": "ok TLSv1.3",
+      "usable": 8,
+      "excluded": 0,
+      "note": "Reachable; usable as a test target."
+    },
+    "https://dev_mcdp_be.omfysgroup.com": {
+      "inventoryRows": 4,
+      "dns": "161.118.163.126",
+      "tcp": "open",
+      "tls": "FAIL SSLCertVerificationError",
+      "usable": 0,
+      "excluded": 4,
+      "note": "Standard CA verification fails (SSLCertVerificationError): the hostname contains underscores and shares 161.118.163.126 with devmcdphcmplatform.omfysgroup.com, whose certificate does not cover it. NOT a dead host - the engine reaches it through the pinned-TLS path (scripts/pinned_tls.py, PINNED_HOST), which validates a SHA-256 fingerprint instead of the CA chain and works. Excluded as a *test target* only."
+    },
+    "https://uat-mcdp-be.omfysgroup.com": {
+      "inventoryRows": 2,
+      "dns": "80.225.201.144",
+      "tcp": "open",
+      "tls": "ok TLSv1.3",
+      "usable": 0,
+      "excluded": 2,
+      "note": "Reachable, but these two rows are the token providers themselves, not test targets."
+    }
+  },
+  "runnable": {
+    "https://uatmcdphcmplatform.omfysgroup.com": [
+      {
+        "ref": "delete|/api/attendancepolicy/2|attendance policy master|delete policy by id",
+        "executedChecks": 6,
+        "counts": {
+          "PASS": 5,
+          "NOT_APPLICABLE": 7,
+          "FAIL": 1
+        }
+      },
+      {
+        "ref": "delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift",
+        "executedChecks": 7,
+        "counts": {
+          "PASS": 6,
+          "NOT_APPLICABLE": 6,
+          "FAIL": 1
+        }
+      },
+      {
+        "ref": "get|/api/attendancepolicy/1|attendance policy master|get policy by id",
+        "executedChecks": 7,
+        "counts": {
+          "PASS": 6,
+          "NOT_APPLICABLE": 6,
+          "FAIL": 1
+        }
+      },
+      {
+        "ref": "get|/api/attendancepolicy|attendance policy master|get all policies",
+        "executedChecks": 6,
+        "counts": {
+          "PASS": 6,
+          "NOT_APPLICABLE": 7
+        }
+      },
+      {
+        "ref": "get|/api/v1/attendance/shift/master/7|attendance shift master|get by id",
+        "executedChecks": 7,
+        "counts": {
+          "PASS": 6,
+          "NOT_APPLICABLE": 6,
+          "FAIL": 1
+        }
+      },
+      {
+        "ref": "get|/api/v1/attendance/shift/master|attendance shift master|get all shifts",
+        "executedChecks": 6,
+        "counts": {
+          "PASS": 5,
+          "NOT_APPLICABLE": 7,
+          "WARN": 1
+        }
+      },
+      {
+        "ref": "patch|/api/attendancepolicy/4/status|attendance policy master|activate deactivate",
+        "executedChecks": 6,
+        "counts": {
+          "PASS": 5,
+          "NOT_APPLICABLE": 7,
+          "FAIL": 1
+        }
+      },
+      {
+        "ref": "patch|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete",
+        "executedChecks": 6,
+        "counts": {
+          "PASS": 5,
+          "NOT_APPLICABLE": 7,
+          "FAIL": 1
+        }
+      },
+      {
+        "ref": "post|/api/attendancepolicy|attendance policy master|create new policy",
+        "executedChecks": 6,
+        "counts": {
+          "PASS": 5,
+          "NOT_APPLICABLE": 7,
+          "FAIL": 1
+        }
+      },
+      {
+        "ref": "post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)",
+        "executedChecks": 6,
+        "counts": {
+          "PASS": 5,
+          "NOT_APPLICABLE": 7,
+          "FAIL": 1
+        }
+      },
+      {
+        "ref": "post|/api/v1/attendance/shift/master|attendance shift master|create new shift",
+        "executedChecks": 6,
+        "counts": {
+          "PASS": 5,
+          "NOT_APPLICABLE": 7,
+          "FAIL": 1
+        }
+      },
+      {
+        "ref": "put|/api/attendancepolicy/2|attendance policy master|update policy by id",
+        "executedChecks": 7,
+        "counts": {
+          "PASS": 6,
+          "NOT_APPLICABLE": 6,
+          "FAIL": 1
+        }
+      },
+      {
+        "ref": "put|/api/v1/attendance/shift/master/2|attendance shift master|update shift",
+        "executedChecks": 7,
+        "counts": {
+          "PASS": 6,
+          "NOT_APPLICABLE": 6,
+          "FAIL": 1
+        }
+      }
+    ],
+    "https://devmcdphcmplatform.omfysgroup.com": [
+      {
+        "ref": "get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall",
+        "executedChecks": 8,
+        "counts": {
+          "PASS": 6,
+          "FAIL": 2,
+          "NOT_APPLICABLE": 5
+        }
+      },
+      {
+        "ref": "get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid",
+        "executedChecks": 7,
+        "counts": {
+          "PASS": 5,
+          "FAIL": 2,
+          "NOT_APPLICABLE": 6
+        }
+      },
+      {
+        "ref": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+        "executedChecks": 9,
+        "counts": {
+          "PASS": 9,
+          "NOT_APPLICABLE": 4
+        }
+      },
+      {
+        "ref": "get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status",
+        "executedChecks": 9,
+        "counts": {
+          "PASS": 8,
+          "FAIL": 1,
+          "NOT_APPLICABLE": 4
+        }
+      },
+      {
+        "ref": "patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus",
+        "executedChecks": 7,
+        "counts": {
+          "PASS": 5,
+          "FAIL": 2,
+          "NOT_APPLICABLE": 6
+        }
+      },
+      {
+        "ref": "patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact",
+        "executedChecks": 7,
+        "counts": {
+          "PASS": 5,
+          "FAIL": 2,
+          "NOT_APPLICABLE": 6
+        }
+      },
+      {
+        "ref": "post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid",
+        "executedChecks": 6,
+        "counts": {
+          "PASS": 4,
+          "FAIL": 2,
+          "NOT_APPLICABLE": 7
+        }
+      },
+      {
+        "ref": "put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate",
+        "executedChecks": 7,
+        "counts": {
+          "PASS": 5,
+          "FAIL": 2,
+          "NOT_APPLICABLE": 6
+        }
+      }
+    ]
+  },
+  "excluded": {
+    "https://uatmcdphcmplatform.omfysgroup.com": [
+      {
+        "ref": "delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold",
+        "executedChecks": 3,
+        "reason": "Authorization header carries an unresolved {{token}} placeholder. The engine reports 'Header Authorization contains unresolved template' and degrades the authenticated checks to NOT_APPLICABLE. These rows NEVER surface as SKIPPED_NO_TOKEN/blocked."
+      },
+      {
+        "ref": "get|/api/attendance/status-threshold/getall|attendance status threshold api|get all",
+        "executedChecks": 2,
+        "reason": "Authorization header carries an unresolved {{token}} placeholder. The engine reports 'Header Authorization contains unresolved template' and degrades the authenticated checks to NOT_APPLICABLE. These rows NEVER surface as SKIPPED_NO_TOKEN/blocked."
+      },
+      {
+        "ref": "get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id",
+        "executedChecks": 2,
+        "reason": "Authorization header carries an unresolved {{token}} placeholder. The engine reports 'Header Authorization contains unresolved template' and degrades the authenticated checks to NOT_APPLICABLE. These rows NEVER surface as SKIPPED_NO_TOKEN/blocked."
+      },
+      {
+        "ref": "patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status",
+        "executedChecks": 2,
+        "reason": "Authorization header carries an unresolved {{token}} placeholder. The engine reports 'Header Authorization contains unresolved template' and degrades the authenticated checks to NOT_APPLICABLE. These rows NEVER surface as SKIPPED_NO_TOKEN/blocked."
+      },
+      {
+        "ref": "post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold",
+        "executedChecks": 2,
+        "reason": "Authorization header carries an unresolved {{token}} placeholder. The engine reports 'Header Authorization contains unresolved template' and degrades the authenticated checks to NOT_APPLICABLE. These rows NEVER surface as SKIPPED_NO_TOKEN/blocked."
+      },
+      {
+        "ref": "put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold",
+        "executedChecks": 2,
+        "reason": "Authorization header carries an unresolved {{token}} placeholder. The engine reports 'Header Authorization contains unresolved template' and degrades the authenticated checks to NOT_APPLICABLE. These rows NEVER surface as SKIPPED_NO_TOKEN/blocked."
+      }
+    ],
+    "http://localhost:9078": [
+      {
+        "ref": "delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete",
+        "reason": "TCP connection refused. A developer-laptop port; unreachable from CI or any shared runner."
+      },
+      {
+        "ref": "get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all",
+        "reason": "TCP connection refused. A developer-laptop port; unreachable from CI or any shared runner."
+      },
+      {
+        "ref": "get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id",
+        "reason": "TCP connection refused. A developer-laptop port; unreachable from CI or any shared runner."
+      },
+      {
+        "ref": "get|/api/attendance/late-early-policies/getall|latearly-policy|getall",
+        "reason": "TCP connection refused. A developer-laptop port; unreachable from CI or any shared runner."
+      },
+      {
+        "ref": "get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1",
+        "reason": "TCP connection refused. A developer-laptop port; unreachable from CI or any shared runner."
+      },
+      {
+        "ref": "patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status",
+        "reason": "TCP connection refused. A developer-laptop port; unreachable from CI or any shared runner."
+      },
+      {
+        "ref": "patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus",
+        "reason": "TCP connection refused. A developer-laptop port; unreachable from CI or any shared runner."
+      },
+      {
+        "ref": "post|/api/attendance/holiday-templates/create|holiday template apis copy|create",
+        "reason": "TCP connection refused. A developer-laptop port; unreachable from CI or any shared runner."
+      },
+      {
+        "ref": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
+        "reason": "TCP connection refused. A developer-laptop port; unreachable from CI or any shared runner."
+      },
+      {
+        "ref": "post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate",
+        "reason": "TCP connection refused. A developer-laptop port; unreachable from CI or any shared runner."
+      },
+      {
+        "ref": "put|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update",
+        "reason": "TCP connection refused. A developer-laptop port; unreachable from CI or any shared runner."
+      },
+      {
+        "ref": "put|/api/attendance/late-early-policies/update/2|latearly-policy|update",
+        "reason": "TCP connection refused. A developer-laptop port; unreachable from CI or any shared runner."
+      }
+    ],
+    "https://dev_mcdp_be.omfysgroup.com": [
+      {
+        "ref": "post|/auth/token|auth|login",
+        "reason": "Standard CA verification fails (SSLCertVerificationError): the hostname contains underscores and shares 161.118.163.126 with devmcdphcmplatform.omfysgroup.com, whose certificate does not cover it. NOT a dead host - the engine reaches it through the pinned-TLS path (scripts/pinned_tls.py, PINNED_HOST), which validates a SHA-256 fingerprint instead of the CA chain and works. Excluded as a *test target* only."
+      },
+      {
+        "ref": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
+        "reason": "Standard CA verification fails (SSLCertVerificationError): the hostname contains underscores and shares 161.118.163.126 with devmcdphcmplatform.omfysgroup.com, whose certificate does not cover it. NOT a dead host - the engine reaches it through the pinned-TLS path (scripts/pinned_tls.py, PINNED_HOST), which validates a SHA-256 fingerprint instead of the CA chain and works. Excluded as a *test target* only."
+      },
+      {
+        "ref": "post|/auth/token|employee auth api|tc02 - invalid empcode returns 400",
+        "reason": "Standard CA verification fails (SSLCertVerificationError): the hostname contains underscores and shares 161.118.163.126 with devmcdphcmplatform.omfysgroup.com, whose certificate does not cover it. NOT a dead host - the engine reaches it through the pinned-TLS path (scripts/pinned_tls.py, PINNED_HOST), which validates a SHA-256 fingerprint instead of the CA chain and works. Excluded as a *test target* only."
+      },
+      {
+        "ref": "post|/auth/token|employee auth api|tc03 - missing password returns 400",
+        "reason": "Standard CA verification fails (SSLCertVerificationError): the hostname contains underscores and shares 161.118.163.126 with devmcdphcmplatform.omfysgroup.com, whose certificate does not cover it. NOT a dead host - the engine reaches it through the pinned-TLS path (scripts/pinned_tls.py, PINNED_HOST), which validates a SHA-256 fingerprint instead of the CA chain and works. Excluded as a *test target* only."
+      }
+    ],
+    "https://uat-mcdp-be.omfysgroup.com": [
+      {
+        "ref": "get|/users/me|users|get profile",
+        "reason": "Reachable, but these two rows are the token providers themselves, not test targets."
+      },
+      {
+        "ref": "post|/auth/token|login auth uat api|tc01 - valid credentials return token",
+        "reason": "Reachable, but these two rows are the token providers themselves, not test targets."
+      }
+    ]
+  }
+}
