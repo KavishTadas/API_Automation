@@ -352,6 +352,35 @@ catalogue predicted would run can still report `NOT_APPLICABLE` at run time —
 declared. This is not an inconsistency and the result document says so in
 `applicabilityNote`. A test predicted `NOT_APPLICABLE` will never suddenly run.
 
+**A mis-pointed `authProviderApiId` does not fail as an auth problem.** This is
+the sharpest edge in the manifest. Providers are per-API (§2), and pointing an
+API at the wrong one is a single-token typo — but it does **not** report as a
+credential failure.
+
+The wrong provider is a real auth API with real credentials, so the bootstrap
+*succeeds*. A token is minted, and the target rejects it in use with `401`. The
+run therefore shows:
+
+- `status: COMPLETED`, **not** `COMPLETED_WITH_ERRORS`
+- `statusReason: ""`
+- **no `SKIPPED_NO_TOKEN` anywhere**, so `blockedBy` is never populated
+- one or more ordinary `FAIL`s, whose reasons say things like *"returned 401
+  instead of 404"* or *"did not inspect a success response; observed statuses:
+  [401]"*
+
+**It looks like a broken API, not a broken credential.** `SKIPPED_NO_TOKEN` only
+covers the case where no token could be obtained at all; it cannot cover a token
+that was obtained and then refused, because the engine has no way to tell that
+from an endpoint legitimately returning 401.
+
+The signal that distinguishes them is `gatewayClassification:
+"AUTH_FAILURE_401"` on the API report. **When several `FAIL`s on one API all
+cite 401 and the API carries that classification, suspect the provider before
+filing a bug against the endpoint.** `docs/platform-handoff/manual-scenarios/`
+has this as scenario s03, and s01 reproduces it accidentally — the Leave API
+scores 8 PASS / 2 FAIL under `Login_Auth_UAT_API` and 10 PASS / 0 FAIL under
+`Employee_Auth_API`, same endpoint, same credentials, same minute.
+
 **Credential handling after entry is yours.** The engine guarantees redaction of
 its own reports and logs — no credential value, length, or masked form appears
 in any output, verified by scan rather than inspection. Masking, storage, access

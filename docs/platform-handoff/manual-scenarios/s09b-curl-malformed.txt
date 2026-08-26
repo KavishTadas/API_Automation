@@ -1,0 +1,19 @@
+# Scenario 9b - malformed cURL, the error path
+#
+# The Authorization header below is missing its colon: "Authorization Bearer x"
+# rather than "Authorization: Bearer x". This is an ordinary paste error, and it
+# is the exact shape that used to quote the pasted token straight back into the
+# exception message -- and from there into any log or error surface that caught
+# it. Fixed in 598227b.
+#
+#   python -m tests.global_contract.parse_curl s09b-curl-malformed.txt
+#
+# Expected: exit 2, a clean parse failure naming the header only --
+#   error: header 'Authorization' is not in 'Name: value' form (value withheld)
+# The token must appear in NO stdout, NO stderr, and no exception message.
+#
+# The token is synthetic. The whole point of the scenario is the error path, so
+# a real one must never be used here.
+curl --location --request GET 'https://uatmcdphcmplatform.omfysgroup.com/api/attendancepolicy' \
+  --header 'Authorization Bearer eyJhbGciOiJIUzI1NiJ9.SYNTHETIC0S09B0NOTREAL.sig1111111111' \
+  --header 'Content-Type: application/json'

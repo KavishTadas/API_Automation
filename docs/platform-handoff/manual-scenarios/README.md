@@ -40,8 +40,29 @@ code and `cleanBlockers` are the stable parts.
 | `s07-bad-environment.json` | Valid API, `"environment": "PROD"` | exit **2**, `ABORTED`, no tests run. Rejected at validation: *'PROD' is not registered; known environments are ['UAT']*. A result document is still written. |
 | `s08-incomplete-definition.json` | Inline definition, no error sample, no declared status | exit 0, `COMPLETED`, 7 PASS / 6 N/A. Missing metadata shows up as `NOT_APPLICABLE`, not as failures, and 5 of the 6 name the gap in `missingField` (`documented_status_codes`, `documented_content_types`, `path_variables`, `request_body_sample` ×2). The sixth is the opt-in CORS check, where `missingField` is `null` because nothing is missing. |
 | `s09-curl.txt` | cURL upload carrying an `Authorization` header | Parses; the token is discarded. See below. |
+| `s09b-curl-malformed.txt` | cURL whose `Authorization` header is missing its colon | exit **2**, `error: header 'Authorization' is not in 'Name: value' form (value withheld)`. Token absent from stdout and stderr. Before 598227b this message quoted the token verbatim. |
 | `s11-batch-multi-host.json` | 12 runnable APIs, 7 UAT + 5 DEV host | exit 0, `COMPLETED`, 73 PASS / 12 FAIL / 1 WARN / 50 N/A, passRate 0.8588, `cleanBlockers: ["FAIL","WARN"]`. Host-level probes run once per host — check `measuredBy`. |
 | `s13-ref-vs-inline.json` | Same Attendance API twice: once by `ref`, once inline | exit 0, `COMPLETED`, 13 PASS / 2 WARN / 9 N/A. **passRate 1.0 with `clean: false`** — `cleanBlockers: ["WARN"]` says why. This is the case that reads as an engine bug without that field. |
+
+## About the FAILs in s01 and s11
+
+They are not all the same thing, and none is an engine defect. Triaged
+2026-08-26 — see the commit message for the full analysis.
+
+- **s01's 2 FAILs are a provider mismatch, not a Leave defect.** s01 pairs the
+  Leave API (DEV host) with `Login_Auth_UAT_API` as specified. The token mints
+  fine and the DEV host rejects it with 401. Same endpoint under
+  `Employee_Auth_API`: **10 PASS / 0 FAIL / passRate 1.0, clean.** Both FAILs
+  are downstream of that 401, and the API report carries
+  `gatewayClassification: AUTH_FAILURE_401`. See §8 of the handoff README.
+- **s11's 7 DEV FAILs are the same shape** — 401-driven, `AUTH_FAILURE_401`.
+- **s11's 4 UAT `404` FAILs are stale fixture IDs.** `/api/attendancepolicy/1`,
+  `/2`, `/api/v1/attendance/shift/master/6`, `/7` reference records that do not
+  exist. The collection endpoints are clean (s02: passRate 1.0). Reproduced
+  identically in s04 and s11.
+- **One genuine candidate for the API owner:** `PATCH
+  /api/attendancepolicy/4/status` returned **500**. Observed once. A 500 where
+  a 404 would be expected for a missing record is worth a ruling.
 
 ## Running one
 
