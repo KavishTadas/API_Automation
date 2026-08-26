@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git push *)",
+      "Bash(node -e \"const e=require\\('./environments/uat.json'\\); console.log\\(e.values.map\\(v=>v.key+' = '+String\\(v.value\\).slice\\(0,60\\)\\).join\\('\\\\n'\\)\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(node --check scripts/run-newman.js)",
+      "Bash(COLLECTION_FILTER=Attendance_Management_API ENV=uat node scripts/run-newman.js)",
+      "Bash(COLLECTION_FILTER=Holiday_Template_API,Late_Early_Policy_API,Weekoff_Policy_API ENV=uat node scripts/run-newman.js)",
+      "Bash(git diff *)",
+      "Bash(rm -rf reports/allure-results)",
+      "Bash(COLLECTION_FILTER=Weekoff_Policy_API ENV=uat node scripts/run-newman.js)",
+      "Bash(ENV=uat node scripts/run-newman.js)",
+      "Bash(python -)",
+      "Bash(rm -rf .verify-allure)",
+      "Bash(python -m pytest tests/auto_generated/test_007_post_attendance_policy_master_api_attendancepolicy.py --alluredir=.verify-allure -q)",
+      "Bash(node -e \"console.log\\(require\\('./environments/uat.json'\\).values.find\\(v=>v.key==='baseUrl'\\).value\\)\")"
+    ]
+  }
+}
