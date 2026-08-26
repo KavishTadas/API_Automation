@@ -56,6 +56,7 @@ __all__ = [
     "build_result_document",
     "classify_gateway_failure",
     "clean_blockers",
+    "empty_summary",
     "pass_rate",
     "redact",
     "sensitive_values",
@@ -339,6 +340,17 @@ def _summary(records: list[ResultRecord]) -> dict[str, Any]:
         # never disagree with the flag it explains.
         "cleanBlockers": blockers,
     }
+
+
+def empty_summary() -> dict[str, Any]:
+    """The summary of a run that produced no records at all.
+
+    Exists so the ABORTED path cannot drift from the shape every other path
+    emits. Every key a consumer reads is present -- including all seven state
+    counts at zero and an empty ``cleanBlockers`` -- so "nothing came back"
+    needs no special case at the other end.
+    """
+    return _summary([])
 
 
 def build_result_document(

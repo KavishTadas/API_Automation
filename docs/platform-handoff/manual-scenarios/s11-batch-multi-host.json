@@ -1,0 +1,69 @@
+{
+  "runId": "s11-batch-multi-host",
+  "environment": "UAT",
+  "requestedTiers": [
+    "global_contract"
+  ],
+  "apis": [
+    {
+      "ref": "delete|/api/attendancepolicy/2|attendance policy master|delete policy by id",
+      "credentialAlias": "attendance-svc-uat-01",
+      "authProviderApiId": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
+    },
+    {
+      "ref": "delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift",
+      "credentialAlias": "attendance-svc-uat-01",
+      "authProviderApiId": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
+    },
+    {
+      "ref": "get|/api/attendancepolicy/1|attendance policy master|get policy by id",
+      "credentialAlias": "attendance-svc-uat-01",
+      "authProviderApiId": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
+    },
+    {
+      "ref": "get|/api/attendancepolicy|attendance policy master|get all policies",
+      "credentialAlias": "attendance-svc-uat-01",
+      "authProviderApiId": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
+    },
+    {
+      "ref": "get|/api/v1/attendance/shift/master/7|attendance shift master|get by id",
+      "credentialAlias": "attendance-svc-uat-01",
+      "authProviderApiId": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
+    },
+    {
+      "ref": "get|/api/v1/attendance/shift/master|attendance shift master|get all shifts",
+      "credentialAlias": "attendance-svc-uat-01",
+      "authProviderApiId": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
+    },
+    {
+      "ref": "patch|/api/attendancepolicy/4/status|attendance policy master|activate deactivate",
+      "credentialAlias": "attendance-svc-uat-01",
+      "authProviderApiId": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
+    },
+    {
+      "ref": "get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall",
+      "credentialAlias": "leave-svc-uat-01",
+      "authProviderApiId": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+    },
+    {
+      "ref": "get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid",
+      "credentialAlias": "leave-svc-uat-01",
+      "authProviderApiId": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+    },
+    {
+      "ref": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+      "credentialAlias": "leave-svc-uat-01",
+      "authProviderApiId": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+    },
+    {
+      "ref": "get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status",
+      "credentialAlias": "leave-svc-uat-01",
+      "authProviderApiId": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+    },
+    {
+      "ref": "patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus",
+      "credentialAlias": "leave-svc-uat-01",
+      "authProviderApiId": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+    }
+  ]
+}

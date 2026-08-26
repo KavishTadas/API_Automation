@@ -18,6 +18,10 @@ this command's output. The endpoint's *need* for auth survives as
 A parser that gets this wrong leaks a token into whatever consumes its output,
 which is why this is a CLI to shell out to rather than a spec to reimplement.
 
+A leading block of ``#`` comment lines is ignored, so a saved command can carry
+a note about where it came from. Scanning stops at the first non-comment line,
+so a ``#`` inside a body or a URL fragment is never touched.
+
 Exit codes
 ----------
 ``0`` parsed, ``2`` the command could not be parsed, ``3`` this tool broke.
@@ -84,13 +88,31 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _strip_header_comments(text: str) -> str:
+    """Drop a leading block of ``#`` comment lines.
+
+    A saved cURL command usually arrives with a note above it saying where it
+    came from. Only the *leading* block is removed, and scanning stops at the
+    first line that is neither blank nor a comment -- so a ``#`` inside a body,
+    a URL fragment, or a quoted string further down is never touched.
+    """
+    lines = text.splitlines(keepends=True)
+    index = 0
+    while index < len(lines):
+        stripped = lines[index].strip()
+        if stripped and not stripped.startswith("#"):
+            break
+        index += 1
+    return "".join(lines[index:])
+
+
 def _read_command(source: str) -> str:
     if source == "-":
-        return sys.stdin.read()
+        return _strip_header_comments(sys.stdin.read())
     path = Path(source)
     if not path.is_file():
         raise CurlParseError(f"no such file: {source}")
-    return path.read_text(encoding="utf-8-sig")
+    return _strip_header_comments(path.read_text(encoding="utf-8-sig"))
 
 
 def main(argv: list[str] | None = None) -> int:

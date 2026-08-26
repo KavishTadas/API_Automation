@@ -97,7 +97,8 @@ python -m tests.global_contract.parse_curl <file>      # or '-' for stdin
 
 It prints a `definition` block on stdout, ready to drop into `apis[]`. Add
 `--entry` to get the whole entry wrapped, and `--api-id` / `--name` / `--module`
-to fill the identity fields. Warnings go to stderr, so stdout pipes straight
+to fill the identity fields. A leading block of `#` comment lines is ignored, so
+a saved command can carry a note about its origin. Warnings go to stderr, so stdout pipes straight
 into a manifest. Exit `0` parsed, `2` unparseable, `3` the tool broke.
 
 **Why this is a command and not a spec.** People paste working commands, and

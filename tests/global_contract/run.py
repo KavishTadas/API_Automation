@@ -42,6 +42,7 @@ ROOT_DIR = Path(__file__).resolve().parents[2]
 from tests.global_contract.catalogue import CATALOGUE_VERSION  # noqa: E402
 from tests.global_contract.result_emitter import (  # noqa: E402
     RunStatus,
+    empty_summary,
     write_result_document,
 )
 from tests.global_contract.run_manifest import (  # noqa: E402
@@ -73,6 +74,12 @@ def _aborted_document(
 
     The caller gets the same shape it would get from a successful run, so its
     renderer needs no special case for "nothing came back".
+
+    The summary is built by the emitter's own ``empty_summary()`` rather than
+    written out here. Hand-writing it had already drifted: it omitted
+    ``cleanBlockers`` entirely and gave ``counts`` as ``{}`` instead of the seven
+    states at zero, so a consumer reading either field on an ABORTED run hit a
+    KeyError -- on the one code path where it is least able to retry.
     """
     return {
         "runId": run_id or "unknown",
@@ -81,15 +88,7 @@ def _aborted_document(
         "catalogueVersion": CATALOGUE_VERSION,
         "status": RunStatus.ABORTED,
         "statusReason": reason,
-        "summary": {
-            "total": 0,
-            "referencedHostResults": 0,
-            "counts": {},
-            "passRate": None,
-            "passRateApplicable": False,
-            "passRateBasis": "PASS / (PASS + FAIL)",
-            "clean": False,
-        },
+        "summary": empty_summary(),
         "apis": [],
     }
 

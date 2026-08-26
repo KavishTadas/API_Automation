@@ -1,0 +1,14 @@
+{
+  "runId": "s06-unregistered-alias",
+  "environment": "UAT",
+  "requestedTiers": [
+    "global_contract"
+  ],
+  "apis": [
+    {
+      "ref": "get|/api/attendancepolicy|attendance policy master|get all policies",
+      "credentialAlias": "no-such-alias-99",
+      "authProviderApiId": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
+    }
+  ]
+}

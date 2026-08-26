@@ -1,0 +1,14 @@
+{
+  "runId": "s03-attendance-wrong-provider",
+  "environment": "UAT",
+  "requestedTiers": [
+    "global_contract"
+  ],
+  "apis": [
+    {
+      "ref": "get|/api/attendancepolicy|attendance policy master|get all policies",
+      "credentialAlias": "attendance-svc-uat-01",
+      "authProviderApiId": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+    }
+  ]
+}

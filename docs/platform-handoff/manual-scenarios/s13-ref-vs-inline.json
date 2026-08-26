@@ -1,0 +1,44 @@
+{
+  "runId": "s13-ref-vs-inline",
+  "environment": "UAT",
+  "requestedTiers": [
+    "global_contract"
+  ],
+  "apis": [
+    {
+      "ref": "get|/api/attendancepolicy|attendance policy master|get all policies",
+      "credentialAlias": "attendance-svc-uat-01",
+      "authProviderApiId": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
+    },
+    {
+      "definition": {
+        "API ID": "UPLOAD-S13",
+        "API / Feature Name": "Attendance policy master, uploaded by value",
+        "Module": "Uploaded",
+        "Purpose": "",
+        "Owner / Dev Contact": "",
+        "HTTP Method": "GET",
+        "Base URL": "https://uatmcdphcmplatform.omfysgroup.com",
+        "Endpoint Path": "/api/attendancepolicy",
+        "Auth Type": "Bearer Token",
+        "Idempotent (Y/N)": "",
+        "Environment(s)": "UAT",
+        "API Version": "",
+        "Last Updated": "",
+        "cURL": "",
+        "Postman Collection Link": "",
+        "payloads": [
+          {
+            "API ID": "UPLOAD-S13",
+            "Payload Type": "Success Response",
+            "Response status": "200",
+            "Sample JSON": "{\"data\": []}"
+          }
+        ],
+        "rules": []
+      },
+      "credentialAlias": "attendance-svc-uat-01",
+      "authProviderApiId": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
+    }
+  ]
+}

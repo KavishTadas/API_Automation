@@ -1,0 +1,14 @@
+{
+  "runId": "s01-leave-single",
+  "environment": "UAT",
+  "requestedTiers": [
+    "global_contract"
+  ],
+  "apis": [
+    {
+      "ref": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+      "credentialAlias": "leave-svc-uat-01",
+      "authProviderApiId": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
+    }
+  ]
+}

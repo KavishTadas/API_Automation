@@ -1,0 +1,10 @@
+# Scenario 9 - cURL upload
+#
+# Expected: parses cleanly; the Authorization header is DISCARDED, never stored.
+#   python -m tests.global_contract.parse_curl s09-curl.txt --api-id UPLOAD-S09 #          --module Uploaded --entry --credential-alias attendance-svc-uat-01
+# The emitted block must show "Auth Type": "Bearer Token" and a "cURL" value
+# whose Authorization reads <redacted>. The token below must appear in no
+# output, log, warning or error message.
+#
+# The token is fake and expired-looking on purpose: never commit a live one.
+curl --location --request GET 'https://uatmcdphcmplatform.omfysgroup.com/api/attendancepolicy'   --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.FAKE0NOTAREALTOKEN0S09.sig0000000000'   --header 'Content-Type: application/json'   --header 'X-Trace-Id: scenario-09'

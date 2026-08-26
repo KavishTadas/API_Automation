@@ -1,0 +1,32 @@
+{
+  "runId": "s08-incomplete-definition",
+  "environment": "UAT",
+  "requestedTiers": [
+    "global_contract"
+  ],
+  "apis": [
+    {
+      "definition": {
+        "API ID": "UPLOAD-S08",
+        "API / Feature Name": "Uploaded endpoint, minimal metadata",
+        "Module": "Uploaded",
+        "Purpose": "",
+        "Owner / Dev Contact": "",
+        "HTTP Method": "GET",
+        "Base URL": "https://uatmcdphcmplatform.omfysgroup.com",
+        "Endpoint Path": "/api/attendancepolicy",
+        "Auth Type": "Bearer Token",
+        "Idempotent (Y/N)": "",
+        "Environment(s)": "UAT",
+        "API Version": "",
+        "Last Updated": "",
+        "cURL": "",
+        "Postman Collection Link": "",
+        "payloads": [],
+        "rules": []
+      },
+      "credentialAlias": "attendance-svc-uat-01",
+      "authProviderApiId": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
+    }
+  ]
+}

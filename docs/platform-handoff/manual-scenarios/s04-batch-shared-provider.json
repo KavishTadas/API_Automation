@@ -1,0 +1,24 @@
+{
+  "runId": "s04-batch-shared-provider",
+  "environment": "UAT",
+  "requestedTiers": [
+    "global_contract"
+  ],
+  "apis": [
+    {
+      "ref": "delete|/api/attendancepolicy/2|attendance policy master|delete policy by id",
+      "credentialAlias": "attendance-svc-uat-01",
+      "authProviderApiId": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
+    },
+    {
+      "ref": "delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift",
+      "credentialAlias": "attendance-svc-uat-01",
+      "authProviderApiId": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
+    },
+    {
+      "ref": "get|/api/attendancepolicy/1|attendance policy master|get policy by id",
+      "credentialAlias": "attendance-svc-uat-01",
+      "authProviderApiId": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
+    }
+  ]
+}
