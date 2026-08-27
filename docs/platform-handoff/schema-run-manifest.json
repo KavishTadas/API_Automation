@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/KavishTadas/API_Automation/docs/platform-handoff/schema-run-manifest.json",
+  "title": "Run manifest",
+  "description": "The engine's INPUT contract: what the platform sends to start a run. Normative. `sample-run-manifest.json` is illustrative only.\n\nThe engine validates a manifest with `tests.global_contract.run_manifest.validate_manifest` before anything executes; this schema encodes the same rules so the platform can reject a bad manifest without a round trip. Where the two can differ, the engine wins and this file is the bug.\n\nTwo rules cannot be expressed here and are runtime-only:\n  1. `environment` is checked against the environments actually registered as `<MODULE>_BASE_URL_<ENV>` keys. That set is deployment-specific, so this schema constrains SHAPE ONLY - see the `environment` description.\n  2. `ref` must resolve to a row in the generated inventory.\nBoth produce an ABORTED result document with exit 2, never a partial run.",
+  "type": "object",
+  "required": ["runId", "environment", "requestedTiers", "apis"],
+  "additionalProperties": false,
+  "properties": {
+    "runId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Caller-chosen identifier for this run. Echoed into the result document, so a run is identifiable from its output rather than only from the file it came from. Required and non-empty.",
+      "examples": ["run-2026-08-25-001", "s02-attendance-single"]
+    },
+    "environment": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Which environment to run against.\n\nSHAPE ONLY. The valid set is NOT enumerated here on purpose: it is derived at run time from the registered `<MODULE>_BASE_URL_<ENV>` keys, so registering `ATTENDANCE_BASE_URL_QA` makes `QA` selectable with no code change and no schema change. Enumerating it here would freeze a deployment detail into the contract and reject a legitimately-registered environment.\n\nThe value is normalized before comparison - uppercased, with every run of non-alphanumeric characters collapsed to one underscore - so `uat`, `UAT` and `Uat` are the same environment. An unregistered environment is rejected at run time with `$.environment: 'PROD' is not registered; known environments are [...]`, ABORTED, exit 2.",
+      "examples": ["UAT"]
+    },
+    "requestedTiers": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Which test tiers to execute. Required and non-empty. This engine drives the Python global-contract tier only; per-API Newman execution is out of scope, so the enum has one member today.",
+      "items": {
+        "type": "string",
+        "enum": ["global_contract"]
+      }
+    },
+    "apis": {
+      "type": "array",
+      "minItems": 1,
+      "description": "The APIs to test. Required and non-empty. Each entry arrives either BY REFERENCE (`ref`) or BY VALUE (`definition`), never both.",
+      "items": { "$ref": "#/$defs/apiEntry" }
+    }
+  },
+  "$defs": {
+    "apiEntry": {
+      "type": "object",
+      "title": "One selected API",
+      "description": "Carries either `ref` or `definition`, never both and never neither.\n\n`additionalProperties: false` is the load-bearing part. Unknown fields are REJECTED, never ignored: silently ignoring one means a typo'd `authProviderApiID` (capital D) produces a run that looks completely fine and quietly skipped its auth bootstrap. Every result would still be emitted, and nothing in the document would say the credential never applied. The engine rejects `$comment`, `_comment`, `//`, `comment` and `description` here for exactly this reason - which is why the scenario manifests carry their id in `runId` rather than in a header comment.",
+      "properties": {
+        "ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "BY REFERENCE. An inventory identifier in `method|path|module|sub-module` form, lowercased. Must resolve to a generated inventory row; that check is runtime-only.\n\nAn empty or whitespace-only string counts as ABSENT to the engine, which is why `minLength` is 1 - `\"ref\": \"\"` alongside no `definition` is rejected as 'must carry either ref or definition', not accepted as an empty reference.",
+          "examples": ["get|/api/attendancepolicy|attendance policy master|get all policies"]
+        },
+        "definition": { "$ref": "#/$defs/definition" },
+        "credentialAlias": {
+          "$ref": "#/$defs/credentialLabel",
+          "description": "BY LABEL, NEVER BY VALUE. Names a credential pair registered out of band as `CRED_<ALIAS>_EMP_CODE` / `CRED_<ALIAS>_EMP_PASSWORD` in the environment or CI secret store, with the alias upper-cased and non-alphanumerics as underscores.\n\nNo credential value ever travels in a manifest. The engine scans this field's VALUE as well as its name: a JWT-shaped string or an embedded `password=...` is rejected outright, because pasting the password in where the label belongs is an easy mistake and would put a live secret into a document that gets stored and replayed. Rejections name the JSON path and never echo the value.\n\nOptional: an API needing no auth needs no alias."
+        },
+        "authProviderApiId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The inventory `ref` of the auth API that mints this API's token. Per-API rather than one global setting, because a single batch legitimately spans hosts that accept different issuers - a token from one is rejected by the other.\n\nOptional. Omit it and no bootstrap runs for this API.\n\nTHE SHARPEST EDGE IN THIS CONTRACT: pointing at the WRONG provider does not report as a credential failure. The wrong provider is a real auth API with real credentials, so the bootstrap SUCCEEDS, a token is minted, and the target rejects it in use with 401. The run reports `COMPLETED` with an empty `statusReason`, no `SKIPPED_NO_TOKEN` anywhere, and one or more ordinary FAILs - it looks like a broken API, not a broken credential. Look for `gatewayClassification: \"AUTH_FAILURE_401\"` on the API report to tell them apart.",
+          "examples": ["post|/auth/token|employee auth api|tc01 - valid credentials return jwt token"]
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "title": "By reference",
+          "required": ["ref"],
+          "not": { "required": ["definition"] }
+        },
+        {
+          "title": "By value",
+          "required": ["definition"],
+          "not": { "required": ["ref"] }
+        }
+      ]
+    },
+    "credentialLabel": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[A-Za-z0-9._-]{1,64}$",
+      "description": "A short, boring label - `[A-Za-z0-9._-]{1,64}`. Never a secret.",
+      "not": {
+        "pattern": "eyJ[A-Za-z0-9_-]{3,}\\.[A-Za-z0-9_-]{3,}\\.[A-Za-z0-9_-]*",
+        "$comment": "A JWT can satisfy the label pattern - dots and base64url characters are all legal in it, and a short token fits inside 64 characters. So the JWT shape is excluded explicitly rather than left to the character class."
+      },
+      "examples": ["attendance-svc-uat-01", "leave-svc-uat-01"]
+    },
+    "definition": {
+      "type": "object",
+      "title": "An API carried by value",
+      "description": "BY VALUE. An uploaded spreadsheet row or a parsed cURL command, travelling inside the manifest instead of being persisted anywhere.\n\nThe engine is STATELESS: nothing here is stored, and uploaded APIs never appear in the catalogue. Every run stays reproducible from its manifest alone - preserve that. The platform holds the definition; use the applicability resolver to show which tests will run before running them.\n\nKeys are the spreadsheet's own column headings, spaces and slashes included, so an uploaded row maps across without renaming. Unknown keys are rejected as everywhere else.",
+      "required": ["HTTP Method", "Endpoint Path"],
+      "additionalProperties": false,
+      "properties": {
+        "API ID": { "type": "string", "description": "Display label, scoped to whoever filled in the sheet. Not an engine identifier." },
+        "API / Feature Name": { "type": "string" },
+        "Module": { "type": "string" },
+        "Purpose": { "type": "string" },
+        "Owner / Dev Contact": { "type": "string" },
+        "HTTP Method": {
+          "type": "string",
+          "minLength": 1,
+          "description": "REQUIRED and non-empty. Case-insensitive; normalized to upper case."
+        },
+        "Base URL": { "type": "string", "description": "Host root. Empty falls back to the environment's registered `<MODULE>_BASE_URL_<ENV>`." },
+        "Endpoint Path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "REQUIRED and non-empty. Path only, host excluded."
+        },
+        "Auth Type": {
+          "type": "string",
+          "description": "e.g. `Bearer Token`. Describes what the ENDPOINT needs, and survives independently of any credential: a cURL upload has its `Authorization` header discarded, but `Auth Type` is retained - the endpoint's need for auth outlives the credential that was pasted in."
+        },
+        "Idempotent (Y/N)": { "type": "string" },
+        "Environment(s)": { "type": "string" },
+        "API Version": { "type": "string" },
+        "Last Updated": { "type": "string" },
+        "cURL": {
+          "type": "string",
+          "description": "The originating cURL, if any. Any `Authorization` header is stored as `Authorization: <redacted>` - the value is discarded at parse time and retained nowhere, including in error messages on the malformed-input path."
+        },
+        "Postman Collection Link": { "type": "string" },
+        "payloads": {
+          "type": "array",
+          "description": "Sample request/response payloads. CONTENT IS DATA, NOT CONTROL: this is the one region the engine's credential-key scan deliberately skips, because an auth API's success-response sample legitimately documents a `token` field and that is a description of the API, not a credential for it.",
+          "items": { "$ref": "#/$defs/payloadRow" }
+        },
+        "rules": {
+          "type": "array",
+          "description": "Business rules, dependencies and edge cases. Prose; also excluded from the credential-key scan, since a note may legitimately discuss passwords.",
+          "items": { "$ref": "#/$defs/ruleRow" }
+        }
+      }
+    },
+    "payloadRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "API ID": { "type": "string" },
+        "Payload Type": { "type": "string", "description": "e.g. `Request`, `Success Response`, `Error Response`." },
+        "Response status": { "type": "string", "description": "The HTTP status this sample illustrates, as a string. `\"na\"` where it does not apply." },
+        "Sample JSON": { "type": "string", "description": "The sample, as a JSON STRING rather than a nested object. Emitting it as a string keeps the sample's own field names out of the manifest's key space, so the credential-key scan cannot trip over a response sample that legitimately contains a `token` field." }
+      }
+    },
+    "ruleRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "API ID": { "type": "string" },
+        "Category": { "type": "string" },
+        "Description": { "type": "string" }
+      }
+    }
+  }
+}

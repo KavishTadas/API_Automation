@@ -1,0 +1,289 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/KavishTadas/API_Automation/docs/platform-handoff/schema-result.json",
+  "title": "Run result document",
+  "description": "The engine's OUTPUT contract: what the platform renders after a run. Normative. `sample-result-batch.json` and `sample-result-single-api.json` are illustrative only.\n\nA result document is written on EVERY path, ABORTED included, so a consumer never has to special-case 'nothing came back'. The ABORTED document validates against this same schema - every key a consumer reads is present, all seven counts at zero and `cleanBlockers` an empty array, rather than `counts: {}` and no `cleanBlockers` at all. That drift had already shipped one KeyError, on the one code path least able to retry.\n\nTHE TWO RULES THAT MATTER MOST:\n  1. RUN STATUS IS ORTHOGONAL TO TEST OUTCOMES. A test FAIL is not a run failure. `COMPLETED` means every requested tier executed, however many assertions failed. Never wire a UI to the process exit code - read `status`.\n  2. PASS RATE IS `PASS / (PASS + FAIL)`. NOTHING ELSE. The other five states stay out of the denominator and stay individually countable. `passRate` is `null` when the denominator is zero; render that as 'not applicable', NEVER as 100%.",
+  "type": "object",
+  "required": [
+    "runId",
+    "environment",
+    "requestedTiers",
+    "catalogueVersion",
+    "status",
+    "statusReason",
+    "summary",
+    "apis"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "runId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Echoed from the manifest, so a run is identifiable from its output. `\"unknown\"` when a run aborted before a manifest could be read."
+    },
+    "environment": {
+      "type": "string",
+      "description": "The normalized environment the run targeted. Empty string on an ABORTED run that never got as far as reading one."
+    },
+    "requestedTiers": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Echoed from the manifest. Empty array on an ABORTED run that never read one."
+    },
+    "catalogueVersion": {
+      "type": "string",
+      "description": "The catalogue version these results join against. Join on the IDs, never on position."
+    },
+    "status": { "$ref": "#/$defs/runStatus" },
+    "statusReason": {
+      "type": "string",
+      "description": "Why the run is not plainly `COMPLETED`, or `\"\"` when it is.\n\nEMPTY IS MEANINGFUL. A wrong `authProviderApiId` produces `COMPLETED` with `statusReason: \"\"` and ordinary FAILs - the bootstrap succeeded and the token was rejected in use, so nothing at run level went wrong. Do not read an empty reason as 'nothing to see'; read the per-API `gatewayClassification`."
+    },
+    "applicabilityNote": {
+      "type": "string",
+      "description": "Prose restating the one legal applicability transition: a test the catalogue predicted `PLANNED` may report `NOT_APPLICABLE` at run time, and the reverse cannot happen.\n\nOPTIONAL - and this is not an oversight. The ABORTED document omits it, because a run that never started has no applicability to describe. Read it defensively."
+    },
+    "summary": {
+      "$ref": "#/$defs/summary",
+      "description": "The whole run, aggregated. Computed from the same records as the per-API summaries, never recomputed from them."
+    },
+    "apis": {
+      "type": "array",
+      "description": "One report per API. EMPTY on an ABORTED run - that is the normal shape of 'nothing ran', not a malformed document.",
+      "items": { "$ref": "#/$defs/apiReport" }
+    }
+  },
+  "$defs": {
+    "runStatus": {
+      "type": "string",
+      "enum": ["COMPLETED", "COMPLETED_WITH_ERRORS", "ABORTED"],
+      "description": "RUN-level status only, deliberately independent of individual test outcomes.\n\n  COMPLETED             - every requested tier executed. Exit 0. Tests may still have failed.\n  COMPLETED_WITH_ERRORS - a tier ran only partially: some APIs never executed because their auth\n                          bootstrap failed. Exit 0 - THE RUN HAPPENED, the APIs were blocked.\n                          Individual test failures never reach this state.\n  ABORTED               - a tier could not start. Exit 2. No tests ran; `apis` is empty.\n\nExit 3 means the runner itself broke, and emits an ABORTED document.\n\nRead `status` from the document, never the exit code, to tell a failing test from a failing run."
+    },
+    "resultState": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "FAIL",
+        "WARN",
+        "SKIPPED_NO_TOKEN",
+        "NOT_APPLICABLE",
+        "NOT_ASSERTED",
+        "INFORMATIONAL"
+      ],
+      "description": "The seven states every contract check resolves to exactly one of:\n\n  PASS             - assertion ran and succeeded.\n  FAIL             - assertion ran and failed.\n  WARN             - ran; an advisory threshold was exceeded; the run is NOT failed.\n  SKIPPED_NO_TOKEN - auth bootstrap failed, so the API was never executed.\n  NOT_APPLICABLE   - the check cannot apply because required metadata is absent.\n  NOT_ASSERTED     - the request executed but no assertion exists for it.\n  INFORMATIONAL    - observes and records; asserts nothing about the response.\n\nPASS and FAIL are the ONLY two that may appear in a pass-rate denominator. Collapsing the other five into 'skipped', or worse into 'passed', is what this vocabulary exists to prevent: most requests in the source collections carry no assertions at all, and rendering those green would make the headline number a lie on day one."
+    },
+    "gatewayClassification": {
+      "type": "string",
+      "enum": [
+        "AUTH_FAILURE_401",
+        "APPLICATION_AUTH_FAILURE_403",
+        "GATEWAY_WAF_EMPTY_BODY_403"
+      ],
+      "description": "Why a request was rejected, when the status code alone cannot say.\n\n  AUTH_FAILURE_401             - the application rejected the token.\n  APPLICATION_AUTH_FAILURE_403 - the application refused the request.\n  GATEWAY_WAF_EMPTY_BODY_403   - THE REQUEST NEVER REACHED THE APPLICATION.\n\nThe third is an empty-bodied 403 with `content-length: 0` and a non-JSON content type - a WAF/gateway block. Rendering it as 'your API failed' would be wrong for an entire module. Say 'blocked by gateway' instead.\n\nThe first is also the signal that distinguishes a mis-pointed `authProviderApiId` from a genuinely broken endpoint: when several FAILs on one API all cite 401 and the API carries this classification, suspect the provider before filing a bug."
+    },
+    "summary": {
+      "type": "object",
+      "title": "Aggregated counts",
+      "required": [
+        "total",
+        "referencedHostResults",
+        "counts",
+        "passRate",
+        "passRateApplicable",
+        "passRateBasis",
+        "clean",
+        "cleanBlockers"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Countable results - results that merely reference a host measurement carried by another API are excluded. See `referencedHostResults`."
+        },
+        "referencedHostResults": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "How many results were dropped from the tally because they reference a host-level measurement another API carried.\n\nA host-level probe runs ONCE PER HOST. Counting the other APIs behind that host as separate results would inflate the neighbours of the denominator and make a batch look far more skipped than it is - 45 APIs behind 3 hosts is 3 measurements, not 45."
+        },
+        "counts": { "$ref": "#/$defs/counts" },
+        "passRate": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1,
+          "description": "`PASS / (PASS + FAIL)`, rounded to 4 decimal places. NOTHING ELSE goes in the denominator.\n\n`null` means NOT APPLICABLE - the denominator was zero, so no pass rate exists. A batch of entirely unasserted APIs has no pass rate. RENDER `null` AS 'not applicable'; reporting it as 100% is the exact failure this whole design exists to prevent. `passRateApplicable` says the same thing as a boolean for consumers that cannot easily test for null."
+        },
+        "passRateApplicable": {
+          "type": "boolean",
+          "description": "`false` exactly when `passRate` is `null`."
+        },
+        "passRateBasis": {
+          "type": "string",
+          "const": "PASS / (PASS + FAIL)",
+          "description": "The formula, published in the document so a consumer never re-derives it and gets it wrong. Constant by contract."
+        },
+        "clean": {
+          "type": "boolean",
+          "description": "True only when nothing needs a human to look at it: no blocking state present AND a pass rate exists. One WARN or one blocked API is not a clean pass.\n\n`clean: false` beside `passRate: 1.0` is NOT a contradiction and NOT an engine bug - every assertion really did pass, and a WARN or a blocked API is still waiting on someone. `cleanBlockers` says which."
+        },
+        "cleanBlockers": {
+          "type": "array",
+          "description": "Which blocking states are actually present, WORST FIRST - element zero is the headline cause. Derived from the same counts as `clean`, so the two can never disagree.\n\nOnly these three states block: FAIL, WARN, SKIPPED_NO_TOKEN.\n\nEMPTY WHILE `clean` IS FALSE means exactly one thing: no blocking state is present and the pass rate is inapplicable - nothing landed in PASS + FAIL at all. `passRateApplicable` already says so, which is why this stays strictly a list of states.\n\nREQUIRED ON EVERY PATH, including ABORTED, where it is `[]`.",
+          "items": {
+            "type": "string",
+            "enum": ["FAIL", "WARN", "SKIPPED_NO_TOKEN"]
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "title": "Per-state tally",
+      "description": "ALL SEVEN STATES ARE ALWAYS PRESENT, ZEROED RATHER THAN ABSENT - including on an ABORTED run. A consumer reading `counts[\"FAIL\"]` must never have to guard for a missing key.",
+      "required": [
+        "PASS",
+        "FAIL",
+        "WARN",
+        "SKIPPED_NO_TOKEN",
+        "NOT_APPLICABLE",
+        "NOT_ASSERTED",
+        "INFORMATIONAL"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "PASS": { "type": "integer", "minimum": 0 },
+        "FAIL": { "type": "integer", "minimum": 0 },
+        "WARN": { "type": "integer", "minimum": 0 },
+        "SKIPPED_NO_TOKEN": { "type": "integer", "minimum": 0 },
+        "NOT_APPLICABLE": { "type": "integer", "minimum": 0 },
+        "NOT_ASSERTED": { "type": "integer", "minimum": 0 },
+        "INFORMATIONAL": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "title": "Where this API came from",
+      "description": "Empty object where the engine had nothing to record. Open to additional keys on purpose - provenance is descriptive metadata, and a new source type must not invalidate an otherwise-good document.",
+      "properties": {
+        "sourceType": { "type": ["string", "null"], "description": "e.g. `newman`, `bruno`, `excel`, `unknown`." },
+        "sourceCollection": { "type": ["string", "null"], "description": "The file the API was read from, repo-relative." },
+        "sourceModule": { "type": ["string", "null"] },
+        "owner": { "type": ["string", "null"], "description": "Null rather than back-filled with a guess." }
+      }
+    },
+    "apiReport": {
+      "type": "object",
+      "title": "One API's results",
+      "required": ["apiRef", "provenance", "gatewayClassification", "summary", "results"],
+      "additionalProperties": false,
+      "properties": {
+        "apiRef": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identifies the API these results belong to. For an inventory API this is the manifest `ref`; for an uploaded definition it is a derived identifier that includes the base URL."
+        },
+        "provenance": { "$ref": "#/$defs/provenance" },
+        "gatewayClassification": {
+          "oneOf": [
+            { "$ref": "#/$defs/gatewayClassification" },
+            { "type": "null" }
+          ],
+          "description": "Always present at API level, `null` when no auth-shaped rejection was seen. Check this before filing a bug against an endpoint whose FAILs all cite 401."
+        },
+        "summary": { "$ref": "#/$defs/summary" },
+        "results": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/result" }
+        }
+      }
+    },
+    "result": {
+      "type": "object",
+      "title": "One test outcome for one API",
+      "description": "Seven keys are always present. The rest appear conditionally, and the conditions are enforced below: a NOT_APPLICABLE result always carries `missingField`, a WARN always carries both numbers, a SKIPPED_NO_TOKEN always carries `blockedBy`, and a host-level result always carries all four host keys.",
+      "required": ["testId", "apiRef", "state", "reason", "durationMs", "executed", "provenance"],
+      "additionalProperties": false,
+      "properties": {
+        "testId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Joins to the catalogue's `testCases`. Deterministic and free of run-specific data. Global and generated IDs derive from code identifiers and survive any title change; Newman IDs are title-derived and do NOT - renaming a `pm.test()` string retires one case and introduces another.",
+          "examples": ["global_contract::test_response_time_within_sla"]
+        },
+        "apiRef": { "type": "string", "minLength": 1, "description": "Repeated from the enclosing API report so a flattened result row stands alone." },
+        "state": { "$ref": "#/$defs/resultState" },
+        "reason": {
+          "type": "string",
+          "description": "Human-readable detail, with the machine-readable markers already stripped out. May be empty for a plain PASS.\n\nNEVER CLASSIFY ON PROSE, and never on the underlying pytest verdict: WARN and INFORMATIONAL are emitted as pytest skips because that is the only built-in non-failing outcome carrying a machine-readable reason, but BOTH MEAN THE CHECK RAN. Read `state`, and `executed`."
+        },
+        "durationMs": { "type": "number", "minimum": 0, "description": "Wall-clock for this check, to 3 decimal places. `0` for a check that never executed." },
+        "executed": {
+          "type": "boolean",
+          "description": "Whether the check actually ran against the API. True for PASS, FAIL, WARN and INFORMATIONAL; false for the other three.\n\nWARN and INFORMATIONAL are true here despite surfacing as pytest skips. Treating them as 'did not execute' understates real coverage."
+        },
+        "provenance": { "$ref": "#/$defs/provenance" },
+        "missingField": {
+          "type": ["string", "null"],
+          "description": "REQUIRED WHEN `state` IS `NOT_APPLICABLE`, absent otherwise. Names the metadata field whose absence disabled the check, so a consumer can say 'declare this' instead of 'something is missing'.\n\nNULLABLE, AND `null` IS NOT A DEGRADED VALUE - it means NOTHING IS MISSING. The opt-in CORS preflight check is the standing example: it reports NOT_APPLICABLE because it is switched off, not because the definition lacks anything, so `missingField` is `null`. DO NOT RENDER A `null` HERE AS A METADATA GAP.",
+          "examples": ["documented_status_codes", "documented_content_types", "path_variables", "request_body_sample", null]
+        },
+        "observed": {
+          "type": ["number", "null"],
+          "description": "REQUIRED WHEN `state` IS `WARN`. The measured value. A WARN is only actionable with both numbers, so the threshold is never left implicit."
+        },
+        "threshold": {
+          "type": ["number", "null"],
+          "description": "REQUIRED WHEN `state` IS `WARN`. The advisory target that was exceeded."
+        },
+        "blockedBy": {
+          "type": ["string", "null"],
+          "description": "REQUIRED WHEN `state` IS `SKIPPED_NO_TOKEN`, absent otherwise. The `authProviderApiId` whose bootstrap failed - naming what to go and fix is what makes a blocked API actionable.\n\n`null` where nothing named a provider: a check that needed a bearer token when the session never bootstrapped one. Null rather than inventing a provider that did not fail."
+        },
+        "hostLevel": {
+          "type": "boolean",
+          "const": true,
+          "description": "Present and true only on a host-level probe - a check measuring a HOST or GATEWAY property rather than an endpoint property. Absent entirely on ordinary results."
+        },
+        "host": {
+          "type": ["string", "null"],
+          "description": "Which host was measured. Present on every host-level result."
+        },
+        "referencesHostResult": {
+          "type": "boolean",
+          "description": "True when this API is REFERENCING a measurement another API carried, rather than having measured it itself. Referencing rows are excluded from `summary.total` and from the counts.\n\nDeliberately NOT the same question as `measuredBy != apiRef`: a host-level row blocked by auth before the dedup check ever ran is a genuine SKIPPED_NO_TOKEN and must stay counted, even though another API carries its host measurement."
+        },
+        "measuredBy": {
+          "type": ["string", "null"],
+          "description": "The `apiRef` that actually carried this host measurement - THIS ROW'S OWN REF WHEN IT IS THE ONE THAT MEASURED. Populated on every host-level result, self included, so a consumer never has to special-case 'this row did its own measuring'.\n\nFOLLOW THIS BEFORE READING A HOST-LEVEL `NOT_APPLICABLE` AS A GAP: it usually means the probe ran once elsewhere on the same host, not that anything is missing."
+        },
+        "gatewayClassification": {
+          "$ref": "#/$defs/gatewayClassification",
+          "description": "Present on a result only when an auth-shaped rejection was classified. Absent otherwise - at result level this key is omitted rather than nulled."
+        }
+      },
+      "allOf": [
+        {
+          "$comment": "NOT_APPLICABLE must name the gap, or explicitly say there isn't one.",
+          "if": { "properties": { "state": { "const": "NOT_APPLICABLE" } }, "required": ["state"] },
+          "then": { "required": ["missingField"] }
+        },
+        {
+          "$comment": "A WARN carries both numbers so the threshold is never implicit.",
+          "if": { "properties": { "state": { "const": "WARN" } }, "required": ["state"] },
+          "then": { "required": ["observed", "threshold"] }
+        },
+        {
+          "$comment": "A blocked API is actionable only once you know which credential to fix.",
+          "if": { "properties": { "state": { "const": "SKIPPED_NO_TOKEN" } }, "required": ["state"] },
+          "then": { "required": ["blockedBy"] }
+        },
+        {
+          "$comment": "A host-level result carries all four host keys or none of them.",
+          "if": { "required": ["hostLevel"] },
+          "then": { "required": ["host", "referencesHostResult", "measuredBy"] }
+        }
+      ]
+    }
+  }
+}

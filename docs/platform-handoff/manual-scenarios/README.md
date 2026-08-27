@@ -39,7 +39,7 @@ UAT on 2026-08-26, with `s01`, `s08`, `s09` and `s09b` re-run and confirmed on
 | `s05-batch-mixed-providers.json` | Leave + Attendance, different providers | exit 0, `COMPLETED`, 17 PASS / 9 N/A, passRate 1.0, **clean**. Two bootstraps in one run. |
 | `s06-unregistered-alias.json` | Any API, alias that is registered nowhere | exit **0**, `COMPLETED_WITH_ERRORS`, 9 `SKIPPED_NO_TOKEN` / 4 N/A, passRate `null`, `cleanBlockers: ["SKIPPED_NO_TOKEN"]`. **Exit 0 is correct** — the run happened; the APIs were blocked. Check `blockedBy` on the results for the provider that failed. |
 | `s07-bad-environment.json` | Valid API, `"environment": "PROD"` | exit **2**, `ABORTED`, no tests run. Rejected at validation: *'PROD' is not registered; known environments are ['UAT']*. A result document is still written. |
-| `s08-incomplete-definition.json` | Inline definition, no error sample, no declared status | exit 0, `COMPLETED`, **6 PASS / 1 WARN / 6 N/A**, passRate 1.0, `cleanBlockers: ["WARN"]` (confirmed 2026-08-27). Missing metadata shows up as `NOT_APPLICABLE`, not as failures, and 5 of the 6 name the gap in `missingField` (`documented_status_codes`, `documented_content_types`, `path_variables`, `request_body_sample` ×2). The sixth is the opt-in CORS check, where `missingField` is `null` because nothing is missing. The WARN is `test_response_time_within_sla` (1022.5ms vs a 700ms advisory target) — live latency, unrelated to the missing metadata; on 2026-08-26 that check passed and the row read 7 PASS / 6 N/A. |
+| `s08-incomplete-definition.json` | **Two** APIs: an inline definition with no error sample and no declared status, beside a fully-specified sibling | exit 0, `COMPLETED`, 13 PASS / 11 N/A, passRate 1.0, **clean** (2026-08-27). Split **7 PASS / 6 N/A** for the incomplete `UPLOAD-S08` and **6 PASS / 5 N/A, 0 FAIL, 0 `SKIPPED_NO_TOKEN`** for the sibling. Missing metadata shows up as `NOT_APPLICABLE`, not as failures, and 5 of `UPLOAD-S08`'s 6 name the gap in `missingField` (`documented_status_codes`, `documented_content_types`, `path_variables`, `request_body_sample` ×2). The sixth is the opt-in CORS check, where `missingField` is `null` because nothing is missing. **Nothing propagates to the sibling** — see below. |
 | `s09-curl.txt` | cURL upload carrying an `Authorization` header | exit 0 (confirmed 2026-08-27). Parses; the token is discarded. No `Authorization` key on the emitted `definition` at all; the stored `"cURL"` value reads `Authorization: <redacted>`; `"Auth Type": "Bearer Token"` survives. **The endpoint's need for auth outlives the credential.** Token absent from stdout and stderr. See below. |
 | `s09b-curl-malformed.txt` | cURL whose `Authorization` header is missing its colon | exit **2**, `error: header 'Authorization' is not in 'Name: value' form (value withheld)`. Token absent from stdout and stderr; stdout is empty. Before 598227b this message quoted the token verbatim. Re-confirmed 2026-08-27. |
 | `s11-batch-multi-host.json` | 12 runnable APIs, 7 UAT + 5 DEV host | exit 0, `COMPLETED`, 73 PASS / 12 FAIL / 1 WARN / 50 N/A, passRate 0.8588, `cleanBlockers: ["FAIL","WARN"]`. Host-level probes run once per host — check `measuredBy`. |
@@ -69,12 +69,27 @@ accident instead of by design.
 
 ## s08 — the fail-soft invariant
 
-The point of s08 is not the counts, it is that **an under-specified definition
-degrades to `NOT_APPLICABLE` and stops there.** Missing metadata never becomes a
-FAIL, and never reaches anything else in the run.
+The point of s08 is **containment**, not the `NOT_APPLICABLE` classification
+itself — s02 and others already show that. The claim is that an under-specified
+definition degrades to `NOT_APPLICABLE`, **and stops there**: it never becomes a
+FAIL, and it never reaches anything else in the run.
 
-`missingField` names the gap for **5 of the 6** `NOT_APPLICABLE` results, so the
-reader can tell *which* metadata would unlock each check rather than guessing:
+A single-API manifest cannot demonstrate that, so **s08 carries two APIs**: the
+inline `UPLOAD-S08` definition, and the fully-specified attendance row s02 uses.
+One run, one document, containment visible in it.
+
+| | `UPLOAD-S08` (incomplete) | sibling (fully specified) |
+|---|---|---|
+| PASS | 7 | 6 |
+| NOT_APPLICABLE | 6 | 5 |
+| **FAIL** | **0** | **0** |
+| **`SKIPPED_NO_TOKEN`** | **0** | **0** |
+| passRate | 1.0 | 1.0 |
+| `clean` | `true` | `true` |
+
+`missingField` names the gap for **5 of `UPLOAD-S08`'s 6** `NOT_APPLICABLE`
+results, so the reader can tell *which* metadata would unlock each check rather
+than guessing:
 
 | Test | `missingField` |
 |---|---|
@@ -87,18 +102,46 @@ reader can tell *which* metadata would unlock each check rather than guessing:
 
 The sixth is the opt-in CORS preflight check. It is `NOT_APPLICABLE` because it
 is switched off (`GLOBAL_CONTRACT_ENABLE_CORS_PREFLIGHT=1` enables it), not
-because the definition lacks anything — so `missingField` is `null`. A `null`
-there means *not a metadata gap*, and it should not be rendered as one.
+because the definition lacks anything — so `missingField` is `null`. **A `null`
+there means *not a metadata gap*, and must not be rendered as one.**
 
-**The shipped `s08` manifest contains one API, so it has no batch of its own to
-check.** Containment was confirmed separately on 2026-08-27 by running the same
-inline `UPLOAD-S08` definition alongside a fully-specified sibling (s02's
-`get|/api/attendancepolicy|attendance policy master|get all policies`) in a
-single manifest. The sibling came back **0 FAIL, 0 `SKIPPED_NO_TOKEN`, passRate
-1.0** — none of `UPLOAD-S08`'s six `NOT_APPLICABLE` results propagated to it.
-Both APIs carried the same advisory-latency WARN, which is a shared property of
-the host and not of either definition. That containment is the invariant; the
-scenario exists to demonstrate it.
+### The sibling's own `NOT_APPLICABLE`s are not inherited
+
+The sibling reports 5 `NOT_APPLICABLE` of its own, which is easy to misread as
+propagation. It is not. Every one of them is a gap in **its own** catalogue row,
+and each carries its own `missingField` — `path_variables`,
+`documented_content_types`, `request_body_sample`, `documented_status_codes`,
+plus the same opt-in CORS `null`.
+
+Running the sibling **alone** (that is `s02`) and diffing the two result sets
+confirms it: every result is identical in state and `missingField`, **except the
+two host-level probes**, which change for a documented and unrelated reason —
+
+| Test | s02 alone | beside `UPLOAD-S08` |
+|---|---|---|
+| `test_request_payload_size_enforcement` | `NOT_APPLICABLE`, `referencesHostResult: false` | `NOT_APPLICABLE`, **`referencesHostResult: true`** |
+| `test_small_burst_does_not_trigger_immediate_blocking` | `PASS`, `referencesHostResult: false` | `NOT_APPLICABLE`, **`referencesHostResult: true`** |
+
+Both APIs are on the same host, so the host-level probes **run once and are
+referenced by the second API** rather than repeated — `referencedHostResults: 2`
+on the sibling's summary, and `measuredBy` names the API that actually measured.
+That is §6 of the handoff README, not fail-soft. **Follow `measuredBy` before
+reading a host-level `NOT_APPLICABLE` as a gap.** It is also why the sibling
+totals 11 results here against 13 when run alone.
+
+### A prior observation worth keeping
+
+Before the second API was added, the 2026-08-27 single-API run scored **6 PASS /
+1 WARN / 6 N/A**, `cleanBlockers: ["WARN"]`. The WARN was
+`test_response_time_within_sla` at **1022.5ms against a 700ms advisory target**.
+The current two-API run does not reproduce it — the same check passed for both
+APIs — because response time is live and varies.
+
+**It is recorded rather than tuned away.** It is a real observation of the
+advisory SLA doing its job in a scenario not designed to test it, and it shows
+the WARN state behaving as specified: it does not touch `passRate` (still 1.0),
+but it does block `clean`. If this run WARNs for you, that is latency, not the
+missing metadata, and not a regression in the scenario.
 
 ## About the FAILs in s11
 

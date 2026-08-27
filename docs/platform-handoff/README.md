@@ -1,11 +1,83 @@
 # Platform Integration Guide
 
 How the Omfys Java QA Platform drives this test engine and renders what comes
-back. Everything here is reproducible from the four sample artifacts in this
-directory — you do not need repo access to build a renderer.
+back. Everything here is reproducible from the artifacts in this directory —
+you do not need repo access to build a renderer.
+
+**Generate your types from the three `schema-*.json` files, not from the
+samples.** The schemas are normative; the samples are illustrative. See
+[§0](#0-the-schemas-are-the-contract).
 
 > **The output schema is work-in-progress by design.** It is expected to change
 > once you start building against it. Say what you need and it will change.
+
+---
+
+## 0. The schemas are the contract
+
+Three [JSON Schema](https://json-schema.org/) files, **Draft 2020-12**, matching
+the draft the engine already validates against (`Draft202012Validator`, used in
+`tests/global_contract/test_global_api_contract.py`):
+
+| Schema | Contract | Direction |
+|---|---|---|
+| [`schema-run-manifest.json`](schema-run-manifest.json) | Run manifest | what you **send** |
+| [`schema-catalogue.json`](schema-catalogue.json) | Discovery catalogue | what you **show before a run** |
+| [`schema-result.json`](schema-result.json) | Result document | what you **render after** |
+
+**The schemas are normative. The four `sample-*.json` files are illustrative.**
+Where a sample and a schema disagree, the schema is right and the sample is the
+bug — report it. Where the schema and the **engine** disagree, the engine is
+right and the schema is the bug; report that too.
+
+Generate your Java types from the schemas. Hand-reading the samples instead
+produces types that match one snapshot of one run: every optional field that
+happens to be absent from a sample becomes a field you never model, every
+nullable one becomes non-null, and the divergence surfaces months later as a
+field nobody agreed to change. The samples cannot tell you that `missingField`
+is nullable, that `applicabilityNote` is absent on the ABORTED path, or that
+`counts` always carries all seven states — the schemas say all three explicitly.
+
+### Verifying
+
+```bash
+python scripts/validate_handoff_schemas.py
+```
+
+Checks that all four samples validate, that the **ABORTED** document validates,
+that any result documents under `reports/platform/` validate, that ten
+malformed documents are **rejected with a useful JSON path**, and that every
+enum in the schemas still matches the engine constant it came from. That last
+group is what stops these files rotting: samples keep passing when the engine
+grows an eighth state, but the drift check does not.
+
+### What the schemas carry that prose cannot
+
+Each field's `description` holds the rule and the reason for it, so the
+constraint travels with the type rather than living only in this document.
+The ones most worth reading before you model anything:
+
+- **`apis[]` entries carry `ref` **or** `definition`, never both** — and never
+  neither. Encoded as a `oneOf`, so both errors are caught at the entry.
+- **Unknown fields are rejected, not ignored** (`additionalProperties: false`,
+  every level). This is load-bearing: silently ignoring a typo'd
+  `authProviderApiID` produces a run that looks entirely fine and quietly
+  skipped its auth. It is also why the scenario manifests carry their id in
+  `runId` — a `$comment` key is rejected too.
+- **`environment` is shape-only.** The valid set is derived at run time from the
+  registered `<MODULE>_BASE_URL_<ENV>` keys, so it is deliberately **not**
+  enumerated — enumerating it would freeze a deployment detail into the
+  contract and reject a legitimately-registered environment. `catalogue.environments`
+  publishes the live set.
+- **`credentialAlias` is a label, never a value** — constrained to
+  `[A-Za-z0-9._-]{1,64}` and explicitly excluding the JWT shape, because a short
+  token satisfies that character class.
+- **`missingField` is nullable, and `null` means *nothing is missing*** — the
+  opt-in CORS check. Do not render a `null` there as a metadata gap.
+- **`summary.counts` always carries all seven states, zeroed rather than
+  absent**, and **`cleanBlockers` is required on every path** including ABORTED.
+  Both are `required`, so a document that omits them fails validation rather
+  than reaching your renderer.
 
 ---
 
@@ -484,11 +556,18 @@ python -m tests.global_contract.parse_curl request.curl --api-id API-001
 
 # proves a pasted token survives nowhere, including error messages
 python scripts/regression/verify-curl-authorization-stripped.py
+
+# samples + the ABORTED path against the published schemas, plus engine drift
+python scripts/validate_handoff_schemas.py
 ```
 
 ### About the samples
 
+**Illustrative, not normative** — the `schema-*.json` files are the contract
+(§0). Read a sample to see the shape; generate types from the schema.
+
 `sample-run-manifest.json` runs green as shipped, once the alias above is
 registered. `sample-result-batch.json` is assembled deliberately so that **all
 seven states** appear — a live run only produces the states its APIs happen to
-reach, and you need every render path.
+reach, and you need every render path. That also makes it the sample least like
+a real run: do not infer from it which fields are usually present.
