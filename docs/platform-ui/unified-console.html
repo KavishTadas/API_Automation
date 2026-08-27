@@ -87,12 +87,6 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .btn-icon{padding:7px;width:32px;justify-content:center}
 .btn-sm{padding:4px 8px;font-size:11.5px}
 
-/* ---------- Banner ---------- */
-.banner{display:flex;align-items:flex-start;gap:9px;padding:8px 20px;font-size:11.5px;
-  background:var(--amber-bg);color:var(--amber);border-bottom:1px solid var(--line);flex-shrink:0}
-.banner svg{width:15px;height:15px;flex-shrink:0;margin-top:1px}
-.banner b{font-weight:700}
-
 /* ---------- Views ---------- */
 .view{flex:1;display:none;min-height:0}
 .view.active{display:flex}
@@ -458,11 +452,6 @@ hr{border:none;border-top:1px solid var(--line-soft);margin:12px 0}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
     </button>
   </header>
-
-  <div class="banner">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-    <span><b>UI mock — no engine attached.</b> The catalogue, hosts, modules, credential aliases and result schema are real (loaded from <code>docs/platform-handoff/</code>). Runs are <b>simulated in the browser</b>: no HTTP request leaves this page and no credential is ever read. Wire <code>runBatch()</code> to <code>POST /run</code> to make it live.</span>
-  </div>
 
   <!-- ===================== STATUS STRIP ===================== -->
   <div class="strip" id="strip"></div>
