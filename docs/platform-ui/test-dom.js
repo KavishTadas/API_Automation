@@ -471,6 +471,134 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   now.find(b => b.dataset.persona === wasActive).click();
   await wait(80);
 
+  console.log('\ncategory + suite filters:');
+  goReport();
+  await wait(90);
+  const css2 = [...doc.querySelectorAll('style')].map(s => s.textContent).join('\n');
+
+  // --- Categories tab ---
+  $$('#anTabs .nitem').find(t => t.dataset.tab === 'defects').click();
+  await wait(90);
+  const catBar = $('[data-fbar="catFilter"]');
+  ok('Categories carries a filter bar', !!catBar);
+  ok('every category is a real button',
+     $$('[data-fbar="catFilter"] .fpill').length >= 5 &&
+     $$('[data-fbar="catFilter"] .fpill').every(b => b.tagName === 'BUTTON'),
+     $$('[data-fbar="catFilter"] .fpill').length + ' pills');
+  ok('each pill carries its own count',
+     $$('[data-fbar="catFilter"] .fpill').every(b => b.querySelector('.n')));
+  ok('All is active to begin with',
+     $('[data-fbar="catFilter"] .fpill.active').dataset.f === 'all',
+     $('[data-fbar="catFilter"] .fpill.active').dataset.f);
+  ok('pill counts sum to the All count',
+     (() => {
+       const pills = $$('[data-fbar="catFilter"] .fpill');
+       const all = +pills.find(p => p.dataset.f === 'all').querySelector('.n').textContent;
+       const rest = pills.filter(p => p.dataset.f !== 'all')
+         .reduce((n, p) => n + (+p.querySelector('.n').textContent), 0);
+       return all === rest;
+     })(), 'sum mismatch');
+
+  const secPill = $$('[data-fbar="catFilter"] .fpill').find(b => b.dataset.f === 'security');
+  const secN = +secPill.querySelector('.n').textContent;
+  click(secPill);
+  await wait(90);
+  ok('clicking a category filters the table',
+     $('[data-fbar="catFilter"] .fpill.active').dataset.f === 'security',
+     $('[data-fbar="catFilter"] .fpill.active').dataset.f);
+  ok('the filtered table shows only that many rows',
+     secN === 0 || $$('#anBody tbody tr').length === secN,
+     secN + ' expected, ' + $$('#anBody tbody tr').length + ' shown');
+  ok('an empty category says so rather than showing a blank pane',
+     secN > 0 || /Nothing in this category/.test($('#anBody').textContent));
+
+  click($$('[data-fbar="catFilter"] .fpill').find(b => b.dataset.f === 'all'));
+  await wait(90);
+  ok('All restores every row',
+     $('[data-fbar="catFilter"] .fpill.active').dataset.f === 'all');
+
+  // --- Suites tab ---
+  $$('#anTabs .nitem').find(t => t.dataset.tab === 'suites').click();
+  await wait(90);
+  ok('Suites carries a module filter bar', !!$('[data-fbar="modFilter"]'));
+  const modPills = $$('[data-fbar="modFilter"] .fpill');
+  ok('one pill per executed module plus All', modPills.length > 1,
+     modPills.length + ' pills');
+  ok('module pills are colour-coded by health',
+     modPills.filter(p => p.dataset.f !== 'all').every(p => p.querySelector('.dot')));
+
+  const firstMod = modPills.find(p => p.dataset.f !== 'all');
+  const modN = +firstMod.querySelector('.n').textContent;
+  click(firstMod);
+  await wait(90);
+  ok('clicking a module filters the matrix',
+     $$('#anBody tbody tr').length === modN,
+     modN + ' expected, ' + $$('#anBody tbody tr').length + ' shown');
+  ok('the card title names the module',
+     new RegExp(firstMod.dataset.f.slice(0, 12).replace(/[.*+?^${}()|[\]\\]/g, '.'), 'i')
+       .test($('#anBody .card-h h3').textContent),
+     $('#anBody .card-h h3').textContent);
+  ok('the filter survives a re-render',
+     $('[data-fbar="modFilter"] .fpill.active').dataset.f === firstMod.dataset.f);
+
+  click($$('[data-fbar="modFilter"] .fpill').find(p => p.dataset.f === 'all'));
+  await wait(90);
+  ok('All restores every module',
+     $$('#anBody tbody tr').length ===
+       +$$('[data-fbar="modFilter"] .fpill').find(p => p.dataset.f === 'all')
+          .querySelector('.n').textContent,
+     $$('#anBody tbody tr').length + ' rows vs All count');
+
+  console.log('\nfilter pulse + scrollbar:');
+  ok('the active filter pill glows',
+     /\.fpill\.active\{[^}]*box-shadow:0 0 12px rgba\(62,217,197,\.4\)/.test(css2));
+  ok('the glow pulses', /\.fpill\.active\{[^}]*animation:pswPulse/.test(css2));
+  ok('reduced motion stills the filter pulse',
+     /prefers-reduced-motion:reduce\)\{\s*\.fpill\.active\{animation:none/.test(css2));
+  ok('filter pills take a focus ring', /\.fpill:focus-visible\{outline/.test(css2));
+
+  ok('scrollbar is 6px', /::-webkit-scrollbar\{width:6px;height:6px\}/.test(css2));
+  ok('scrollbar track is transparent and borderless',
+     /::-webkit-scrollbar-track\{background:transparent;border:0\}/.test(css2));
+  ok('scrollbar thumb is a translucent token with no border',
+     /::-webkit-scrollbar-thumb\{background:var\(--scroll-thumb\);border-radius:99px;border:0\}/.test(css2));
+  ok('thumb token defined for both themes',
+     (css2.match(/--scroll-thumb:rgba/g) || []).length >= 2,
+     (css2.match(/--scroll-thumb:rgba/g) || []).length + ' definitions');
+  ok('Firefox scrollbar styled too', /scrollbar-width:thin/.test(css2) &&
+     /scrollbar-color:var\(--scroll-thumb\) transparent/.test(css2));
+  ok('no element re-styles its own scrollbar',
+     !/\.(enav-in|rail-scroll)::-webkit-scrollbar/.test(css2));
+
+  console.log('\nspacing scale:');
+  ok('a spacing scale is defined',
+     /--pad-card:16px/.test(css2) && /--gap-sm:8px/.test(css2) &&
+     /--gap-md:14px/.test(css2) && /--gap-lg:20px/.test(css2));
+  ok('report cards use it', /\.ecard\{padding:var\(--pad-card\)/.test(css2));
+  ok('stat cards use it', /\.estat\{padding:var\(--pad-card\)/.test(css2));
+  ok('the gate banner uses it', /\.eqg\{[^}]*padding:var\(--pad-card\)/.test(css2));
+  ok('table rows use it', /td\{padding:var\(--pad-row\)/.test(css2));
+  ok('suite rows use it', /\.sc-row\{[^}]*padding:var\(--pad-row\)/.test(css2));
+  ok('grids use it', /\.estats\{[^}]*gap:var\(--gap-md\)/.test(css2) &&
+     /\.egrid3\{[^}]*gap:var\(--gap-lg\)/.test(css2));
+
+  console.log('\nlive HCM data:');
+  $$('#anTabs .nitem').find(t => t.dataset.tab === 'suites').click();
+  await wait(90);
+  goHome();
+  await wait(70);
+  const allText = $('#suitesGrid').textContent;
+  for (const [label, needle] of [
+    ['Employee Auth POST /auth/token', '/auth/token'],
+    ['Leave reports', '/user/leaves/getAllLeaveReports'],
+    ['Attendance policies', '/api/attendancepolicy'],
+    ['Shift master', '/api/v1/attendance/shift/master'],
+    ['Status thresholds', '/api/attendance/status-thresholds'],
+    ['Holiday templates', '/api/attendance/holiday-templates'],
+    ['Weekoffs', '/api/attendance/week-off']
+  ]) ok('catalogue carries ' + label, allText.includes(needle), needle);
+  ok('no placeholder host survives', !/\{\{|localhost|example\.com/.test(allText));
+
   console.log('\nnavigator:');
   goHome();
   await wait(40);

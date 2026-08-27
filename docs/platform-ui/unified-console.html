@@ -20,8 +20,11 @@
   --rose:#be123c; --rose-bg:rgba(190,18,60,.10);
   --cyan:#0e7490; --cyan-bg:rgba(14,116,144,.10);
   --slate:#64748b; --slate-bg:rgba(100,116,139,.12);
+  --scroll-thumb:rgba(100,116,139,.30); --scroll-thumb-hi:rgba(100,116,139,.50);
   --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.10);
   --shadow-lg:0 12px 32px rgba(16,24,40,.16);
+  --pad-card:16px; --pad-row:10px 14px;
+  --gap-sm:8px; --gap-md:14px; --gap-lg:20px;
   --mono:ui-monospace,"SF Mono","Cascadia Code",Consolas,"Liberation Mono",monospace;
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   --r:10px;
@@ -38,9 +41,17 @@
   --rose:#fb7185; --rose-bg:rgba(251,113,133,.12);
   --cyan:#22d3ee; --cyan-bg:rgba(34,211,238,.12);
   --slate:#94a3b8; --slate-bg:rgba(148,163,184,.14);
+  --scroll-thumb:rgba(148,163,184,.28); --scroll-thumb-hi:rgba(148,163,184,.48);
   --shadow:0 1px 2px rgba(0,0,0,.4); --shadow-lg:0 16px 40px rgba(0,0,0,.55);
 }
 *{box-sizing:border-box}
+/* merged scrollbar — no track, thumb tinted from the surface it sits on */
+*{scrollbar-width:thin;scrollbar-color:var(--scroll-thumb) transparent}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent;border:0}
+::-webkit-scrollbar-thumb{background:var(--scroll-thumb);border-radius:99px;border:0}
+::-webkit-scrollbar-thumb:hover{background:var(--scroll-thumb-hi)}
+::-webkit-scrollbar-corner{background:transparent}
 html,body{margin:0;height:100%}
 body{background:var(--bg);color:var(--text);font:14px/1.55 var(--sans);display:flex;overflow:hidden}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -62,8 +73,6 @@ button,input,select,textarea{font:inherit;color:inherit}
 .rail-name b{display:block;font-size:12.5px;font-weight:700;line-height:1.2}
 .rail-name span{display:block;font-size:10.5px;color:var(--text-faint)}
 .rail-scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:8px 8px 4px}
-.rail-scroll::-webkit-scrollbar{width:6px}
-.rail-scroll::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
 .rail-sec{font:700 9.5px var(--sans);text-transform:uppercase;letter-spacing:.1em;
   color:var(--text-faint);padding:11px 10px 5px;white-space:nowrap}
 .rail-item{display:flex;align-items:center;gap:10px;width:100%;padding:7px 10px;border-radius:8px;
@@ -169,7 +178,7 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .card-h{padding:11px 14px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:9px}
 .card-h h3{margin:0;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim)}
 .card-h .sp{flex:1}
-.card-b{padding:14px}
+.card-b{padding:var(--pad-card)}
 
 /* ===========================================================================
    REPORT SKIN — a faithful port of enterprise-dashboard.html.
@@ -188,6 +197,7 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
   --pu500:#a855f7; --pu400:#c084fc; --pu300:#d8b4fe;
   --bl400:#60a5fa; --cy400:#22d3ee; --or400:#fb923c;
   --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --scroll-thumb:rgba(148,163,184,.28); --scroll-thumb-hi:rgba(148,163,184,.48);
   background:var(--s950); color:var(--s100);
   display:none; flex-direction:column; overflow-y:auto; padding:0;
 }
@@ -305,8 +315,6 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 [data-theme="light"] .enav{background:rgba(255,255,255,.95)}
 .enav-in{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:4px;
   overflow-x:auto;scrollbar-width:thin}
-.enav-in::-webkit-scrollbar{height:6px}
-.enav-in::-webkit-scrollbar-thumb{background:rgba(148,163,184,.3);border-radius:99px}
 .nitem{padding:6px 12px;border-radius:8px;font:500 12px var(--mono);color:var(--s300);
   background:none;border:0;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
   transition:all .15s;white-space:nowrap}
@@ -321,17 +329,17 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .nitem[data-persona-hide]{display:none}
 
 /* ---- cards ---- */
-.ecard{padding:16px 18px;border-radius:16px;background:rgba(15,23,42,.9);
+.ecard{padding:var(--pad-card);border-radius:16px;background:rgba(15,23,42,.9);
   border:1px solid var(--s800);box-shadow:0 4px 14px rgba(0,0,0,.22)}
 [data-theme="light"] .ecard{background:#fff;box-shadow:0 1px 3px rgba(15,26,34,.08)}
 .ecard.rose{border-color:rgba(244,63,94,.3)}
-.ecard-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.ecard-h{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--gap-md);margin-bottom:var(--gap-md)}
 .ecard-h h3{margin:0;font:700 13px var(--mono);color:#fff}
 [data-theme="light"] .ecard-h h3{color:#0f1a22}
 .ecard-h p{margin:2px 0 0;font-size:11.5px;color:var(--s400)}
 
 /* ---- quality gate banner ---- */
-.eqg{border-radius:16px;padding:17px 19px;display:flex;align-items:center;
+.eqg{border-radius:16px;padding:var(--pad-card);display:flex;align-items:center;
   justify-content:space-between;gap:16px;flex-wrap:wrap;
   border:1px solid var(--s800);border-left:4px solid var(--qgc);
   background:linear-gradient(90deg,var(--qgbg) 0%,var(--s900) 55%,var(--s900) 100%);
@@ -361,8 +369,8 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 [data-theme="light"] .ebtn-ghost{background:#eef2f5;color:#26303a;border-color:#cbd3da}
 
 /* ---- stat cards ---- */
-.estats{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
-.estat{padding:16px;border-radius:16px;background:rgba(15,23,42,.9);border:1px solid var(--s800);
+.estats{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--gap-md)}
+.estat{padding:var(--pad-card);border-radius:16px;background:rgba(15,23,42,.9);border:1px solid var(--s800);
   box-shadow:0 4px 12px rgba(0,0,0,.2)}
 [data-theme="light"] .estat{background:#fff;box-shadow:0 1px 3px rgba(15,26,34,.08)}
 .estat.rose{border-color:rgba(244,63,94,.3)}
@@ -404,9 +412,36 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .ch-te{background:rgba(20,184,166,.2);color:var(--t300)}
 
 /* ---- overview grids ---- */
-.egrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.egrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap-lg)}
 .egrid3 .span2{grid-column:span 2}
 @media(max-width:1040px){ .egrid3{grid-template-columns:1fr} .egrid3 .span2{grid-column:auto} }
+/* ---- filter pill bar ---- */
+.fbar{display:flex;align-items:center;gap:var(--gap-sm);flex-wrap:wrap;
+  padding:var(--pad-card);border-radius:16px;background:rgba(15,23,42,.9);
+  border:1px solid var(--s800);margin-bottom:var(--gap-lg)}
+[data-theme="light"] .fbar{background:#fff}
+.fbar-l{font:700 10px var(--mono);text-transform:uppercase;letter-spacing:.08em;
+  color:var(--s400);margin-right:2px}
+.fpill{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:9px;
+  border:1px solid transparent;background:none;cursor:pointer;white-space:nowrap;
+  font:500 12px var(--mono);color:var(--s300);
+  transition:background .15s,color .15s,border-color .15s,box-shadow .15s}
+.fpill:hover{background:var(--s800);color:#fff}
+[data-theme="light"] .fpill{color:#3d4854}
+[data-theme="light"] .fpill:hover{background:#eef2f5;color:#0f1a22}
+.fpill .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.fpill .n{font-weight:700;opacity:.75}
+.fpill.active{background:var(--t700);color:#fff;font-weight:650;
+  border-color:rgba(62,217,197,.55);
+  box-shadow:0 0 12px rgba(62,217,197,.4);
+  animation:pswPulse 2.6s ease-in-out infinite}
+.fpill.active .n{opacity:.9}
+.fpill:focus-visible{outline:2px solid var(--t400);outline-offset:1px}
+@media(prefers-reduced-motion:reduce){
+  .fpill.active{animation:none;box-shadow:0 0 12px rgba(62,217,197,.4)}
+}
+.fnote{font:400 11.5px var(--mono);color:var(--s400);margin-left:auto}
+
 .epill{padding:2px 9px;font:700 11.5px var(--mono);border-radius:5px;white-space:nowrap}
 .epill.em{background:rgba(16,185,129,.1);color:var(--em400);border:1px solid rgba(16,185,129,.2)}
 .epill.te{background:rgba(20,184,166,.1);color:var(--t300);border:1px solid rgba(20,184,166,.2)}
@@ -554,11 +589,11 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .sect-head .sub b{color:var(--accent);font-weight:650}
 
 .suites-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(420px,100%),1fr));
-  gap:16px;min-width:0;align-items:start}
+  gap:var(--gap-md);min-width:0;align-items:start}
 .suite-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
   box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;min-width:0}
 .suite-card:hover{border-color:var(--text-faint)}
-.sc-h{display:flex;align-items:center;gap:11px;padding:13px 14px;background:var(--panel-2);
+.sc-h{display:flex;align-items:center;gap:11px;padding:var(--pad-card);background:var(--panel-2);
   border-bottom:1px solid var(--line)}
 .sc-ico{width:32px;height:32px;border-radius:8px;background:var(--accent-bg);
   border:1px solid var(--accent-line);display:flex;align-items:center;justify-content:center;
@@ -570,7 +605,7 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
   text-overflow:ellipsis;white-space:nowrap}
 .sc-rows{padding:2px 0;flex:1}
 .sc-row{display:grid;grid-template-columns:54px 64px minmax(0,1fr) minmax(0,auto);
-  align-items:center;gap:11px;padding:8px 14px;cursor:pointer;
+  align-items:center;gap:11px;padding:var(--pad-row);cursor:pointer;
   border-bottom:1px solid var(--line-soft);transition:background .12s}
 .sc-row:last-child{border-bottom:0}
 .sc-row:hover{background:var(--panel-2)}
@@ -649,8 +684,8 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 /* ---------- Tables ---------- */
 table{width:100%;border-collapse:collapse;font-size:12.5px}
 th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);
-  font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
-td{padding:9px 10px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  font-weight:700;padding:var(--pad-row);border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:var(--pad-row);border-bottom:1px solid var(--line-soft);vertical-align:top}
 tbody tr:hover{background:var(--panel-2)}
 tbody tr:last-child td{border-bottom:none}
 .mono{font-family:var(--mono);font-size:11.5px}
@@ -950,6 +985,8 @@ const STATE = {
   providers:{},         // apiRef -> authProviderApiId (K1c: travels in the manifest)
   history:[],           // last N run summaries, newest last — drives the trend chart
   pane:'suites',        // which workbench pane the side menu is pointing at
+  catFilter:'all',      // Categories tab: which defect class is shown
+  modFilter:'all',      // Suites tab: which module is shown
   running:false
 };
 const LS = 'hcm-console-v1';
@@ -962,6 +999,7 @@ function persist(){
     alias:STATE.alias, selected:[...STATE.selected], focus:STATE.focus,
     imported:STATE.imported, result:STATE.result, providers:STATE.providers,
     history:STATE.history, pane:STATE.pane,
+    catFilter:STATE.catFilter, modFilter:STATE.modFilter,
     theme:document.documentElement.getAttribute('data-theme')
   })); }catch(e){/* private mode — the UI must still work */}
 }
@@ -1053,6 +1091,7 @@ function restore(){
   STATE.imported=s.imported||[]; STATE.result=s.result||null;
   STATE.providers=s.providers||{}; STATE.history=s.history||[];
   STATE.pane=s.pane||'suites';
+  STATE.catFilter=s.catFilter||'all'; STATE.modFilter=s.modFilter||'all';
   if(STATE.view==='detail' && !STATE.focus) STATE.view='home';
 }
 
@@ -2032,6 +2071,38 @@ function contractRules(R){
   ];
 }
 
+/* One classifier, used by the pill counts, the filter and the table alike,
+   so a pill can never claim a count the table does not show. */
+function defectCat(r){
+  const t=r.testId;
+  if(/credential_leakage|401_without/.test(t)) return 'security';
+  if(/schema|content_type/.test(t))            return 'schema';
+  if(/status_code/.test(t))                    return 'product';
+  return 'functional';
+}
+const CAT_META={
+  security  :['Security / credential exposure','--rose'],
+  schema    :['Contract breach (OpenAPI)','--amber'],
+  product   :['Product defect (status mismatch)','--rose'],
+  functional:['Functional defect','--purple']
+};
+
+/* Interactive filter bar. `items` are {k,label,n,tone}; clicking sets `field`
+   on STATE and re-renders. The active pill carries the same pulse as the
+   persona switcher. */
+function filterBar(label, field, items, note){
+  const cur=STATE[field];
+  return `<div class="fbar" data-fbar="${esc(field)}">
+    <span class="fbar-l">${esc(label)}</span>
+    ${items.map(it=>`<button class="fpill${cur===it.k?' active':''}" data-f="${esc(it.k)}"
+        ${it.n===0?'disabled style="opacity:.4;cursor:not-allowed"':''}>
+        ${it.tone?`<span class="dot" style="background:${cssv(it.tone)}"></span>`:''}
+        ${esc(it.label)}<span class="n">${it.n}</span>
+      </button>`).join('')}
+    ${note?`<span class="fnote">${esc(note)}</span>`:''}
+  </div>`;
+}
+
 function tabDefects(R){
   const fails = R.apis.flatMap(a=>a.results.filter(r=>r.state==='FAIL')
     .map(r=>({r, api:apiByRef(a.apiRef)})));
@@ -2040,13 +2111,22 @@ function tabDefects(R){
   const gaps = R.apis.flatMap(a=>a.results.filter(r=>r.state==='NOT_ASSERTED')
     .map(r=>({r, api:apiByRef(a.apiRef)})));
 
-  const cat = r => {
-    const t=r.testId;
-    if(/credential_leakage|401_without/.test(t)) return ['Security / credential exposure','--rose'];
-    if(/schema|content_type/.test(t))            return ['Contract breach (OpenAPI)','--amber'];
-    if(/status_code/.test(t))                    return ['Product defect (status mismatch)','--rose'];
-    return ['Functional defect','--purple'];
-  };
+  const cat = r => CAT_META[defectCat(r)];
+  const f = STATE.catFilter;
+  const n = k => fails.filter(x=>defectCat(x.r)===k).length;
+  const bar = filterBar('Filter', 'catFilter', [
+    {k:'all',        label:'All classified defects', n:fails.length+blocked.length+gaps.length},
+    {k:'security',   label:'Security / BOLA',        n:n('security'),   tone:'--rose'},
+    {k:'schema',     label:'OpenAPI contract',       n:n('schema'),     tone:'--amber'},
+    {k:'product',    label:'Product defect',         n:n('product'),    tone:'--rose'},
+    {k:'functional', label:'Functional',             n:n('functional'), tone:'--purple'},
+    {k:'blocked',    label:'Blocked on auth',        n:blocked.length,  tone:'--amber'},
+    {k:'gap',        label:'Assertion gap',          n:gaps.length,     tone:'--purple'}
+  ], f==='all' ? null : 'Filtered — clear to see everything');
+
+  const showFails   = f==='all' ? fails   : fails.filter(x=>defectCat(x.r)===f);
+  const showBlocked = (f==='all'||f==='blocked') ? blocked : [];
+  const showGaps    = (f==='all'||f==='gap')     ? gaps    : [];
 
   const sec = (title, rows, note, render) => rows.length ? `
     <div class="card sect"><div class="card-h"><h3>${title}</h3><span class="sp"></span>
@@ -2055,8 +2135,8 @@ function tabDefects(R){
       ${note?`<div class="card-b faint" style="font-size:11.5px;border-top:1px solid var(--line-soft)">${note}</div>`:''}
     </div>` : '';
 
-  return `
-  ${sec('Failures — assertion ran and failed', fails, '', rows=>`<table>
+  return bar + `
+  ${sec('Failures — assertion ran and failed', showFails, '', rows=>`<table>
     <thead><tr><th>Endpoint</th><th>Category</th><th>Reason</th><th class="right">Action</th></tr></thead>
     <tbody>${rows.map(({r,api},i)=>{const[c,v]=cat(r);return `<tr>
       <td><span class="m ${esc(api.method)}">${esc(api.method)}</span>
@@ -2066,7 +2146,7 @@ function tabDefects(R){
       <td class="right"><button class="btn btn-sm" data-jira="${i}">Jira ticket</button></td>
     </tr>`;}).join('')}</tbody></table>`)}
 
-  ${sec('Blocked — never executed', blocked,
+  ${sec('Blocked — never executed', showBlocked,
     'These are <b>not</b> failures. Auth bootstrap failed, so the API was never called. They are excluded from the pass-rate denominator (K1b).',
     rows=>`<table><thead><tr><th>Endpoint</th><th>Blocked by</th><th>Reason</th></tr></thead>
     <tbody>${rows.map(({r,api})=>`<tr>
@@ -2074,7 +2154,7 @@ function tabDefects(R){
       <td class="mono faint" style="font-size:11px">${esc(r.blockedBy||'—')}</td>
       <td class="dim">${esc(r.reason)}</td></tr>`).join('')}</tbody></table>`)}
 
-  ${sec('Assertion gaps — executed, asserted nothing', gaps,
+  ${sec('Assertion gaps — executed, asserted nothing', showGaps,
     'D7: an unasserted request must never render as a pass. It is counted separately and excluded from the denominator.',
     rows=>`<table><thead><tr><th>Endpoint</th><th>Module</th><th>Reason</th></tr></thead>
     <tbody>${rows.map(({r,api})=>`<tr>
@@ -2082,25 +2162,45 @@ function tabDefects(R){
       <td class="dim">${esc(api.module)}</td>
       <td class="dim">${esc(r.reason)}</td></tr>`).join('')}</tbody></table>`)}
 
-  ${(!fails.length&&!blocked.length&&!gaps.length)?'<div class="empty">No failures, blocks or assertion gaps in this run.</div>':''}`;
+  ${(!showFails.length&&!showBlocked.length&&!showGaps.length)
+      ? `<div class="empty">${fails.length+blocked.length+gaps.length
+          ? 'Nothing in this category. Pick another, or All.'
+          : 'No failures, blocks or assertion gaps in this run.'}</div>`
+      : ''}`;
 }
 
 function tabSuites(R){
-  return `<div class="card"><div class="card-h"><h3>Modules executed in this run</h3><span class="sp"></span>
-    <span class="faint" style="font-size:11.5px">${R.apis.length} API(s)</span></div>
-    <div class="card-b" style="padding:0"><table>
+  const byMod=new Map();
+  R.apis.forEach(a=>{ const api=apiByRef(a.apiRef); if(!api) return;
+    if(!byMod.has(api.module)) byMod.set(api.module,[]);
+    byMod.get(api.module).push(a); });
+  const f=STATE.modFilter;
+  const items=[{k:'all',label:'All modules',n:R.apis.length}].concat(
+    [...byMod.entries()].sort((a,b)=>b[1].length-a[1].length)
+      .map(e=>({k:e[0], label:e[0], n:e[1].length,
+                tone:e[1].some(a=>a.summary.counts.FAIL) ? '--rose'
+                   : e[1].every(a=>a.summary.clean) ? '--accent' : '--amber'})));
+  const rows = f==='all' ? R.apis : (byMod.get(f)||[]);
+  const bar = filterBar('Module', 'modFilter', items,
+    f==='all' ? null : `${rows.length} of ${R.apis.length} endpoints`);
+
+  return bar + `<div class="card"><div class="card-h">
+    <h3>${f==='all'?'Modules executed in this run':esc(f)}</h3><span class="sp"></span>
+    <span class="faint" style="font-size:11.5px">${rows.length} API(s)</span></div>
+    <div class="card-b" style="padding:0">${rows.length?`<table>
       <thead><tr><th>Endpoint</th><th>Module</th><th>Source</th><th style="width:190px">States</th>
         <th class="right">Pass rate</th><th class="right">Clean</th></tr></thead>
-      <tbody>${R.apis.map(a=>{const api=apiByRef(a.apiRef); const s=a.summary; return `<tr>
+      <tbody>${rows.map(a=>{const api=apiByRef(a.apiRef); const su=a.summary; return `<tr>
         <td><span class="m ${esc(api.method)}">${esc(api.method)}</span>
           <div class="mono faint" style="font-size:11px;margin-top:3px">${esc(api.path)}</div></td>
         <td class="dim">${esc(api.module)}</td>
         <td class="dim">${esc(a.provenance.sourceType)}</td>
-        <td>${stateBar(s.counts, s.total)}</td>
-        <td class="right mono">${pct(s.passRate)}</td>
-        <td class="right">${s.clean?'<span class="pill ok">clean</span>':
-          `<span class="pill partial" title="${esc(s.cleanBlockers.join(', '))}">${s.cleanBlockers.length} blocker(s)</span>`}</td>
-      </tr>`;}).join('')}</tbody></table></div></div>`;
+        <td>${stateBar(su.counts, su.total)}</td>
+        <td class="right mono">${pct(su.passRate)}</td>
+        <td class="right">${su.clean?'<span class="pill ok">clean</span>':
+          `<span class="pill partial" title="${esc(su.cleanBlockers.join(', '))}">${su.cleanBlockers.length} blocker(s)</span>`}</td>
+      </tr>`;}).join('')}</tbody></table>`
+      :'<div class="empty">That module was not part of this run.</div>'}</div></div>`;
 }
 
 function tabBehaviors(R){
@@ -2276,6 +2376,12 @@ function wireAnalytics(R){
     copy(curlFor(api)); toast('cURL copied — token redacted');
   });
   const cj=$('#btnCopyJson'); if(cj) cj.onclick=()=>{ copy(JSON.stringify(R,null,2)); toast('Result document copied'); };
+  $$('[data-fbar]').forEach(bar=>{
+    const field=bar.dataset.fbar;
+    bar.querySelectorAll('[data-f]').forEach(b=> b.onclick=()=>{
+      STATE[field]=b.dataset.f; persist(); renderAnalytics();
+    });
+  });
 }
 function curlFor(api){
   const host=api.baseUrl||hostForModule(api);
