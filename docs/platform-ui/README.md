@@ -14,7 +14,7 @@ writes Java against it.
 
 ```bash
 npm run ui:build      # python scripts/build_unified_console.py -> unified-console.html
-npm run ui:test       # contract invariants + DOM smoke + export + OOXML validation
+npm run ui:test       # invariants + DOM + export + OOXML + history/share
 npm run ui:serve      # http://127.0.0.1:8910/unified-console.html
 ```
 
@@ -70,6 +70,50 @@ the style fills. `openpyxl` reads the workbook without warnings.
 
 Because entries are stored, the XML inside is readable in the raw bytes — the
 credential-leak assertion greps the whole archive, not just the text export.
+
+## Report history
+
+Every finished run archives itself into `localStorage['HCM_RUN_SNAPSHOTS']` —
+the whole result document, not a summary — keeping the most recent 8. Snapshots
+are large, so a write that exceeds quota evicts the oldest entry and retries
+rather than failing the run.
+
+**Report History** (masthead clock icon, or the sidebar) lists every archived
+run newest-first with its gate, pass rate, totals, duration and timestamp.
+Opening one restores that exact run: KPI cards, gate banner, charts, matrix,
+defects and persona filtering all re-render from it. A banner marks the report
+as archived and offers a way back to the latest.
+
+`STATE.history` remains a separate lightweight list — it only feeds the trend
+chart, and it carries the sample points, which are never archived.
+
+## Share — standalone HTML
+
+**Share** downloads the whole report as one self-contained file, named
+`HCM-API-Report-<runId>-<date>.html`. Open it by double-clicking, or send it as
+an email attachment: it renders the full interactive dashboard with no server,
+no network and no browser storage.
+
+It works by capturing `PRISTINE` — the document exactly as parsed, before any
+rendering — and re-emitting it with the run embedded in `<head>`. The shared
+file is therefore byte-for-byte this page plus its data, with no second
+template to drift out of step. On boot it detects the payload, loads it, and
+replaces `persist()` with a no-op so nothing is read from or written to the
+viewer's browser.
+
+> **A trap worth knowing.** `PRISTINE` contains this code's own source, so any
+> literal marker written in `buildStandalone` — *including in a comment* — also
+> appears in the haystack it searches. The first version spelled the tag out in
+> the strip-regex and deleted itself out of the file it was building. The fix
+> then spelled it out again in the comment explaining the fix, which truncated
+> the file from that line on. Markers are now assembled at run time from
+> `SNAP_ID` and `LT`, and nothing in that function — prose included — may
+> contain the tag it looks for.
+
+`test-history.js` opens the produced file in a fresh DOM with `localStorage`
+denied outright, and asserts the masthead, KPI cards, donut, module bars, gate,
+every tab, persona filtering and the theme toggle all work from the embedded
+payload alone.
 
 ## Theme
 

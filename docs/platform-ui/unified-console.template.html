@@ -535,6 +535,50 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 [data-theme="dark"] #eTheme .tt-sun{display:none}
 [data-theme="dark"] #eTheme .tt-moon{display:inline-flex}
 
+/* ---------- share button ---------- */
+.ebtn-share{background:var(--t700);color:#fff;border:1px solid rgba(62,217,197,.5);
+  font-weight:650;box-shadow:0 0 0 rgba(62,217,197,0);transition:all .18s}
+.ebtn-share:hover{background:var(--t600);box-shadow:0 0 14px rgba(62,217,197,.45)}
+.ebtn-share:focus-visible{outline:2px solid var(--t400);outline-offset:2px}
+
+/* ---------- snapshot / shared banner ---------- */
+.snapbar{display:flex;align-items:center;gap:11px;margin:0 18px 14px;padding:10px 14px;
+  border-radius:12px;font:400 12.5px var(--sans);
+  background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.35);color:var(--cy400)}
+.snapbar.shared{background:rgba(20,184,166,.08);border-color:rgba(20,184,166,.35);color:var(--t300)}
+.snapbar svg{width:16px;height:16px;flex-shrink:0}
+.snapbar span{flex:1;min-width:0}
+.snapbar b{font-weight:700}
+
+/* ---------- history explorer ---------- */
+.hist-list{display:flex;flex-direction:column;gap:var(--gap-sm);max-height:58vh;overflow-y:auto}
+.hist-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;
+  gap:var(--gap-md);width:100%;text-align:left;cursor:pointer;font:inherit;color:var(--text);
+  padding:var(--pad-card);border:1px solid var(--line);border-radius:var(--r);
+  background:var(--panel-2);transition:border-color .15s,background .15s}
+.hist-row:hover{border-color:var(--accent);background:var(--panel-hover)}
+.hist-row:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hist-row.current{border-color:var(--accent-line);background:var(--accent-bg)}
+.hist-gate{font:700 9.5px var(--sans);letter-spacing:.06em;padding:4px 9px;border-radius:5px;
+  white-space:nowrap}
+.hg-PASSED{background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-line)}
+.hg-WARNING{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber)}
+.hg-FAILED{background:var(--rose-bg);color:var(--rose);border:1px solid var(--rose)}
+.hist-main{min-width:0}
+.hist-id{display:block;font:600 12.5px var(--mono);overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+.hist-id b{color:var(--accent);font-weight:700}
+.hist-meta{display:block;font-size:11px;color:var(--text-faint);margin-top:2px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist-nums{text-align:right;white-space:nowrap}
+.hist-rate{display:block;font:700 15px var(--mono);font-variant-numeric:tabular-nums}
+.hist-sub{display:block;font-size:10.5px;color:var(--text-faint);font-family:var(--mono)}
+.hist-dur{text-align:right;font:600 12px var(--mono);color:var(--text-dim);white-space:nowrap}
+@media(max-width:640px){
+  .hist-row{grid-template-columns:auto minmax(0,1fr);row-gap:6px}
+  .hist-nums,.hist-dur{grid-column:2;text-align:left}
+}
+
 /* ---------- export chooser ---------- */
 .exp-grid{display:grid;gap:var(--gap-sm)}
 .exp-opt{display:grid;grid-template-columns:64px 1fr;grid-template-rows:auto auto;
@@ -1034,6 +1078,11 @@ const STATE_VAR = {
 const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
 /* ---------------------------------------------------------------- state -- */
+/* The document exactly as parsed, before any rendering. Sharing re-emits this
+   with the run embedded, so a shared file is byte-for-byte this page plus its
+   data — no separate template to drift. */
+const PRISTINE = '<!doctype html>\n' + document.documentElement.outerHTML;
+
 const STATE = {
   view:'home', tab:'overview', persona:'qa',
   env:SEED.environments[0] || 'UAT',
@@ -1047,6 +1096,8 @@ const STATE = {
   pane:'suites',        // which workbench pane the side menu is pointing at
   closedSuites:[],      // suite cards the user has collapsed
   seededTrend:false,    // the trend was seeded once with sample runs
+  viewing:null,         // runId of an archived snapshot being viewed, or null
+  shared:false,         // this document is a shared standalone report
   catFilter:'all',      // Categories tab: which defect class is shown
   modFilter:'all',      // Suites tab: which module is shown
   running:false
@@ -1055,14 +1106,14 @@ const LS = 'hcm-console-v1';
 const SHARED_LS = 'HCM_SHARED_RUN_DATA';   // interop contract, see sharedBundle()
 const HISTORY_MAX = 6;
 
-function persist(){
+let persist=function persist(){
   try{ localStorage.setItem(LS, JSON.stringify({
     view:STATE.view, tab:STATE.tab, persona:STATE.persona, env:STATE.env,
     alias:STATE.alias, selected:[...STATE.selected], focus:STATE.focus,
     imported:STATE.imported, result:STATE.result, providers:STATE.providers,
     history:STATE.history, pane:STATE.pane,
     catFilter:STATE.catFilter, modFilter:STATE.modFilter, closedSuites:STATE.closedSuites,
-    seededTrend:STATE.seededTrend,
+    seededTrend:STATE.seededTrend, viewing:STATE.viewing,
     theme:document.documentElement.getAttribute('data-theme')
   })); }catch(e){/* private mode — the UI must still work */}
 }
@@ -1156,7 +1207,7 @@ function restore(){
   STATE.pane=s.pane||'suites';
   STATE.catFilter=s.catFilter||'all'; STATE.modFilter=s.modFilter||'all';
   STATE.closedSuites=s.closedSuites||[];
-  STATE.seededTrend=!!s.seededTrend;
+  STATE.seededTrend=!!s.seededTrend; STATE.viewing=s.viewing||null;
   if(STATE.view==='detail' && !STATE.focus) STATE.view='home';
 }
 
@@ -1688,7 +1739,7 @@ function renderAnalytics(){
     seedSampleHistory(true);
     persist();
   }
-  mast.innerHTML = masthead(R);
+  mast.innerHTML = masthead(R) + snapshotBanner(R);
   renderTabs(R);
 
   const fn = {overview:tabOverview, defects:tabDefects, suites:tabSuites, behaviors:tabBehaviors,
@@ -1703,7 +1754,10 @@ function renderAnalytics(){
   });
   const th=$('#eTheme'); if(th) th.onclick=toggleTheme;
   const ex=$('#eExport'); if(ex) ex.onclick=exportModal;
+  const sh=$('#eShare'); if(sh) sh.onclick=shareStandalone;
+  const hi=$('#eHistory'); if(hi) hi.onclick=historyModal;
   $$('#view-analytics [data-back]').forEach(b=> b.onclick=()=> go(b.dataset.back));
+  const sb=$('#snapBack'); if(sb) sb.onclick=backToLatest;
   $$('#view-analytics [data-hist]').forEach(b=> b.onclick=()=>{
     if(b.dataset.hist==='clear'){ STATE.history=STATE.history.filter(r=>!r.sample);
                                   STATE.seededTrend=true; }
@@ -1831,6 +1885,8 @@ const ICO={
   gauge:'<path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>',
   sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   moon:'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+  share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/>',
+  history:'<path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/>',
   clipboard:'<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>'
 };
 /* Every glyph carries .rico so nothing can fall through to its intrinsic
@@ -1911,7 +1967,10 @@ function masthead(R){
           aria-label="Toggle light and dark theme" title="Toggle light / dark theme">
           <span class="tt-sun">${svg(ICO.sun)}</span><span class="tt-moon">${svg(ICO.moon)}</span>
         </button>
+        <button class="ebtn-ico" id="eHistory" title="Report history">${svg(ICO.history)}</button>
         <button class="ebtn ebtn-exp" id="eExport">${svg(ICO.download)} Export</button>
+        <button class="ebtn ebtn-share" id="eShare"
+          title="Download this report as a standalone HTML file">${svg(ICO.share)} Share</button>
         <button class="ebtn-ico" data-back="home" title="Back to workbench">&#8592;</button>
       </div>
     </div>
@@ -1923,6 +1982,19 @@ function masthead(R){
           ${okN} / ${rules.length} Rules Passed (${Math.round(okN/rules.length*100)}%)</span></div>
     </div>
   </div></header>`;
+}
+
+/* Says plainly when the report on screen is not the latest run. */
+function snapshotBanner(R){
+  if(STATE.shared) return `<div class="snapbar shared">
+    ${svg(ICO.share)}<span><b>Shared report.</b> ${esc(R.runId)} from ${esc(fmtWhen(R.startedAt))},
+    embedded in this file. Nothing is read from or written to this browser.</span></div>`;
+  if(!STATE.viewing) return '';
+  return `<div class="snapbar">
+    ${svg(ICO.history)}<span><b>Viewing an archived run.</b> ${esc(R.runId)} from
+    ${esc(fmtWhen(R.startedAt))} — not the latest.</span>
+    <button class="ebtn ebtn-ghost" id="snapBack" style="padding:5px 11px">Back to latest</button>
+  </div>`;
 }
 
 /* Quality gate banner. */
@@ -3050,6 +3122,173 @@ function exportModal(){
 }
 
 
+/* ==========================================================================
+   RUN HISTORY — full snapshots, restoration, and standalone sharing.
+
+   STATE.history holds one lightweight row per run for the trend chart. This
+   module keeps the *whole* result document per run in its own storage key, so
+   any past run can be reopened exactly as it was.
+
+   Snapshots are large (a 45-endpoint run is several hundred KB), and
+   localStorage is ~5MB, so writes evict the oldest entry and retry on quota
+   rather than failing the run.
+   ========================================================================== */
+const SNAP_LS='HCM_RUN_SNAPSHOTS';
+const SNAP_MAX=8;
+
+function snapRow(R){
+  const all=R.apis.flatMap(a=>a.results);
+  return {
+    runId:R.runId, at:R.startedAt||null, env:R.environment,
+    gate:qualityGate(R).level,
+    passRate:R.summary.passRate, passRateApplicable:R.summary.passRateApplicable,
+    clean:R.summary.clean,
+    total:R.summary.total, passed:R.summary.counts.PASS||0, failed:R.summary.counts.FAIL||0,
+    apis:R.apis.length, simulated:!!R.simulated,
+    durationMs:Math.round(all.reduce((n,r)=>n+(r.durationMs||0),0)),
+    result:R
+  };
+}
+function loadSnaps(){
+  try{ const v=JSON.parse(localStorage.getItem(SNAP_LS)||'[]'); return Array.isArray(v)?v:[]; }
+  catch(e){ return []; }
+}
+function saveSnapshot(R){
+  let snaps=loadSnaps().filter(s=>s.runId!==R.runId);
+  snaps.push(snapRow(R));
+  snaps=snaps.slice(-SNAP_MAX);
+  /* Drop the oldest and retry until it fits. A run that cannot be archived
+     must not take the run itself down with it. */
+  while(snaps.length){
+    try{ localStorage.setItem(SNAP_LS, JSON.stringify(snaps)); return snaps.length; }
+    catch(e){
+      if(snaps.length===1){ try{ localStorage.removeItem(SNAP_LS); }catch(e2){} return 0; }
+      snaps=snaps.slice(1);
+    }
+  }
+  return 0;
+}
+function snapById(id){ return loadSnaps().find(s=>s.runId===id)||null; }
+
+function fmtWhen(iso){
+  if(!iso) return '—';
+  const d=new Date(iso);
+  if(isNaN(d)) return iso;
+  const p=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function fmtAgo(iso){
+  const d=new Date(iso); if(isNaN(d)) return '';
+  const s=Math.max(0,(Date.now()-d.getTime())/1000);
+  if(s<90) return 'just now';
+  if(s<5400) return Math.round(s/60)+'m ago';
+  if(s<172800) return Math.round(s/3600)+'h ago';
+  return Math.round(s/86400)+'d ago';
+}
+
+/* ---- history explorer ---------------------------------------------------- */
+function historyModal(){
+  const snaps=loadSnaps().slice().reverse();
+  const cur=STATE.result?STATE.result.runId:null;
+  if(!snaps.length){
+    openModal('Report history',
+      `<div class="empty"><div>No runs archived yet.</div>
+       <div style="margin-top:6px;font-size:12px">Every run is archived automatically once it finishes.</div></div>`,
+      `<button class="btn" data-close>Close</button>`);
+    return;
+  }
+  openModal('Report history',
+    `<div class="hist-list">${snaps.map(s=>`
+      <button class="hist-row${s.runId===cur?' current':''}" data-open-snap="${esc(s.runId)}">
+        <span class="hist-gate hg-${esc(s.gate)}">${esc(s.gate)}</span>
+        <span class="hist-main">
+          <span class="hist-id">${esc(s.runId)}${s.runId===cur?' <b>· open</b>':''}</span>
+          <span class="hist-meta">${esc(fmtWhen(s.at))} · ${esc(fmtAgo(s.at))} · ${esc(s.env)}${
+            s.simulated?' · simulated':''}</span>
+        </span>
+        <span class="hist-nums">
+          <span class="hist-rate">${s.passRateApplicable?pct(s.passRate):'n/a'}</span>
+          <span class="hist-sub">${s.passed} pass · ${s.failed} fail · ${s.total} results</span>
+        </span>
+        <span class="hist-dur">${(s.durationMs/1000).toFixed(1)}s<br><span class="hist-sub">${s.apis} APIs</span></span>
+      </button>`).join('')}</div>
+     <div class="faint" style="font-size:11.5px;margin-top:12px">
+       The most recent ${SNAP_MAX} runs are archived in this browser. Opening one
+       restores its charts, matrix and defects exactly as they were.
+     </div>`,
+    `<button class="btn" id="histClear">Clear history</button>
+     <button class="btn" data-close>Close</button>`);
+  $$('#ovModal [data-open-snap]').forEach(b=> b.onclick=()=>{
+    openSnapshot(b.dataset.openSnap); closeModal();
+  });
+  $('#histClear').onclick=()=>{
+    try{ localStorage.removeItem(SNAP_LS); }catch(e){}
+    closeModal(); toast('Report history cleared');
+  };
+}
+
+function openSnapshot(id){
+  const s=snapById(id);
+  if(!s){ toast('That run is no longer archived'); return; }
+  STATE.result=s.result;
+  STATE.viewing = (loadSnaps().slice(-1)[0]||{}).runId===id ? null : id;
+  STATE.tab='overview'; persist();
+  go('analytics');
+  toast(`Opened ${id}`);
+}
+function backToLatest(){
+  const snaps=loadSnaps();
+  const last=snaps[snaps.length-1];
+  if(!last) return;
+  STATE.result=last.result; STATE.viewing=null; persist(); renderAnalytics();
+  toast('Back to the latest run');
+}
+
+/* ---- standalone share ---------------------------------------------------- */
+/* PRISTINE is the document as parsed, captured before any rendering. Sharing
+   re-emits it with the run embedded in <head>, so the file boots straight into
+   that report and never touches localStorage. */
+/* PRISTINE contains this function's own source, so a literal marker written
+   anywhere here -- code OR COMMENT -- lands in the haystack too. An earlier
+   version spelled the opening tag out and duly deleted itself out of the file
+   it was building; the fix then spelled it out again in the comment explaining
+   the fix, and truncated the file from that line on. Nothing below, prose
+   included, may contain the tag it searches for: every marker is assembled at
+   run time from SNAP_ID and LT. */
+const SNAP_ID='shared-snapshot';
+const LT='<';
+function snapOpenTag(){ return LT+'script id="'+SNAP_ID+'" type="application/json">'; }
+function snapCloseTag(){ return LT+'/script>'; }
+function snapStripRe(){
+  return new RegExp(LT+'script id="'+SNAP_ID+'"[\\s\\S]*?'+LT+'\\/script>\\s*','i');
+}
+function buildStandalone(R){
+  const doc=PRISTINE.replace(snapStripRe(), '');
+  const payload=JSON.stringify({runId:R.runId, sharedAt:new Date().toISOString(), result:R})
+    .replace(new RegExp(LT+'/','g'), LT+'\\/')
+    .replace(new RegExp(LT+'!--','g'), LT+'\\!--');
+  const tag=snapOpenTag()+payload+snapCloseTag()+'\n';
+  const at=doc.search(new RegExp(LT+'\\/head>','i'));
+  if(at<0) return doc.replace(new RegExp(LT+'body([^>]*)>','i'), m=>m+'\n'+tag);
+  return doc.slice(0,at)+tag+doc.slice(at);
+}
+function shareStandalone(){
+  const R=STATE.result;
+  if(!R){ toast('Nothing to share — run a batch first'); return; }
+  const day=(R.startedAt||'').slice(0,10) || 'run';
+  try{
+    download(buildStandalone(R), `HCM-API-Report-${R.runId}-${day}.html`, 'text/html;charset=utf-8');
+    toast('Standalone report downloaded — opens offline, no server needed');
+  }catch(e){ toast('Share failed: '+e.message); }
+}
+function readSharedSnapshot(){
+  const el=document.getElementById(SNAP_ID);
+  if(!el) return null;
+  try{ const v=JSON.parse(el.textContent); return v&&v.result?v:null; }
+  catch(e){ return null; }
+}
+
+
 /* ---------------------------------------------------------------- modal -- */
 function openModal(title, body, foot){
   $('#mTitle').textContent=title; $('#mBody').innerHTML=body; $('#mFoot').innerHTML=foot||'';
@@ -3124,6 +3363,7 @@ const MENU_ICO={
   endpoint:'<polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>',
   report:'<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
   curl:'<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
+  history:'<path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/>',
   nav:'<line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>',
   run:'<polygon points="5 3 19 12 5 21 5 3"/>',
   export:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>'
@@ -3158,9 +3398,11 @@ function renderMenu(){
     menuRow({t:'Open Report', i:MENU_ICO.report, view:'analytics', tone:'--blue',
              on:STATE.view==='analytics', dis:!R,
              ct:R?(R.summary.counts.FAIL||null):null, bad:true}),
+    menuRow({t:'Report History', i:MENU_ICO.history, act:'history', tone:'--cyan',
+             ct:loadSnaps().length||null}),
     `<div class="rail-sec"><i class="rs-dot" style="background:${cssv('--purple')}"></i>Actions</div>`,
     menuRow({t:'Import from cURL', i:MENU_ICO.curl, act:'curl', tone:'--purple'}),
-    menuRow({t:'Navigator', i:MENU_ICO.nav, act:'nav', tone:'--cyan'}),
+    menuRow({t:'Navigator', i:MENU_ICO.nav, act:'nav', tone:'--slate'}),
     menuRow({t:'Export', i:MENU_ICO.export, act:'export', tone:'--amber', dis:!R}),
     gaps?`<div class="rail-gap" title="${gaps} request(s) execute but assert nothing (D7)">
       <i class="rs-dot" style="background:${cssv('--purple')}"></i>
@@ -3175,6 +3417,7 @@ function renderMenu(){
       if(el&&el.scrollIntoView) el.scrollIntoView({behavior:'smooth',block:'start'});
       return;
     }
+    if(a==='history') historyModal();
     if(a==='curl')   curlModal();
     if(a==='nav')    openNav();
     if(a==='export') exportModal();
@@ -3306,6 +3549,8 @@ function startRun(refs){
     if(i<refs.length){ setTimeout(step, 90); return; }
     setTimeout(()=>{
       STATE.result = runBatch(refs);
+      STATE.viewing = null;              // a new run supersedes any snapshot being viewed
+      saveSnapshot(STATE.result);
       STATE.history.push({
         runId:STATE.result.runId, at:STATE.result.startedAt,
         passRate:STATE.result.summary.passRate,
@@ -3334,7 +3579,21 @@ $('#btnRun').onclick = () => startRun([...STATE.selected]);
      window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){
     document.documentElement.setAttribute('data-theme','dark');
   }
-  restore();
+  const shared = readSharedSnapshot();
+  if(shared){
+    /* A shared file is read-only and self-contained: no restore, no persist. */
+    STATE.shared=true; STATE.result=shared.result; STATE.view='analytics';
+    STATE.tab='overview'; STATE.seededTrend=true;
+    STATE.history=[{runId:shared.result.runId, at:shared.result.startedAt,
+                    passRate:shared.result.summary.passRate,
+                    clean:shared.result.summary.clean,
+                    gate:qualityGate(shared.result).level,
+                    total:shared.result.summary.total}];
+    persist=function(){};
+    document.documentElement.setAttribute('data-shared','');
+  } else {
+    restore();
+  }
   try{ if(localStorage.getItem('hcm-rail')==='1') $('#rail').classList.add('collapsed'); }catch(e){}
   applyTheme(document.documentElement.getAttribute('data-theme') || 'light');
   renderTopbar(); syncPersona(); syncView();
