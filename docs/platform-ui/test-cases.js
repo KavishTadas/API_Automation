@@ -113,6 +113,95 @@ const click = el => el.dispatchEvent(new window.Event('click', { bubbles: true }
   $('#caseSearch').dispatchEvent(new window.Event('input', { bubbles: true }));
   await wait(80);
 
+  console.log('\ntest case detail:');
+  click($('#railMenu [data-menu-act="cases"]'));
+  await wait(110);
+  click($('#caseBody .case-h'));
+  await wait(100);
+  const anyCard = $('#caseBody .case.open .tc[data-tc]');
+  ok('cards advertise that they open', /details/i.test(anyCard.textContent));
+  ok('cards are keyboard reachable',
+     anyCard.getAttribute('role') === 'button' && anyCard.getAttribute('tabindex') === '0');
+  click(anyCard);
+  await wait(100);
+  ok('clicking a check opens its detail', $('#ovModal').classList.contains('open'));
+  const md = $('#mBody').textContent;
+  ok('the title carries the case number', /^TC-\d\d · /.test($('#mTitle').textContent),
+     $('#mTitle').textContent);
+
+  ok('severity is shown', /Severity/.test(md) &&
+     /(Critical|High|Medium|Low)/.test(md), md.slice(0, 80));
+  ok('priority is shown', /Priority/.test(md) && /P[1-4]/.test(md));
+  ok('both say why', $$('#mBody .td-bw').length === 2 &&
+     $$('#mBody .td-bw').every(x => x.textContent.trim().length > 8),
+     $$('#mBody .td-bw').map(x => x.textContent).join(' | '));
+  ok('they are labelled derived, not authored',
+     /derived/i.test(md) && /API_File\.json/.test(md));
+
+  const plHead = $$('#mBody table.pl th').map(h => h.textContent.trim());
+  ok('the payload table matches the Sample_Payloads columns',
+     plHead.join(' | ') === 'API ID | Payload Type | Sample JSON', plHead.join(' | '));
+  const types = $$('#mBody table.pl .pl-t').map(t => t.textContent.trim());
+  ok('it lists request body, success and error response',
+     ['Request Body', 'Success Response', 'Error Response'].every(x => types.includes(x)),
+     types.join(', '));
+  ok('every row carries the API ID',
+     $$('#mBody table.pl .pl-id').every(c => /^API-\d\d\d$/.test(c.textContent.trim())),
+     $$('#mBody table.pl .pl-id').map(c => c.textContent.trim()).join(','));
+  ok('a missing example says so rather than showing an empty box',
+     $$('#mBody table.pl .pl-j').every(c => c.querySelector('pre') || c.querySelector('.pl-none')));
+  ok('the error row explains why it is empty',
+     /no error column|best-effort/i.test(md));
+
+  ok('the endpoint is described', /Purpose/.test(md) && /Access/.test(md) && /Host/.test(md));
+  ok('the check is described', /Test id/.test(md) && /State/.test(md));
+  ok('a cURL reproducer is offered', !!$('#tdCurl') && /curl -X/.test(md));
+  ok('the cURL is redacted', /Bearer \[REDACTED\]/.test(md));
+  ok('no credential value in the panel',
+     !/Bearer\s+ey[A-Za-z0-9_.-]{10,}/.test(md) &&
+     !/(password|secret)\s*[:=]\s*["']?[A-Za-z0-9!@#$%^&*_.-]{6,}/i.test(md),
+     'a credential-shaped value appeared');
+
+  // a real payload must actually reach the panel
+  click($('#mFoot [data-close]'));
+  await wait(60);
+  $('#caseSearch').value = 'auth/token';
+  $('#caseSearch').dispatchEvent(new window.Event('input', { bubbles: true }));
+  await wait(90);
+  click($('#caseBody .case-h'));
+  await wait(90);
+  click($('#caseBody .case.open .tc[data-tc]'));
+  await wait(90);
+  const auth = $('#mBody').textContent;
+  ok('a real request body reaches the panel from the inventory',
+     /empCode/.test(auth), 'no empCode in the auth payload');
+  ok('a real response example reaches the panel', /token/.test(auth));
+  ok('the payload is pretty-printed JSON, not a prose blob',
+     /\{\s*\n\s+"/.test($('#mBody table.pl pre').textContent),
+     JSON.stringify($('#mBody table.pl pre').textContent.slice(0, 60)));
+  click($('#mFoot [data-close]'));
+  await wait(60);
+
+  // severity must vary with the endpoint, not be a constant
+  const sevs = new Set(), pris = new Set();
+  window.eval('SEED.apis').slice(0, 24).forEach(a => {
+    sevs.add(window.severityOf(a).k);
+    pris.add(window.priorityOf(a, null).k);
+  });
+  ok('severity varies across endpoints', sevs.size >= 3, [...sevs].join(','));
+  ok('DELETE and auth rate Critical',
+     window.severityOf(window.eval("SEED.apis.find(a=>a.method==='DELETE')")).k === 'Critical');
+  ok('a plain read does not rate Critical',
+     window.severityOf({ method: 'GET', module: 'Leave API', path: '/x' }).k !== 'Critical');
+  ok('priority reflects an assertion gap',
+     window.priorityOf({ assertionState: 'not-asserted', method: 'GET', module: 'x' }, null).k === 'P2');
+  ok('priority reflects a failure in the last run',
+     window.priorityOf({ method: 'GET', module: 'x' },
+       { summary: { counts: { FAIL: 2 } } }).k === 'P1');
+  $('#caseSearch').value = '';
+  $('#caseSearch').dispatchEvent(new window.Event('input', { bubbles: true }));
+  await wait(80);
+
   console.log('\nhistory opens in a new tab:');
   click($('#railMenu [data-menu-act="suites"]'));
   await wait(70);

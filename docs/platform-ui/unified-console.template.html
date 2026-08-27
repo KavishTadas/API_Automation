@@ -579,6 +579,39 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
   .hist-nums,.hist-dur,.hist-act{grid-column:2;text-align:left;align-items:flex-start}
 }
 
+/* ---------- test case detail ---------- */
+.tc[role="button"]{cursor:pointer;transition:border-color .12s,background .12s}
+.tc[role="button"]:hover{border-color:var(--accent);background:var(--panel-hover)}
+.tc[role="button"]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tc-more{font:600 10.5px var(--sans);color:var(--accent);margin-left:auto}
+.td-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:var(--gap-md)}
+.td-num{font:700 11px var(--mono);color:var(--text-faint)}
+.td-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-sm)}
+@media(max-width:520px){ .td-grid{grid-template-columns:1fr} }
+.td-badge{border:1px solid var(--tb);border-left-width:3px;border-radius:9px;
+  padding:10px 13px;background:var(--panel-2)}
+.td-bl{display:block;font:700 9.5px var(--sans);text-transform:uppercase;
+  letter-spacing:.1em;color:var(--text-faint)}
+.td-bv{display:block;font:700 17px var(--sans);color:var(--tb);margin-top:2px}
+.td-bw{display:block;font-size:11.5px;color:var(--text-dim);margin-top:3px;line-height:1.5}
+.td-derived{font-size:11.5px;color:var(--text-faint);margin:9px 0 0;line-height:1.55}
+.td-sec{display:flex;align-items:baseline;gap:9px;margin:18px 0 9px;
+  font:700 10px var(--sans);text-transform:uppercase;letter-spacing:.09em;
+  color:var(--text-dim);border-bottom:1px solid var(--line-soft);padding-bottom:6px}
+.td-sec .faint{font-weight:400;text-transform:none;letter-spacing:0;font-size:10.5px}
+.td-tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table.pl{width:100%;border-collapse:collapse;font-size:12px;min-width:520px}
+table.pl th{background:var(--panel-2);text-align:left;font:700 10px var(--sans);
+  text-transform:uppercase;letter-spacing:.07em;color:var(--text-dim);
+  padding:9px 11px;border-bottom:1px solid var(--line)}
+table.pl td{padding:9px 11px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+table.pl tr:last-child td{border-bottom:0}
+.pl-id{font:600 11px var(--mono);color:var(--text-faint);white-space:nowrap;width:78px}
+.pl-t{font-weight:650;white-space:nowrap;width:150px}
+.pl-j pre{margin:0;font-size:11.5px;max-height:230px;overflow:auto;background:var(--bg);
+  border:1px solid var(--line-soft);border-radius:6px;padding:9px 11px}
+.pl-none{font-size:11.5px;color:var(--text-faint);font-style:italic}
+
 /* ---------- export chooser ---------- */
 .exp-grid{display:grid;gap:var(--gap-sm)}
 .exp-opt{display:grid;grid-template-columns:64px 1fr;grid-template-rows:auto auto;
@@ -1750,7 +1783,8 @@ function checkState(api, tc, prev){
 
 function tcCard(api, tc, prev, n){
   const {state, r} = checkState(api, tc, prev);
-  return `<article class="tc" data-tc="${esc(tc.id)}">
+  return `<article class="tc open" data-tc="${esc(tc.id)}" role="button" tabindex="0"
+    title="Open the request, response, severity and priority for this check">
     <div class="tc-n">${esc(n)}</div>
     <div class="tc-b">
       <h4 class="tc-t">${esc(tc.title)}</h4>
@@ -1764,7 +1798,7 @@ function tcCard(api, tc, prev, n){
         ${r && r.measuredBy && r.measuredBy!==api.ref
           ? `<span class="tag" title="${esc(r.measuredBy)}">measured elsewhere</span>`:''}
         ${r && r.blockedBy ? '<span class="tag warn">blocked on auth</span>':''}
-        ${r && r.state==='FAIL' ? `<button class="linkbtn" data-jira="${esc(tc.id)}">Copy Jira ticket</button>`:''}
+        <span class="tc-more">details &rsaquo;</span>
       </div>
     </div>
     <span class="st st-${esc(state)}">${esc(state)}</span>
@@ -1798,6 +1832,162 @@ function tcListFor(api, prev){
     list.forEach(tc=> out.push(tcCard(api, tc, prev, tcNum(tc.id))));
   });
   return gapCard + out.join('');
+}
+
+/* ==========================================================================
+   TEST CASE DETAIL — request/response in the Sample_Payloads shape, plus a
+   severity and a priority for the endpoint.
+
+   Payloads are real: they come from api-docs/API_File.json, joined by ref at
+   build time. Where the inventory has no example the panel says so; it never
+   invents one. Coverage today is 24/45 request bodies and 8/45 responses, and
+   there is no error-example column at all (D12 leaves error-schema validation
+   best-effort), so those panels are honest about being empty.
+
+   Severity and priority are DERIVED. Neither api-docs/API_File.json nor
+   API_Documentation_Template.xlsx carries such a column, so nothing is being
+   read back — the rules below are stated in the UI so a reader can disagree
+   with them rather than mistake them for authored values.
+   ========================================================================== */
+
+/* Severity: what a failure here would mean, from the endpoint's own nature. */
+function severityOf(api){
+  const m=(api.module||'').toLowerCase(), p=(api.path||'').toLowerCase();
+  const writes=['POST','PUT','PATCH','DELETE'].includes(api.method);
+  if(/auth/.test(m) || /\/auth\//.test(p))
+    return {k:'Critical', tone:'--rose',
+            why:'authentication — every other endpoint depends on it'};
+  if(api.method==='DELETE')
+    return {k:'Critical', tone:'--rose', why:'destructive and not idempotent'};
+  if(writes)
+    return {k:'High', tone:'--amber', why:'mutates state'};
+  if(/policy|threshold|master/.test(m))
+    return {k:'Medium', tone:'--blue', why:'read of configuration other endpoints rely on'};
+  return {k:'Low', tone:'--slate', why:'read-only'};
+}
+
+/* Priority: what this run says to do about it. Evidence, not opinion. */
+function priorityOf(api, prev){
+  const c=prev?prev.summary.counts:null;
+  if(c && c.FAIL)             return {k:'P1', tone:'--rose',
+    why:`${c.FAIL} assertion${c.FAIL>1?'s':''} failed in the last run`};
+  if(c && c.SKIPPED_NO_TOKEN) return {k:'P1', tone:'--rose',
+    why:'blocked on auth bootstrap — never executed'};
+  if(api.assertionState==='not-asserted') return {k:'P2', tone:'--purple',
+    why:'executes but asserts nothing (D7)'};
+  if(c && c.WARN)             return {k:'P3', tone:'--amber',
+    why:'over the 700ms advisory'};
+  if(!prev)                   return {k:'P4', tone:'--slate', why:'not run yet'};
+  return {k:'P4', tone:'--accent', why:'clean in the last run'};
+}
+
+function payloadRow(api, type, body, note){
+  return `<tr>
+    <td class="pl-id">${esc(displayId(api))}</td>
+    <td class="pl-t">${esc(type)}</td>
+    <td class="pl-j">${body
+      ? `<pre>${esc(body)}</pre>`
+      : `<span class="pl-none">${esc(note)}</span>`}</td>
+  </tr>`;
+}
+
+function tcDetail(api, tc, prev){
+  const {state, r}=checkState(api, tc, prev);
+  const sev=severityOf(api), pri=priorityOf(api, prev);
+  const g=TC_GROUPS.find(x=>x.k===tc.category)||{t:tc.category, tone:'--slate'};
+
+  const body=`
+  <div class="td-top">
+    <span class="td-num">${esc(tcNum(tc.id))}</span>
+    <span class="st st-${esc(state)}">${esc(state)}</span>
+    <span class="tag" style="color:${cssv(g.tone)};border-color:${cssv(g.tone)}">${esc(g.t)}</span>
+    <span class="tag">${tc.hostLevel?'host-level':'per-API'}</span>
+  </div>
+
+  <div class="td-grid">
+    <div class="td-badge" style="--tb:${cssv(sev.tone)}">
+      <span class="td-bl">Severity</span>
+      <span class="td-bv">${esc(sev.k)}</span>
+      <span class="td-bw">${esc(sev.why)}</span>
+    </div>
+    <div class="td-badge" style="--tb:${cssv(pri.tone)}">
+      <span class="td-bl">Priority</span>
+      <span class="td-bv">${esc(pri.k)}</span>
+      <span class="td-bw">${esc(pri.why)}</span>
+    </div>
+  </div>
+  <p class="td-derived">Severity and priority are <b>derived</b> — severity from the
+    endpoint's nature, priority from the last run. Neither is a column in
+    <code>API_File.json</code> or the Excel template, so nothing is being read back.</p>
+
+  <div class="td-sec">Endpoint</div>
+  <dl class="kv">
+    <dt>API</dt><dd><span class="m ${esc(api.method)}">${esc(api.method)}</span>
+      <span class="mono">${esc(api.path)}</span></dd>
+    <dt>Module</dt><dd>${esc(api.module)}${api.subModule&&api.subModule!==api.module
+      ? ' › '+esc(api.subModule):''}</dd>
+    <dt>Host</dt><dd class="mono">${esc(api.baseUrl||hostForModule(api))}</dd>
+    <dt>Access</dt><dd>${esc(api.access||'—')}</dd>
+    <dt>Purpose</dt><dd>${esc(api.purpose||'—')}</dd>
+    ${api.params?`<dt>Parameters</dt><dd class="mono">${esc(api.params)}</dd>`:''}
+    ${api.dependsOn?`<dt>Depends on</dt><dd>${esc(api.dependsOn)}</dd>`:''}
+  </dl>
+
+  <div class="td-sec">Request &amp; response
+    <span class="faint">from <code>api-docs/API_File.json</code></span></div>
+  <div class="td-tbl"><table class="pl">
+    <thead><tr><th>API ID</th><th>Payload Type</th><th>Sample JSON</th></tr></thead>
+    <tbody>
+      ${payloadRow(api,'Request Body',api.requestBody,
+        ['GET','DELETE'].includes(api.method)
+          ? 'No request body — this method carries none.'
+          : 'The inventory has no request example for this endpoint.')}
+      ${api.requestSchema?payloadRow(api,'Request Body Schema',api.requestSchema,''):''}
+      ${payloadRow(api,'Success Response',api.successResponse,
+        'The inventory has no saved 200 example for this endpoint.')}
+      ${payloadRow(api,'Error Response',api.errorResponse,
+        'No error example is recorded. The inventory has no error column, and D12 leaves error-schema validation best-effort.')}
+    </tbody>
+  </table></div>
+
+  <div class="td-sec">This check</div>
+  <dl class="kv">
+    <dt>Test id</dt><dd class="mono">${esc(tc.id)}</dd>
+    <dt>State</dt><dd><span class="st st-${esc(state)}">${esc(state)}</span>
+      ${r?'':' <span class="faint">— predicted by the catalogue; this endpoint has not run</span>'}</dd>
+    ${r?`<dt>Reason</dt><dd>${esc(r.reason||'—')}</dd>
+        <dt>Executed</dt><dd>${r.executed===false?'No':'Yes'}</dd>
+        <dt>Duration</dt><dd class="mono">${Math.round(r.durationMs||0)} ms</dd>
+        ${r.measuredBy&&r.measuredBy!==api.ref
+          ? `<dt>Measured by</dt><dd class="mono">${esc(r.measuredBy)}</dd>`:''}
+        ${r.blockedBy?`<dt>Blocked by</dt><dd class="mono">${esc(r.blockedBy)}</dd>`:''}`:''}
+  </dl>
+
+  <div class="td-sec">Reproduce</div>
+  <pre>${esc(curlFor(api))}</pre>
+  <p class="faint" style="font-size:11.5px;margin:8px 0 0">The credential travels as the
+    alias <code>${esc(STATE.alias||'—')}</code>; the token above is redacted and no secret
+    value appears anywhere in this panel.</p>`;
+
+  openModal(`${tcNum(tc.id)} · ${tc.title}`, body,
+    `<button class="btn" id="tdCurl">Copy cURL</button>
+     ${r&&r.state==='FAIL'?'<button class="btn" id="tdJira">Copy Jira ticket</button>':''}
+     <button class="btn btn-primary" data-close>Close</button>`);
+  $('#tdCurl').onclick=()=>{ copy(curlFor(api)); toast('cURL copied — token redacted'); };
+  const jb=$('#tdJira'); if(jb) jb.onclick=()=>jiraModal({r, api}, STATE.result);
+}
+
+/* A card opens its own detail. Bound in one place so the endpoint screen and
+   the explorer behave identically. */
+function wireCaseCards(host, api, prev){
+  if(!host) return;
+  host.querySelectorAll('[data-tc]').forEach(card=>{
+    const tc=SEED.globalTestCases.find(t=>t.id===card.dataset.tc);
+    if(!tc) return;
+    const open=()=>tcDetail(api, tc, prev);
+    card.onclick=open;
+    card.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); } };
+  });
 }
 
 /* ---- Test Cases explorer -------------------------------------------------
@@ -1848,12 +2038,9 @@ function renderCases(){
     STATE.openCase = STATE.openCase===h.dataset.caseToggle ? null : h.dataset.caseToggle;
     persist(); renderCases();
   });
-  body.querySelectorAll('[data-jira]').forEach(b=> b.onclick=()=>{
-    const ref=b.closest('[data-case]').dataset.case;
-    const api=apiByRef(ref);
-    const prev=R && R.apis.find(x=>x.apiRef===ref);
-    const r=prev && prev.results.find(x=>x.testId===b.dataset.jira);
-    if(r) jiraModal({r, api}, R);
+  body.querySelectorAll('.case.open').forEach(c=>{
+    const api=apiByRef(c.dataset.case);
+    wireCaseCards(c.querySelector('.case-b'), api, R && R.apis.find(x=>x.apiRef===c.dataset.case));
   });
 }
 
@@ -1900,6 +2087,7 @@ function renderDetail(){
   /* --- test cases --- */
   const prev = STATE.result && STATE.result.apis.find(x=>x.apiRef===a.ref);
   $('#dCases').innerHTML = tcListFor(a, prev);
+  wireCaseCards($('#dCases'), a, prev);
   $('#dCases').querySelectorAll('[data-jira]').forEach(b=> b.onclick=()=>{
     const r = prev && prev.results.find(x=>x.testId===b.dataset.jira);
     if(r) jiraModal({r, api:a}, STATE.result);

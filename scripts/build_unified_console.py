@@ -108,8 +108,43 @@ def applicability(catalogue: dict) -> dict:
     return out
 
 
-def enrich(api: dict) -> dict:
-    """Attach the host and a payload placeholder the catalogue does not carry."""
+def load_inventory() -> dict:
+    """api-docs/API_File.json keyed by ref.
+
+    The catalogue describes *what can be tested*; the inventory carries the
+    request and response examples parsed out of the collections. They join on
+    the inventory's ``API Identifier``, which is the same ref the catalogue
+    uses. A miss is worth knowing about rather than silently blanking a panel.
+    """
+    path = ROOT / "api-docs" / "API_File.json"
+    if not path.exists():
+        sys.exit(f"missing inventory: {path}")
+    rows = json.loads(path.read_text(encoding="utf-8"))
+    return {(r.get("API Identifier") or "").strip().lower(): r for r in rows}
+
+
+def _clean(v) -> str:
+    """Inventory cells arrive as prose, ``None``, or the string ``'None'``."""
+    s = "" if v is None else str(v).strip()
+    return "" if s.lower() in ("", "none", "n/a", "-") else s
+
+
+def _payload(v) -> str:
+    """Pretty-print a cell that holds JSON; leave prose untouched."""
+    s = _clean(v)
+    if not s:
+        return ""
+    start = min((i for i in (s.find("{"), s.find("[")) if i >= 0), default=-1)
+    if start < 0:
+        return s
+    try:
+        return json.dumps(json.loads(s[start:]), indent=2)
+    except Exception:
+        return s
+
+
+def enrich(api: dict, inv: dict) -> dict:
+    """Attach the host, and the request/response examples for this endpoint."""
     module = (api.get("module") or "").lower()
     if "leave" in module:
         host = HOSTS["leave"]
@@ -119,18 +154,36 @@ def enrich(api: dict) -> dict:
         host = HOSTS["attendance"]
     api = dict(api)
     api["baseUrl"] = host
-    api.setdefault("samplePayload", {})
+
+    row = inv.get((api.get("ref") or "").strip().lower(), {})
+    api["purpose"] = _clean(row.get("Functional Purpose"))
+    api["access"] = _clean(row.get("Access"))
+    api["params"] = _clean(row.get("Request Parameters"))
+    api["dependsOn"] = _clean(row.get("Dependent APIs / Services"))
+    api["requestBody"] = _payload(row.get("Example Request Payload")) or _payload(row.get("Request Body"))
+    api["requestSchema"] = _payload(row.get("Request Body Schema"))
+    api["successResponse"] = _payload(row.get("Example Response Payload")) or _payload(row.get("Response (example/200)"))
+    #: The inventory has no error-example column. D12 leaves error-schema
+    #: validation best-effort, so this stays empty rather than invented.
+    api["errorResponse"] = ""
+    api["notes"] = _clean(row.get("Comments"))
+
+    try:
+        api["samplePayload"] = json.loads(api["requestBody"]) if api["requestBody"] else {}
+    except Exception:
+        api["samplePayload"] = {}
     return api
 
 
 def main() -> int:
     catalogue = load("sample-catalogue.json")
+    inv = load_inventory()
     template = TEMPLATE.read_text(encoding="utf-8")
 
     seed = {
         "catalogueVersion": catalogue["catalogueVersion"],
         "resultStates": catalogue["resultStates"],
-        "apis": [enrich(a) for a in catalogue["apis"]],
+        "apis": [enrich(a, inv) for a in catalogue["apis"]],
         "globalTestCases": global_test_cases(catalogue),
         "applicability": applicability(catalogue),
         "environments": catalogue["environments"],
@@ -157,6 +210,13 @@ def main() -> int:
 
     print(f"wrote {OUT.relative_to(ROOT)}  ({OUT.stat().st_size/1024:.0f} KB)")
     print(f"  {len(seed['apis'])} APIs · {len(seed['globalTestCases'])} global checks")
+    joined = sum(1 for a in seed["apis"] if a["purpose"])
+    bodies = sum(1 for a in seed["apis"] if a["requestBody"])
+    resps = sum(1 for a in seed["apis"] if a["successResponse"])
+    print(f"  inventory joined for {joined}/{len(seed['apis'])} · "
+          f"{bodies} request bodies · {resps} response examples")
+    if joined != len(seed["apis"]):
+        print("  WARNING: some endpoints did not join the inventory by ref")
     print(f"  {len(seed['applicability'])} refs carry a non-PLANNED prediction")
     print(f"  environments: {', '.join(seed['environments'])}")
     print(f"  aliases: {', '.join(seed['credentialAliases'])}")
