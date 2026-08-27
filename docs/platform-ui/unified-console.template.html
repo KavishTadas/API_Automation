@@ -125,6 +125,9 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 /* ---------- Views ---------- */
 .view{flex:1;display:none;min-height:0;min-width:0}
 .view.active{display:flex}
+/* A scrolling view stacks: heading, then search, then the grid. Without this
+   it inherits row flex from .view.active and the three collapse into columns. */
+.view.scroll.active{display:block}
 .scroll{overflow-y:auto;padding:18px 20px}
 
 /* ---------- tree (navigator panel) ---------- */
@@ -582,27 +585,38 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .sclear:hover{background:var(--panel-hover);color:var(--text)}
 .sclear[hidden]{display:none}
 
-.sect-head{margin-bottom:16px;min-width:0}
+.sect-head{display:block;width:100%;min-width:0;margin:0 0 var(--gap-lg)}
 .sect-head h2{margin:0;font-size:13px;font-weight:700;text-transform:uppercase;
-  letter-spacing:.07em;color:var(--text-dim)}
-.sect-head .sub{margin:4px 0 0;font-size:12px;color:var(--text-faint)}
+  letter-spacing:.07em;color:var(--text-dim);white-space:nowrap}
+.sect-head .sub{margin:4px 0 0;font-size:12px;color:var(--text-faint);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
 .sect-head .sub b{color:var(--accent);font-weight:650}
+.sect-head .searchwrap{display:block;width:100%;margin-top:var(--gap-md)}
 
 .suites-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(420px,100%),1fr));
   gap:var(--gap-md);min-width:0;align-items:start}
 .suite-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
-  box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;min-width:0}
+  box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;
+  min-width:0;width:100%;position:relative}
 .suite-card:hover{border-color:var(--text-faint)}
 .sc-h{display:flex;align-items:center;gap:11px;padding:var(--pad-card);background:var(--panel-2);
-  border-bottom:1px solid var(--line)}
+  border-bottom:1px solid var(--line);width:100%;text-align:left;border-top:0;border-left:0;
+  border-right:0;font:inherit;color:inherit;cursor:pointer}
+.sc-h:hover{background:var(--panel-hover)}
+.sc-h:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.sc-caret{width:15px;height:15px;flex-shrink:0;color:var(--text-faint);
+  transition:transform .18s ease}
+.suite-card.collapsed .sc-caret{transform:rotate(-90deg)}
+.suite-card.collapsed .sc-rows{display:none}
 .sc-ico{width:32px;height:32px;border-radius:8px;background:var(--accent-bg);
   border:1px solid var(--accent-line);display:flex;align-items:center;justify-content:center;
   font-size:15px;flex-shrink:0}
-.sc-t{flex:1;min-width:0}
-.sc-t h3{margin:0;font-size:13.5px;font-weight:700;overflow:hidden;
+.sc-t{flex:1;min-width:0;display:block}
+.sc-t .nm{display:block;font-size:13.5px;font-weight:700;overflow:hidden;
   text-overflow:ellipsis;white-space:nowrap}
-.sc-t .d{font-size:11px;color:var(--text-faint);margin-top:2px;overflow:hidden;
-  text-overflow:ellipsis;white-space:nowrap}
+.sc-t .d{display:block;font-size:11px;color:var(--text-faint);margin-top:2px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc-ico{flex-shrink:0}
 .sc-rows{padding:2px 0;flex:1}
 .sc-row{display:grid;grid-template-columns:54px 64px minmax(0,1fr) minmax(0,auto);
   align-items:center;gap:11px;padding:var(--pad-row);cursor:pointer;
@@ -985,6 +999,7 @@ const STATE = {
   providers:{},         // apiRef -> authProviderApiId (K1c: travels in the manifest)
   history:[],           // last N run summaries, newest last — drives the trend chart
   pane:'suites',        // which workbench pane the side menu is pointing at
+  closedSuites:[],      // suite cards the user has collapsed
   catFilter:'all',      // Categories tab: which defect class is shown
   modFilter:'all',      // Suites tab: which module is shown
   running:false
@@ -999,7 +1014,7 @@ function persist(){
     alias:STATE.alias, selected:[...STATE.selected], focus:STATE.focus,
     imported:STATE.imported, result:STATE.result, providers:STATE.providers,
     history:STATE.history, pane:STATE.pane,
-    catFilter:STATE.catFilter, modFilter:STATE.modFilter,
+    catFilter:STATE.catFilter, modFilter:STATE.modFilter, closedSuites:STATE.closedSuites,
     theme:document.documentElement.getAttribute('data-theme')
   })); }catch(e){/* private mode — the UI must still work */}
 }
@@ -1092,6 +1107,7 @@ function restore(){
   STATE.providers=s.providers||{}; STATE.history=s.history||[];
   STATE.pane=s.pane||'suites';
   STATE.catFilter=s.catFilter||'all'; STATE.modFilter=s.modFilter||'all';
+  STATE.closedSuites=s.closedSuites||[];
   if(STATE.view==='detail' && !STATE.focus) STATE.view='home';
 }
 
@@ -1430,15 +1446,19 @@ function renderSuitesGrid(){
   grid.innerHTML=[...m.entries()].map(([mod,list])=>{
     const coll=(list[0].sourceCollection||'').split('/').pop()||'—';
     const gaps=list.filter(a=>a.assertionState==='not-asserted').length;
-    return `<article class="suite-card">
-      <div class="sc-h">
-        <div class="sc-ico">📁</div>
-        <div class="sc-t">
-          <h3>${hl(mod,q)}</h3>
-          <div class="d">${esc(coll)}${gaps?` · ${gaps} assert nothing`:''}</div>
-        </div>
+    const collapsed = STATE.closedSuites.includes(mod) && !q;
+    return `<article class="suite-card${collapsed?' collapsed':''}" data-suite="${esc(mod)}">
+      <button class="sc-h" data-toggle="${esc(mod)}" aria-expanded="${!collapsed}"
+        title="${collapsed?'Show':'Hide'} the ${list.length} endpoint(s) in ${esc(mod)}">
+        <svg class="sc-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        <span class="sc-ico">📁</span>
+        <span class="sc-t">
+          <span class="nm">${hl(mod,q)}</span>
+          <span class="d">${esc(coll)}${gaps?` · ${gaps} assert nothing`:''}</span>
+        </span>
         <span class="pill${gaps?' partial':''}">${list.length} API${list.length===1?'':'s'}</span>
-      </div>
+      </button>
       <div class="sc-rows">${list.map(a=>`
         <div class="sc-row" data-open="${esc(a.ref)}" role="button" tabindex="0">
           <span class="m ${esc(a.method)}">${hl(a.method,q)}</span>
@@ -1449,6 +1469,11 @@ function renderSuitesGrid(){
     </article>`;
   }).join('');
 
+  grid.querySelectorAll('[data-toggle]').forEach(h=> h.onclick=()=>{
+    const mod=h.dataset.toggle, at=STATE.closedSuites.indexOf(mod);
+    at<0 ? STATE.closedSuites.push(mod) : STATE.closedSuites.splice(at,1);
+    persist(); renderSuitesGrid();
+  });
   const open=r=>{ STATE.focus=r.dataset.open; persist(); go('detail'); };
   grid.querySelectorAll('[data-open]').forEach(r=>{
     r.onclick=()=>open(r);
@@ -2520,10 +2545,8 @@ function renderMenu(){
   const onHome=STATE.view==='home';
   host.innerHTML=[
     `<div class="rail-sec">Workbench</div>`,
-    menuRow({t:'Suites', i:MENU_ICO.suites, act:'suites',
-             on:onHome&&STATE.pane!=='apis', ct:mods}),
-    menuRow({t:'APIs', i:MENU_ICO.run, act:'apis',
-             on:onHome&&STATE.pane==='apis', ct:allApis().length}),
+    menuRow({t:'Suites & APIs', i:MENU_ICO.suites, act:'suites',
+             on:onHome, ct:`${mods}/${allApis().length}`}),
     `<div class="rail-sec">Report</div>`,
     menuRow({t:'Open Report', i:MENU_ICO.report, view:'analytics',
              on:STATE.view==='analytics', dis:!R}),
@@ -2536,11 +2559,9 @@ function renderMenu(){
   host.querySelectorAll('[data-view]').forEach(b=> b.onclick=()=> go(b.dataset.view));
   host.querySelectorAll('[data-menu-act]').forEach(b=> b.onclick=()=>{
     const a=b.dataset.menuAct;
-    if(a==='suites'||a==='apis'){
-      STATE.pane = a==='apis' ? 'apis' : 'suites';
-      persist();
-      if(STATE.view!=='home'){ go('home'); } else { renderMenu(); }
-      const el = a==='apis' ? $('.qr') : $('#suitesGrid');
+    if(a==='suites'){
+      if(STATE.view!=='home') go('home'); else renderMenu();
+      const el=$('#suitesGrid');
       if(el&&el.scrollIntoView) el.scrollIntoView({behavior:'smooth',block:'start'});
       return;
     }

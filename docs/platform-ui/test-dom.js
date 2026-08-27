@@ -339,6 +339,83 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   goHome();
   await wait(60);
 
+  console.log('\nsuites layout + clickable cards:');
+  goHome();
+  await wait(80);
+  const css3 = [...doc.querySelectorAll('style')].map(s => s.textContent).join('\n');
+
+  // The bug: .view.active{display:flex} laid home's children out in a row,
+  // so heading, search and grid were crushed into columns beside each other.
+  ok('a scrolling view stacks rather than laying out in a row',
+     /\.view\.scroll\.active\{display:block\}/.test(css3));
+  ok('the report is still a flex column',
+     /#view-analytics\{[^}]*flex-direction:column/.test(css3));
+
+  const head = $('#view-home .sect-head');
+  ok('header, search and grid are siblings in order', (() => {
+    const kids = [...$('#view-home').children];
+    return kids.indexOf(head) < kids.indexOf($('#suitesGrid'));
+  })());
+  ok('the search sits inside the header, under the heading',
+     !!$('.sect-head .searchwrap') &&
+     [...head.children].indexOf($('.sect-head h2')) <
+     [...head.children].indexOf($('.sect-head .searchwrap')));
+  ok('the search spans the full width',
+     /\.sect-head \.searchwrap\{display:block;width:100%/.test(css3));
+  ok('the header block spans the full width',
+     /\.sect-head\{display:block;width:100%/.test(css3));
+  ok('suite cards fill their grid track', /\.suite-card\{[^}]*width:100%/.test(css3));
+  ok('card titles cannot bleed into their neighbour',
+     /\.sc-t \.nm\{display:block[^}]*text-overflow:ellipsis;white-space:nowrap\}/.test(css3));
+  ok('the grid keeps a real gutter', /\.suites-grid\{[^}]*gap:var\(--gap-md\)/.test(css3));
+
+  // clickable suite headers
+  const cards = $$('#suitesGrid .suite-card');
+  ok('all 11 suites render as cards', cards.length === 11, cards.length + ' cards');
+  ok('every card header is a button',
+     cards.every(c => c.querySelector('.sc-h') &&
+                      c.querySelector('.sc-h').tagName === 'BUTTON'));
+  ok('every card header reports its expanded state',
+     cards.every(c => c.querySelector('.sc-h').hasAttribute('aria-expanded')));
+  ok('every endpoint row is reachable by keyboard',
+     $$('#suitesGrid .sc-row').every(r => r.getAttribute('role') === 'button' &&
+                                          r.getAttribute('tabindex') === '0'));
+
+  const first = cards[0];
+  const mod = first.dataset.suite;
+  const rowsBefore = first.querySelectorAll('.sc-row').length;
+  ok('a suite lists its endpoints', rowsBefore > 0, rowsBefore + ' rows');
+  click(first.querySelector('.sc-h'));
+  await wait(70);
+  const after = $(`#suitesGrid [data-suite="${mod.replace(/"/g, '\\"')}"]`);
+  ok('clicking a suite header collapses it', after.classList.contains('collapsed'));
+  ok('collapsed state is remembered',
+     (JSON.parse(window.localStorage.getItem('hcm-console-v1') || '{}').closedSuites || [])
+       .includes(mod));
+  click(after.querySelector('.sc-h'));
+  await wait(70);
+  ok('clicking again expands it',
+     !$(`#suitesGrid [data-suite="${mod.replace(/"/g, '\\"')}"]`).classList.contains('collapsed'));
+
+  // an endpoint row still opens its detail
+  click($$('#suitesGrid .sc-row')[0]);
+  await wait(70);
+  ok('an endpoint row opens the endpoint', vis('detail'));
+  goHome();
+  await wait(70);
+
+  // a filter must override a collapsed suite, or matches would hide
+  click($$('#suitesGrid .suite-card')[0].querySelector('.sc-h'));
+  await wait(60);
+  $('#apiSearch').value = 'GET';
+  $('#apiSearch').dispatchEvent(new window.Event('input', { bubbles: true }));
+  await wait(70);
+  ok('a search expands collapsed suites so matches stay visible',
+     $$('#suitesGrid .suite-card.collapsed').length === 0,
+     $$('#suitesGrid .suite-card.collapsed').length + ' still collapsed');
+  click($('#apiSearchClear'));
+  await wait(70);
+
   console.log('\nside menu:');
   ok('menu rendered on every view', $$('#railMenu .rail-item').length > 0,
      $$('#railMenu .rail-item').length + ' rows');
@@ -347,10 +424,11 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
        .filter(x => /^(Workbench|Report|Actions)$/.test(x)).length === 3,
      $$('#railMenu .rail-sec').map(s => s.textContent.trim()).join(' | '));
 
-  const wb = $$('#railMenu .rail-item').filter(b =>
-    ['suites', 'apis'].includes(b.dataset.menuAct));
-  ok('Workbench offers exactly Suites and APIs', wb.length === 2,
-     wb.map(b => b.dataset.menuAct).join(','));
+  const wb = $$('#railMenu .rail-item').filter(b => b.dataset.menuAct === 'suites');
+  ok('Workbench offers a single Suites & APIs row', wb.length === 1,
+     $$('#railMenu .rail-item').map(b => b.dataset.menuAct || b.dataset.view).join(','));
+  ok('the duplicate APIs row is gone',
+     !$$('#railMenu .rail-item').some(b => b.dataset.menuAct === 'apis'));
   ok('the removed Workbench rows are gone',
      !$$('#railMenu .rail-item').some(b => /Endpoint detail|Run selected/i.test(b.textContent)),
      $$('#railMenu .rail-item').map(b => b.textContent.trim().split('\n')[0]).join(' | '));
@@ -359,18 +437,13 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
      /Open Report/i.test($('#railMenu [data-view="analytics"]').textContent));
   ok('no per-section report rows remain', $$('#railMenu [data-menu-tab]').length === 0,
      $$('#railMenu [data-menu-tab]').length + ' rows');
-  ok('Suites counts the modules',
-     /\b11\b/.test($('#railMenu [data-menu-act="suites"]').textContent),
+  ok('the row counts suites and endpoints',
+     /11\s*\/\s*45/.test($('#railMenu [data-menu-act="suites"]').textContent),
      $('#railMenu [data-menu-act="suites"]').textContent.trim());
-  ok('APIs counts the endpoints',
-     /45/.test($('#railMenu [data-menu-act="apis"]').textContent),
-     $('#railMenu [data-menu-act="apis"]').textContent.trim());
 
-  click($('#railMenu [data-menu-act="apis"]'));
+  goHome();
   await wait(70);
-  ok('APIs row lands on the console', vis('home'));
-  ok('APIs row marks itself active',
-     $('#railMenu [data-menu-act="apis"]').classList.contains('active'));
+  ok('the Suites row lands on the console', vis('home'));
   goHome();
   await wait(70);
   ok('Suites row marks itself active',
