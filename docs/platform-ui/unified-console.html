@@ -612,6 +612,31 @@ table.pl tr:last-child td{border-bottom:0}
   border:1px solid var(--line-soft);border-radius:6px;padding:9px 11px}
 .pl-none{font-size:11.5px;color:var(--text-faint);font-style:italic}
 
+/* ---------- expected vs actual ---------- */
+.ea{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-sm)}
+@media(max-width:620px){ .ea{grid-template-columns:1fr} }
+.ea-col{border:1px solid var(--line);border-radius:9px;padding:11px 13px;background:var(--panel-2)}
+.ea-col.bad{border-color:var(--rose)}
+.ea-h{font:700 9.5px var(--sans);text-transform:uppercase;letter-spacing:.09em;
+  color:var(--text-faint);margin-bottom:5px}
+.ea-h .faint{font-weight:400;text-transform:none;letter-spacing:0}
+.ea-s{font:700 13px var(--mono);color:var(--accent);margin-bottom:8px}
+.ea-s.bad{color:var(--rose)}
+.ea-x{margin:0 0 8px;font-size:12px;color:var(--text-dim);line-height:1.55}
+.ea-x.bad{color:var(--rose)}
+.ea-col pre{margin:0;font-size:11.5px;max-height:200px;overflow:auto;background:var(--bg);
+  border:1px solid var(--line-soft);border-radius:6px;padding:9px 11px}
+
+/* ---------- tier separator ---------- */
+.tc-tier{display:flex;align-items:baseline;gap:9px;margin:18px 0 10px;padding-bottom:7px;
+  border-bottom:2px solid var(--accent-line);flex-wrap:wrap}
+.tc-tier:first-child{margin-top:0}
+.tc-tier-t{font:700 11.5px var(--sans);text-transform:uppercase;letter-spacing:.07em;
+  color:var(--text)}
+.tc-tier-n{font:700 11px var(--mono);color:var(--accent);background:var(--accent-bg);
+  border:1px solid var(--accent-line);border-radius:99px;padding:1px 9px}
+.tc-tier-d{font-size:11px;color:var(--text-faint)}
+
 /* ---------- export chooser ---------- */
 .exp-grid{display:grid;gap:var(--gap-sm)}
 .exp-opt{display:grid;grid-template-columns:64px 1fr;grid-template-rows:auto auto;
@@ -1389,6 +1414,19 @@ function planFor(ref){
   return app || null;
 }
 
+/* Stored under `evidence` rather than `observed`: the SLA check already uses
+   `observed` for its millisecond reading, and overloading it would break both. */
+function withEvidence(result, tc, api, seed){
+  const exp=expectedFor(tc, api);
+  const act=observedFor(tc, api, result.state, seed, exp);
+  result.evidence={
+    expected:{kind:exp.kind, statuses:exp.statuses, body:exp.body,
+              when:exp.when, expects:exp.expects},
+    actual:{status:act.status, body:act.body, from:act.from}
+  };
+  return result;
+}
+
 function runBatch(refs, salt){
   const salted = salt || '';
   const runId = 'run-sim-'+Date.now().toString(36)+(salted?'-'+salted:'');
@@ -1469,25 +1507,27 @@ function runBatch(refs, salt){
         return;
       }
       if(tc.id.endsWith('test_request_payload_size_enforcement')){
-        results.push(base(tc,ref,'INFORMATIONAL',
+        results.push(withEvidence(base(tc,ref,'INFORMATIONAL',
           `oversized payload observed, response not asserted — request_bytes=1048613; status=${seed>.5?413:400}`,
-          900+seed*600, true, prov, {hostLevel:true, host, referencesHostResult:false, measuredBy:ref}));
+          900+seed*600, true, prov, {hostLevel:true, host, referencesHostResult:false, measuredBy:ref}),
+          tc, api, seed));
         return;
       }
       if(tc.id.endsWith('test_response_time_within_sla')){
         const observed = +(180 + seed*900).toFixed(1);
         const over = observed>SLA_MS;
-        results.push(base(tc,ref, over?'WARN':'PASS',
+        results.push(withEvidence(base(tc,ref, over?'WARN':'PASS',
           over ? `response time exceeded its advisory target: observed=${observed}ms threshold=${SLA_MS}ms` : '',
-          0.4, true, prov, {observed, threshold:SLA_MS}));
+          0.4, true, prov, {observed, threshold:SLA_MS}), tc, api, seed));
         return;
       }
       // Ordinary asserted check.
       const fail = seed < 0.14;
-      results.push(base(tc,ref, fail?'FAIL':'PASS',
+      results.push(withEvidence(base(tc,ref, fail?'FAIL':'PASS',
         fail ? failReason(tc, api, seed) : '',
         +(90+seed*520).toFixed(1), true, prov,
-        tc.hostLevel ? {hostLevel:true, host, referencesHostResult:false, measuredBy:ref} : {}));
+        tc.hostLevel ? {hostLevel:true, host, referencesHostResult:false, measuredBy:ref} : {}),
+        tc, api, seed));
     });
 
     if(api.assertionState==='not-asserted'){
@@ -1517,6 +1557,107 @@ function runBatch(refs, salt){
 function base(tc,ref,state,reason,dur,executed,prov,extra){
   return Object.assign({testId:tc.id, apiRef:ref, state, reason,
     durationMs:+(+dur).toFixed(1), executed, provenance:prov}, extra||{});
+}
+
+/* ---------------------------------------------------------------------------
+   Expected vs observed.
+
+   `expected` is real: the documented status codes and the response example the
+   inventory carries for this endpoint. `observed` belongs to the SIMULATED run
+   — the live engine's result document does not carry response bodies today,
+   which is a named gap. The panel labels which is which rather than letting a
+   reader assume both came off the wire.
+--------------------------------------------------------------------------- */
+function expectedFor(tc, api){
+  const fn=tc.id.split('::').pop();
+  const okStatus = api.method==='POST' ? [200,201]
+                 : api.method==='DELETE' ? [200,204] : [200];
+  const S = (statuses, expects, when) => ({kind:'status', statuses, body:'', expects, when:when||''});
+  const P = expects => ({kind:'property', statuses:[], body:'', expects, when:''});
+  const B = (statuses, expects) => ({kind:'body', statuses, body:api.successResponse||'', expects, when:''});
+
+  switch(fn){
+    case 'test_404_for_unknown_route':
+      return S([404],'an unknown route answers 404','a path segment that does not exist');
+    case 'test_error_response_is_machine_readable':
+      return S([404],'the error answers with content-type application/json','an unknown route');
+    case 'test_401_without_valid_token':
+      return S([401],'a malformed bearer token is rejected','a malformed token');
+    case 'test_private_endpoint_rejects_anonymous_access':
+      return S([401,403],'a caller sending no credential is refused','no Authorization header');
+    case 'test_unsupported_media_type_rejected':
+      return S([415,400],'a text/plain body is refused','the documented body sent as text/plain');
+    case 'test_trace_method_is_disabled':
+      return S([405,501,403],'TRACE is refused','a TRACE request');
+    case 'test_status_code_matches_spec':
+      return S(okStatus,'the status is one the contract documents');
+    case 'test_response_matches_full_schema':
+      return B(okStatus,'the body validates against the documented schema');
+    case 'test_content_type_negotiation':
+      return B(okStatus,'the response honours the documented content type');
+    case 'test_paginated_list_declares_page_metadata':
+      return B(okStatus,'the page carries page metadata');
+    case 'test_idempotent_get_returns_stable_result':
+      return B(okStatus,'two identical GETs return the same result');
+    case 'test_no_credential_leakage_in_response':
+      return P('no credential-shaped value appears in the body or headers');
+    case 'test_error_response_hides_internals':
+      return P('no stack trace, class path or SQL fragment appears in an error body');
+    case 'test_security_headers_present':
+      return P('X-Content-Type-Options: nosniff, and a framing policy');
+    case 'test_no_server_version_disclosure':
+      return P('no Server or X-Powered-By header carries a version');
+    case 'test_transport_is_https':
+      return P('the resolved base URL uses https');
+    case 'test_declared_idempotency_matches_method':
+      return P(`${api.method} is declared with the idempotency RFC 9110 gives it`);
+    case 'test_response_time_within_sla':
+      return P(`the response completes within ${SLA_MS}ms`);
+    case 'test_special_characters_in_input':
+      return P('unicode input does not produce a 5xx');
+    case 'test_small_burst_does_not_trigger_immediate_blocking':
+      return P('a small valid burst is not blocked');
+    case 'test_request_payload_size_enforcement':
+      return P('an oversized body is handled — observed, not asserted');
+    case 'test_cors_preflight':
+      return P('the preflight permits the documented method');
+    default:
+      return S(okStatus,'the documented contract holds');
+  }
+}
+
+/* A body consistent with the verdict, so Expected and Actual can be compared.
+   Derived from the documented example; never invented where none exists. */
+function observedFor(tc, api, state, seed, expected){
+  const doc=api.successResponse||'';
+  const ok=(expected.statuses && expected.statuses[0]) || 200;   // property checks declare none
+  if(state==='PASS')
+    return {status:ok, body:doc, from:'simulated'};
+  if(state==='WARN')
+    return {status:ok, body:doc, from:'simulated'};
+  // INFORMATIONAL observes and records; it ran, so it has an observation.
+  if(state==='INFORMATIONAL')
+    return {status: seed>.5?413:400, body:'', from:'simulated'};
+  if(state==='FAIL'){
+    if(tc.id.endsWith('test_status_code_matches_spec'))
+      return {status: seed<.07?500:403, body:'', from:'simulated'};
+    if(tc.id.endsWith('test_response_matches_full_schema') && doc){
+      let mutated=doc;
+      try{
+        const o=JSON.parse(doc);
+        const k=Object.keys(o)[0];
+        if(k!==undefined) o[k]=null;
+        mutated=JSON.stringify(o,null,2);
+      }catch(e){}
+      return {status:ok, body:mutated, from:'simulated'};
+    }
+    if(tc.id.endsWith('test_no_credential_leakage_in_response'))
+      return {status:ok, body:'{\n  "token": "eyJhbGciOi…<redacted by the reporter>"\n}', from:'simulated'};
+    if(tc.id.endsWith('test_404_for_unknown_route'))
+      return {status:200, body:doc, from:'simulated'};
+    return {status:ok, body:'', from:'simulated'};
+  }
+  return {status:null, body:'', from:'not executed'};
 }
 function failReason(tc, api, seed){
   if(tc.id.endsWith('test_status_code_matches_spec'))
@@ -1831,7 +1972,23 @@ function tcListFor(api, prev){
       ${esc(g.t)}<span class="tc-grp-n">${list.length}</span></div>`);
     list.forEach(tc=> out.push(tcCard(api, tc, prev, tcNum(tc.id))));
   });
-  return gapCard + out.join('');
+
+  /* Two tiers, kept apart. The global contract checks run against every
+     endpoint; a collection assertion belongs to one request. Mixing them
+     under one count is what made the earlier list unreadable. */
+  const tier = (t, n, note) => `<div class="tc-tier">
+    <span class="tc-tier-t">${esc(t)}</span>
+    <span class="tc-tier-n">${n}</span>
+    <span class="tc-tier-d">${esc(note)}</span></div>`;
+
+  return tier('Collection assertions', gapCard?1:0,
+              gapCard ? 'authored in the Postman collection for this request'
+                      : 'this request has none authored')
+       + (gapCard || `<p class="pl-none" style="margin:0 0 4px">Nothing to show — the
+          collection defines no assertion for this request.</p>`)
+       + tier('Global contract checks', orderedChecks().length,
+              'run against every selected endpoint (D2)')
+       + out.join('');
 }
 
 /* ==========================================================================
@@ -1949,6 +2106,44 @@ function tcDetail(api, tc, prev){
         'No error example is recorded. The inventory has no error column, and D12 leaves error-schema validation best-effort.')}
     </tbody>
   </table></div>
+
+  <div class="td-sec">Expected vs actual</div>
+  ${(() => {
+    const ev = r && r.evidence;
+    if(!ev) return `<p class="pl-none" style="margin:0">This check has not run for this
+      endpoint yet, so there is nothing observed to compare. What it will assert:
+      <b>${esc(expectedFor(tc, api).expects)}</b>.</p>`;
+    /* The verdict decides whether this is a mismatch, not a status comparison:
+       most checks assert a property, and a matching status beside a FAIL reads
+       as though nothing was wrong. */
+    const bad = r.state === 'FAIL';
+    const statusy = ev.expected.statuses && ev.expected.statuses.length;
+    return `<div class="ea">
+      <div class="ea-col">
+        <div class="ea-h">Expected${ev.expected.when?` <span class="faint">given ${esc(ev.expected.when)}</span>`:''}</div>
+        ${statusy?`<div class="ea-s">HTTP ${ev.expected.statuses.join(' or ')}</div>`:''}
+        <p class="ea-x">${esc(ev.expected.expects||'')}</p>
+        ${ev.expected.body
+          ? `<pre>${esc(ev.expected.body)}</pre>`
+          : (statusy?'':`<span class="pl-none">Asserted on the response, not on a body.</span>`)}
+      </div>
+      <div class="ea-col${bad?' bad':''}">
+        <div class="ea-h">Actual <span class="faint">${esc(ev.actual.from)}</span></div>
+        ${statusy&&ev.actual.status!=null
+          ? `<div class="ea-s${bad?' bad':''}">HTTP ${ev.actual.status}</div>`:''}
+        <p class="ea-x${bad?' bad':''}">${esc(r.reason || (r.state==='PASS'
+            ? 'Held. Nothing to report.'
+            : r.state+' — see the reason below.'))}</p>
+        ${ev.actual.body
+          ? `<pre>${esc(ev.actual.body)}</pre>`
+          : `<span class="pl-none">No body captured.</span>`}
+      </div>
+    </div>
+    <p class="td-derived">Expected comes from <code>API_File.json</code> and the check's own
+      assertion. <b>Actual is from the simulated run</b> — the engine's result document does
+      not carry response bodies today, which is a named gap in the handoff. Wire the engine
+      to record them and this panel shows the real thing unchanged.</p>`;
+  })()}
 
   <div class="td-sec">This check</div>
   <dl class="kv">

@@ -202,6 +202,90 @@ const click = el => el.dispatchEvent(new window.Event('click', { bubbles: true }
   $('#caseSearch').dispatchEvent(new window.Event('input', { bubbles: true }));
   await wait(80);
 
+  console.log('\nexpected vs actual:');
+  click($('#railMenu [data-menu-act="suites"]'));
+  await wait(70);
+  click($('#btnSelAll'));
+  await wait(60);
+  click($('#btnRun'));
+  await wait(5600);
+  const RES = JSON.parse(window.localStorage.getItem('hcm-console-v1')).result;
+  const flat = RES.apis.flatMap(a => a.results);
+
+  ok('executed results carry evidence',
+     flat.filter(r => r.executed && r.state !== 'NOT_ASSERTED').every(r => !!r.evidence),
+     flat.filter(r => r.executed && !r.evidence).length + ' without');
+  ok('unexecuted results carry none',
+     flat.filter(r => r.executed === false).every(r => !r.evidence));
+  ok('every evidence names where actual came from',
+     flat.filter(r => r.evidence).every(r => r.evidence.actual.from === 'simulated'));
+  ok('every evidence states what is expected',
+     flat.filter(r => r.evidence).every(r => (r.evidence.expected.expects || '').length > 8));
+
+  const openFor = pred => {
+    const r = flat.find(pred);
+    if (!r) return null;
+    window.tcDetail(window.apiByRef(r.apiRef),
+      window.eval('SEED.globalTestCases').find(t => t.id === r.testId),
+      RES.apis.find(a => a.apiRef === r.apiRef));
+    return r;
+  };
+
+  const pf = openFor(r => r.state === 'FAIL' && r.testId.endsWith('test_transport_is_https'));
+  ok('a property check shows no HTTP line', !!pf && !$('#mBody .ea-s'));
+  ok('a property check still states its assertion',
+     /resolved base URL uses https/.test($('#mBody').textContent));
+  ok('a failure is flagged on the actual column', !!$('#mBody .ea-col.bad'));
+  click($('#mFoot [data-close]'));
+  await wait(50);
+
+  const sf = openFor(r => r.state === 'FAIL' && r.testId.endsWith('test_status_code_matches_spec'));
+  ok('a status check compares statuses', !!sf && $$('#mBody .ea-s').length === 2,
+     $$('#mBody .ea-s').length + ' status lines');
+  ok('expected and actual statuses differ on a failure',
+     $$('#mBody .ea-s')[0].textContent.trim() !== $$('#mBody .ea-s')[1].textContent.trim(),
+     $$('#mBody .ea-s').map(x => x.textContent.trim()).join(' vs '));
+  click($('#mFoot [data-close]'));
+  await wait(50);
+
+  const pp = openFor(r => r.state === 'PASS' && r.testId.endsWith('test_401_without_valid_token'));
+  ok('a pass is not flagged as a mismatch', !!pp && !$('#mBody .ea-col.bad'));
+  ok('a pass says so rather than leaving the column blank',
+     /Held\. Nothing to report/.test($('#mBody').textContent));
+  click($('#mFoot [data-close]'));
+  await wait(50);
+
+  ok('the panel says actual is simulated',
+     (() => { openFor(r => !!r.evidence);
+              const t = $('#mBody').textContent;
+              click($('#mFoot [data-close]'));
+              return /Actual is from/.test(t) && /simulated run/.test(t); })());
+  ok('the panel names the missing-body gap',
+     (() => { openFor(r => !!r.evidence);
+              const t = $('#mBody').textContent;
+              click($('#mFoot [data-close]'));
+              return /does\s+not\s+carry response bodies/.test(t); })());
+  await wait(50);
+
+  console.log('\ntiers kept apart:');
+  click($('#railMenu [data-menu-act="cases"]'));
+  await wait(110);
+  click($('#caseBody .case-h'));
+  await wait(110);
+  const tiers = $$('#caseBody .case.open .tc-tier');
+  ok('two tiers are separated', tiers.length === 2,
+     tiers.map(t => t.querySelector('.tc-tier-t').textContent.trim()).join(' | '));
+  ok('collection assertions are named first',
+     /Collection assertions/.test(tiers[0].textContent));
+  ok('global contract checks are named second',
+     /Global contract checks/.test(tiers[1].textContent));
+  ok('the global tier carries the engine count',
+     tiers[1].querySelector('.tc-tier-n').textContent.trim() ===
+       String(window.orderedChecks().length),
+     tiers[1].querySelector('.tc-tier-n').textContent.trim() + ' vs ' + window.orderedChecks().length);
+  ok('each tier explains what it is',
+     tiers.every(t => t.querySelector('.tc-tier-d').textContent.trim().length > 10));
+
   console.log('\nhistory opens in a new tab:');
   click($('#railMenu [data-menu-act="suites"]'));
   await wait(70);
