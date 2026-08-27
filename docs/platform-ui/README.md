@@ -13,14 +13,48 @@ writes Java against it.
 ## Build and test
 
 ```bash
-python scripts/build_unified_console.py     # -> unified-console.html
-node docs/platform-ui/test-unified-console.js
+npm run ui:build      # python scripts/build_unified_console.py -> unified-console.html
+npm run ui:test       # contract invariants (22) + real-DOM smoke (50)
+npm run ui:serve      # http://127.0.0.1:8910/unified-console.html
 ```
 
-The build inlines the real catalogue; the test replays the shipped result
-documents through the page's own arithmetic and fails if they diverge.
-Open `unified-console.html` directly in a browser — `file://` is enough,
+`ui:test` needs `jsdom` (`npm i`). The first suite replays the shipped result
+documents through the page's own arithmetic and fails if they diverge; the
+second loads the built page in a real DOM and drives it — select, run, View
+Report, every report tab, theme toggle, navigator, persistence.
+
+Open `unified-console.html` directly if you prefer — `file://` is enough,
 there is no server and no network call.
+
+## Screens
+
+Three views, matching the flow the source mocks laid out:
+
+1. **Home** — status strip, quick-run multi-select, search, and a grid of suite
+   cards (one per module) listing every endpoint. Clicking an endpoint opens it.
+2. **Detail** — `Configure Run` on the left (API, method, module, endpoint,
+   credential alias, auth provider, read-only payload) and `Test Cases for this
+   Endpoint` on the right, each carrying its own state chip. `View Report`
+   opens the report for that API.
+3. **Report** — the enterprise dashboard: KPI cards, state donut, per-module
+   stacked bars, defect triage with Jira ticket generation, BDD behaviours,
+   timeline, payload inspection, SLA percentiles, contract compliance, raw JSON.
+
+Finishing a run moves to the Report automatically. `View Report` is disabled
+until a run exists, so it can never open an empty or stale dashboard.
+
+The **auth provider** selector is on the Detail screen because Attendance
+requires `Login_Auth_UAT_API` — a token minted by Employee Auth is rejected with
+`INVALID_TOKEN`. It travels in the manifest per API (K1c); the engine persists
+nothing.
+
+## Theme
+
+A labelled switch in the top bar toggles light/dark, with the sun/moon pair
+showing which is active. It is a real `role="switch"` with `aria-checked` and
+keyboard support, and it persists. Charts read their colours from CSS custom
+properties at draw time, so a flip redraws them rather than leaving stale fills.
+With no explicit choice the page follows `prefers-color-scheme`.
 
 ## Why it is generated rather than hand-written
 
@@ -49,7 +83,8 @@ page removes the class of defect rather than the instances.
 
 ## Invariants the page holds
 
-Enforced in code and asserted by `test-unified-console.js` (22 checks):
+Enforced in code and asserted by `test-unified-console.js` (22 checks) and
+`test-dom.js` (50 checks against the built page):
 
 - Pass rate is `PASS / (PASS + FAIL)`, reported as `n/a` — never `0%` — when
   nothing asserted.

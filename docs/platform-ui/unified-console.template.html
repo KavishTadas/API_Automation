@@ -98,14 +98,7 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .view.active{display:flex}
 .scroll{overflow-y:auto;padding:18px 20px}
 
-/* ---------- Console layout ---------- */
-.console-left{width:380px;flex-shrink:0;border-right:1px solid var(--line);background:var(--panel);
-  display:flex;flex-direction:column;min-height:0}
-.console-right{flex:1;min-width:0;display:flex;flex-direction:column}
-.pane-head{padding:12px 16px;border-bottom:1px solid var(--line);flex-shrink:0}
-.pane-head h2{margin:0;font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-dim);font-weight:700}
-.pane-head .hint{font-size:11.5px;color:var(--text-faint);margin-top:3px}
-
+/* ---------- tree (navigator panel) ---------- */
 .tree{flex:1;overflow-y:auto;padding:8px}
 .tree-group{margin-bottom:6px}
 .tree-group-head{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:7px;
@@ -157,6 +150,136 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .card-h h3{margin:0;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim)}
 .card-h .sp{flex:1}
 .card-b{padding:14px}
+
+/* ---------- theme toggle ---------- */
+.themetog{display:inline-flex;align-items:center;gap:7px;background:var(--panel-2);
+  border:1px solid var(--line);border-radius:99px;padding:4px 11px 4px 8px;cursor:pointer;
+  color:var(--text-dim);transition:border-color .15s,color .15s}
+.themetog:hover{border-color:var(--accent-line);color:var(--text)}
+.themetog:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.themetog svg{width:13px;height:13px;flex-shrink:0;transition:opacity .18s,color .18s}
+.tt-sun{color:var(--amber);opacity:1}
+.tt-moon{color:var(--blue);opacity:.35}
+.tt-track{width:30px;height:16px;border-radius:99px;background:var(--line);position:relative;
+  flex-shrink:0;transition:background .2s}
+.tt-thumb{position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;
+  background:var(--amber);transition:transform .2s cubic-bezier(.3,.8,.4,1),background .2s}
+.tt-lbl{font:700 11px var(--sans);letter-spacing:.02em;min-width:30px;text-align:left}
+[data-theme="dark"] .tt-sun{opacity:.35}
+[data-theme="dark"] .tt-moon{opacity:1}
+[data-theme="dark"] .tt-track{background:var(--accent-line)}
+[data-theme="dark"] .tt-thumb{transform:translateX(14px);background:var(--blue)}
+@media(prefers-reduced-motion:reduce){
+  .tt-thumb,.themetog svg,.tt-track{transition:none}
+}
+@media(max-width:900px){ .tt-lbl{display:none} }
+
+/* ---------- status strip ---------- */
+.strip{display:flex;gap:9px;flex-wrap:wrap;align-items:center;padding:9px 20px;
+  border-bottom:1px solid var(--line);background:var(--panel-2);flex-shrink:0}
+.chip{font:500 11px/1 var(--mono);padding:5px 11px;border-radius:99px;border:1px solid var(--line);
+  color:var(--text-faint);display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.chip .d{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.chip.ok{color:var(--accent);border-color:var(--accent-line)}
+.chip.blue{color:var(--blue);border-color:var(--blue)}
+.chip.warn{color:var(--amber);border-color:var(--amber)}
+
+/* ---------- home ---------- */
+.quick-actions{display:flex;gap:9px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.quick-actions .sp{flex:1}
+.linkbtn{background:none;border:0;color:var(--accent);font:700 12px var(--sans);cursor:pointer;padding:2px 3px}
+.linkbtn:hover{text-decoration:underline}
+.dotsep{color:var(--text-faint);font-size:11px}
+
+.qr{margin-bottom:14px}
+.qr-head{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:12px 14px;
+  border-bottom:1px solid var(--line-soft)}
+.qr-head h2{margin:0;font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--accent);display:flex;align-items:center;gap:7px}
+.qr-head .sp{flex:1}
+.bolt{font-size:14px}
+.msbox{max-height:290px;overflow-y:auto;padding:8px 10px;background:var(--bg)}
+.ms-group{margin-bottom:6px}
+.ms-gh{display:flex;align-items:center;gap:8px;padding:7px 6px;font:700 11px var(--sans);
+  text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);border-bottom:1px solid var(--line-soft)}
+.ms-gh .sp{flex:1}
+.ms-item{display:flex;gap:10px;align-items:center;padding:7px 6px;border-radius:6px;cursor:pointer}
+.ms-item:hover{background:var(--panel-2)}
+.ms-item input{accent-color:var(--accent);flex-shrink:0;width:15px;height:15px}
+.ms-item .nm{font-size:12.5px;font-weight:600;flex:1;min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.ms-item .id{font:500 11px var(--mono);color:var(--text-faint);flex-shrink:0}
+.qr-actions{display:flex;gap:9px;align-items:center;padding:12px 14px;border-top:1px solid var(--line-soft);flex-wrap:wrap}
+.qr-actions .sp{flex:1}
+
+.searchwrap{position:relative;margin-bottom:16px}
+.searchwrap .si{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.6}
+.searchwrap input{width:100%;padding:10px 12px 10px 34px;border-radius:8px;border:1px solid var(--line);
+  background:var(--panel);color:var(--text);font:inherit;font-size:12.5px}
+.searchwrap input:focus{outline:2px solid var(--accent-line);outline-offset:-1px}
+
+.sect-head{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.sect-head h2{margin:0;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-dim)}
+.sect-head .sp{flex:1}
+
+.suites-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(430px,1fr));gap:14px}
+.suite-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--shadow);overflow:hidden}
+.sc-h{display:flex;align-items:flex-start;gap:11px;padding:13px 14px;background:var(--panel-2);
+  border-bottom:1px solid var(--line)}
+.sc-ico{width:32px;height:32px;border-radius:8px;background:var(--accent-bg);border:1px solid var(--accent-line);
+  display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.sc-t{flex:1;min-width:0}
+.sc-t h3{margin:0;font-size:14px;font-weight:700}
+.sc-t .d{font-size:11.5px;color:var(--text-faint);margin-top:2px}
+.sc-rows{padding:4px 0}
+.sc-row{display:flex;align-items:center;gap:11px;padding:8px 14px;cursor:pointer;
+  border-bottom:1px solid var(--line-soft)}
+.sc-row:last-child{border-bottom:0}
+.sc-row:hover{background:var(--panel-2)}
+.sc-row .id{font:500 11px var(--mono);color:var(--text-faint);flex-shrink:0;min-width:52px}
+.sc-row .nm{font-size:13px;font-weight:650;flex:1;min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.sc-row .pa{font:500 11.5px var(--mono);color:var(--text-faint);flex-shrink:0;max-width:44%;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:rtl;text-align:right}
+
+/* ---------- detail ---------- */
+.backlink{background:none;border:0;color:var(--accent);font:700 12.5px var(--sans);cursor:pointer;
+  padding:0;margin-bottom:14px;display:inline-block}
+.backlink:hover{text-decoration:underline}
+.detail-grid{display:grid;grid-template-columns:minmax(330px,420px) 1fr;gap:16px;align-items:start}
+.fl{display:block;font-size:11.5px;color:var(--text-dim);margin:12px 0 5px;font-weight:600}
+.fl:first-child{margin-top:0}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ro{background:var(--bg);color:var(--text-dim);cursor:default}
+.payload{max-height:210px;overflow:auto;margin:0}
+.tc{border:1px solid var(--line);border-radius:9px;padding:12px 13px;margin-bottom:10px;background:var(--panel-2)}
+.tc:last-child{margin-bottom:0}
+.tc-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tc-h .tid{font:600 10.5px var(--mono);color:var(--text-faint)}
+.tc-h .tt{font-size:13px;font-weight:650;flex:1;min-width:0}
+.tc-d{font-size:12px;color:var(--text-faint);margin-top:6px}
+.tc-f{display:flex;align-items:center;gap:8px;margin-top:9px;flex-wrap:wrap}
+
+/* ---------- navigator ---------- */
+.navback{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;
+  transition:opacity .2s;z-index:40}
+.navback.on{opacity:1;pointer-events:auto}
+.navpanel{position:fixed;top:0;right:0;bottom:0;width:360px;max-width:88vw;background:var(--panel);
+  border-left:1px solid var(--line);transform:translateX(100%);transition:transform .22s ease;
+  z-index:41;display:flex;flex-direction:column}
+.navpanel.on{transform:none}
+.np-h{display:flex;align-items:center;gap:10px;padding:13px 15px;border-bottom:1px solid var(--line)}
+.np-h h3{margin:0;font-size:13px;font-weight:700;flex:1}
+.np-s{padding:11px 15px;border-bottom:1px solid var(--line)}
+.np-s input{width:100%;padding:8px 11px;border-radius:7px;border:1px solid var(--line);
+  background:var(--bg);color:var(--text);font:inherit;font-size:12.5px}
+.np-b{flex:1;overflow-y:auto;padding:8px}
+
+@media(max-width:1080px){
+  .detail-grid{grid-template-columns:1fr}
+  .suites-grid{grid-template-columns:1fr}
+}
 .grid{display:grid;gap:14px}
 .kpis{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-bottom:14px}
 .kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:13px 15px;box-shadow:var(--shadow)}
@@ -256,7 +379,7 @@ hr{border:none;border-top:1px solid var(--line-soft);margin:12px 0}
 <!-- ===================== RAIL ===================== -->
 <nav class="rail">
   <div class="rail-logo">HCM</div>
-  <button class="rail-btn active" data-view="console" title="Console">
+  <button class="rail-btn active" data-view="home" title="Console">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
     Console
   </button>
@@ -265,9 +388,6 @@ hr{border:none;border-top:1px solid var(--line-soft);margin:12px 0}
     Report
   </button>
   <div class="rail-sp"></div>
-  <button class="rail-btn" id="btnTheme" title="Toggle theme">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-  </button>
 </nav>
 
 <div class="shell">
@@ -293,6 +413,13 @@ hr{border:none;border-top:1px solid var(--line-soft);margin:12px 0}
       <button data-persona="exec">Exec</button>
       <button data-persona="devops">DevOps</button>
     </div>
+    <button class="themetog" id="btnTheme" role="switch" aria-checked="false"
+            aria-label="Toggle light and dark theme" title="Toggle light / dark theme">
+      <svg class="tt-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <span class="tt-track"><span class="tt-thumb"></span></span>
+      <svg class="tt-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <span class="tt-lbl" id="themeLbl">Light</span>
+    </button>
     <button class="btn btn-icon" id="btnExport" title="Export result document (JSON)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
     </button>
@@ -303,44 +430,113 @@ hr{border:none;border-top:1px solid var(--line-soft);margin:12px 0}
     <span><b>UI mock — no engine attached.</b> The catalogue, hosts, modules, credential aliases and result schema are real (loaded from <code>docs/platform-handoff/</code>). Runs are <b>simulated in the browser</b>: no HTTP request leaves this page and no credential is ever read. Wire <code>runBatch()</code> to <code>POST /run</code> to make it live.</span>
   </div>
 
-  <!-- ===================== CONSOLE ===================== -->
-  <section class="view active" id="view-console">
-    <div class="console-left">
-      <div class="pane-head">
-        <h2>API Selection</h2>
-        <div class="hint" id="selHint">0 selected</div>
-        <div style="margin-top:9px" class="row">
-          <input type="search" id="apiSearch" placeholder="Filter by path, module or method…" style="flex:1;min-width:0">
-        </div>
-        <div style="margin-top:8px" class="row">
-          <button class="btn btn-sm" id="btnSelAll">Select all</button>
-          <button class="btn btn-sm" id="btnSelNone">Clear</button>
-          <button class="btn btn-sm" id="btnSelGaps">Only assertion gaps</button>
-        </div>
-      </div>
-      <div class="tree" id="apiTree"></div>
-      <div style="padding:12px 16px;border-top:1px solid var(--line)">
-        <button class="btn btn-primary" id="btnRun" style="width:100%;justify-content:center" disabled>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Run selected batch
-        </button>
-        <div class="prog" id="runProg" style="display:none"><div class="prog-fill" id="runProgFill"></div></div>
-        <button class="btn btn-sm" id="btnCurl" style="width:100%;justify-content:center;margin-top:8px">
-          + Import API from cURL
-        </button>
-      </div>
+  <!-- ===================== STATUS STRIP ===================== -->
+  <div class="strip" id="strip"></div>
+
+  <!-- ===================== VIEW 1 · HOME ===================== -->
+  <section class="view scroll active" id="view-home">
+    <div class="quick-actions">
+      <button class="btn btn-sm" id="btnCurl">+ Add cURL</button>
+      <button class="btn btn-sm" id="btnSelGaps">Only assertion gaps</button>
+      <span class="sp"></span>
+      <button class="btn btn-sm" id="btnOpenNav">☰ Navigator <span class="pill" id="navBadge">0</span></button>
     </div>
 
-    <div class="console-right">
-      <div class="pane-head row">
-        <div style="flex:1;min-width:0">
-          <h2 id="detailTitle">Endpoint detail</h2>
-          <div class="hint" id="detailSub">Select an endpoint on the left to inspect it.</div>
+    <!-- Quick Run -->
+    <div class="card qr">
+      <div class="qr-head">
+        <h2><span class="bolt">⚡</span> API Selection &amp; Quick Run <span class="faint">(multi-select)</span></h2>
+        <span class="sp"></span>
+        <button class="linkbtn" id="btnSelAll">Select All</button>
+        <span class="dotsep">•</span>
+        <button class="linkbtn" id="btnSelNone">Clear Selection</button>
+        <span class="pill ok" id="selBadge" style="margin-left:8px">0 APIs Selected</span>
+      </div>
+      <div class="msbox" id="msBox"></div>
+      <div class="qr-actions">
+        <button class="btn btn-primary" id="btnRun" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <span id="btnRunLabel">Run Selected Batch (0)</span>
+        </button>
+        <button class="btn" id="btnConfigureFirst" disabled>Configure First →</button>
+        <span class="sp"></span>
+        <button class="btn btn-sm" id="btnViewReportHome" disabled>📊 View Report</button>
+      </div>
+      <div class="prog" id="runProg" style="display:none"><div class="prog-fill" id="runProgFill"></div></div>
+    </div>
+
+    <!-- Search -->
+    <div class="searchwrap">
+      <span class="si">🔍</span>
+      <input type="search" id="apiSearch" placeholder="Search any API by name, endpoint, module or method across all suites…">
+    </div>
+
+    <!-- Suites -->
+    <div class="sect-head">
+      <h2>Test Suites &amp; API Endpoints</h2>
+      <span class="sp"></span>
+      <span class="faint" id="suiteMatchHint"></span>
+    </div>
+    <div class="suites-grid" id="suitesGrid"></div>
+  </section>
+
+  <!-- ===================== VIEW 2 · DETAIL ===================== -->
+  <section class="view scroll" id="view-detail">
+    <button class="backlink" id="btnBackHome">← Back to Suites</button>
+    <div class="detail-grid">
+      <!-- Left: Configure Run -->
+      <div class="card">
+        <div class="card-h"><h3>Configure Run</h3></div>
+        <div class="card-b">
+          <label class="fl" for="dApi">API</label>
+          <select id="dApi"></select>
+
+          <div class="row2">
+            <div><label class="fl">Method</label><input id="dMethod" readonly class="ro"></div>
+            <div><label class="fl">Module</label><input id="dModule" readonly class="ro"></div>
+          </div>
+
+          <label class="fl">Endpoint</label>
+          <input id="dEndpoint" readonly class="ro mono">
+
+          <label class="fl" for="dAlias">Credential alias for this API</label>
+          <select id="dAlias"></select>
+          <div class="hint">Alias only — no secret value is stored, displayed, or sent to the browser.</div>
+
+          <label class="fl" for="dProvider">Auth provider</label>
+          <select id="dProvider"></select>
+          <div class="hint" id="dProviderHint"></div>
+
+          <label class="fl">Request payload <span class="pill">read-only (D6)</span></label>
+          <pre id="dPayload" class="payload"></pre>
+
+          <div class="row" style="margin-top:12px">
+            <button class="btn btn-primary" id="dRun" style="flex:1;justify-content:center">Run this API</button>
+            <button class="btn" id="dToggleSel">Add to batch</button>
+          </div>
+          <div class="hint" id="dRunHint"></div>
         </div>
       </div>
-      <div class="scroll" id="detailPane"></div>
+
+      <!-- Right: Test cases -->
+      <div class="card">
+        <div class="card-h">
+          <h3>Test Cases for this Endpoint</h3>
+          <span class="sp"></span>
+          <button class="btn btn-primary btn-sm" id="btnViewReport" disabled>📊 View Report</button>
+        </div>
+        <div class="card-b" id="dCases"></div>
+      </div>
     </div>
   </section>
+
+  <!-- ===================== NAVIGATOR ===================== -->
+  <div class="navback" id="navBack"></div>
+  <aside class="navpanel" id="navPanel">
+    <div class="np-h"><h3>Suite &amp; API Navigator</h3><button class="btn btn-icon" id="btnCloseNav">✕</button></div>
+    <div class="np-s"><input type="search" id="navSearch" placeholder="Filter APIs by name…"></div>
+    <div class="np-b" id="navBody"></div>
+  </aside>
 
   <!-- ===================== ANALYTICS ===================== -->
   <section class="view" id="view-analytics">
@@ -408,13 +604,14 @@ const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n)
 
 /* ---------------------------------------------------------------- state -- */
 const STATE = {
-  view:'console', tab:'overview', persona:'qa',
+  view:'home', tab:'overview', persona:'qa',
   env:SEED.environments[0] || 'UAT',
   alias:SEED.credentialAliases[0] || '',
   selected:new Set(),
   focus:null,
   result:null,
   imported:[],          // APIs added via cURL (travel by value, DR-2)
+  providers:{},         // apiRef -> authProviderApiId (K1c: travels in the manifest)
   running:false
 };
 const LS = 'hcm-console-v1';
@@ -422,7 +619,7 @@ function persist(){
   try{ localStorage.setItem(LS, JSON.stringify({
     view:STATE.view, tab:STATE.tab, persona:STATE.persona, env:STATE.env,
     alias:STATE.alias, selected:[...STATE.selected], focus:STATE.focus,
-    imported:STATE.imported, result:STATE.result,
+    imported:STATE.imported, result:STATE.result, providers:STATE.providers,
     theme:document.documentElement.getAttribute('data-theme')
   })); }catch(e){/* private mode — the UI must still work */}
 }
@@ -431,10 +628,13 @@ function restore(){
   try{ s = JSON.parse(localStorage.getItem(LS)||'null'); }catch(e){}
   if(!s) return;
   if(s.theme) document.documentElement.setAttribute('data-theme', s.theme);
-  STATE.view=s.view||'console'; STATE.tab=s.tab||'overview';
+  STATE.view=s.view||'home'; STATE.tab=s.tab||'overview';
+  if(STATE.view==='console') STATE.view='home';   // migrate pre-rework state
   STATE.persona=s.persona||'qa'; STATE.env=s.env||STATE.env; STATE.alias=s.alias||STATE.alias;
   STATE.selected=new Set(s.selected||[]); STATE.focus=s.focus||null;
   STATE.imported=s.imported||[]; STATE.result=s.result||null;
+  STATE.providers=s.providers||{};
+  if(STATE.view==='detail' && !STATE.focus) STATE.view='home';
 }
 
 /* cross-tab bridge: console in one tab, report in another */
@@ -658,131 +858,230 @@ function renderTopbar(){
     `Catalogue v${SEED.catalogueVersion} · ${allApis().length} APIs · ${SEED.environments.join(', ')}`;
 }
 
-function renderTree(){
-  const q = ($('#apiSearch').value||'').toLowerCase().trim();
-  const byModule = new Map();
-  allApis().forEach(a=>{
-    if(q && !(a.path+' '+a.module+' '+a.method+' '+(a.name||'')).toLowerCase().includes(q)) return;
-    if(!byModule.has(a.module)) byModule.set(a.module, []);
-    byModule.get(a.module).push(a);
-  });
-  const tree=$('#apiTree');
-  if(!byModule.size){ tree.innerHTML=`<div class="empty">No endpoint matches “${esc(q)}”.</div>`; return; }
+/* Display index. The catalogue ref is an opaque join key and must never be
+   shown as a label (memory §9.3); this is a positional label for humans only.
+   Falls back to the catalogue's own displayId when the engine supplies one. */
+let DISPLAY_ID = null;
+function displayId(a){
+  if(!DISPLAY_ID){
+    DISPLAY_ID = new Map();
+    SEED.apis.forEach((x,i)=> DISPLAY_ID.set(x.ref, x.displayId || ('API-'+String(i+1).padStart(3,'0'))));
+  }
+  return DISPLAY_ID.get(a.ref) || (a.displayId || 'API-NEW');
+}
 
-  tree.innerHTML = [...byModule.entries()].map(([mod, list])=>{
-    const gaps = list.filter(a=>a.assertionState==='not-asserted').length;
-    const selN = list.filter(a=>STATE.selected.has(a.ref)).length;
-    return `<div class="tree-group" data-mod="${esc(mod)}">
-      <div class="tree-group-head">
-        <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        <span class="nm">${esc(mod)}</span>
-        ${gaps?`<span class="pill gap" title="${gaps} request(s) execute but assert nothing">${gaps} gap</span>`:''}
-        <span class="pill${selN?' ok':''}">${selN}/${list.length}</span>
-      </div>
-      <div class="tree-items">${list.map(a=>`
-        <label class="tree-item${STATE.focus===a.ref?' sel':''}" data-ref="${esc(a.ref)}">
-          <input type="checkbox" ${STATE.selected.has(a.ref)?'checked':''} data-chk="${esc(a.ref)}">
-          <span class="m ${esc(a.method)}">${esc(a.method)}</span>
-          <span class="meta">
-            <span class="l1">${esc(a.name||a.subModule||a.path)}</span>
-            <span class="l2">${esc(a.path)}</span>
-          </span>
-          ${a.assertionState==='not-asserted'?'<span class="pill gap">no assert</span>':''}
-        </label>`).join('')}</div>
+function moduleGroups(filter){
+  const q=(filter||'').toLowerCase().trim();
+  const m=new Map();
+  allApis().forEach(a=>{
+    if(q && !(a.path+' '+a.module+' '+a.method+' '+(a.name||'')+' '+displayId(a)).toLowerCase().includes(q)) return;
+    if(!m.has(a.module)) m.set(a.module, []);
+    m.get(a.module).push(a);
+  });
+  return m;
+}
+
+function renderStrip(){
+  const apis=allApis(), mods=new Set(apis.map(a=>a.module));
+  const gaps=apis.filter(a=>a.assertionState==='not-asserted').length;
+  const R=STATE.result;
+  $('#strip').innerHTML=[
+    `<span class="chip ok"><span class="d"></span>Simulated Engine Ready</span>`,
+    `<span class="chip blue"><span class="d"></span>${mods.size} Suites Active</span>`,
+    `<span class="chip ok"><span class="d"></span>${apis.length} APIs Loaded</span>`,
+    gaps?`<span class="chip warn"><span class="d"></span>${gaps} Assertion Gaps</span>`:'',
+    `<span class="chip"><span class="d"></span>Target: ${esc(STATE.env)}</span>`,
+    R?`<span class="chip ${R.summary.clean?'ok':'warn'}"><span class="d"></span>Last run: ${pct(R.summary.passRate)} pass</span>`:''
+  ].join('');
+}
+
+function renderHome(){
+  renderStrip();
+  renderMultiSelect();
+  renderSuitesGrid();
+  syncSel();
+}
+
+function renderMultiSelect(){
+  const m=moduleGroups($('#apiSearch').value);
+  const box=$('#msBox');
+  if(!m.size){ box.innerHTML=`<div class="empty">No endpoint matches that filter.</div>`; return; }
+  box.innerHTML=[...m.entries()].map(([mod,list])=>{
+    const sel=list.filter(a=>STATE.selected.has(a.ref)).length;
+    return `<div class="ms-group">
+      <div class="ms-gh"><span>${esc(mod)}</span><span class="sp"></span>
+        <span class="pill${sel?' ok':''}">${sel}/${list.length}</span></div>
+      ${list.map(a=>`<label class="ms-item">
+        <input type="checkbox" ${STATE.selected.has(a.ref)?'checked':''} data-chk="${esc(a.ref)}">
+        <span class="m ${esc(a.method)}">${esc(a.method)}</span>
+        <span class="nm">${esc(a.name||a.subModule||a.path)}</span>
+        ${a.assertionState==='not-asserted'?'<span class="pill gap">no assert</span>':''}
+        <span class="id">${esc(displayId(a))}</span>
+      </label>`).join('')}
     </div>`;
   }).join('');
+  box.querySelectorAll('[data-chk]').forEach(cb=> cb.onchange=()=>{
+    cb.checked ? STATE.selected.add(cb.dataset.chk) : STATE.selected.delete(cb.dataset.chk);
+    persist(); syncSel(); renderMultiSelect();
+  });
+}
 
-  tree.querySelectorAll('.tree-group-head').forEach(h=>
-    h.onclick = e => { if(e.target.closest('input')) return; h.parentElement.classList.toggle('collapsed'); });
-  tree.querySelectorAll('[data-chk]').forEach(cb=>
-    cb.onchange = () => { cb.checked ? STATE.selected.add(cb.dataset.chk) : STATE.selected.delete(cb.dataset.chk);
-                          syncSel(); persist(); renderTree(); });
-  tree.querySelectorAll('.tree-item').forEach(it=>
-    it.onclick = e => { if(e.target.closest('input')) return;
-                        STATE.focus=it.dataset.ref; persist(); renderTree(); renderDetail(); });
-  syncSel();
+function renderSuitesGrid(){
+  const m=moduleGroups($('#apiSearch').value);
+  const total=allApis().length, shown=[...m.values()].reduce((n,l)=>n+l.length,0);
+  $('#suiteMatchHint').textContent = shown===total
+    ? `Showing all ${m.size} suites`
+    : `${shown} of ${total} endpoints match`;
+  const grid=$('#suitesGrid');
+  if(!m.size){ grid.innerHTML=`<div class="empty">No suite matches that filter.</div>`; return; }
+  grid.innerHTML=[...m.entries()].map(([mod,list])=>{
+    const coll=(list[0].sourceCollection||'').split('/').pop()||'—';
+    const gaps=list.filter(a=>a.assertionState==='not-asserted').length;
+    return `<div class="suite-card">
+      <div class="sc-h">
+        <div class="sc-ico">📁</div>
+        <div class="sc-t">
+          <h3>${esc(mod)}</h3>
+          <div class="d">${esc(coll)}${gaps?` · ${gaps} endpoint${gaps>1?'s':''} assert nothing`:''}</div>
+        </div>
+        <span class="pill${gaps?' partial':''}">${list.length} API${list.length>1?'s':''}</span>
+      </div>
+      <div class="sc-rows">${list.map(a=>`
+        <div class="sc-row" data-open="${esc(a.ref)}">
+          <span class="m ${esc(a.method)}">${esc(a.method)}</span>
+          <span class="id">${esc(displayId(a))}</span>
+          <span class="nm">${esc(a.name||a.subModule||a.path)}</span>
+          <span class="pa">${esc(a.path)}</span>
+        </div>`).join('')}</div>
+    </div>`;
+  }).join('');
+  grid.querySelectorAll('[data-open]').forEach(r=> r.onclick=()=>{
+    STATE.focus=r.dataset.open; persist(); go('detail');
+  });
 }
 
 function syncSel(){
   const n=STATE.selected.size;
-  $('#selHint').textContent = n===0 ? 'Nothing selected' : `${n} endpoint${n>1?'s':''} selected`;
+  $('#selBadge').textContent = `${n} API${n===1?'':'s'} Selected`;
+  $('#selBadge').classList.toggle('ok', n>0);
+  $('#btnRunLabel').textContent = `Run Selected Batch (${n})`;
   $('#btnRun').disabled = n===0 || STATE.running;
+  $('#btnConfigureFirst').disabled = n===0;
+  $('#navBadge').textContent = allApis().length;
+  const has=!!STATE.result;
+  $('#btnViewReportHome').disabled = !has;
+  const vr=$('#btnViewReport'); if(vr) vr.disabled = !hasResultFor(STATE.focus);
+}
+
+function hasResultFor(ref){
+  return !!(STATE.result && ref && STATE.result.apis.some(x=>x.apiRef===ref));
+}
+
+/* ---- navigator ---------------------------------------------------------- */
+function renderNav(){
+  const m=moduleGroups($('#navSearch').value);
+  const b=$('#navBody');
+  if(!m.size){ b.innerHTML=`<div class="empty">Nothing matches.</div>`; return; }
+  b.innerHTML=[...m.entries()].map(([mod,list])=>`
+    <div class="tree-group">
+      <div class="tree-group-head"><span class="nm">${esc(mod)}</span>
+        <span class="pill">${list.length}</span></div>
+      <div class="tree-items">${list.map(a=>`
+        <div class="tree-item" data-nav="${esc(a.ref)}">
+          <span class="m ${esc(a.method)}">${esc(a.method)}</span>
+          <span class="meta"><span class="l1">${esc(a.name||a.subModule||a.path)}</span>
+          <span class="l2">${esc(a.path)}</span></span>
+        </div>`).join('')}</div>
+    </div>`).join('');
+  b.querySelectorAll('[data-nav]').forEach(it=> it.onclick=()=>{
+    STATE.focus=it.dataset.nav; persist(); closeNav(); go('detail');
+  });
+}
+function openNav(){ $('#navPanel').classList.add('on'); $('#navBack').classList.add('on'); renderNav(); }
+function closeNav(){ $('#navPanel').classList.remove('on'); $('#navBack').classList.remove('on'); }
+
+function authProviders(){
+  const p = allApis().filter(a=>/\/auth\/(token|login)/i.test(a.path||''));
+  return p.length ? p : allApis().filter(a=>/auth/i.test(a.module||'')).slice(0,4);
 }
 
 function renderDetail(){
-  const pane=$('#detailPane');
   const a = STATE.focus ? apiByRef(STATE.focus) : null;
-  if(!a){
-    $('#detailTitle').textContent='Endpoint detail';
-    $('#detailSub').textContent='Select an endpoint on the left to inspect it.';
-    pane.innerHTML=`<div class="empty">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
-      <div>No endpoint selected.</div></div>`;
-    return;
-  }
-  $('#detailTitle').innerHTML = `<span class="m ${esc(a.method)}">${esc(a.method)}</span> <span class="mono">${esc(a.path)}</span>`;
-  $('#detailSub').textContent = subLabel(a);
+  if(!a){ go('home'); return; }
 
+  $('#brandSub').textContent = `${a.method} ${a.path}`;
+
+  /* --- configure pane --- */
+  const groups=moduleGroups('');
+  $('#dApi').innerHTML=[...groups.entries()].map(([mod,list])=>
+    `<optgroup label="${esc(mod)}">${list.map(x=>
+      `<option value="${esc(x.ref)}"${x.ref===a.ref?' selected':''}>${esc(displayId(x))} — ${esc(x.name||x.subModule||x.path)} (${esc(x.method)})</option>`
+    ).join('')}</optgroup>`).join('');
+  $('#dMethod').value   = a.method;
+  $('#dModule').value   = a.module;
+  $('#dEndpoint').value = (a.baseUrl||hostForModule(a)) + a.path;
+
+  $('#dAlias').innerHTML = `<option value="">— select credential alias —</option>` +
+    SEED.credentialAliases.map(x=>`<option${x===STATE.alias?' selected':''}>${esc(x)}</option>`).join('');
+
+  const provs=authProviders();
+  const chosen = STATE.providers[a.ref] || (provs[0] ? provs[0].ref : '');
+  $('#dProvider').innerHTML = provs.map(p=>
+    `<option value="${esc(p.ref)}"${p.ref===chosen?' selected':''}>${esc(p.module)} — ${esc(p.path)}</option>`).join('')
+    || `<option value="">— none discovered —</option>`;
+  const isAtt=/attendance|holiday|weekoff|late|threshold/i.test(a.module||'');
+  $('#dProviderHint').innerHTML = isAtt
+    ? `Attendance requires <b>Login Auth UAT</b>. A token minted by Employee Auth is rejected with <code>INVALID_TOKEN</code>.`
+    : `One login per (provider, alias) pair per run (K1a). Bootstrap failure yields <code>SKIPPED_NO_TOKEN</code>, never <code>FAIL</code> (K1b).`;
+
+  $('#dPayload').textContent = JSON.stringify(a.samplePayload||{}, null, 2);
+  $('#dToggleSel').textContent = STATE.selected.has(a.ref) ? 'Remove from batch' : 'Add to batch';
+  $('#dRunHint').innerHTML = a.assertionState==='not-asserted'
+    ? `This endpoint executes but asserts nothing — it can only ever report <span class="st st-NOT_ASSERTED">NOT_ASSERTED</span> (D7).`
+    : `Runs the ${SEED.globalTestCases.length} global contract checks against this endpoint (D2).`;
+
+  /* --- test cases --- */
   const plan = planFor(a.ref);
   const prev = STATE.result && STATE.result.apis.find(x=>x.apiRef===a.ref);
-
-  pane.innerHTML = `
-  <div class="grid" style="grid-template-columns:1fr 1fr">
-    <div class="card sect" style="grid-column:1/-1">
-      <div class="card-h"><h3>Provenance</h3></div>
-      <div class="card-b">
-        <dl class="kv">
-          <dt>Module</dt><dd>${esc(a.module)}</dd>
-          <dt>Sub-module</dt><dd>${esc(a.subModule||'—')}</dd>
-          <dt>Method / path</dt><dd>${esc(a.method)} ${esc(a.path)}</dd>
-          <dt>Host (${esc(STATE.env)})</dt><dd>${esc(a.baseUrl||hostForModule(a))}</dd>
-          <dt>Source</dt><dd>${esc(a.sourceType||'newman')} · ${esc(a.sourceCollection||'—')}</dd>
-          <dt>Owner</dt><dd>${esc(a.owner||'—')}</dd>
-          <dt>Assertion state</dt><dd>${a.assertionState==='not-asserted'
-              ? '<span class="pill gap">not asserted</span> executes, asserts nothing (D7)'
-              : '<span class="pill ok">'+esc(a.assertionState||'asserted')+'</span>'}</dd>
-        </dl>
-        <hr>
-        <div class="faint" style="font-size:11.5px">
-          Join key (opaque — not a label): <code>${esc(a.ref)}</code>
-        </div>
+  const rows = SEED.globalTestCases.map(tc=>{
+    const p    = plan && plan.global && plan.global[tc.id];
+    const pre  = p ? p.state : 'PLANNED';
+    const last = prev && prev.results.find(r=>r.testId===tc.id);
+    const st   = last ? last.state : pre;
+    return `<div class="tc">
+      <div class="tc-h">
+        <span class="tid">${esc(tc.id.split('::').pop())}</span>
+        <span class="tt">${esc(tc.title)}</span>
+        <span class="st st-${esc(st)}">${esc(st)}</span>
       </div>
-    </div>
-
-    <div class="card sect" style="grid-column:1/-1">
-      <div class="card-h"><h3>Global contract checks</h3><span class="sp"></span>
-        <span class="faint" style="font-size:11.5px">${SEED.globalTestCases.length} checks · applied to every selected API (D2)</span></div>
-      <div class="card-b" style="padding:0">
-        <table>
-          <thead><tr><th style="width:38%">Check</th><th>Category</th><th>Scope</th>
-            <th>Pre-run</th><th class="right">Last run</th></tr></thead>
-          <tbody>${SEED.globalTestCases.map(tc=>{
-            const p = plan && plan.global && plan.global[tc.id];
-            const pre = p ? p.state : 'PLANNED';
-            const last = prev && prev.results.find(r=>r.testId===tc.id);
-            return `<tr>
-              <td>${esc(tc.title)}<div class="faint mono" style="font-size:10.5px">${esc(tc.id.split('::').pop())}</div></td>
-              <td class="dim">${esc(tc.category)}</td>
-              <td class="dim">${tc.hostLevel?'host':'api'}</td>
-              <td><span class="st st-${esc(pre)}">${esc(pre)}</span></td>
-              <td class="right">${last?`<span class="st st-${esc(last.state)}">${esc(last.state)}</span>`:'<span class="faint">—</span>'}</td>
-            </tr>`;}).join('')}</tbody>
-        </table>
+      ${last && last.reason ? `<div class="tc-d">${esc(last.reason)}</div>` : ''}
+      <div class="tc-f">
+        <span class="pill">${esc(tc.category)}</span>
+        <span class="pill">${tc.hostLevel?'host-level':'per-API'}</span>
+        ${last && last.executed===false ? '<span class="pill">not executed</span>':''}
+        ${last && last.measuredBy && last.measuredBy!==a.ref
+          ? `<span class="pill" title="${esc(last.measuredBy)}">measured on another API</span>`:''}
+        ${last && last.blockedBy ? `<span class="pill partial">blocked by auth provider</span>`:''}
+        ${last && last.state==='FAIL' ? `<button class="linkbtn" data-jira="${esc(tc.id)}">Copy Jira ticket</button>`:''}
       </div>
-    </div>
+    </div>`;
+  }).join('');
 
-    <div class="card sect" style="grid-column:1/-1">
-      <div class="card-h"><h3>Request payload</h3><span class="sp"></span>
-        <span class="pill">read-only (D6)</span></div>
-      <div class="card-b">
-        <pre>${esc(JSON.stringify(a.samplePayload||{}, null, 2))}</pre>
-        <div class="faint" style="font-size:11.5px;margin-top:9px">
-          Payloads are authored in the repo, never in the platform. Credentials never appear here —
-          the run carries the alias <code>${esc(STATE.alias||'—')}</code> and the engine resolves the value server-side.
-        </div>
-      </div>
-    </div>
-  </div>`;
+  const gap = a.assertionState==='not-asserted' ? `<div class="tc">
+      <div class="tc-h"><span class="tid">newman</span>
+        <span class="tt">Collection defines no assertions for this request</span>
+        <span class="st st-NOT_ASSERTED">NOT_ASSERTED</span></div>
+      <div class="tc-d">The request executes and returns, but nothing is asserted about the response.
+        It must never render as a pass (D7).</div>
+      <div class="tc-f"><span class="pill gap">assertion gap</span></div>
+    </div>` : '';
+
+  $('#dCases').innerHTML = gap + rows;
+  $('#dCases').querySelectorAll('[data-jira]').forEach(b=> b.onclick=()=>{
+    const r = prev && prev.results.find(x=>x.testId===b.dataset.jira);
+    if(r) jiraModal({r, api:a}, STATE.result);
+  });
+  syncSel();
 }
 
 /* ========================================================================
@@ -1225,7 +1524,8 @@ function curlModal(){
     const parsed=parseCurl($('#curlIn').value);
     if(!parsed){ $('#curlErr').textContent='Could not find a URL in that command.'; return; }
     STATE.imported.push(parsed); STATE.selected.add(parsed.ref);
-    persist(); renderTopbar(); renderTree(); closeModal();
+    DISPLAY_ID=null;                       // imported endpoint joins the index
+    persist(); renderTopbar(); renderHome(); closeModal();
     toast('Endpoint added — credentials stripped');
   };
 }
@@ -1249,33 +1549,77 @@ function parseCurl(txt){
 }
 
 /* ---------------------------------------------------------------- events -- */
-$$('.rail-btn[data-view]').forEach(b=> b.onclick=()=>{
-  STATE.view=b.dataset.view; persist(); syncView();
-});
+function go(view){ STATE.view=view; persist(); syncView(); }
+$$('.rail-btn[data-view]').forEach(b=> b.onclick=()=> go(b.dataset.view));
 function syncView(){
-  $$('.rail-btn[data-view]').forEach(b=>b.classList.toggle('active', b.dataset.view===STATE.view));
+  /* the rail has two lamps; 'detail' lights the Console lamp */
+  const lamp = STATE.view==='detail' ? 'home' : STATE.view;
+  $$('.rail-btn[data-view]').forEach(b=>b.classList.toggle('active', b.dataset.view===lamp));
   $$('.view').forEach(v=>v.classList.toggle('active', v.id==='view-'+STATE.view));
-  if(STATE.view==='analytics') renderAnalytics();
+  if(STATE.view==='home')      renderHome();
+  if(STATE.view==='detail')    renderDetail();
+  if(STATE.view==='analytics'){ renderAnalytics(); renderStrip(); }
+  if(STATE.view!=='detail')    renderTopbar();
 }
 $$('#anTabs .tab').forEach(t=> t.onclick=()=>{
   STATE.tab=t.dataset.tab; persist();
   $$('#anTabs .tab').forEach(x=>x.classList.toggle('active', x===t));
   renderAnalytics();
 });
-$('#apiSearch').oninput = () => renderTree();
-$('#btnSelAll').onclick = () => { allApis().forEach(a=>STATE.selected.add(a.ref)); persist(); renderTree(); };
-$('#btnSelNone').onclick = () => { STATE.selected.clear(); persist(); renderTree(); };
+$('#apiSearch').oninput = () => { renderMultiSelect(); renderSuitesGrid(); };
+$('#btnSelAll').onclick = () => { allApis().forEach(a=>STATE.selected.add(a.ref)); persist(); renderHome(); };
+$('#btnSelNone').onclick = () => { STATE.selected.clear(); persist(); renderHome(); };
 $('#btnSelGaps').onclick = () => { STATE.selected.clear();
   allApis().filter(a=>a.assertionState==='not-asserted').forEach(a=>STATE.selected.add(a.ref));
-  persist(); renderTree(); toast('Selected every endpoint with no assertions'); };
-$('#envSel').onchange = e => { STATE.env=e.target.value; persist(); };
-$('#credSel').onchange = e => { STATE.alias=e.target.value; persist(); renderDetail(); };
+  persist(); renderHome(); toast('Selected every endpoint with no assertions'); };
+$('#envSel').onchange = e => { STATE.env=e.target.value; persist(); renderStrip(); };
+$('#credSel').onchange = e => { STATE.alias=e.target.value; persist();
+  if(STATE.view==='detail') renderDetail(); };
+
+/* --- home --- */
+$('#btnConfigureFirst').onclick = () => {
+  if(!STATE.selected.size) return;
+  STATE.focus=[...STATE.selected][0]; persist(); go('detail');
+};
+$('#btnViewReportHome').onclick = () => { if(STATE.result) go('analytics'); };
+$('#btnOpenNav').onclick = openNav;
+$('#btnCloseNav').onclick = closeNav;
+$('#navBack').onclick = closeNav;
+$('#navSearch').oninput = renderNav;
+
+/* --- detail --- */
+$('#btnBackHome').onclick = () => go('home');
+$('#dApi').onchange = e => { STATE.focus=e.target.value; persist(); renderDetail(); };
+$('#dAlias').onchange = e => { STATE.alias=e.target.value; persist(); };
+$('#dProvider').onchange = e => {
+  if(STATE.focus){ STATE.providers[STATE.focus]=e.target.value; persist(); }
+};
+$('#dToggleSel').onclick = () => {
+  if(!STATE.focus) return;
+  STATE.selected.has(STATE.focus) ? STATE.selected.delete(STATE.focus) : STATE.selected.add(STATE.focus);
+  persist(); renderDetail();
+};
+$('#dRun').onclick = () => { if(STATE.focus) startRun([STATE.focus]); };
+$('#btnViewReport').onclick = () => { if(STATE.result) go('analytics'); };
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeNav(); });
 $('#btnCurl').onclick = curlModal;
-$('#btnTheme').onclick = () => {
-  const cur=document.documentElement.getAttribute('data-theme');
-  const next = cur==='dark' ? 'light' : 'dark';
+function applyTheme(next){
   document.documentElement.setAttribute('data-theme', next);
-  persist(); if(STATE.view==='analytics') renderAnalytics();
+  const dark = next==='dark';
+  const b=$('#btnTheme');
+  b.setAttribute('aria-checked', dark ? 'true' : 'false');
+  $('#themeLbl').textContent = dark ? 'Dark' : 'Light';
+  persist();
+  /* charts read their colours from CSS custom properties at draw time,
+     so a theme change has to redraw them */
+  if(STATE.view==='analytics') renderAnalytics();
+}
+function toggleTheme(){
+  applyTheme(document.documentElement.getAttribute('data-theme')==='dark' ? 'light' : 'dark');
+}
+$('#btnTheme').onclick = toggleTheme;
+$('#btnTheme').onkeydown = e => {
+  if(e.key===' '||e.key==='Enter'){ e.preventDefault(); toggleTheme(); }
 };
 $('#btnExport').onclick = () => {
   if(!STATE.result){ toast('Nothing to export — run a batch first'); return; }
@@ -1301,29 +1645,32 @@ function syncPersona(){
   if(STATE.view==='analytics') renderAnalytics();
 }
 
-$('#btnRun').onclick = () => {
-  if(STATE.running || !STATE.selected.size) return;
+/* Runs a batch, then hands off to the report view — the "View Report"
+   contract: execute, then land on the Enterprise Overview for that run. */
+function startRun(refs){
+  if(STATE.running || !refs.length) return;
   STATE.running=true; syncSel();
   const prog=$('#runProg'), fill=$('#runProgFill');
-  prog.style.display='block'; fill.style.width='0';
-  const refs=[...STATE.selected];
+  if(prog){ prog.style.display='block'; fill.style.width='0'; }
   let i=0;
   const step=()=>{
-    i++; fill.style.width=Math.round(i/refs.length*100)+'%';
+    i++; if(fill) fill.style.width=Math.round(i/refs.length*100)+'%';
     if(i<refs.length){ setTimeout(step, 90); return; }
     setTimeout(()=>{
       STATE.result = runBatch(refs);
-      STATE.running=false; prog.style.display='none';
-      STATE.view='analytics'; STATE.tab='overview';
+      STATE.running=false; if(prog) prog.style.display='none';
+      STATE.tab='overview';
       $$('#anTabs .tab').forEach(x=>x.classList.toggle('active', x.dataset.tab==='overview'));
-      persist(); syncSel(); syncView(); renderDetail();
+      persist(); syncSel();
+      go('analytics');
       if(BUS) try{ BUS.postMessage({type:'result', result:STATE.result}); }catch(e){}
       const s=STATE.result.summary;
       toast(`Run complete — ${pct(s.passRate)} pass${s.clean?'':', not clean'}`);
     }, 160);
   };
   step();
-};
+}
+$('#btnRun').onclick = () => startRun([...STATE.selected]);
 
 /* ---------------------------------------------------------------- boot -- */
 (function init(){
@@ -1332,7 +1679,8 @@ $('#btnRun').onclick = () => {
     document.documentElement.setAttribute('data-theme','dark');
   }
   restore();
-  renderTopbar(); renderTree(); renderDetail(); syncPersona(); syncView();
+  applyTheme(document.documentElement.getAttribute('data-theme') || 'light');
+  renderTopbar(); syncPersona(); syncView();
 })();
 </script>
 </body>
