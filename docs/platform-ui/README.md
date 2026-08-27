@@ -115,6 +115,48 @@ denied outright, and asserts the masthead, KPI cards, donut, module bars, gate,
 every tab, persona filtering and the theme toggle all work from the embedded
 payload alone.
 
+## Global checks — 22
+
+Ten cross-cutting checks were added to `tests/global_contract/`, taking the
+tier from 12 to 22. They are real pytest functions in the engine, not UI-only
+entries: `catalogue.py` discovers checks by AST-parsing the test module, so
+adding a `def test_*` with an `@allure.title` registers it everywhere.
+
+| Check | Category | Gated on |
+|---|---|---|
+| Transport is HTTPS | security | resolved base URL — metadata only, issues no request |
+| Private endpoint refuses an anonymous caller | security | `Access == private` (40/45) |
+| Error responses are machine readable | schema | a provokable 4xx; same path-variable guard as the 404 check |
+| Error responses hide internal detail | security | as above |
+| Write endpoints refuse an unsupported media type | schema | POST/PUT/PATCH with a documented body (24/45) |
+| Declared idempotency matches the method | functional | `idempotent` metadata — declaration only |
+| Paginated list declares its page metadata | schema | `paginated` metadata |
+| Host sets the baseline security headers | security | **host-level** |
+| Host discloses no product version | security | **host-level** |
+| Host refuses TRACE | security | **host-level** |
+
+Host-level checks are measured once per host and referenced from the other
+APIs on it, so a 45-API batch across 3 hosts issues 3 TRACE requests, not 45.
+
+**Nothing here assumes a field the inventory does not carry.** Each check is
+gated on data this repo actually holds — the declared method, the `Access`
+column, `Request Parameters`, `Request Body`, or the resolved host — and
+reports `NOT_APPLICABLE` naming the field when it is absent, exactly as the
+original twelve do.
+
+**Safety.** No check sends a destructive method the endpoint did not declare.
+TRACE is the one undeclared method sent, and is safe by construction: it
+echoes, it mutates nothing, and the check exists because it should be refused.
+Idempotency is checked as a *declaration* rather than by repeating a write,
+which would mutate a real environment twice.
+
+**What is verified, and what is not.** All 22 collect under pytest (46
+parametrised cases) and the tier emits a well-formed result document with
+every result inside the seven states. The new assertions have **not** been
+exercised against a live endpoint from this clone — there is no `.env` here,
+so every case reports `NOT_APPLICABLE` and nothing executes. Running them for
+real needs registered base URLs and credentials.
+
 ## Theme
 
 A labelled switch in the top bar toggles light/dark, with the sun/moon pair

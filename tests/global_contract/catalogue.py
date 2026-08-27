@@ -95,6 +95,17 @@ GLOBAL_TEST_CATEGORIES = {
     "test_content_type_negotiation": "schema",
     "test_cors_preflight": "security",
     "test_special_characters_in_input": "security",
+    # --- added: cross-cutting checks every organisational API owes ---
+    "test_transport_is_https": "security",
+    "test_private_endpoint_rejects_anonymous_access": "security",
+    "test_error_response_is_machine_readable": "schema",
+    "test_error_response_hides_internals": "security",
+    "test_unsupported_media_type_rejected": "schema",
+    "test_declared_idempotency_matches_method": "functional",
+    "test_paginated_list_declares_page_metadata": "schema",
+    "test_security_headers_present": "security",
+    "test_no_server_version_disclosure": "security",
+    "test_trace_method_is_disabled": "security",
 }
 
 #: Tests that measure a host/gateway property rather than an endpoint property.
@@ -104,6 +115,10 @@ HOST_LEVEL_TESTS = frozenset(
     {
         "test_small_burst_does_not_trigger_immediate_blocking",
         "test_request_payload_size_enforcement",
+        # Gateway properties, not endpoint properties: measured once per host.
+        "test_security_headers_present",
+        "test_no_server_version_disclosure",
+        "test_trace_method_is_disabled",
     }
 )
 
