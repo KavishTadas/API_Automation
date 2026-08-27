@@ -626,6 +626,7 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .snapbar svg{width:16px;height:16px;flex-shrink:0}
 .snapbar span{flex:1;min-width:0}
 .snapbar b{font-weight:700}
+.snapbar .ro-badge{flex:0 0 auto}
 .ro-badge{flex-shrink:0;font:700 9.5px var(--sans);text-transform:uppercase;
   letter-spacing:.09em;padding:3px 9px;border-radius:99px;
   background:rgba(20,184,166,.16);border:1px solid rgba(20,184,166,.4)}
@@ -2628,7 +2629,8 @@ function masthead(R){
           aria-label="Toggle light and dark theme" title="Toggle light / dark theme">
           <span class="tt-sun">${svg(ICO.sun)}</span><span class="tt-moon">${svg(ICO.moon)}</span>
         </button>
-        <button class="ebtn-ico" id="eHistory" title="Report history">${svg(ICO.history)}</button>
+        ${STATE.shared?'':`<button class="ebtn-ico" id="eHistory"
+          title="Report history">${svg(ICO.history)}</button>`}
         <button class="ebtn ebtn-exp" id="eExport">${svg(ICO.download)} Export</button>
         <button class="ebtn ebtn-share" id="eShare"
           title="Download this report as a standalone HTML file">${svg(ICO.share)} Share</button>
@@ -3764,7 +3766,11 @@ const EXPORTERS={xlsx:exportXlsx, docx:exportDocx, html:exportHtml,
 /* Exports whichever run it is handed — the one on screen, or any archived
    snapshot straight from the history list. */
 function exportModal(run){
-  const R = run || STATE.result;
+  /* Called two ways: as a click handler, and with a specific run from the
+     history list. An Event is truthy, so `run || STATE.result` silently took
+     the event and exportModel threw on R.apis.forEach -- both Export buttons
+     opened nothing. Accept only something shaped like a result document. */
+  const R = (run && Array.isArray(run.apis)) ? run : STATE.result;
   if(!R){ toast('Nothing to export — run a batch first'); return; }
   const m=exportModel(R);
   const opts=[
@@ -3862,6 +3868,11 @@ function fmtAgo(iso){
 
 /* ---- history explorer ---------------------------------------------------- */
 function historyModal(){
+  /* A shared report has no archive of its own, and must not open the
+     recipient's. Without this guard the masthead button reached their
+     localStorage -- listing, exporting and clearing their runs -- which is
+     the opposite of what the banner promises. */
+  if(STATE.shared){ toast('This is a shared report — it has no run history'); return; }
   const snaps=loadSnaps().slice().reverse();
   const cur=STATE.result?STATE.result.runId:null;
   if(!snaps.length){
@@ -4114,6 +4125,7 @@ function renderMenu(){
          <i class="rs-dot" style="background:${cssv('--slate')}"></i>
          <span class="lb">View only</span></div>`
     ].join('');
+    host.querySelectorAll('[data-view]').forEach(b=> b.onclick=()=> go(b.dataset.view));
     host.querySelectorAll('[data-menu-act]').forEach(b=> b.onclick=()=>{
       if(b.dataset.menuAct==='export') exportModal();
     });

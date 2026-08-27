@@ -915,6 +915,57 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   ok('wide tables scroll inside their card rather than pushing the page',
      /\.card-b\{[^}]*overflow-x:auto/.test(css4));
 
+  console.log('\nevery control works when actually clicked:');
+  /* The export chooser regressed because exportModal gained a parameter while
+     staying wired as a bare handler -- an Event landed where a run document
+     was expected. The tests missed it by calling exportModal() directly.
+     These click the real controls the way a user does. */
+  goHome();
+  await wait(70);
+  click($('#btnSelAll'));
+  await wait(60);
+  click($('#btnRun'));
+  await wait(5600);
+
+  const clickOpensModal = (sel, label) => {
+    errs.length = 0;
+    const el = $(sel);
+    if (!el) { ok(`${label} exists`, false, sel + ' missing'); return; }
+    click(el);
+    const opened = $('#ovModal').classList.contains('open');
+    ok(`${label} opens when clicked`, opened && errs.length === 0,
+       errs[0] || 'modal did not open');
+    if (opened) click($('#mFoot [data-close]') || $('#ovModal [data-close]'));
+  };
+
+  clickOpensModal('#btnExport', 'the topbar Export button');
+  await wait(80);
+  goReport();
+  await wait(90);
+  clickOpensModal('#eExport', 'the masthead Export button');
+  await wait(80);
+  clickOpensModal('#eHistory', 'the masthead History button');
+  await wait(80);
+  goHome();
+  await wait(70);
+  clickOpensModal('#btnCurl', 'the Add cURL button');
+  await wait(80);
+
+  ok('no handler takes an Event where a run is expected', (() => {
+    // exportModal must ignore anything that is not a result document
+    const before = window.eval('STATE.result.runId');
+    window.eval("exportModal(new window.Event('click'))");
+    const stillOpen = $('#ovModal').classList.contains('open');
+    if (stillOpen) click($('#mFoot [data-close]'));
+    return stillOpen && window.eval('STATE.result.runId') === before;
+  })(), 'an Event was treated as a run');
+
+  ok('every menu row that claims a target has a handler',
+     $$('#railMenu .rail-item').filter(b => !b.disabled)
+       .every(b => typeof b.onclick === 'function'),
+     $$('#railMenu .rail-item').filter(b => !b.disabled && typeof b.onclick !== 'function')
+       .map(b => b.dataset.menuAct || b.dataset.view).join(',') || 'none');
+
   console.log('\nnavigator:');
   goHome();
   await wait(40);

@@ -210,6 +210,43 @@ function boot(html, opts) {
   ok('a viewer archives nothing locally',
      !v.w.localStorage.getItem('HCM_RUN_SNAPSHOTS'), 'the viewer wrote a snapshot');
 
+  console.log('\nthe viewer cannot reach the recipient archive:');
+  /* The shared build rendered #eHistory and historyModal had no guard, so a
+     recipient could list, export and CLEAR their own archived runs from
+     inside a file that promises it touches nothing. */
+  v.w.localStorage.setItem('HCM_RUN_SNAPSHOTS', JSON.stringify([{
+    runId: 'recipient-own-run', at: '2026-01-01T00:00:00Z', env: 'UAT',
+    gate: 'PASSED', passRate: 1, passRateApplicable: true, clean: true,
+    total: 5, passed: 5, failed: 0, apis: 1, simulated: false, durationMs: 1000,
+    result: { runId: 'recipient-own-run', apis: [],
+      summary: { total: 5, counts: {}, passRate: 1, passRateApplicable: true,
+                 clean: true, cleanBlockers: [] } } }]));
+
+  ok('the masthead renders no history button', !v.$('#eHistory'));
+  v.w.historyModal();
+  await wait(120);
+  ok('historyModal refuses even when called directly',
+     !v.$('#ovModal').classList.contains('open'));
+  ok('the recipient archive is left intact',
+     JSON.parse(v.w.localStorage.getItem('HCM_RUN_SNAPSHOTS') || '[]').length === 1,
+     'the viewer cleared it');
+  ok('nothing of the shared run was written to their storage',
+     !JSON.parse(v.w.localStorage.getItem('HCM_RUN_SNAPSHOTS'))[0].runId.startsWith('run-sim'));
+
+  const openRow = v.$('#railMenu [data-view="analytics"]');
+  ok('the Open Report row is wired, not decorative',
+     !!openRow && typeof openRow.onclick === 'function', 'dead control');
+  v.w.eval("STATE.view='nowhere'");
+  if (openRow) v.click(openRow);
+  await wait(110);
+  ok('and it routes to the report', v.w.eval('STATE.view') === 'analytics',
+     v.w.eval('STATE.view'));
+
+  const sharedCss = [...v.d.querySelectorAll('style')].map(x => x.textContent).join('\n');
+  ok('the read-only pill outranks .snapbar span',
+     /\.snapbar \.ro-badge\{flex:0 0 auto\}/.test(sharedCss),
+     'the pill would stretch across the banner');
+
   console.log('\nstandalone share:');
   let captured = null;
   a.w.download = (data, name) => { captured = { data, name }; };
