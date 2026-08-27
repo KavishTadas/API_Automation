@@ -122,6 +122,94 @@ function boot(html, opts) {
      'still on ' + (a.$('.snapbar') ? 'a snapshot' : 'unknown'));
 
   // ---------------------------------------------------------------- part 4
+  console.log('\nexport from history:');
+  a.w.historyModal();
+  await wait(90);
+  ok('every history row offers export',
+     a.$$('#ovModal [data-export-snap]').length === a.$$('#ovModal [data-open-snap]').length,
+     a.$$('#ovModal [data-export-snap]').length + ' of ' + a.$$('#ovModal [data-open-snap]').length);
+  ok('rows still offer new tab and open here',
+     !!a.$('#ovModal .hist-open') && !!a.$('#ovModal [data-open-here]'));
+
+  const olderId = snaps[0].runId;
+  a.click(a.$$('#ovModal [data-export-snap]').find(b => b.dataset.exportSnap === olderId));
+  await wait(90);
+  ok('exporting a row opens the chooser for that run',
+     /Export run/.test(a.$('#mTitle').textContent) && a.$('#mTitle').textContent.includes(olderId),
+     a.$('#mTitle').textContent);
+  const fmts = a.$$('#ovModal [data-exp]').map(b => b.dataset.exp);
+  ok('the chooser offers all six formats including html',
+     ['xlsx', 'docx', 'html', 'txt', 'csv', 'json'].every(f => fmts.includes(f)), fmts.join(','));
+
+  let got = null;
+  a.w.download = (data, name) => { got = { data, name }; };
+  a.click(a.$$('#ovModal [data-exp]').find(b => b.dataset.exp === 'xlsx'));
+  await wait(90);
+  ok('it exports the archived run, not the one on screen',
+     !!got && got.name.includes(olderId), got && got.name);
+  ok('the export is a real workbook', !!got && got.data[0] === 0x50 && got.data[1] === 0x4B);
+
+  got = null;
+  a.w.exportModal(a.w.snapById(olderId).result);
+  await wait(70);
+  a.click(a.$$('#ovModal [data-exp]').find(b => b.dataset.exp === 'html'));
+  await wait(90);
+  ok('html export produces a standalone file',
+     !!got && got.name.endsWith('.html') && /shared-snapshot/.test(got.data),
+     got && got.name);
+  const viewerHtml = got.data;
+
+  console.log('\nthe shared file is a viewer, not the console:');
+  const v = boot(viewerHtml);
+  await wait(240);
+  ok('it opens on the report', v.$('#view-analytics').classList.contains('active'));
+  ok('it says it is view only', /view only/i.test(v.$('#anMast').textContent));
+  ok('it carries a read-only badge', !!v.$('.ro-badge'));
+
+  const acts = v.$$('#railMenu .rail-item')
+    .map(b => b.dataset.menuAct || b.dataset.view).filter(Boolean);
+  ok('the menu offers only the report and export',
+     acts.length > 0 && acts.every(x => ['analytics', 'export'].includes(x)), acts.join(','));
+  ok('no suite list', !v.$('#railMenu [data-menu-act="suites"]'));
+  ok('no test-case explorer', !v.$('#railMenu [data-menu-act="cases"]'));
+  ok('no cURL import', !v.$('#railMenu [data-menu-act="curl"]'));
+  ok('no navigator', !v.$('#railMenu [data-menu-act="nav"]'));
+  ok('no report history', !v.$('#railMenu [data-menu-act="history"]'));
+  ok('the console rail lamp is hidden',
+     v.$$('.rail-btn[data-view]').filter(b => b.dataset.view !== 'analytics')
+       .every(b => b.style.display === 'none'));
+
+  // hiding a control is not enough — the calls themselves must refuse
+  v.w.eval("go('home')");
+  await wait(80);
+  ok('routing to the console is refused',
+     v.$('#view-analytics').classList.contains('active'), 'a viewer reached the console');
+
+  const beforeRun = v.w.eval('STATE.result.runId');
+  v.w.eval("STATE.selected = new Set(SEED.apis.slice(0,3).map(x => x.ref)); startRun([...STATE.selected]);");
+  await wait(500);
+  ok('running a batch is refused', v.w.eval('STATE.result.runId') === beforeRun,
+     'the run replaced the report');
+  ok('it says why', /cannot run tests/i.test(v.$('#toast').textContent || ''),
+     v.$('#toast').textContent);
+
+  v.w.eval('curlModal()');
+  await wait(80);
+  ok('importing an endpoint is refused',
+     !v.$('#ovModal').classList.contains('open') ||
+     /cannot add endpoints/i.test(v.$('#toast').textContent || ''));
+
+  let vOut = null;
+  v.w.download = (d, n) => { vOut = n; };
+  v.w.exportModal();
+  await wait(80);
+  const csvBtn = v.$$('#ovModal [data-exp]').find(x => x.dataset.exp === 'csv');
+  ok('a viewer can still take a copy of what it holds', !!csvBtn);
+  if (csvBtn) { v.click(csvBtn); await wait(80); }
+  ok('and the copy downloads', !!vOut && vOut.endsWith('.csv'), vOut);
+  ok('a viewer archives nothing locally',
+     !v.w.localStorage.getItem('HCM_RUN_SNAPSHOTS'), 'the viewer wrote a snapshot');
+
   console.log('\nstandalone share:');
   let captured = null;
   a.w.download = (data, name) => { captured = { data, name }; };

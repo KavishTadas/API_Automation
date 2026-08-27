@@ -59,7 +59,24 @@ Every export downloads a real file; nothing goes to the clipboard.
 | `.docx` | A circulatable report: title, quality gate, summary, endpoint table, defects, assertion gaps, contract rules, full result matrix. Repeating table headers and shaded state cells. |
 | `.txt` | Fixed-width, for a terminal or an email body. |
 | `.csv` | The result matrix only, BOM-led so Excel reads UTF-8. |
+| `.html` | The interactive dashboard in one file — **view only**, see below. |
 | `.json` | The raw result document, exactly as the engine emits it. |
+
+Every archived run carries its own **export** link in Report History, so a past
+run can be exported without opening it first. Files are named
+`HCM-API-Report-<runId>-<date>.<ext>` across all six formats.
+
+### The shared file is a viewer, not the console
+
+A `.html` export shows **one run and nothing else**: no suite list, no endpoint
+configuration, no batch runner, no cURL import, no history. Its menu offers the
+report and an export of it.
+
+This is enforced, not hidden. `go()` refuses any route but the report,
+`startRun()` and `curlModal()` refuse outright and say why, and the rail's
+console lamp is removed. A hidden button is still callable, so the calls
+themselves have to decline — there are tests that reach past the UI and invoke
+them directly.
 
 **Both OOXML formats are built in the page.** There is no library here, so
 `zipStore()` writes a ZIP with stored (uncompressed) entries — larger than a

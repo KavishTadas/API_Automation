@@ -68,7 +68,8 @@ const ok = (n, c, d) => { console.log((c ? '  PASS  ' : '  FAIL  ') + n + (c ? '
     if (captured.length) {
       const c = captured[0];
       ok(`  ${k} filename carries the run stamp and extension`,
-         c.name.startsWith('hcm-api-run-') && c.name.endsWith('.' + k), c.name);
+         c.name.startsWith('HCM-API-Report-') && c.name.includes(R.runId) &&
+         c.name.endsWith('.' + k), c.name);
       ok(`  ${k} is not empty`, c.bytes > 200, c.bytes + ' bytes');
     }
   }

@@ -626,6 +626,9 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .snapbar svg{width:16px;height:16px;flex-shrink:0}
 .snapbar span{flex:1;min-width:0}
 .snapbar b{font-weight:700}
+.ro-badge{flex-shrink:0;font:700 9.5px var(--sans);text-transform:uppercase;
+  letter-spacing:.09em;padding:3px 9px;border-radius:99px;
+  background:rgba(20,184,166,.16);border:1px solid rgba(20,184,166,.4)}
 
 /* ---------- history explorer ---------- */
 .hist-list{display:flex;flex-direction:column;gap:var(--gap-sm);max-height:58vh;overflow-y:auto}
@@ -930,6 +933,8 @@ table.pl tr:last-child td{border-bottom:0}
 
 /* ---- history row action ---- */
 .hist-act{display:flex;flex-direction:column;align-items:flex-end;gap:3px;white-space:nowrap}
+.hist-links{display:flex;align-items:center;gap:6px}
+.hist-links .dotsep{font-size:10px}
 .hist-open{display:inline-flex;align-items:center;gap:5px;font:600 11px var(--sans);
   color:var(--accent)}
 .hist-open svg{width:13px;height:13px}
@@ -2643,8 +2648,11 @@ function masthead(R){
 /* Says plainly when the report on screen is not the latest run. */
 function snapshotBanner(R){
   if(STATE.shared) return `<div class="snapbar shared">
-    ${svg(ICO.share)}<span><b>Shared report.</b> ${esc(R.runId)} from ${esc(fmtWhen(R.startedAt))},
-    embedded in this file. Nothing is read from or written to this browser.</span></div>`;
+    ${svg(ICO.share)}<span><b>Shared report &mdash; view only.</b> ${esc(R.runId)} from
+    ${esc(fmtWhen(R.startedAt))}, embedded in this file. It shows this one run: there is no
+    suite list, no endpoint configuration and no runner. Nothing is read from or written to
+    this browser.</span>
+    <span class="ro-badge">read-only</span></div>`;
   if(!STATE.viewing) return '';
   return `<div class="snapbar">
     ${svg(ICO.history)}<span><b>Viewing an archived run.</b> ${esc(R.runId)} from
@@ -3562,7 +3570,9 @@ function exportModel(R){
   return {R, rows, c, g, rules,
     gaps:rows.filter(x=>x.state==='NOT_ASSERTED'),
     fails:rows.filter(x=>x.state==='FAIL'),
-    stamp:(R.startedAt||'').replace(/[:.]/g,'-').replace('Z','') || R.runId};
+    /* Name every export after the run itself, the way the HTML export already
+       did. A timestamp alone made two files from different runs look alike. */
+    stamp:`${R.runId}-${(R.startedAt||'').slice(0,10) || 'undated'}`};
 }
 
 function exportXlsx(R){
@@ -3621,7 +3631,7 @@ function exportXlsx(R){
       cols:[{w:70},{w:12}], head:['Rule','Result'],
       rows:m.rules.map(r=>[r.t,{v:r.ok?'PASS':'FAIL', s:r.ok?5:6}])}
   ];
-  download(buildXlsx(sheets), `hcm-api-run-${m.stamp}.xlsx`,
+  download(buildXlsx(sheets), `HCM-API-Report-${m.stamp}.xlsx`,
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 }
 
@@ -3686,7 +3696,7 @@ function exportDocx(R){
     dP(`Generated from the run result document. Credentials are carried as an alias only; `+
        `no secret value appears in this report.`,{color:'6B7280', space:280})
   ].join('');
-  download(buildDocx(body), `hcm-api-run-${m.stamp}.docx`,
+  download(buildDocx(body), `HCM-API-Report-${m.stamp}.docx`,
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
 }
 
@@ -3728,11 +3738,11 @@ function exportTxt(R){
   L.push(pad('METHOD',8)+pad('ENDPOINT',40)+pad('CHECK',34)+pad('STATE',20)+'MS');
   m.rows.forEach(x=> L.push(pad(x.method,8)+pad(x.path,40)+pad(x.check,34)+pad(x.state,20)+x.ms));
   L.push('',bar,'Credentials are carried as an alias only; no secret value appears here.',bar);
-  download(L.join('\r\n'), `hcm-api-run-${m.stamp}.txt`, 'text/plain;charset=utf-8');
+  download(L.join('\r\n'), `HCM-API-Report-${m.stamp}.txt`, 'text/plain;charset=utf-8');
 }
 
 function exportJson(R){
-  download(JSON.stringify(R,null,2), `hcm-api-run-${exportModel(R).stamp}.json`,
+  download(JSON.stringify(R,null,2), `HCM-API-Report-${exportModel(R).stamp}.json`,
     'application/json;charset=utf-8');
 }
 function exportCsv(R){
@@ -3741,18 +3751,26 @@ function exportCsv(R){
   const head=['API ID','Module','Method','Endpoint Path','Check','State','Executed','Duration ms','Reason'];
   const lines=[head.map(q).join(',')].concat(
     m.rows.map(x=>[x.id,x.module,x.method,x.path,x.check,x.state,x.executed,x.ms,x.reason].map(q).join(',')));
-  download('﻿'+lines.join('\r\n'), `hcm-api-run-${m.stamp}.csv`, 'text/csv;charset=utf-8');
+  download('﻿'+lines.join('\r\n'), `HCM-API-Report-${m.stamp}.csv`, 'text/csv;charset=utf-8');
 }
 
-const EXPORTERS={xlsx:exportXlsx, docx:exportDocx, txt:exportTxt, json:exportJson, csv:exportCsv};
+function exportHtml(R){
+  download(buildStandalone(R), `HCM-API-Report-${exportModel(R).stamp}.html`,
+           'text/html;charset=utf-8');
+}
+const EXPORTERS={xlsx:exportXlsx, docx:exportDocx, html:exportHtml,
+                 txt:exportTxt, csv:exportCsv, json:exportJson};
 
-function exportModal(){
-  const R=STATE.result;
+/* Exports whichever run it is handed — the one on screen, or any archived
+   snapshot straight from the history list. */
+function exportModal(run){
+  const R = run || STATE.result;
   if(!R){ toast('Nothing to export — run a batch first'); return; }
   const m=exportModel(R);
   const opts=[
     ['xlsx','Excel workbook','.xlsx','6 styled sheets — summary, API overview, every result, defects, assertion gaps, contract rules. Frozen headers, autofilter, colour-coded states.'],
     ['docx','Word document','.docx','A formatted report — title, quality gate, summary and result tables with shaded state cells. Ready to circulate.'],
+    ['html','Standalone report','.html','The interactive dashboard in one file. Opens offline with no server, and is view-only — it cannot run or edit anything.'],
     ['txt','Plain text','.txt','Fixed-width report for a terminal, an email body, or a diff.'],
     ['csv','CSV','.csv','The result matrix only, for a pivot table.'],
     ['json','Result document','.json','The raw contract document, exactly as the engine emits it.']
@@ -3869,7 +3887,11 @@ function historyModal(){
         <span class="hist-dur">${(s.durationMs/1000).toFixed(1)}s<br><span class="hist-sub">${s.apis} APIs</span></span>
         <span class="hist-act">
           <span class="hist-open">${svg(ICO.newtab)} New tab</span>
-          <span class="linkbtn" data-open-here="${esc(s.runId)}" role="button">open here</span>
+          <span class="hist-links">
+            <span class="linkbtn" data-open-here="${esc(s.runId)}" role="button">open here</span>
+            <span class="dotsep">·</span>
+            <span class="linkbtn" data-export-snap="${esc(s.runId)}" role="button">export</span>
+          </span>
         </span>
       </button>`).join('')}</div>
      <div class="faint" style="font-size:11.5px;margin-top:12px">
@@ -3883,6 +3905,12 @@ function historyModal(){
   });
   $$('#ovModal [data-open-here]').forEach(b=> b.onclick=e=>{
     e.stopPropagation(); openSnapshot(b.dataset.openHere, true); closeModal();
+  });
+  $$('#ovModal [data-export-snap]').forEach(b=> b.onclick=e=>{
+    e.stopPropagation();
+    const snap=snapById(b.dataset.exportSnap);
+    if(!snap){ toast('That run is no longer archived'); return; }
+    exportModal(snap.result);            // replaces this modal with the chooser
   });
   $('#histClear').onclick=()=>{
     try{ localStorage.removeItem(SNAP_LS); }catch(e){}
@@ -3988,6 +4016,7 @@ function fallbackCopy(text){
 
 /* ----------------------------------------------------------- cURL import -- */
 function curlModal(){
+  if(STATE.shared){ toast('This is a shared report — it cannot add endpoints'); return; }
   openModal('Import API from cURL',
     `<label style="font-size:11.5px;color:var(--text-dim);font-weight:600">Paste a cURL command</label>
      <textarea id="curlIn" rows="8" placeholder="curl -X POST 'https://uatmcdphcmplatform.omfysgroup.com/api/v1/…' -H 'Content-Type: application/json' -d '{}'"></textarea>
@@ -4027,7 +4056,13 @@ function parseCurl(txt){
 }
 
 /* ---------------------------------------------------------------- events -- */
-function go(view){ STATE.view=view; persist(); syncView(); }
+function go(view){
+  /* A shared file has no console to go to. Guarding here rather than only
+     hiding the links: a stale hash or a keyboard shortcut would otherwise
+     land a viewer on a runner they cannot use. */
+  if(STATE.shared && view!=='analytics') view='analytics';
+  STATE.view=view; persist(); syncView();
+}
 
 /* ---------------------------------------------------------------------------
    Side menu. Present on every screen, so the report's own tab bar and the
@@ -4067,6 +4102,24 @@ function renderMenu(){
   const gaps=allApis().filter(a=>a.assertionState==='not-asserted').length;
   const mods=new Set(allApis().map(a=>a.module)).size;
   const onHome=STATE.view==='home';
+  if(STATE.shared){
+    /* Viewer build: the report, and the ability to take a copy of it. */
+    host.innerHTML=[
+      `<div class="rail-sec"><i class="rs-dot" style="background:${cssv('--blue')}"></i>Report</div>`,
+      menuRow({t:'Open Report', i:MENU_ICO.report, view:'analytics', tone:'--blue',
+               on:true, ct:R?(R.summary.counts.FAIL||null):null, bad:true}),
+      `<div class="rail-sec"><i class="rs-dot" style="background:${cssv('--amber')}"></i>Actions</div>`,
+      menuRow({t:'Export', i:MENU_ICO.export, act:'export', tone:'--amber'}),
+      `<div class="rail-gap" title="This file is a shared report. It shows one run and cannot run or change anything.">
+         <i class="rs-dot" style="background:${cssv('--slate')}"></i>
+         <span class="lb">View only</span></div>`
+    ].join('');
+    host.querySelectorAll('[data-menu-act]').forEach(b=> b.onclick=()=>{
+      if(b.dataset.menuAct==='export') exportModal();
+    });
+    return;
+  }
+
   host.innerHTML=[
     `<div class="rail-sec"><i class="rs-dot" style="background:${cssv('--accent')}"></i>Workbench</div>`,
     menuRow({t:'Suites & APIs', i:MENU_ICO.suites, act:'suites', tone:'--accent',
@@ -4108,6 +4161,11 @@ $('#btnRailCollapse').onclick = () => {
   try{ localStorage.setItem('hcm-rail', r.classList.contains('collapsed')?'1':'0'); }catch(e){}
 };
 function syncView(){
+  if(STATE.shared){
+    $$('.rail-btn[data-view]').forEach(b=>{
+      if(b.dataset.view!=='analytics') b.style.display='none';
+    });
+  }
   /* the rail has two lamps; 'detail' lights the Console lamp */
   const lamp = STATE.view==='detail' ? 'home' : STATE.view;
   $$('.rail-btn[data-view]').forEach(b=>b.classList.toggle('active', b.dataset.view===lamp));
@@ -4222,6 +4280,7 @@ function seedSampleHistory(quiet){
 /* Runs a batch, then hands off to the report view — the "View Report"
    contract: execute, then land on the Enterprise Overview for that run. */
 function startRun(refs){
+  if(STATE.shared){ toast('This is a shared report — it cannot run tests'); return; }
   if(STATE.running || !refs.length) return;
   STATE.running=true; syncSel();
   const prog=$('#runProg'), fill=$('#runProgFill');
