@@ -507,6 +507,20 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 [data-theme="dark"] #eTheme .tt-sun{display:none}
 [data-theme="dark"] #eTheme .tt-moon{display:inline-flex}
 
+/* ---------- export chooser ---------- */
+.exp-grid{display:grid;gap:var(--gap-sm)}
+.exp-opt{display:grid;grid-template-columns:64px 1fr;grid-template-rows:auto auto;
+  gap:2px var(--gap-md);align-items:center;width:100%;text-align:left;cursor:pointer;
+  padding:var(--pad-card);border:1px solid var(--line);border-radius:var(--r);
+  background:var(--panel-2);color:var(--text);font:inherit;transition:all .15s}
+.exp-opt:hover{border-color:var(--accent);background:var(--panel-hover)}
+.exp-opt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.exp-ext{grid-row:1/3;display:flex;align-items:center;justify-content:center;height:44px;
+  border-radius:8px;background:var(--accent-bg);border:1px solid var(--accent-line);
+  color:var(--accent);font:700 12px var(--mono)}
+.exp-t{font-size:13.5px;font-weight:700}
+.exp-d{font-size:11.5px;color:var(--text-faint);line-height:1.5}
+
 /* ---------- theme toggle ---------- */
 .themetog{display:inline-flex;align-items:center;gap:7px;background:var(--panel-2);
   border:1px solid var(--line);border-radius:99px;padding:4px 11px 4px 8px;cursor:pointer;
@@ -1644,9 +1658,7 @@ function renderAnalytics(){
     b.onclick=()=>{ STATE.persona=b.dataset.persona; persist(); syncPersona(); renderAnalytics(); };
   });
   const th=$('#eTheme'); if(th) th.onclick=toggleTheme;
-  const ex=$('#eExport'); if(ex) ex.onclick=()=>{
-    copy(JSON.stringify(STATE.result,null,2)); toast('Result document copied to clipboard');
-  };
+  const ex=$('#eExport'); if(ex) ex.onclick=exportModal;
   $$('#view-analytics [data-back]').forEach(b=> b.onclick=()=> go(b.dataset.back));
   $$('#view-analytics [data-goto]').forEach(b=> b.onclick=()=>{
     STATE.tab=b.dataset.goto; persist(); renderAnalytics();
@@ -2448,6 +2460,525 @@ h3. Notes
   $('#btnCopyJira').onclick=()=>{ copy(md); toast('Jira ticket copied'); };
 }
 
+/* ==========================================================================
+   EXPORT — real files, downloaded, not copied to the clipboard.
+
+   .xlsx and .docx are OOXML: a ZIP of XML parts. There is no library on this
+   page, so there is a small ZIP writer below. Entries are stored (method 0,
+   no compression) — the archive is larger than a deflated one but is a valid
+   OOXML package that Excel and Word open without a repair prompt.
+
+   Column layout follows api-docs/API_Documentation_Template.xlsx: a styled
+   header row, frozen panes, an autofilter, and sized columns.
+   ========================================================================== */
+
+/* ---- CRC32 + stored ZIP -------------------------------------------------- */
+let CRC_TABLE=null;
+function crcTable(){
+  if(CRC_TABLE) return CRC_TABLE;
+  CRC_TABLE=new Uint32Array(256);
+  for(let n=0;n<256;n++){
+    let c=n;
+    for(let k=0;k<8;k++) c = (c&1) ? (0xEDB88320 ^ (c>>>1)) : (c>>>1);
+    CRC_TABLE[n]=c>>>0;
+  }
+  return CRC_TABLE;
+}
+function crc32(bytes){
+  const t=crcTable(); let c=0xFFFFFFFF;
+  for(let i=0;i<bytes.length;i++) c = t[(c ^ bytes[i]) & 0xFF] ^ (c>>>8);
+  return (c ^ 0xFFFFFFFF)>>>0;
+}
+const utf8 = s => new TextEncoder().encode(s);
+
+function zipStore(files){
+  const enc=[], chunks=[]; let offset=0;
+  for(const f of files){
+    const name=utf8(f.name), data=(typeof f.data==='string')?utf8(f.data):f.data;
+    const crc=crc32(data);
+    const local=new Uint8Array(30+name.length);
+    const dv=new DataView(local.buffer);
+    dv.setUint32(0,0x04034b50,true);      // local file header
+    dv.setUint16(4,20,true);              // version needed
+    dv.setUint16(6,0x0800,true);          // UTF-8 filename flag
+    dv.setUint16(8,0,true);               // stored
+    dv.setUint16(10,0,true); dv.setUint16(12,0x2100,true);  // fixed time/date
+    dv.setUint32(14,crc,true);
+    dv.setUint32(18,data.length,true);
+    dv.setUint32(22,data.length,true);
+    dv.setUint16(26,name.length,true);
+    dv.setUint16(28,0,true);
+    local.set(name,30);
+    chunks.push(local,data);
+    enc.push({name,crc,size:data.length,offset});
+    offset += local.length + data.length;
+  }
+  const central=[];
+  let cSize=0;
+  for(const e of enc){
+    const h=new Uint8Array(46+e.name.length);
+    const dv=new DataView(h.buffer);
+    dv.setUint32(0,0x02014b50,true);
+    dv.setUint16(4,20,true); dv.setUint16(6,20,true);
+    dv.setUint16(8,0x0800,true); dv.setUint16(10,0,true);
+    dv.setUint16(12,0,true); dv.setUint16(14,0x2100,true);
+    dv.setUint32(16,e.crc,true);
+    dv.setUint32(20,e.size,true); dv.setUint32(24,e.size,true);
+    dv.setUint16(28,e.name.length,true);
+    dv.setUint32(42,e.offset,true);
+    h.set(e.name,46);
+    central.push(h); cSize+=h.length;
+  }
+  const end=new Uint8Array(22);
+  const ev=new DataView(end.buffer);
+  ev.setUint32(0,0x06054b50,true);
+  ev.setUint16(8,enc.length,true); ev.setUint16(10,enc.length,true);
+  ev.setUint32(12,cSize,true); ev.setUint32(16,offset,true);
+  const all=chunks.concat(central,[end]);
+  const total=all.reduce((n,a)=>n+a.length,0);
+  const out=new Uint8Array(total);
+  let p=0; for(const a of all){ out.set(a,p); p+=a.length; }
+  return out;
+}
+
+function download(data, name, mime){
+  const blob=new Blob([data],{type:mime});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=name; a.style.display='none';
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 250);
+}
+
+const xe = s => String(s==null?'':s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&apos;')
+  .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,'');   // XML 1.0 forbids these
+
+/* ---- xlsx ---------------------------------------------------------------- */
+const COL = n => { let s=''; n++; while(n>0){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=(n-m-1)/26; } return s; };
+
+/* style ids used by cell(): 0 body · 1 title · 2 header · 3 mono · 4 bold
+   5 PASS · 6 FAIL · 7 WARN · 8 muted · 9 gap · 10 label */
+const XL_STYLES = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<fonts count="8">
+<font><sz val="11"/><name val="Calibri"/></font>
+<font><b/><sz val="16"/><color rgb="FF1F5F5B"/><name val="Calibri"/></font>
+<font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font>
+<font><sz val="10"/><name val="Consolas"/></font>
+<font><b/><sz val="11"/><name val="Calibri"/></font>
+<font><sz val="11"/><color rgb="FF6B7280"/><name val="Calibri"/></font>
+<font><b/><sz val="11"/><color rgb="FF14532D"/><name val="Calibri"/></font>
+<font><b/><sz val="11"/><color rgb="FF7F1D1D"/><name val="Calibri"/></font>
+</fonts>
+<fills count="8">
+<fill><patternFill patternType="none"/></fill>
+<fill><patternFill patternType="gray125"/></fill>
+<fill><patternFill patternType="solid"><fgColor rgb="FF1F5F5B"/><bgColor indexed="64"/></patternFill></fill>
+<fill><patternFill patternType="solid"><fgColor rgb="FFDCFCE7"/><bgColor indexed="64"/></patternFill></fill>
+<fill><patternFill patternType="solid"><fgColor rgb="FFFEE2E2"/><bgColor indexed="64"/></patternFill></fill>
+<fill><patternFill patternType="solid"><fgColor rgb="FFFEF3C7"/><bgColor indexed="64"/></patternFill></fill>
+<fill><patternFill patternType="solid"><fgColor rgb="FFF3E8FF"/><bgColor indexed="64"/></patternFill></fill>
+<fill><patternFill patternType="solid"><fgColor rgb="FFF1F5F9"/><bgColor indexed="64"/></patternFill></fill>
+</fills>
+<borders count="2">
+<border><left/><right/><top/><bottom/><diagonal/></border>
+<border><left style="thin"><color rgb="FFD6DEE8"/></left><right style="thin"><color rgb="FFD6DEE8"/></right><top style="thin"><color rgb="FFD6DEE8"/></top><bottom style="thin"><color rgb="FFD6DEE8"/></bottom><diagonal/></border>
+</borders>
+<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+<cellXfs count="11">
+<xf numFmtId="0" fontId="0" fillId="0" borderId="1" applyBorder="1"><alignment vertical="top" wrapText="1"/></xf>
+<xf numFmtId="0" fontId="1" fillId="0" borderId="0" applyFont="1"><alignment vertical="center"/></xf>
+<xf numFmtId="0" fontId="2" fillId="2" borderId="1" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center" wrapText="1"/></xf>
+<xf numFmtId="0" fontId="3" fillId="0" borderId="1" applyFont="1" applyBorder="1"><alignment vertical="top" wrapText="1"/></xf>
+<xf numFmtId="0" fontId="4" fillId="0" borderId="1" applyFont="1" applyBorder="1"><alignment vertical="top"/></xf>
+<xf numFmtId="0" fontId="6" fillId="3" borderId="1" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>
+<xf numFmtId="0" fontId="7" fillId="4" borderId="1" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>
+<xf numFmtId="0" fontId="4" fillId="5" borderId="1" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>
+<xf numFmtId="0" fontId="5" fillId="0" borderId="1" applyFont="1" applyBorder="1"><alignment vertical="top" wrapText="1"/></xf>
+<xf numFmtId="0" fontId="4" fillId="6" borderId="1" applyFont="1" applyFill="1" applyBorder="1"><alignment horizontal="center" vertical="center"/></xf>
+<xf numFmtId="0" fontId="4" fillId="7" borderId="1" applyFont="1" applyFill="1" applyBorder="1"><alignment vertical="top"/></xf>
+</cellXfs>
+<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>
+</styleSheet>`;
+
+const STATE_STYLE={PASS:5,FAIL:6,WARN:7,SKIPPED_NO_TOKEN:7,NOT_APPLICABLE:8,NOT_ASSERTED:9,INFORMATIONAL:8,PLANNED:8};
+
+function xlCell(ref, v, style){
+  if(v==null||v==='') return `<c r="${ref}" s="${style||0}"/>`;
+  if(typeof v==='number' && isFinite(v)) return `<c r="${ref}" s="${style||0}"><v>${v}</v></c>`;
+  return `<c r="${ref}" s="${style||0}" t="inlineStr"><is><t xml:space="preserve">${xe(v)}</t></is></c>`;
+}
+
+/* sheet = {name, title, cols:[{w}], head:[...], rows:[[{v,s}|value,...]] } */
+function xlSheet(sh){
+  const out=[];
+  let r=1;
+  if(sh.title){ out.push(`<row r="1" ht="24" customHeight="1">${xlCell('A1',sh.title,1)}</row>`); r=2; out.push(`<row r="2" ht="6" customHeight="1"/>`); r=3; }
+  const headRow=r;
+  out.push(`<row r="${r}" ht="26" customHeight="1">` +
+    sh.head.map((h,i)=>xlCell(COL(i)+r,h,2)).join('') + `</row>`);
+  r++;
+  for(const row of sh.rows){
+    out.push(`<row r="${r}">` + row.map((cell,i)=>{
+      const v = (cell && typeof cell==='object' && 'v' in cell) ? cell.v : cell;
+      const s = (cell && typeof cell==='object' && 's' in cell) ? cell.s : (i===0?4:0);
+      return xlCell(COL(i)+r, v, s);
+    }).join('') + `</row>`);
+    r++;
+  }
+  const lastCol=COL(sh.head.length-1);
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<sheetPr><tabColor rgb="FF1F5F5B"/></sheetPr>
+<sheetViews><sheetView workbookViewId="0"${sh.title?'':''}>
+<pane ySplit="${headRow}" topLeftCell="A${headRow+1}" activePane="bottomLeft" state="frozen"/>
+</sheetView></sheetViews>
+<sheetFormatPr defaultRowHeight="15"/>
+<cols>${(sh.cols||[]).map((c,i)=>`<col min="${i+1}" max="${i+1}" width="${c.w}" customWidth="1"/>`).join('')}</cols>
+<sheetData>${out.join('')}</sheetData>
+<autoFilter ref="A${headRow}:${lastCol}${Math.max(headRow, r-1)}"/>
+</worksheet>`;
+}
+
+function buildXlsx(sheets){
+  const parts=[
+    {name:'[Content_Types].xml', data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+<Default Extension="xml" ContentType="application/xml"/>
+<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+${sheets.map((s,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}
+</Types>`},
+    {name:'_rels/.rels', data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>`},
+    {name:'xl/workbook.xml', data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<sheets>${sheets.map((s,i)=>`<sheet name="${xe(s.name)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')}</sheets>
+</workbook>`},
+    {name:'xl/_rels/workbook.xml.rels', data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+${sheets.map((s,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')}
+<Relationship Id="rId${sheets.length+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`},
+    {name:'xl/styles.xml', data:XL_STYLES}
+  ];
+  sheets.forEach((s,i)=> parts.push({name:`xl/worksheets/sheet${i+1}.xml`, data:xlSheet(s)}));
+  return zipStore(parts);
+}
+
+/* ---- docx ---------------------------------------------------------------- */
+const W='xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"';
+const dP = (text, opt) => {
+  const o=opt||{};
+  return `<w:p><w:pPr>${o.style?`<w:pStyle w:val="${o.style}"/>`:''}` +
+    `${o.space?`<w:spacing w:before="${o.space}" w:after="80"/>`:'<w:spacing w:after="80"/>'}</w:pPr>` +
+    `<w:r><w:rPr>${o.b?'<w:b/>':''}${o.mono?'<w:rFonts w:ascii="Consolas" w:hAnsi="Consolas"/><w:sz w:val="18"/>':''}` +
+    `${o.color?`<w:color w:val="${o.color}"/>`:''}${o.sz?`<w:sz w:val="${o.sz}"/>`:''}</w:rPr>` +
+    `<w:t xml:space="preserve">${xe(text)}</w:t></w:r></w:p>`;
+};
+const dCell = (text, opt) => {
+  const o=opt||{};
+  return `<w:tc><w:tcPr><w:tcW w:w="${o.w||0}" w:type="dxa"/>` +
+    `${o.fill?`<w:shd w:val="clear" w:color="auto" w:fill="${o.fill}"/>`:''}` +
+    `<w:tcMar><w:top w:w="60" w:type="dxa"/><w:bottom w:w="60" w:type="dxa"/>` +
+    `<w:left w:w="90" w:type="dxa"/><w:right w:w="90" w:type="dxa"/></w:tcMar></w:tcPr>` +
+    dP(text,{b:o.b,mono:o.mono,color:o.color,sz:o.sz||18}) + `</w:tc>`;
+};
+function dTable(head, rows, widths){
+  const w = widths || head.map(()=>Math.floor(9360/head.length));
+  return `<w:tbl><w:tblPr><w:tblW w:w="9360" w:type="dxa"/>` +
+    `<w:tblBorders>${['top','left','bottom','right','insideH','insideV']
+      .map(b=>`<w:${b} w:val="single" w:sz="4" w:space="0" w:color="D6DEE8"/>`).join('')}</w:tblBorders>` +
+    `<w:tblLayout w:type="fixed"/></w:tblPr>` +
+    `<w:tblGrid>${w.map(x=>`<w:gridCol w:w="${x}"/>`).join('')}</w:tblGrid>` +
+    `<w:tr><w:trPr><w:tblHeader/></w:trPr>` +
+      head.map((h,i)=>dCell(h,{w:w[i],b:true,fill:'1F5F5B',color:'FFFFFF'})).join('') + `</w:tr>` +
+    rows.map(r=>`<w:tr>` + r.map((c,i)=>{
+      const v=(c&&typeof c==='object')?c.v:c, f=(c&&typeof c==='object')?c.fill:null;
+      return dCell(v,{w:w[i],fill:f,mono:(c&&c.mono)});
+    }).join('') + `</w:tr>`).join('') + `</w:tbl>` + dP('');
+}
+const DOCX_STYLES=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles ${W}>
+<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="20"/></w:rPr></w:rPrDefault></w:docDefaults>
+<w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:pPr><w:spacing w:after="120"/></w:pPr><w:rPr><w:b/><w:sz w:val="40"/><w:color w:val="1F5F5B"/></w:rPr></w:style>
+<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:pPr><w:spacing w:before="280" w:after="120"/><w:pBdr><w:bottom w:val="single" w:sz="6" w:color="1F5F5B"/></w:pBdr></w:pPr><w:rPr><w:b/><w:sz w:val="26"/><w:color w:val="1F5F5B"/></w:rPr></w:style>
+<w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:pPr><w:spacing w:before="200" w:after="80"/></w:pPr><w:rPr><w:b/><w:sz w:val="22"/></w:rPr></w:style>
+</w:styles>`;
+
+function buildDocx(bodyXml){
+  return zipStore([
+    {name:'[Content_Types].xml', data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+<Default Extension="xml" ContentType="application/xml"/>
+<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+</Types>`},
+    {name:'_rels/.rels', data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`},
+    {name:'word/_rels/document.xml.rels', data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`},
+    {name:'word/styles.xml', data:DOCX_STYLES},
+    {name:'word/document.xml', data:`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document ${W}><w:body>${bodyXml}
+<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1000" w:right="1000" w:bottom="1000" w:left="1000"/></w:sectPr>
+</w:body></w:document>`}
+  ]);
+}
+
+/* ---- the run, shaped once and reused by every format --------------------- */
+function exportModel(R){
+  const rows=[];
+  R.apis.forEach(a=>{
+    const api=apiByRef(a.apiRef);
+    a.results.forEach(r=> rows.push({
+      id:api?displayId(api):'—',
+      module:api?api.module:'—',
+      method:api?api.method:'',
+      path:api?api.path:'',
+      host:api?(api.baseUrl||hostForModule(api)):'',
+      check:titleFor(r.testId),
+      testId:r.testId,
+      state:r.state,
+      executed:r.executed!==false?'Yes':'No',
+      ms:Math.round(r.durationMs||0),
+      reason:r.reason||'',
+      measuredBy:r.measuredBy||'',
+      blockedBy:r.blockedBy||'',
+      source:a.provenance?a.provenance.sourceType:'',
+      collection:a.provenance?(a.provenance.sourceCollection||''):''
+    }));
+  });
+  const c=R.summary.counts, g=qualityGate(R), rules=contractRules(R);
+  return {R, rows, c, g, rules,
+    gaps:rows.filter(x=>x.state==='NOT_ASSERTED'),
+    fails:rows.filter(x=>x.state==='FAIL'),
+    stamp:(R.startedAt||'').replace(/[:.]/g,'-').replace('Z','') || R.runId};
+}
+
+function exportXlsx(R){
+  const m=exportModel(R), {c,g}=m;
+  const st = s => ({v:s, s:STATE_STYLE[s]||0});
+  const sheets=[
+    { name:'Run_Summary', title:'HCM Platform API — Run Summary',
+      cols:[{w:34},{w:52}], head:['Field','Value'],
+      rows:[
+        ['Run id', m.R.runId], ['Started', m.R.startedAt||'—'],
+        ['Environment', m.R.environment], ['Catalogue version', m.R.catalogueVersion],
+        ['Engine status', m.R.status], ['Quality gate', {v:g.level, s:g.level==='PASSED'?5:g.level==='FAILED'?6:7}],
+        ['Gate reason', g.why],
+        ['Simulated run', m.R.simulated?'Yes — no engine attached':'No'],
+        ['', ''],
+        ['Pass rate', m.R.summary.passRateApplicable?pct(m.R.summary.passRate):'n/a — nothing asserted'],
+        ['Pass-rate basis', m.R.summary.passRateBasis],
+        ['Clean', m.R.summary.clean?'Yes':'No'],
+        ['Clean blockers', m.R.summary.cleanBlockers.join(', ')||'none'],
+        ['', ''],
+        ['Total results', m.R.summary.total],
+        ['Referenced host results', m.R.summary.referencedHostResults||0],
+        ['PASS', {v:c.PASS||0, s:5}], ['FAIL', {v:c.FAIL||0, s:6}],
+        ['WARN', {v:c.WARN||0, s:7}], ['SKIPPED_NO_TOKEN', {v:c.SKIPPED_NO_TOKEN||0, s:7}],
+        ['NOT_APPLICABLE', {v:c.NOT_APPLICABLE||0, s:8}],
+        ['NOT_ASSERTED', {v:c.NOT_ASSERTED||0, s:9}],
+        ['INFORMATIONAL', {v:c.INFORMATIONAL||0, s:8}],
+        ['', ''],
+        ['Contract rules passed', `${m.rules.filter(r=>r.ok).length} of ${m.rules.length}`]
+      ]},
+    { name:'API_Overview', title:'API Overview — one row per endpoint in this run',
+      cols:[{w:11},{w:30},{w:11},{w:46},{w:38},{w:12},{w:11},{w:9},{w:22}],
+      head:['API ID','Module','HTTP Method','Endpoint Path','Base URL','Pass rate','Results','Clean','Blockers'],
+      rows:m.R.apis.map(a=>{ const api=apiByRef(a.apiRef), s=a.summary; return [
+        api?displayId(api):'—', api?api.module:'—', api?api.method:'', api?api.path:'',
+        api?(api.baseUrl||hostForModule(api)):'',
+        s.passRateApplicable?pct(s.passRate):'n/a', s.total,
+        {v:s.clean?'Yes':'No', s:s.clean?5:7}, s.cleanBlockers.join(', ')||'—'];})},
+    { name:'Test_Results', title:'Test results — every check, every endpoint',
+      cols:[{w:11},{w:26},{w:9},{w:40},{w:40},{w:19},{w:10},{w:9},{w:60}],
+      head:['API ID','Module','Method','Endpoint Path','Check','State','Executed','Duration ms','Reason'],
+      rows:m.rows.map(x=>[x.id,x.module,x.method,x.path,x.check,st(x.state),x.executed,x.ms,x.reason])},
+    { name:'Defects', title:`Defects — ${m.fails.length} assertion failure(s)`,
+      cols:[{w:11},{w:26},{w:9},{w:40},{w:40},{w:60},{w:70}],
+      head:['API ID','Module','Method','Endpoint Path','Check','Reason','Reproduce (cURL)'],
+      rows:m.fails.length?m.fails.map(x=>{
+        const api=allApis().find(a=>a.path===x.path&&a.method===x.method);
+        return [x.id,x.module,x.method,x.path,x.check,x.reason,{v:api?curlFor(api):'', s:3}];})
+        :[['—','No assertion failed in this run','','','','','']]},
+    { name:'Assertion_Gaps', title:`Assertion gaps — ${m.gaps.length} request(s) that assert nothing (D7)`,
+      cols:[{w:11},{w:26},{w:9},{w:44},{w:60}],
+      head:['API ID','Module','Method','Endpoint Path','Note'],
+      rows:m.gaps.length?m.gaps.map(x=>[x.id,x.module,x.method,x.path,x.reason])
+        :[['—','No assertion gaps in this run','','','']]},
+    { name:'Contract_Rules', title:'Contract rules checked against this run',
+      cols:[{w:70},{w:12}], head:['Rule','Result'],
+      rows:m.rules.map(r=>[r.t,{v:r.ok?'PASS':'FAIL', s:r.ok?5:6}])}
+  ];
+  download(buildXlsx(sheets), `hcm-api-run-${m.stamp}.xlsx`,
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+}
+
+function exportDocx(R){
+  const m=exportModel(R), {c,g}=m;
+  const tone = s => ({PASS:'DCFCE7',FAIL:'FEE2E2',WARN:'FEF3C7',SKIPPED_NO_TOKEN:'FEF3C7',
+                      NOT_ASSERTED:'F3E8FF'}[s]||null);
+  const body=[
+    dP('HCM Platform API — Test Report',{style:'Title'}),
+    dP(`${m.R.environment} · ${m.R.runId} · ${m.R.startedAt||''}${m.R.simulated?' · simulated run':''}`,
+       {color:'6B7280'}),
+    dP(`Quality gate: ${g.level} — ${g.why}`,
+       {b:true, sz:24, color:g.level==='PASSED'?'14532D':g.level==='FAILED'?'7F1D1D':'92400E'}),
+
+    dP('Summary',{style:'Heading1'}),
+    dTable(['Metric','Value'],[
+      ['Pass rate', m.R.summary.passRateApplicable?pct(m.R.summary.passRate):'n/a — nothing asserted'],
+      ['Pass-rate basis', m.R.summary.passRateBasis],
+      ['Clean', (m.R.summary.clean?'Yes':'No') + (m.R.summary.cleanBlockers.length?` (blocked by ${m.R.summary.cleanBlockers.join(', ')})`:'')],
+      ['Total results', String(m.R.summary.total)],
+      ['PASS / FAIL', `${c.PASS||0} / ${c.FAIL||0}`],
+      ['WARN / blocked', `${c.WARN||0} / ${c.SKIPPED_NO_TOKEN||0}`],
+      ['Not applicable / not asserted', `${c.NOT_APPLICABLE||0} / ${c.NOT_ASSERTED||0}`],
+      ['Contract rules', `${m.rules.filter(r=>r.ok).length} of ${m.rules.length} passed`]
+    ],[3200,6160]),
+
+    dP('Endpoints in this run',{style:'Heading1'}),
+    dTable(['API','Module','Endpoint','Pass rate','Clean'],
+      m.R.apis.map(a=>{const api=apiByRef(a.apiRef), s=a.summary; return [
+        api?displayId(api):'—', api?api.module:'—',
+        {v:(api?api.method+' '+api.path:''), mono:true},
+        s.passRateApplicable?pct(s.passRate):'n/a',
+        {v:s.clean?'Yes':'No', fill:s.clean?'DCFCE7':'FEF3C7'}];}),
+      [900,1900,4060,1300,1200]),
+
+    dP('Defects',{style:'Heading1'}),
+    m.fails.length
+      ? dTable(['Endpoint','Check','Reason'],
+          m.fails.map(x=>[{v:x.method+' '+x.path,mono:true},x.check,{v:x.reason,fill:'FEE2E2'}]),
+          [2900,2400,4060])
+      : dP('No assertion failed in this run.',{color:'6B7280'}),
+
+    dP('Assertion gaps',{style:'Heading1'}),
+    dP('An unasserted request executes and returns, but nothing is asserted about the response. '+
+       'It is counted separately and never rendered as a pass (D7).',{color:'6B7280'}),
+    m.gaps.length
+      ? dTable(['Endpoint','Module','Note'],
+          m.gaps.map(x=>[{v:x.method+' '+x.path,mono:true},x.module,{v:x.reason,fill:'F3E8FF'}]),
+          [3200,2200,3960])
+      : dP('No assertion gaps in this run.',{color:'6B7280'}),
+
+    dP('Contract rules',{style:'Heading1'}),
+    dTable(['Rule','Result'],
+      m.rules.map(r=>[r.t,{v:r.ok?'PASS':'FAIL', fill:tone(r.ok?'PASS':'FAIL')}]),[7360,2000]),
+
+    dP('All results',{style:'Heading1'}),
+    dTable(['Endpoint','Check','State','ms'],
+      m.rows.map(x=>[{v:x.method+' '+x.path,mono:true}, x.check,
+                     {v:x.state, fill:tone(x.state)}, String(x.ms)]),
+      [3100,3300,1960,1000]),
+
+    dP(`Generated from the run result document. Credentials are carried as an alias only; `+
+       `no secret value appears in this report.`,{color:'6B7280', space:280})
+  ].join('');
+  download(buildDocx(body), `hcm-api-run-${m.stamp}.docx`,
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+}
+
+function exportTxt(R){
+  const m=exportModel(R), {c,g}=m;
+  const bar='='.repeat(78), dash='-'.repeat(78);
+  const pad=(s,n)=>String(s==null?'':s).slice(0,n).padEnd(n);
+  const L=[];
+  L.push(bar,'HCM PLATFORM API — TEST REPORT',bar,'');
+  L.push(`Run          : ${m.R.runId}`);
+  L.push(`Started      : ${m.R.startedAt||'—'}`);
+  L.push(`Environment  : ${m.R.environment}`);
+  L.push(`Engine status: ${m.R.status}${m.R.simulated?'   (simulated run — no engine attached)':''}`);
+  L.push(`Quality gate : ${g.level} — ${g.why}`,'');
+  L.push(dash,'SUMMARY',dash);
+  L.push(`Pass rate    : ${m.R.summary.passRateApplicable?pct(m.R.summary.passRate):'n/a — nothing asserted'}`);
+  L.push(`Basis        : ${m.R.summary.passRateBasis}`);
+  L.push(`Clean        : ${m.R.summary.clean?'yes':'no'}${m.R.summary.cleanBlockers.length?'  (blocked by '+m.R.summary.cleanBlockers.join(', ')+')':''}`);
+  L.push(`Total results: ${m.R.summary.total}   (referenced host results: ${m.R.summary.referencedHostResults||0})`,'');
+  STATES.forEach(s=> L.push(`  ${pad(s,20)} ${String(c[s]||0).padStart(5)}`));
+  L.push('',dash,`ENDPOINTS (${m.R.apis.length})`,dash);
+  L.push(pad('API',9)+pad('METHOD',8)+pad('ENDPOINT',46)+pad('PASS',9)+'CLEAN');
+  m.R.apis.forEach(a=>{ const api=apiByRef(a.apiRef), s=a.summary;
+    L.push(pad(api?displayId(api):'—',9)+pad(api?api.method:'',8)+pad(api?api.path:'',46)+
+           pad(s.passRateApplicable?pct(s.passRate):'n/a',9)+(s.clean?'yes':'no')); });
+  if(m.fails.length){
+    L.push('',dash,`DEFECTS (${m.fails.length})`,dash);
+    m.fails.forEach((x,i)=>{ L.push(`${i+1}. ${x.method} ${x.path}`); L.push(`   check : ${x.check}`);
+      L.push(`   reason: ${x.reason}`,''); });
+  }
+  if(m.gaps.length){
+    L.push('',dash,`ASSERTION GAPS (${m.gaps.length})`,dash);
+    L.push('An unasserted request executes but is never rendered as a pass (D7).','');
+    m.gaps.forEach(x=> L.push(`  ${pad(x.method,8)}${pad(x.path,52)}${x.module}`));
+  }
+  L.push('',dash,'CONTRACT RULES',dash);
+  m.rules.forEach(r=> L.push(`  [${r.ok?'PASS':'FAIL'}] ${r.t}`));
+  L.push('',dash,`ALL RESULTS (${m.rows.length})`,dash);
+  L.push(pad('METHOD',8)+pad('ENDPOINT',40)+pad('CHECK',34)+pad('STATE',20)+'MS');
+  m.rows.forEach(x=> L.push(pad(x.method,8)+pad(x.path,40)+pad(x.check,34)+pad(x.state,20)+x.ms));
+  L.push('',bar,'Credentials are carried as an alias only; no secret value appears here.',bar);
+  download(L.join('\r\n'), `hcm-api-run-${m.stamp}.txt`, 'text/plain;charset=utf-8');
+}
+
+function exportJson(R){
+  download(JSON.stringify(R,null,2), `hcm-api-run-${exportModel(R).stamp}.json`,
+    'application/json;charset=utf-8');
+}
+function exportCsv(R){
+  const m=exportModel(R);
+  const q=v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`;
+  const head=['API ID','Module','Method','Endpoint Path','Check','State','Executed','Duration ms','Reason'];
+  const lines=[head.map(q).join(',')].concat(
+    m.rows.map(x=>[x.id,x.module,x.method,x.path,x.check,x.state,x.executed,x.ms,x.reason].map(q).join(',')));
+  download('﻿'+lines.join('\r\n'), `hcm-api-run-${m.stamp}.csv`, 'text/csv;charset=utf-8');
+}
+
+const EXPORTERS={xlsx:exportXlsx, docx:exportDocx, txt:exportTxt, json:exportJson, csv:exportCsv};
+
+function exportModal(){
+  const R=STATE.result;
+  if(!R){ toast('Nothing to export — run a batch first'); return; }
+  const m=exportModel(R);
+  const opts=[
+    ['xlsx','Excel workbook','.xlsx','6 styled sheets — summary, API overview, every result, defects, assertion gaps, contract rules. Frozen headers, autofilter, colour-coded states.'],
+    ['docx','Word document','.docx','A formatted report — title, quality gate, summary and result tables with shaded state cells. Ready to circulate.'],
+    ['txt','Plain text','.txt','Fixed-width report for a terminal, an email body, or a diff.'],
+    ['csv','CSV','.csv','The result matrix only, for a pivot table.'],
+    ['json','Result document','.json','The raw contract document, exactly as the engine emits it.']
+  ];
+  openModal('Export run — ' + R.runId,
+    `<div class="exp-grid">${opts.map(o=>`
+      <button class="exp-opt" data-exp="${o[0]}">
+        <span class="exp-ext">${esc(o[2])}</span>
+        <span class="exp-t">${esc(o[1])}</span>
+        <span class="exp-d">${esc(o[3])}</span>
+      </button>`).join('')}</div>
+     <div class="faint" style="font-size:11.5px;margin-top:12px">
+       ${m.rows.length} result(s) across ${m.R.apis.length} endpoint(s).
+       Files download straight to your browser. Credentials are carried as an alias
+       only — no secret value is written to any export.
+     </div>`,
+    `<button class="btn" data-close>Close</button>`);
+  $$('#ovModal [data-exp]').forEach(b=> b.onclick=()=>{
+    const k=b.dataset.exp;
+    try{ EXPORTERS[k](R); toast(`Downloading ${k.toUpperCase()}…`); closeModal(); }
+    catch(e){ toast('Export failed: '+e.message); }
+  });
+}
+
+
 /* ---------------------------------------------------------------- modal -- */
 function openModal(title, body, foot){
   $('#mTitle').textContent=title; $('#mBody').innerHTML=body; $('#mFoot').innerHTML=foot||'';
@@ -2567,8 +3098,7 @@ function renderMenu(){
     }
     if(a==='curl')   curlModal();
     if(a==='nav')    openNav();
-    if(a==='export'){ if(!STATE.result){ toast('Nothing to export — run a batch first'); return; }
-                      copy(JSON.stringify(STATE.result,null,2)); toast('Result document copied to clipboard'); }
+    if(a==='export') exportModal();
   });
 }
 $('#btnRailCollapse').onclick = () => {
@@ -2646,11 +3176,7 @@ $('#btnTheme').onclick = toggleTheme;
 $('#btnTheme').onkeydown = e => {
   if(e.key===' '||e.key==='Enter'){ e.preventDefault(); toggleTheme(); }
 };
-$('#btnExport').onclick = () => {
-  if(!STATE.result){ toast('Nothing to export — run a batch first'); return; }
-  copy(JSON.stringify(STATE.result,null,2));
-  toast('Result document copied to clipboard');
-};
+$('#btnExport').onclick = exportModal;
 $$('#personaSeg button').forEach(b=> b.onclick=()=>{
   STATE.persona=b.dataset.persona; persist(); syncPersona();
 });

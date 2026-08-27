@@ -14,17 +14,18 @@ writes Java against it.
 
 ```bash
 npm run ui:build      # python scripts/build_unified_console.py -> unified-console.html
-npm run ui:test       # contract invariants (22) + real-DOM smoke (50)
+npm run ui:test       # contract invariants + DOM smoke + export + OOXML validation
 npm run ui:serve      # http://127.0.0.1:8910/unified-console.html
 ```
+
+The page is fully self-contained, so `npm run ui:serve` is a convenience, not a
+requirement — opening `unified-console.html` from disk behaves identically.
 
 `ui:test` needs `jsdom` (`npm i`). The first suite replays the shipped result
 documents through the page's own arithmetic and fails if they diverge; the
 second loads the built page in a real DOM and drives it — select, run, View
 Report, every report tab, theme toggle, navigator, persistence.
 
-Open `unified-console.html` directly if you prefer — `file://` is enough,
-there is no server and no network call.
 
 ## Screens
 
@@ -47,6 +48,28 @@ The **auth provider** selector is on the Detail screen because Attendance
 requires `Login_Auth_UAT_API` — a token minted by Employee Auth is rejected with
 `INVALID_TOKEN`. It travels in the manifest per API (K1c); the engine persists
 nothing.
+
+## Export
+
+Every export downloads a real file; nothing goes to the clipboard.
+
+| Format | What it is |
+|---|---|
+| `.xlsx` | Six sheets — `Run_Summary`, `API_Overview`, `Test_Results`, `Defects`, `Assertion_Gaps`, `Contract_Rules`. Styled header row, frozen panes, autofilter, sized columns, and state cells filled by verdict. Column layout follows `api-docs/API_Documentation_Template.xlsx`, including its `inlineStr` convention. |
+| `.docx` | A circulatable report: title, quality gate, summary, endpoint table, defects, assertion gaps, contract rules, full result matrix. Repeating table headers and shaded state cells. |
+| `.txt` | Fixed-width, for a terminal or an email body. |
+| `.csv` | The result matrix only, BOM-led so Excel reads UTF-8. |
+| `.json` | The raw result document, exactly as the engine emits it. |
+
+**Both OOXML formats are built in the page.** There is no library here, so
+`zipStore()` writes a ZIP with stored (uncompressed) entries — larger than a
+deflated archive, but a valid package that Excel and Word open without a repair
+prompt. `test-export.js` captures the bytes and `check-export.py` opens them and
+checks the required parts, the tab names, the frozen panes, the autofilter and
+the style fills. `openpyxl` reads the workbook without warnings.
+
+Because entries are stored, the XML inside is readable in the raw bytes — the
+credential-leak assertion greps the whole archive, not just the text export.
 
 ## Theme
 
@@ -84,7 +107,8 @@ page removes the class of defect rather than the instances.
 ## Invariants the page holds
 
 Enforced in code and asserted by `test-unified-console.js` (22 checks) and
-`test-dom.js` (50 checks against the built page):
+`test-dom.js` (229 checks against the built page), plus `test-export.js` and
+`check-export.py` for the exported files:
 
 - Pass rate is `PASS / (PASS + FAIL)`, reported as `n/a` — never `0%` — when
   nothing asserted.
