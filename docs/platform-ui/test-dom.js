@@ -413,6 +413,64 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   goHome();
   await wait(60);
 
+  console.log('\nreport header icons:');
+  goReport();
+  await wait(90);
+  const css = [...doc.querySelectorAll('style')].map(s => s.textContent).join('\n');
+
+  const mastSvgs = $$('#anMast svg');
+  ok('masthead renders icons', mastSvgs.length > 0, mastSvgs.length + ' glyphs');
+  ok('every masthead glyph carries a size class',
+     mastSvgs.every(g => g.classList.contains('rico')),
+     mastSvgs.filter(g => !g.classList.contains('rico'))
+       .map(g => g.getAttribute('class')).join(' | ') || 'none');
+  ok('no masthead glyph sets its own width attribute',
+     mastSvgs.every(g => !g.hasAttribute('width')),
+     mastSvgs.filter(g => g.hasAttribute('width')).length + ' with width');
+  ok('.rico is pinned to 14px', /\.rico\{width:14px;height:14px/.test(css));
+  ok('the ENV-line glyphs are pinned to 14px',
+     /\.emast-meta \.ic svg\{width:14px;height:14px\}/.test(css));
+
+  // the same rule must not have caught the charts
+  ok('charts are not sized as icons',
+     $$('#anBody .spark, #anBody .trend').every(c => !c.classList.contains('rico')),
+     $$('#anBody .spark, #anBody .trend').length + ' charts');
+  ok('the donut keeps its own dimensions',
+     !$('#anBody .spark') || $('#anBody .spark').hasAttribute('width'));
+
+  ok('metadata items are laid out as flex rows',
+     /\.emast-meta>span\{display:inline-flex/.test(css));
+  const seps = $$('#anMast .emast-meta .sep');
+  ok('separator dots between metadata items', seps.length === 3,
+     seps.length + ' separators');
+  ok('separators are bullets', seps.every(x => x.textContent.trim() === '•'),
+     seps.map(x => x.textContent.trim()).join(''));
+
+  console.log('\npersona buttons:');
+  const pbtns = $$('#pswReport button');
+  ok('five persona buttons', pbtns.length === 5, pbtns.length + '');
+  ok('buttons are spaced apart', /\.psw\{[^}]*gap:5px/.test(css));
+  ok('exactly one is active', pbtns.filter(b => b.classList.contains('active')).length === 1,
+     pbtns.filter(b => b.classList.contains('active')).map(b => b.dataset.persona).join(','));
+  ok('the active button carries the glow',
+     /\.psw button\.active\{[^}]*box-shadow:0 0 12px rgba\(62,217,197,\.4\)/.test(css));
+  ok('the glow pulses', /animation:pswPulse/.test(css) && /@keyframes pswPulse/.test(css));
+  ok('the pulse is stilled for reduced motion',
+     /prefers-reduced-motion:reduce\)\{\s*\.psw button\.active\{animation:none/.test(css));
+  ok('buttons show a focus ring', /\.psw button:focus-visible\{outline/.test(css));
+
+  // the highlight must follow the selection
+  const wasActive = pbtns.find(b => b.classList.contains('active')).dataset.persona;
+  pbtns.find(b => b.dataset.persona === 'devops').click();
+  await wait(90);
+  const now = $$('#pswReport button');
+  ok('the glow follows the selection',
+     now.filter(b => b.classList.contains('active')).length === 1 &&
+     now.find(b => b.classList.contains('active')).dataset.persona === 'devops',
+     now.filter(b => b.classList.contains('active')).map(b => b.dataset.persona).join(','));
+  now.find(b => b.dataset.persona === wasActive).click();
+  await wait(80);
+
   console.log('\nnavigator:');
   goHome();
   await wait(40);

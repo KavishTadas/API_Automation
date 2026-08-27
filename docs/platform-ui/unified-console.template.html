@@ -227,30 +227,48 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .qg-WARNING{background:rgba(181,118,42,.2);color:var(--am300);border:1px solid rgba(181,118,42,.4)}
 .qg-FAILED{background:rgba(244,63,94,.2);color:var(--ro300);border:1px solid rgba(244,63,94,.4)}
 .qg-PASSED{background:rgba(16,185,129,.2);color:var(--em300);border:1px solid rgba(16,185,129,.4)}
-.emast-meta{font:400 12px var(--mono);color:rgba(204,251,241,.7);margin-top:5px;
-  display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.rico{width:14px;height:14px;flex-shrink:0}
+.emast-meta{font:400 12px var(--mono);color:rgba(204,251,241,.7);margin-top:7px;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;row-gap:6px}
+.emast-meta>span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 [data-theme="light"] .emast-meta{color:#3d5c58}
 .emast-meta strong{color:#fff;font-weight:700}
 [data-theme="light"] .emast-meta strong{color:#0e2a28}
-.emast-meta .ic{color:var(--t400);margin-right:4px;display:inline-flex;vertical-align:-2px}
-.emast-meta .ic svg{width:13px;height:13px}
-.psw-l svg{width:12px;height:12px}
+.emast-meta .ic{color:var(--t400);display:inline-flex;align-items:center}
+.emast-meta .ic svg{width:14px;height:14px}
+.emast-meta .sep{color:var(--s600);font-size:11px;margin:0 -2px}
+.psw-l svg{width:13px;height:13px}
+.cmp-b svg,.eng-row svg{width:14px;height:14px}
 .emast-meta .sep{color:var(--s600)}
 .emast-meta .dur{color:var(--em400);font-weight:600}
 .emast-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 
-.psw{background:rgba(15,23,42,.9);border:1px solid rgba(20,184,166,.3);padding:4px;
-  border-radius:12px;display:flex;align-items:center;gap:2px;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.psw{background:rgba(15,23,42,.9);border:1px solid rgba(20,184,166,.3);padding:5px 6px;
+  border-radius:13px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;
+  box-shadow:0 8px 20px rgba(0,0,0,.25)}
 [data-theme="light"] .psw{background:rgba(255,255,255,.85);border-color:rgba(31,95,91,.28)}
 .psw-l{font:700 10px var(--mono);text-transform:uppercase;color:var(--t400);padding:0 7px;
   display:flex;align-items:center;gap:4px;white-space:nowrap}
-.psw button{background:none;border:0;padding:5px 10px;border-radius:8px;cursor:pointer;
-  font:500 12px var(--sans);color:var(--s300);transition:all .15s;white-space:nowrap}
+.psw button{background:none;border:1px solid transparent;padding:6px 12px;border-radius:9px;
+  cursor:pointer;font:500 12px var(--sans);color:var(--s300);white-space:nowrap;
+  display:inline-flex;align-items:center;gap:5px;
+  transition:background .15s,color .15s,border-color .15s,box-shadow .15s}
 .psw button:hover{color:#fff;background:rgba(30,41,59,.7)}
 [data-theme="light"] .psw button{color:#3d4854}
 [data-theme="light"] .psw button:hover{color:#0f1a22;background:#eef2f5}
-.psw button.active{background:var(--t700);color:#fff;font-weight:600}
+.psw button.active{background:var(--t700);color:#fff;font-weight:650;
+  border-color:rgba(62,217,197,.55);
+  box-shadow:0 0 12px rgba(62,217,197,.4);
+  animation:pswPulse 2.6s ease-in-out infinite}
 [data-theme="light"] .psw button.active{background:var(--t700);color:#fff}
+@keyframes pswPulse{
+  0%,100%{box-shadow:0 0 9px rgba(62,217,197,.3)}
+  50%    {box-shadow:0 0 17px rgba(62,217,197,.55)}
+}
+@media(prefers-reduced-motion:reduce){
+  .psw button.active{animation:none;box-shadow:0 0 12px rgba(62,217,197,.4)}
+}
+.psw button:focus-visible{outline:2px solid var(--t400);outline-offset:1px}
 .ebtn{padding:7px 13px;border-radius:12px;font:600 12px var(--sans);cursor:pointer;
   display:inline-flex;align-items:center;gap:6px;transition:all .15s;white-space:nowrap}
 .ebtn-exp{background:rgba(22,48,46,.8);color:#ccfbf1;border:1px solid rgba(13,148,136,.5)}
@@ -1680,7 +1698,9 @@ const ICO={
   moon:'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
   clipboard:'<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>'
 };
-const svg=(d,cls)=>`<svg class="${cls||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+/* Every glyph carries .rico so nothing can fall through to its intrinsic
+   size. More specific rules (.eqg-ico svg, .estat-ic svg) still win. */
+const svg=(d,cls)=>`<svg class="rico${cls?' '+cls:''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
 
 /* Tab bar — labels, icon colours and badge as the source dashboard carried them. */
 const TABS=[
