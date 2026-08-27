@@ -9,9 +9,9 @@
    Design tokens. Light is the base; dark overrides only colour.
    ============================================================ */
 :root{
-  --bg:#f6f8fa; --rail:#ffffff; --panel:#ffffff; --panel-2:#f1f4f8;
-  --panel-hover:#e7ecf3; --line:#d6dee8; --line-soft:#e6ecf3;
-  --text:#111827; --text-dim:#5b6875; --text-faint:#8a97a6;
+  --bg:#e9eef5; --rail:#ffffff; --panel:#ffffff; --panel-2:#f2f6fa;
+  --panel-hover:#e4ebf4; --line:#c2cede; --line-soft:#dde5ef;
+  --text:#0b1220; --text-dim:#3c4a5c; --text-faint:#5b6a7d;
   --accent:#0f766e; --accent-ink:#ffffff; --accent-bg:rgba(15,118,110,.10);
   --accent-line:rgba(15,118,110,.32);
   --blue:#2563eb; --blue-bg:rgba(37,99,235,.10);
@@ -21,8 +21,8 @@
   --cyan:#0e7490; --cyan-bg:rgba(14,116,144,.10);
   --slate:#64748b; --slate-bg:rgba(100,116,139,.12);
   --scroll-thumb:rgba(100,116,139,.30); --scroll-thumb-hi:rgba(100,116,139,.50);
-  --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.10);
-  --shadow-lg:0 12px 32px rgba(16,24,40,.16);
+  --shadow:0 1px 2px rgba(13,22,38,.07),0 2px 6px rgba(13,22,38,.09);
+  --shadow-lg:0 14px 36px rgba(13,22,38,.20);
   --pad-card:16px; --pad-row:10px 14px;
   --gap-sm:8px; --gap-md:14px; --gap-lg:20px;
   --mono:ui-monospace,"SF Mono","Cascadia Code",Consolas,"Liberation Mono",monospace;
@@ -60,6 +60,38 @@ button,input,select,textarea{font:inherit;color:inherit}
 ::-webkit-scrollbar-track{background:transparent}
 
 /* ---------- Rail ---------- */
+/* ---------- light theme polish ----------
+   Tokens above carry most of this. These are the spots that name a colour
+   directly, plus a little more separation so a card reads as a card. */
+:root:not([data-theme="dark"]) .sect-head h2,
+:root:not([data-theme="dark"]) .pane-head h2,
+:root:not([data-theme="dark"]) .card-h h3,
+:root:not([data-theme="dark"]) .rail-sec{color:var(--text-dim)}
+:root:not([data-theme="dark"]) .suite-card,
+:root:not([data-theme="dark"]) .case,
+:root:not([data-theme="dark"]) .card,
+:root:not([data-theme="dark"]) .qr{box-shadow:0 1px 2px rgba(13,22,38,.06),0 2px 8px rgba(13,22,38,.07)}
+:root:not([data-theme="dark"]) pre,
+:root:not([data-theme="dark"]) .payload{background:#f5f8fb;border-color:var(--line)}
+:root:not([data-theme="dark"]) .mono,
+:root:not([data-theme="dark"]) code{color:var(--text-dim)}
+:root:not([data-theme="dark"]) .tc-id,
+:root:not([data-theme="dark"]) .sc-row .pa,
+:root:not([data-theme="dark"]) .case-p{color:var(--text-faint)}
+:root:not([data-theme="dark"]) .searchwrap input,
+:root:not([data-theme="dark"]) select,
+:root:not([data-theme="dark"]) input,
+:root:not([data-theme="dark"]) textarea{background:#fff;color:var(--text)}
+:root:not([data-theme="dark"]) .ro{background:#f2f6fa;color:var(--text-dim)}
+:root:not([data-theme="dark"]) .strip{background:#f2f6fa}
+/* state chips: same hues, enough ink to read on white */
+:root:not([data-theme="dark"]) .st{font-weight:750}
+:root:not([data-theme="dark"]) .st-NOT_APPLICABLE{color:#4b5768;background:rgba(75,87,104,.13)}
+:root:not([data-theme="dark"]) .st-INFORMATIONAL{color:#0e6b7d;background:rgba(14,107,125,.13)}
+:root:not([data-theme="dark"]) .st-PLANNED{color:#1d4ed8;background:rgba(29,78,216,.11)}
+:root:not([data-theme="dark"]) .pill{color:var(--text-dim)}
+:root:not([data-theme="dark"]) .tag{color:var(--text-dim);border-color:var(--line)}
+
 /* ---------- side menu ---------- */
 .rail{width:228px;background:var(--rail);border-right:1px solid var(--line);display:flex;
   flex-direction:column;flex-shrink:0;height:100vh;overflow:hidden;transition:width .18s ease}
@@ -220,8 +252,8 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 /* Light: the source page is dark-only, so this keeps the same hierarchy
    rather than inventing one. The toggle still works. */
 [data-theme="light"] #view-analytics{
-  --s950:#f7f6f2; --s900:#ffffff; --s800:#e3e6ea; --s700:#cbd3da; --s600:#9aa7b4;
-  --s500:#6b7a8a; --s400:#5a6875; --s300:#3d4854; --s200:#26303a; --s100:#0f1a22;
+  --s950:#eef1f5; --s900:#ffffff; --s800:#d8dee6; --s700:#bcc7d3; --s600:#697786;
+  --s500:#5a6775; --s400:#495764; --s300:#2c3742; --s200:#1c242d; --s100:#0b1220;
   --t300:#12706a; --t400:#0d9488; --ro400:#c81e42; --ro300:#a3122f;
   --am400:#9a6320; --am300:#7d4f18; --em400:#0f7f52; --em300:#0b6942;
   --pu400:#7c3aed; --pu300:#6425c9;

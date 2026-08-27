@@ -498,6 +498,52 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   ok('Open Report marks itself active',
      $('#railMenu [data-view="analytics"]').classList.contains('active'));
 
+  console.log('\nlight theme contrast:');
+  const cssL = [...doc.querySelectorAll('style')].map(s => s.textContent).join('\n');
+  const lum = h => {
+    const v = h.replace('#', '');
+    const [r, g, b] = [0, 2, 4].map(i => parseInt(v.slice(i, i + 2), 16) / 255);
+    const f = c => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  };
+  const ratio = (a, b) => {
+    const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p);
+    return (x + 0.05) / (y + 0.05);
+  };
+  const tok = name => {
+    const m = cssL.match(new RegExp('--' + name + ':\s*(#[0-9a-fA-F]{6})'));
+    return m && m[1];
+  };
+
+  // :root is the light theme; dark overrides every one of these
+  for (const [name, floor] of [['text', 7], ['text-dim', 4.5], ['text-faint', 4.5]]) {
+    const hex = tok(name);
+    const r = hex ? ratio(hex, '#ffffff') : 0;
+    ok(`--${name} reads on a white panel (${hex} ${r.toFixed(2)}:1)`, r >= floor,
+       `needs ${floor}:1`);
+  }
+  for (const name of ['s400', 's500', 's600']) {
+    const hex = (cssL.match(new RegExp('--' + name + ':\s*(#[0-9a-fA-F]{6})', 'g')) || [])
+      .pop().split(':')[1].trim();
+    const r = ratio(hex, '#ffffff');
+    ok(`report --${name} reads on white (${hex} ${r.toFixed(2)}:1)`, r >= 4.5, 'needs 4.5:1');
+  }
+  ok('the page is distinguishable from a panel',
+     ratio(tok('bg'), '#ffffff') >= 1.12,
+     tok('bg') + ' vs #ffffff = ' + ratio(tok('bg'), '#ffffff').toFixed(2));
+
+  ok('every light-only rule is scoped away from dark',
+     (cssL.match(/:root:not\(\[data-theme="dark"\]\)/g) || []).length >= 10 &&
+     !/:root:not\(\[data-theme="light"\]\)/.test(cssL),
+     'a light rule could leak into dark');
+
+  // and the dark theme still overrides what light just changed
+  const darkBlock = (cssL.match(/:root\[data-theme="dark"\]\{([\s\S]*?)\}/) || [])[1] || '';
+  ok('dark still defines its own text tokens',
+     ['--text:', '--text-dim:', '--text-faint:', '--bg:', '--line:']
+       .every(t => darkBlock.includes(t)),
+     'dark would inherit a light value');
+
   console.log('\nreport theme switch:');
   ok('report masthead carries a theme switch', !!$('#eTheme'));
   ok('it is a labelled switch', $('#eTheme').getAttribute('role') === 'switch' &&
