@@ -9,9 +9,9 @@
    Design tokens. Light is the base; dark overrides only colour.
    ============================================================ */
 :root{
-  --bg:#e9eef5; --rail:#ffffff; --panel:#ffffff; --panel-2:#f2f6fa;
-  --panel-hover:#e4ebf4; --line:#c2cede; --line-soft:#dde5ef;
-  --text:#0b1220; --text-dim:#3c4a5c; --text-faint:#5b6a7d;
+  --bg:#e7eef8; --rail:#f7fafe; --panel:#ffffff; --panel-2:#eef4fd;
+  --panel-hover:#e0eaf9; --line:#bccfe8; --line-soft:#d9e4f3;
+  --text:#0a1322; --text-dim:#36465e; --text-faint:#55677f;
   --accent:#0f766e; --accent-ink:#ffffff; --accent-bg:rgba(15,118,110,.10);
   --accent-line:rgba(15,118,110,.32);
   --blue:#2563eb; --blue-bg:rgba(37,99,235,.10);
@@ -60,6 +60,51 @@ button,input,select,textarea{font:inherit;color:inherit}
 ::-webkit-scrollbar-track{background:transparent}
 
 /* ---------- Rail ---------- */
+/* ---------- light theme: structural blue ----------
+   The neutrals above are already blue-tinted. These are the surfaces that
+   benefit from naming it: the rail, the strip, table headers, the focused
+   input, and the row you are on. Teal is left to actions and to the report's
+   OMFYS branding. */
+:root:not([data-theme="dark"]) .rail{
+  background:linear-gradient(180deg,#f7fafe 0%,#eef4fd 100%);
+  border-right-color:#c9d9ee}
+:root:not([data-theme="dark"]) .rail-brand{
+  background:#ffffff;border-bottom-color:#d9e4f3}
+:root:not([data-theme="dark"]) .topbar{
+  background:linear-gradient(180deg,#ffffff 0%,#f4f8fe 100%);
+  border-bottom-color:#c9d9ee}
+:root:not([data-theme="dark"]) .strip{
+  background:#eef4fd;border-bottom-color:#d3e0f2}
+:root:not([data-theme="dark"]) th{
+  background:#eaf1fc;color:var(--text-dim);border-bottom-color:#c9d9ee}
+:root:not([data-theme="dark"]) .sc-h,
+:root:not([data-theme="dark"]) .case-h{
+  background:linear-gradient(180deg,#f6f9ff 0%,#eef4fd 100%)}
+:root:not([data-theme="dark"]) .sc-h:hover,
+:root:not([data-theme="dark"]) .case-h:hover{background:#e4edfb}
+:root:not([data-theme="dark"]) .sc-row:hover,
+:root:not([data-theme="dark"]) .ms-item:hover,
+:root:not([data-theme="dark"]) .rail-item:hover:not(:disabled){background:#e6eefb}
+:root:not([data-theme="dark"]) .msbox{background:#f6f9ff}
+:root:not([data-theme="dark"]) .searchwrap input:focus{
+  border-color:var(--blue);box-shadow:0 0 0 3px rgba(29,78,216,.14)}
+:root:not([data-theme="dark"]) .tc-tier{border-bottom-color:#b9cdea}
+:root:not([data-theme="dark"]) .qr-head{
+  background:linear-gradient(180deg,#f6f9ff 0%,#eef4fd 100%);
+  border-bottom-color:#d3e0f2}
+:root:not([data-theme="dark"]) .modal-h,
+:root:not([data-theme="dark"]) .modal-f{background:#f6f9ff}
+:root:not([data-theme="dark"]) .ea-col,
+:root:not([data-theme="dark"]) .td-badge,
+:root:not([data-theme="dark"]) .eso-row{background:#f6f9ff}
+:root:not([data-theme="dark"]) pre,
+:root:not([data-theme="dark"]) .payload,
+:root:not([data-theme="dark"]) .pl-j pre,
+:root:not([data-theme="dark"]) .ea-col pre{background:#f4f8ff;border-color:#d9e4f3}
+/* the active row keeps the teal accent, on a blue-tinted bed */
+:root:not([data-theme="dark"]) .rail-item.active{
+  background:rgba(15,118,110,.10);border-color:rgba(15,118,110,.30)}
+
 /* ---------- light theme polish ----------
    Tokens above carry most of this. These are the spots that name a colour
    directly, plus a little more separation so a card reads as a card. */
@@ -252,8 +297,8 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 /* Light: the source page is dark-only, so this keeps the same hierarchy
    rather than inventing one. The toggle still works. */
 [data-theme="light"] #view-analytics{
-  --s950:#eef1f5; --s900:#ffffff; --s800:#d8dee6; --s700:#bcc7d3; --s600:#697786;
-  --s500:#5a6775; --s400:#495764; --s300:#2c3742; --s200:#1c242d; --s100:#0b1220;
+  --s950:#eaf0f8; --s900:#ffffff; --s800:#d5e0ee; --s700:#b9c9dd; --s600:#66748a;
+  --s500:#57667a; --s400:#465668; --s300:#2a3648; --s200:#1a2331; --s100:#0a1322;
   --t300:#12706a; --t400:#0d9488; --ro400:#c81e42; --ro300:#a3122f;
   --am400:#9a6320; --am300:#7d4f18; --em400:#0f7f52; --em300:#0b6942;
   --pu400:#7c3aed; --pu300:#6425c9;

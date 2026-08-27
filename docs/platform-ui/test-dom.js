@@ -528,6 +528,21 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
     const r = ratio(hex, '#ffffff');
     ok(`report --${name} reads on white (${hex} ${r.toFixed(2)}:1)`, r >= 4.5, 'needs 4.5:1');
   }
+  // surfaces are blue-tinted now, so white is no longer the only background
+  // text lands on -- check the darkest tint too
+  for (const [surface, label] of [['#eef4fd', 'the blue inset'],
+                                  ['#eaf1fc', 'a table header'],
+                                  ['#e6eefb', 'a hovered row'],
+                                  ['#e0eaf9', 'the deepest hover']]) {
+    for (const name of ['text', 'text-dim', 'text-faint']) {
+      const hex = tok(name), r = ratio(hex, surface);
+      ok(`--${name} reads on ${label} (${r.toFixed(2)}:1)`, r >= 4.5, `${hex} on ${surface}`);
+    }
+  }
+  ok('the accent still reads on the blue inset',
+     ratio(tok('accent'), '#eef4fd') >= 4.5,
+     tok('accent') + ' = ' + ratio(tok('accent'), '#eef4fd').toFixed(2));
+
   ok('the page is distinguishable from a panel',
      ratio(tok('bg'), '#ffffff') >= 1.12,
      tok('bg') + ' vs #ffffff = ' + ratio(tok('bg'), '#ffffff').toFixed(2));
