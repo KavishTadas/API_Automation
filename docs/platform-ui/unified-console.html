@@ -450,20 +450,8 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .epill.em{background:rgba(16,185,129,.1);color:var(--em400);border:1px solid rgba(16,185,129,.2)}
 .epill.te{background:rgba(20,184,166,.1);color:var(--t300);border:1px solid rgba(20,184,166,.2)}
 .epill.am{background:rgba(251,191,36,.1);color:var(--am400);border:1px solid rgba(251,191,36,.2)}
-.donut-wrap{position:relative;flex:1;min-height:200px;display:flex;align-items:center;justify-content:center}
-.donut-mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;pointer-events:none;font-family:var(--mono)}
-.donut-mid b{font:900 24px var(--mono);color:#fff}
-[data-theme="light"] .donut-mid b{color:#0f1a22}
-.donut-mid i{font:600 10px var(--mono);color:var(--s400);text-transform:uppercase;font-style:normal}
-.elegend{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;padding-top:12px;
-  border-top:1px solid var(--s800);font:400 11.5px var(--mono)}
-.elegend div{display:flex;align-items:center;gap:8px}
-.elegend .sw{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.elegend span{color:var(--s300)}
-[data-theme="light"] .elegend span{color:#3d4854}
-.elegend strong{color:#fff}
-[data-theme="light"] .elegend strong{color:#0f1a22}
+.donut-wrap{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;
+  padding:var(--gap-sm) 0}
 .ekey{display:flex;align-items:center;gap:14px;font:400 11.5px var(--mono);flex-wrap:wrap}
 .ekey .k{display:flex;align-items:center;gap:6px}
 .ekey .sq{width:10px;height:10px;border-radius:2px}
@@ -760,12 +748,16 @@ hr{border:none;border-top:1px solid var(--line-soft);margin:12px 0}
 .toast svg{width:16px;height:16px;color:var(--accent)}
 
 /* ---------- Charts ---------- */
-.chart-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
-.legend{display:flex;flex-direction:column;gap:6px;font-size:12px;min-width:180px}
-.legend .li{display:flex;align-items:center;gap:8px}
+.chart-wrap{display:flex;align-items:center;justify-content:center;
+  gap:var(--gap-lg);flex-wrap:wrap;width:100%}
+.legend{display:flex;flex-direction:column;gap:5px;font-size:12px;
+  min-width:190px;flex:1}
+.legend .li{display:grid;grid-template-columns:10px 1fr auto 34px;
+  align-items:center;gap:9px}
 .legend .sw{width:10px;height:10px;border-radius:3px;flex-shrink:0}
 .legend .ln{flex:1;color:var(--text-dim)}
-.legend .lv{font-weight:700;font-variant-numeric:tabular-nums}
+.legend .lv{font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+.legend .faint{text-align:right;font-variant-numeric:tabular-nums}
 .bar-row{display:grid;grid-template-columns:190px 1fr 54px;gap:11px;align-items:center;
   padding:5px 0;font-size:12px}
 .bar-track{height:17px;background:var(--panel-2);border-radius:4px;overflow:hidden;display:flex}
@@ -2059,14 +2051,11 @@ function tabOverview(R){
         <div><h3>Test Status Distribution</h3><p>All seven contract states</p></div>
         <span class="epill em">${pct(R.summary.passRate)} Pass</span>
       </div>
-      <div class="donut-wrap">${donut(R.summary.counts)}
-        <div class="donut-mid"><b>${R.summary.total}</b><i>Total Results</i></div>
-      </div>
-      <div class="elegend">
-        <div><span class="sw" style="background:${cssv('--accent')}"></span>
-          <span>Passed: <strong>${c.PASS||0}</strong></span></div>
-        <div><span class="sw" style="background:${cssv('--rose')}"></span>
-          <span>Failed: <strong style="color:var(--ro400)">${c.FAIL||0}</strong></span></div>
+      <div class="donut-wrap">${donut(R.summary.counts)}</div>
+      <div class="ecard-f">
+        <span>${R.summary.total} result${R.summary.total===1?'':'s'} &middot;
+          ${(c.PASS||0)+(c.FAIL||0)} in the denominator</span>
+        <span class="${c.FAIL?'bad':'good'}">${c.PASS||0} passed / ${c.FAIL||0} failed</span>
       </div>
     </div>
 
