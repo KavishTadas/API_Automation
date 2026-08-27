@@ -512,37 +512,63 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .qr-actions{display:flex;gap:9px;align-items:center;padding:12px 14px;border-top:1px solid var(--line-soft);flex-wrap:wrap}
 .qr-actions .sp{flex:1}
 
-.searchwrap{position:relative;margin-bottom:16px;min-width:0}
-.searchwrap .si{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.6}
-.searchwrap input{width:100%;padding:10px 12px 10px 34px;border-radius:8px;border:1px solid var(--line);
-  background:var(--panel);color:var(--text);font:inherit;font-size:12.5px}
-.searchwrap input:focus{outline:2px solid var(--accent-line);outline-offset:-1px}
+.searchwrap{position:relative;min-width:0;margin-top:12px}
+.searchwrap .si{position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  display:flex;color:var(--text-faint);pointer-events:none}
+.searchwrap .si svg{width:15px;height:15px}
+.searchwrap input{width:100%;padding:10px 36px 10px 36px;border-radius:9px;
+  border:1px solid var(--line);background:var(--panel);color:var(--text);
+  font:inherit;font-size:12.5px;transition:border-color .15s,box-shadow .15s}
+.searchwrap input::-webkit-search-cancel-button{display:none}
+.searchwrap input:focus{outline:0;border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-bg)}
+.sclear{position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  width:22px;height:22px;border-radius:50%;border:0;background:var(--panel-2);
+  color:var(--text-dim);font-size:15px;line-height:1;cursor:pointer;display:flex;
+  align-items:center;justify-content:center}
+.sclear:hover{background:var(--panel-hover);color:var(--text)}
+.sclear[hidden]{display:none}
 
-.sect-head{display:flex;align-items:center;gap:10px;margin-bottom:11px;min-width:0;flex-wrap:wrap}
-.sect-head h2{margin:0;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-dim)}
-.sect-head .sp{flex:1}
+.sect-head{margin-bottom:16px;min-width:0}
+.sect-head h2{margin:0;font-size:13px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--text-dim)}
+.sect-head .sub{margin:4px 0 0;font-size:12px;color:var(--text-faint)}
+.sect-head .sub b{color:var(--accent);font-weight:650}
 
-.suites-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(430px,100%),1fr));
-  gap:14px;min-width:0}
+.suites-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(420px,100%),1fr));
+  gap:16px;min-width:0;align-items:start}
 .suite-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
-  box-shadow:var(--shadow);overflow:hidden}
-.sc-h{display:flex;align-items:flex-start;gap:11px;padding:13px 14px;background:var(--panel-2);
+  box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.suite-card:hover{border-color:var(--text-faint)}
+.sc-h{display:flex;align-items:center;gap:11px;padding:13px 14px;background:var(--panel-2);
   border-bottom:1px solid var(--line)}
-.sc-ico{width:32px;height:32px;border-radius:8px;background:var(--accent-bg);border:1px solid var(--accent-line);
-  display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.sc-ico{width:32px;height:32px;border-radius:8px;background:var(--accent-bg);
+  border:1px solid var(--accent-line);display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex-shrink:0}
 .sc-t{flex:1;min-width:0}
-.sc-t h3{margin:0;font-size:14px;font-weight:700}
-.sc-t .d{font-size:11.5px;color:var(--text-faint);margin-top:2px}
-.sc-rows{padding:4px 0}
-.sc-row{display:flex;align-items:center;gap:11px;padding:8px 14px;cursor:pointer;
-  border-bottom:1px solid var(--line-soft)}
+.sc-t h3{margin:0;font-size:13.5px;font-weight:700;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.sc-t .d{font-size:11px;color:var(--text-faint);margin-top:2px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.sc-rows{padding:2px 0;flex:1}
+.sc-row{display:grid;grid-template-columns:54px 64px minmax(0,1fr) minmax(0,auto);
+  align-items:center;gap:11px;padding:8px 14px;cursor:pointer;
+  border-bottom:1px solid var(--line-soft);transition:background .12s}
 .sc-row:last-child{border-bottom:0}
 .sc-row:hover{background:var(--panel-2)}
-.sc-row .id{font:500 11px var(--mono);color:var(--text-faint);flex-shrink:0;min-width:52px}
-.sc-row .nm{font-size:13px;font-weight:650;flex:1;min-width:0;overflow:hidden;
+.sc-row .m{margin:0}
+.sc-row .id{font:500 10.5px var(--mono);color:var(--text-faint)}
+.sc-row .nm{font-size:12.5px;font-weight:600;min-width:0;overflow:hidden;
   text-overflow:ellipsis;white-space:nowrap}
-.sc-row .pa{font:500 11.5px var(--mono);color:var(--text-faint);flex-shrink:0;max-width:44%;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:rtl;text-align:right}
+.sc-row .pa{font:500 11px var(--mono);color:var(--text-faint);min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right;justify-self:end}
+.sc-row mark{background:var(--accent-bg);color:var(--accent);border-radius:2px;padding:0 1px}
+@media(max-width:560px){
+  .sc-row{grid-template-columns:54px minmax(0,1fr);row-gap:3px}
+  .sc-row .id{grid-column:2;font-size:10px}
+  .sc-row .nm{grid-column:2}
+  .sc-row .pa{grid-column:1/-1;text-align:left;justify-self:start}
+}
 
 /* ---------- detail ---------- */
 .backlink{background:none;border:0;color:var(--accent);font:700 12.5px var(--sans);cursor:pointer;
@@ -763,18 +789,19 @@ hr{border:none;border-top:1px solid var(--line-soft);margin:12px 0}
       <div class="prog" id="runProg" style="display:none"><div class="prog-fill" id="runProgFill"></div></div>
     </div>
 
-    <!-- Search -->
-    <div class="searchwrap">
-      <span class="si">🔍</span>
-      <input type="search" id="apiSearch" placeholder="Search any API by name, endpoint, module or method across all suites…">
-    </div>
-
     <!-- Suites -->
-    <div class="sect-head">
+    <header class="sect-head">
       <h2>Test Suites &amp; API Endpoints</h2>
-      <span class="sp"></span>
-      <span class="faint" id="suiteMatchHint"></span>
-    </div>
+      <p class="sub" id="suiteMatchHint"></p>
+      <div class="searchwrap">
+        <span class="si" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.65" y2="16.65"/></svg>
+        </span>
+        <input type="search" id="apiSearch" autocomplete="off" aria-label="Filter suites and endpoints"
+          placeholder="Filter by name, method, path or module — filters as you type">
+        <button class="sclear" id="apiSearchClear" type="button" aria-label="Clear filter" hidden>&times;</button>
+      </div>
+    </header>
     <div class="suites-grid" id="suitesGrid"></div>
   </section>
 
@@ -1301,38 +1328,81 @@ function renderMultiSelect(){
   });
 }
 
+/* Highlight the live-search match. Escapes first, then wraps — so the query
+   itself can never inject markup. */
+function hl(text, q){
+  const raw = text==null ? '' : String(text);
+  if(!q) return esc(raw);
+  const hay=raw.toLowerCase(), needle=q.toLowerCase();
+  let out='', k=0;
+  for(;;){
+    const at=hay.indexOf(needle,k);
+    if(at<0){ out+=esc(raw.slice(k)); break; }
+    out += esc(raw.slice(k,at)) + '<mark>' + esc(raw.slice(at,at+needle.length)) + '</mark>';
+    k = at + needle.length;
+  }
+  return out;
+}
+
 function renderSuitesGrid(){
-  const m=moduleGroups($('#apiSearch').value);
-  const total=allApis().length, shown=[...m.values()].reduce((n,l)=>n+l.length,0);
-  $('#suiteMatchHint').textContent = shown===total
-    ? `Showing all ${m.size} suites`
-    : `${shown} of ${total} endpoints match`;
+  const q=($('#apiSearch').value||'').trim();
+  const m=moduleGroups(q);
+  const total=allApis().length;
+  const shown=[...m.values()].reduce((n,l)=>n+l.length,0);
+  const allSuites=new Set(allApis().map(a=>a.module)).size;
+
+  $('#apiSearchClear').hidden = !q;
+  $('#suiteMatchHint').innerHTML = q
+    ? (shown
+        ? `<b>${shown}</b> of ${total} endpoint${total===1?'':'s'} across <b>${m.size}</b> of ${allSuites} suites match “${esc(q)}”`
+        : `No endpoint matches “${esc(q)}”`)
+    : `Showing all <b>${allSuites}</b> suites · ${total} endpoints`;
+
   const grid=$('#suitesGrid');
-  if(!m.size){ grid.innerHTML=`<div class="empty">No suite matches that filter.</div>`; return; }
+  if(!m.size){
+    grid.innerHTML=`<div class="empty" style="grid-column:1/-1">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.65" y2="16.65"/></svg>
+      <div>Nothing matches “${esc(q)}”.</div>
+      <div style="margin-top:5px;font-size:12px">Filters match name, method, path, module and display id.</div>
+      <button class="btn btn-sm" id="sgClear" style="margin-top:12px">Clear filter</button>
+    </div>`;
+    const b=$('#sgClear'); if(b) b.onclick=clearSearch;
+    return;
+  }
+
   grid.innerHTML=[...m.entries()].map(([mod,list])=>{
     const coll=(list[0].sourceCollection||'').split('/').pop()||'—';
     const gaps=list.filter(a=>a.assertionState==='not-asserted').length;
-    return `<div class="suite-card">
+    return `<article class="suite-card">
       <div class="sc-h">
         <div class="sc-ico">📁</div>
         <div class="sc-t">
-          <h3>${esc(mod)}</h3>
-          <div class="d">${esc(coll)}${gaps?` · ${gaps} endpoint${gaps>1?'s':''} assert nothing`:''}</div>
+          <h3>${hl(mod,q)}</h3>
+          <div class="d">${esc(coll)}${gaps?` · ${gaps} assert nothing`:''}</div>
         </div>
-        <span class="pill${gaps?' partial':''}">${list.length} API${list.length>1?'s':''}</span>
+        <span class="pill${gaps?' partial':''}">${list.length} API${list.length===1?'':'s'}</span>
       </div>
       <div class="sc-rows">${list.map(a=>`
-        <div class="sc-row" data-open="${esc(a.ref)}">
-          <span class="m ${esc(a.method)}">${esc(a.method)}</span>
-          <span class="id">${esc(displayId(a))}</span>
-          <span class="nm">${esc(a.name||a.subModule||a.path)}</span>
-          <span class="pa">${esc(a.path)}</span>
+        <div class="sc-row" data-open="${esc(a.ref)}" role="button" tabindex="0">
+          <span class="m ${esc(a.method)}">${hl(a.method,q)}</span>
+          <span class="id">${hl(displayId(a),q)}</span>
+          <span class="nm">${hl(a.name||a.subModule||a.path,q)}</span>
+          <span class="pa" title="${esc(a.path)}">${hl(a.path,q)}</span>
         </div>`).join('')}</div>
-    </div>`;
+    </article>`;
   }).join('');
-  grid.querySelectorAll('[data-open]').forEach(r=> r.onclick=()=>{
-    STATE.focus=r.dataset.open; persist(); go('detail');
+
+  const open=r=>{ STATE.focus=r.dataset.open; persist(); go('detail'); };
+  grid.querySelectorAll('[data-open]').forEach(r=>{
+    r.onclick=()=>open(r);
+    r.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(r); } };
   });
+}
+
+function clearSearch(){
+  $('#apiSearch').value='';
+  renderMultiSelect(); renderSuitesGrid();
+  $('#apiSearch').focus();
 }
 
 function syncSel(){
@@ -2374,6 +2444,8 @@ function syncView(){
   if(STATE.view!=='detail' && !onReport) renderTopbar();
 }
 $('#apiSearch').oninput = () => { renderMultiSelect(); renderSuitesGrid(); };
+$('#apiSearch').onkeydown = e => { if(e.key==='Escape') clearSearch(); };
+$('#apiSearchClear').onclick = clearSearch;
 $('#btnSelAll').onclick = () => { allApis().forEach(a=>STATE.selected.add(a.ref)); persist(); renderHome(); };
 $('#btnSelNone').onclick = () => { STATE.selected.clear(); persist(); renderHome(); };
 $('#btnSelGaps').onclick = () => { STATE.selected.clear();

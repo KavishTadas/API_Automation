@@ -241,6 +241,104 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   ok('selection survives the round trip', /6 APIs Selected/.test($('#selBadge').textContent),
      $('#selBadge').textContent);
 
+  console.log('\nsuites header + live search:');
+  const type = v => { $('#apiSearch').value = v;
+                      $('#apiSearch').dispatchEvent(new window.Event('input', { bubbles: true })); };
+
+  ok('heading reads Test Suites & API Endpoints',
+     /Test Suites & API Endpoints/.test($('.sect-head h2').textContent),
+     $('.sect-head h2').textContent);
+  ok('subtitle sits under the heading', $('.sect-head .sub') !== null);
+  ok('subtitle counts all suites when unfiltered',
+     /Showing all\s*11\s*suites/.test($('#suiteMatchHint').textContent.replace(/\s+/g, ' ')),
+     $('#suiteMatchHint').textContent.trim());
+  ok('search sits inside the header, below the heading',
+     !!$('.sect-head .searchwrap') &&
+     $('.sect-head .searchwrap').compareDocumentPosition($('.sect-head h2')) &
+       window.Node.DOCUMENT_POSITION_PRECEDING);
+  ok('all 11 suite cards render', $$('#suitesGrid .suite-card').length === 11,
+     $$('#suitesGrid .suite-card').length + ' cards');
+  ok('all 45 endpoint rows render', $$('#suitesGrid .sc-row').length === 45,
+     $$('#suitesGrid .sc-row').length + ' rows');
+  ok('every row has method, id, name and path',
+     $$('#suitesGrid .sc-row').every(r =>
+       r.querySelector('.m') && r.querySelector('.id') &&
+       r.querySelector('.nm') && r.querySelector('.pa')));
+  ok('clear button hidden with no query', $('#apiSearchClear').hidden);
+
+  // by method
+  type('POST');
+  await wait(60);
+  ok('filters by method', $$('#suitesGrid .sc-row').length > 0 &&
+     $$('#suitesGrid .sc-row').every(r => /POST/i.test(r.querySelector('.m').textContent)),
+     $$('#suitesGrid .sc-row').length + ' rows');
+  ok('method matches are highlighted', $$('#suitesGrid mark').length > 0);
+  ok('subtitle reports the filtered counts',
+     /of 45 endpoint/.test($('#suiteMatchHint').textContent),
+     $('#suiteMatchHint').textContent.trim());
+  ok('clear button appears with a query', !$('#apiSearchClear').hidden);
+  ok('the multi-select filters in step',
+     $$('#msBox .ms-item').length === $$('#suitesGrid .sc-row').length,
+     $$('#msBox .ms-item').length + ' vs ' + $$('#suitesGrid .sc-row').length);
+
+  // by path
+  type('/attendance');
+  await wait(60);
+  ok('filters by path', $$('#suitesGrid .sc-row').length > 0 &&
+     $$('#suitesGrid .sc-row').every(r => /attendance/i.test(r.textContent)),
+     $$('#suitesGrid .sc-row').length + ' rows');
+
+  // by module
+  type('Leave');
+  await wait(60);
+  ok('filters by module', $$('#suitesGrid .suite-card').length > 0 &&
+     $$('#suitesGrid .suite-card').every(c => /leave/i.test(c.textContent)),
+     $$('#suitesGrid .suite-card').length + ' cards');
+
+  // by display id
+  type('API-001');
+  await wait(60);
+  ok('filters by display id', $$('#suitesGrid .sc-row').length === 1,
+     $$('#suitesGrid .sc-row').length + ' rows');
+
+  // case-insensitive
+  type('leave');
+  const lower = $$('#suitesGrid .sc-row').length;
+  type('LEAVE');
+  await wait(60);
+  ok('search is case-insensitive', $$('#suitesGrid .sc-row').length === lower,
+     lower + ' vs ' + $$('#suitesGrid .sc-row').length);
+
+  // no matches
+  type('zzzznope');
+  await wait(60);
+  ok('empty state shown when nothing matches', !!$('#suitesGrid .empty'));
+  ok('empty state says what it searched',
+     /Nothing matches/.test($('#suitesGrid').textContent));
+  ok('subtitle says no match', /No endpoint matches/.test($('#suiteMatchHint').textContent),
+     $('#suiteMatchHint').textContent.trim());
+
+  // a query that looks like markup must not become markup
+  type('<img src=x onerror=alert(1)>');
+  await wait(60);
+  ok('a markup-shaped query cannot inject', $$('#suitesGrid img').length === 0 &&
+     $$('#suiteMatchHint img').length === 0);
+
+  click($('#apiSearchClear'));
+  await wait(60);
+  ok('clear restores every suite', $$('#suitesGrid .suite-card').length === 11,
+     $$('#suitesGrid .suite-card').length + ' cards');
+  ok('clear restores every row', $$('#suitesGrid .sc-row').length === 45);
+  ok('clear hides its own button', $('#apiSearchClear').hidden);
+  ok('clear restores the unfiltered subtitle',
+     /Showing all/.test($('#suiteMatchHint').textContent));
+
+  click($$('#suitesGrid .sc-row')[0]);
+  await wait(60);
+  ok('a row still opens the endpoint', vis('detail'));
+  goHome();
+  await wait(60);
+
   console.log('\nside menu:');
   ok('menu rendered on every view', $$('#railMenu .rail-item').length > 0,
      $$('#railMenu .rail-item').length + ' rows');
