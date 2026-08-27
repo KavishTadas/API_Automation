@@ -377,9 +377,39 @@ The signal that distinguishes them is `gatewayClassification:
 "AUTH_FAILURE_401"` on the API report. **When several `FAIL`s on one API all
 cite 401 and the API carries that classification, suspect the provider before
 filing a bug against the endpoint.** `docs/platform-handoff/manual-scenarios/`
-has this as scenario s03, and s01 reproduces it accidentally — the Leave API
-scores 8 PASS / 2 FAIL under `Login_Auth_UAT_API` and 10 PASS / 0 FAIL under
-`Employee_Auth_API`, same endpoint, same credentials, same minute.
+has this as scenario s03, and s01 reproduced it *by accident* before it was
+corrected on 2026-08-27 — the Leave API scored 8 PASS / 2 FAIL under
+`Login_Auth_UAT_API` and 10 PASS / 0 FAIL under `Employee_Auth_API`, same
+endpoint, same credentials, same minute. The provider name looked right; it
+says UAT, and the environment is UAT. It describes the provider, not the host
+its tokens are good for.
+
+**Stale fixture IDs look the same way — like a broken endpoint.** This is the
+other class of FAIL that is not an engine or API defect, and it is the neighbour
+of the one above: a row whose path carries a **literal record ID** captured when
+that record existed. The record is deleted or the environment is refreshed, the
+ID stops resolving, and the row returns `404` forever after.
+
+Four of s11's FAILs are this — `/api/attendancepolicy/1`, `/2`,
+`/api/v1/attendance/shift/master/6`, `/7`. **They are stable, not flaky**:
+reproduced identically in s04 and s11. And the endpoints themselves are fine —
+s02 runs the same collection at passRate 1.0. Only the *instance* is gone.
+
+**20 of the 45 inventory rows embed a literal record ID in their path** — 11 of
+the 21 runnable rows and 9 of the 24 excluded ones (counted 2026-08-27 from
+[`../runnable-apis.json`](../runnable-apis.json); a path segment that is a bare
+integer, so `/api/v1/...` version segments and `{holidaytemplateid}` placeholders
+are not counted). **Every one of them is exposed to this.** Today only four have
+gone stale; the other sixteen are the same construction and will follow whenever
+their records do.
+
+**Do not read a `404` on such a row as an endpoint defect.** Check whether the
+path carries a literal ID first, and whether the collection endpoint for the
+same resource is clean — if it is, the endpoint works and the fixture is gone.
+
+Fixture management — seeding, refreshing, or parameterising these IDs — is
+**outside this project's scope** and nothing here attempts it. The count is
+recorded so the platform team can size the problem, not as a defect list.
 
 **Credential handling after entry is yours.** The engine guarantees redaction of
 its own reports and logs — no credential value, length, or masked form appears
