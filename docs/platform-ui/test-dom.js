@@ -717,7 +717,9 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
      /Hollow points are sample runs/i.test(t2.textContent));
   ok('sample points name themselves in their tooltip',
      [...t2.querySelectorAll('svg.trend title')].some(x => /sample/.test(x.textContent)));
-  ok('the run count is shown', /\d+ runs/.test(t2.textContent), t2.textContent.match(/\d+ runs/));
+  ok('the card breaks down real versus sample runs',
+     /\d+ real/.test(t2.textContent) && /\d+ sample/.test(t2.textContent),
+     (t2.textContent.match(/\d+ real[^<]*/) || [''])[0].trim());
 
   // samples must be real engine output, and must vary
   const hist = JSON.parse(window.localStorage.getItem('hcm-console-v1')).history;
@@ -754,6 +756,17 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   ok('two real runs plot two points',
      t3.querySelectorAll('svg.trend circle').length === 2,
      t3.querySelectorAll('svg.trend circle').length + '');
+
+  console.log('\nfirst-view seeding:');
+  const css5 = [...doc.querySelectorAll('style')].map(s => s.textContent).join('\n');
+  ok('the trend was seeded without being asked',
+     JSON.parse(window.localStorage.getItem('hcm-console-v1')).seededTrend === true);
+  ok('the seed flag is persisted so it happens once',
+     /seededTrend/.test([...doc.querySelectorAll('script')].map(s => s.textContent).join('')));
+  ok('cards no longer stretch to the tallest in the row',
+     /\.egrid3\{[^}]*align-items:start/.test(css5));
+  ok('the chart cannot balloon on a wide screen',
+     /\.trend\{[^}]*max-height:260px/.test(css5));
 
   console.log('\nreport overflow:');
   const css4 = [...doc.querySelectorAll('style')].map(s => s.textContent).join('\n');

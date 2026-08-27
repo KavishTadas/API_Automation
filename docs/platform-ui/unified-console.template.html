@@ -415,7 +415,7 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .ch-te{background:rgba(20,184,166,.2);color:var(--t300)}
 
 /* ---- overview grids ---- */
-.egrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap-lg)}
+.egrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap-lg);align-items:start}
 .egrid3>*{min-width:0}
 .egrid3 .span2{grid-column:span 2}
 @media(max-width:1040px){ .egrid3{grid-template-columns:1fr} .egrid3 .span2{grid-column:auto} }
@@ -492,7 +492,8 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .ebtn-full{width:100%;justify-content:center;padding:10px;background:var(--t800);
   color:#ccfbf1;border:0;font-weight:600;margin-top:14px}
 .ebtn-full:hover{background:var(--t700)}
-.trend{width:100%;height:auto;display:block;overflow:visible;min-height:180px}
+.trend{width:100%;height:auto;display:block;overflow:visible;
+  min-height:170px;max-height:260px}
 
 /* ---- footer ---- */
 .efoot{border-top:1px solid var(--s800);margin-top:26px;padding:16px 18px;
@@ -1015,6 +1016,7 @@ const STATE = {
   history:[],           // last N run summaries, newest last — drives the trend chart
   pane:'suites',        // which workbench pane the side menu is pointing at
   closedSuites:[],      // suite cards the user has collapsed
+  seededTrend:false,    // the trend was seeded once with sample runs
   catFilter:'all',      // Categories tab: which defect class is shown
   modFilter:'all',      // Suites tab: which module is shown
   running:false
@@ -1030,6 +1032,7 @@ function persist(){
     imported:STATE.imported, result:STATE.result, providers:STATE.providers,
     history:STATE.history, pane:STATE.pane,
     catFilter:STATE.catFilter, modFilter:STATE.modFilter, closedSuites:STATE.closedSuites,
+    seededTrend:STATE.seededTrend,
     theme:document.documentElement.getAttribute('data-theme')
   })); }catch(e){/* private mode — the UI must still work */}
 }
@@ -1123,6 +1126,7 @@ function restore(){
   STATE.pane=s.pane||'suites';
   STATE.catFilter=s.catFilter||'all'; STATE.modFilter=s.modFilter||'all';
   STATE.closedSuites=s.closedSuites||[];
+  STATE.seededTrend=!!s.seededTrend;
   if(STATE.view==='detail' && !STATE.focus) STATE.view='home';
 }
 
@@ -1646,6 +1650,14 @@ function renderAnalytics(){
     const b=$('#emptyToConsole'); if(b) b.onclick=()=>go('home');
     return;
   }
+  /* A single point is not a trend, and an almost-empty chart reads as broken.
+     Seed it once from this same engine so it has a shape; every seeded point
+     is flagged and drawn hollow, and Clear removes them. */
+  if(!STATE.seededTrend && STATE.history.filter(r=>!r.sample).length < 2){
+    STATE.seededTrend = true;
+    seedSampleHistory(true);
+    persist();
+  }
   mast.innerHTML = masthead(R);
   renderTabs(R);
 
@@ -1663,7 +1675,8 @@ function renderAnalytics(){
   const ex=$('#eExport'); if(ex) ex.onclick=exportModal;
   $$('#view-analytics [data-back]').forEach(b=> b.onclick=()=> go(b.dataset.back));
   $$('#view-analytics [data-hist]').forEach(b=> b.onclick=()=>{
-    if(b.dataset.hist==='clear') STATE.history=STATE.history.filter(r=>!r.sample);
+    if(b.dataset.hist==='clear'){ STATE.history=STATE.history.filter(r=>!r.sample);
+                                  STATE.seededTrend=true; }
     else seedSampleHistory();
     persist(); renderAnalytics();
   });
@@ -2082,11 +2095,12 @@ function tabOverview(R){
         <div><h3>Historical Build Trend (Last ${HISTORY_MAX} Runs)</h3>
           <p>Pass rate retained across runs in this browser</p></div>
         <div style="display:flex;gap:var(--gap-sm);align-items:center;flex-wrap:wrap">
-          ${STATE.history.length<2?`<button class="ebtn ebtn-ghost" style="padding:5px 10px"
-             data-hist="seed">Add sample runs</button>`:''}
+          ${STATE.history.some(r=>r.sample)?'':`<button class="ebtn ebtn-ghost" style="padding:5px 10px"
+             data-hist="seed">Add sample runs</button>`}
           ${STATE.history.length?`<button class="ebtn ebtn-ghost" style="padding:5px 10px"
              data-hist="clear">Clear</button>`:''}
-          <span class="epill te">${STATE.history.length} run${STATE.history.length===1?'':'s'}</span>
+          <span class="epill te">${STATE.history.filter(r=>!r.sample).length} real${
+            STATE.history.some(r=>r.sample)?` &middot; ${STATE.history.filter(r=>r.sample).length} sample`:''}</span>
         </div>
       </div>
       <div style="min-height:180px">${trendChart()}</div>
@@ -3222,9 +3236,9 @@ function syncPersona(){
    the chart has a shape before you have run five batches yourself. These are
    real outputs of the engine on this page, not invented numbers, and each is
    flagged `sample` so the chart draws it hollow and says so. */
-function seedSampleHistory(){
+function seedSampleHistory(quiet){
   const refs = STATE.result ? STATE.result.apis.map(a=>a.apiRef) : [...STATE.selected];
-  if(!refs.length){ toast('Run a batch first - samples follow its selection'); return; }
+  if(!refs.length){ if(!quiet) toast('Run a batch first - samples follow its selection'); return; }
   const made=[];
   for(let i=1;i<=HISTORY_MAX-1;i++){
     const R=runBatch(refs,'sample'+i);
@@ -3233,7 +3247,7 @@ function seedSampleHistory(){
                total:R.summary.total, sample:true});
   }
   STATE.history = made.concat(STATE.history.filter(r=>!r.sample)).slice(-HISTORY_MAX);
-  toast('Added '+made.length+' sample runs to the trend');
+  if(!quiet) toast('Added '+made.length+' sample runs to the trend');
 }
 
 /* Runs a batch, then hands off to the report view — the "View Report"
