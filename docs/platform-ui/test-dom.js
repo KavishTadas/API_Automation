@@ -13,6 +13,8 @@ const $ = s => doc.querySelector(s);
 const $$ = s => [...doc.querySelectorAll(s)];
 const click = el => el.dispatchEvent(new window.Event('click', { bubbles: true }));
 const vis = id => $('#view-' + id).classList.contains('active');
+const goHome   = () => click($('#railMenu [data-menu-act="suites"]'));
+const goReport = () => click($('#railMenu [data-view="analytics"]'));
 
 let bad = 0, errs = [];
 window.addEventListener('error', e => errs.push(e.message));
@@ -88,7 +90,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   ok('report is not empty', $('#anBody').children.length > 0);
 
   console.log('\nView Report handoff:');
-  $$('.rail-item[data-view]').find(b => b.dataset.view === 'home').click();
+  goHome();
   await wait(60);
   ok('can return to Console', vis('home'));
   ok('View Report is now enabled', $('#btnViewReportHome').disabled === false);
@@ -103,7 +105,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   for (const t of $$('#anTabs .nitem')) {
     const name = t.dataset.tab;
     errs.length = 0;
-    $$('.rail-item[data-view]').find(b => b.dataset.view === 'analytics').click();
+    goReport();
     await wait(20);
     click(t);
     await wait(60);
@@ -141,7 +143,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
      JSON.stringify(saved.selected || []).slice(0, 80));
 
   console.log('\nmasthead + quality gate:');
-  $$('.rail-item[data-view]').find(b => b.dataset.view === 'analytics').click();
+  goReport();
   await wait(80);
   const mast = $('#anMast').textContent;
   ok('masthead shows environment', /ENV:\s*UAT/.test(mast), mast.slice(0, 90));
@@ -166,7 +168,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
      /Not enough runs yet/.test($('#anBody').textContent) || !!$('.trend'));
 
   // second run -> trend should draw
-  $$('.rail-item[data-view]').find(b => b.dataset.view === 'home').click();
+  goHome();
   await wait(50);
   click($('#btnRun'));
   await wait(1400);
@@ -246,27 +248,61 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
      $$('#railMenu .rail-sec').map(s => s.textContent.trim())
        .filter(x => /^(Workbench|Report|Actions)$/.test(x)).length === 3,
      $$('#railMenu .rail-sec').map(s => s.textContent.trim()).join(' | '));
-  ok('menu marks the current view active', !!$('#railMenu .rail-item.active'));
-  ok('menu counts the loaded APIs', /45/.test($('#railMenu [data-view="home"]').textContent));
-  ok('menu offers every visible report section',
-     $$('#railMenu [data-menu-tab]').length === $$('#anTabs .nitem').length,
-     $$('#railMenu [data-menu-tab]').length + ' vs ' + $$('#anTabs .nitem').length);
 
-  const jump = $$('#railMenu [data-menu-tab]').find(b => b.dataset.menuTab === 'perf');
-  ok('menu can jump straight to a report section', !!jump);
-  click(jump);
-  await wait(90);
-  ok('jumping lands on the report', vis('analytics'));
-  ok('jumping selects that section', $('#anTabs .nitem.active').dataset.tab === 'perf',
-     $('#anTabs .nitem.active').dataset.tab);
+  const wb = $$('#railMenu .rail-item').filter(b =>
+    ['suites', 'apis'].includes(b.dataset.menuAct));
+  ok('Workbench offers exactly Suites and APIs', wb.length === 2,
+     wb.map(b => b.dataset.menuAct).join(','));
+  ok('the removed Workbench rows are gone',
+     !$$('#railMenu .rail-item').some(b => /Endpoint detail|Run selected/i.test(b.textContent)),
+     $$('#railMenu .rail-item').map(b => b.textContent.trim().split('\n')[0]).join(' | '));
+  ok('Report offers exactly Open Report',
+     $$('#railMenu [data-view]').length === 1 &&
+     /Open Report/i.test($('#railMenu [data-view="analytics"]').textContent));
+  ok('no per-section report rows remain', $$('#railMenu [data-menu-tab]').length === 0,
+     $$('#railMenu [data-menu-tab]').length + ' rows');
+  ok('Suites counts the modules',
+     /\b11\b/.test($('#railMenu [data-menu-act="suites"]').textContent),
+     $('#railMenu [data-menu-act="suites"]').textContent.trim());
+  ok('APIs counts the endpoints',
+     /45/.test($('#railMenu [data-menu-act="apis"]').textContent),
+     $('#railMenu [data-menu-act="apis"]').textContent.trim());
 
-  $$('#pswReport button').find(b => b.dataset.persona === 'exec').click();
-  await wait(90);
-  ok('menu honours the persona filter',
-     !$$('#railMenu [data-menu-tab]').some(b => b.dataset.menuTab === 'json'),
-     $$('#railMenu [data-menu-tab]').map(b => b.dataset.menuTab).join(','));
-  $$('#pswReport button').find(b => b.dataset.persona === 'qa').click();
-  await wait(60);
+  click($('#railMenu [data-menu-act="apis"]'));
+  await wait(70);
+  ok('APIs row lands on the console', vis('home'));
+  ok('APIs row marks itself active',
+     $('#railMenu [data-menu-act="apis"]').classList.contains('active'));
+  goHome();
+  await wait(70);
+  ok('Suites row marks itself active',
+     $('#railMenu [data-menu-act="suites"]').classList.contains('active'));
+
+  goReport();
+  await wait(80);
+  ok('Open Report opens the report', vis('analytics'));
+  ok('menu still present on the report', $$('#railMenu .rail-item').length > 0);
+  ok('Open Report marks itself active',
+     $('#railMenu [data-view="analytics"]').classList.contains('active'));
+
+  console.log('\nreport theme switch:');
+  ok('report masthead carries a theme switch', !!$('#eTheme'));
+  ok('it is a labelled switch', $('#eTheme').getAttribute('role') === 'switch' &&
+     !!$('#eTheme').getAttribute('aria-label'));
+  const beforeT = doc.documentElement.getAttribute('data-theme');
+  errs.length = 0;
+  click($('#eTheme'));
+  await wait(80);
+  const afterT = doc.documentElement.getAttribute('data-theme');
+  ok('it flips the theme', afterT !== beforeT, beforeT + ' -> ' + afterT);
+  ok('both switches report the same state',
+     $('#eTheme').getAttribute('aria-checked') === $('#btnTheme').getAttribute('aria-checked'),
+     $('#eTheme').getAttribute('aria-checked') + ' vs ' + $('#btnTheme').getAttribute('aria-checked'));
+  ok('the report survives the flip', $('#anBody').children.length > 0 && errs.length === 0,
+     errs.join(' | '));
+  click($('#eTheme'));
+  await wait(70);
+  ok('flipping back restores it', doc.documentElement.getAttribute('data-theme') === beforeT);
 
   click($('#btnRailCollapse'));
   await wait(40);
@@ -276,12 +312,11 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   await wait(40);
   ok('menu expands again', !$('#rail').classList.contains('collapsed'));
 
-  $$('.rail-item[data-view]').find(b => b.dataset.view === 'home').click();
+  goHome();
   await wait(60);
-  ok('menu still present on the console view', $$('#railMenu .rail-item').length > 0);
 
   console.log('\nnavigator:');
-  $$('.rail-item[data-view]').find(b => b.dataset.view === 'home').click();
+  goHome();
   await wait(40);
   click($('#btnOpenNav'));
   await wait(60);
