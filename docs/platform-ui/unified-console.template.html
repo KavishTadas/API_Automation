@@ -552,7 +552,7 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 
 /* ---------- history explorer ---------- */
 .hist-list{display:flex;flex-direction:column;gap:var(--gap-sm);max-height:58vh;overflow-y:auto}
-.hist-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;
+.hist-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto auto;align-items:center;
   gap:var(--gap-md);width:100%;text-align:left;cursor:pointer;font:inherit;color:var(--text);
   padding:var(--pad-card);border:1px solid var(--line);border-radius:var(--r);
   background:var(--panel-2);transition:border-color .15s,background .15s}
@@ -576,7 +576,7 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .hist-dur{text-align:right;font:600 12px var(--mono);color:var(--text-dim);white-space:nowrap}
 @media(max-width:640px){
   .hist-row{grid-template-columns:auto minmax(0,1fr);row-gap:6px}
-  .hist-nums,.hist-dur{grid-column:2;text-align:left}
+  .hist-nums,.hist-dur,.hist-act{grid-column:2;text-align:left;align-items:flex-start}
 }
 
 /* ---------- export chooser ---------- */
@@ -733,13 +733,74 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .ro{background:var(--bg);color:var(--text-dim);cursor:default}
 .payload{max-height:210px;overflow:auto;margin:0}
-.tc{border:1px solid var(--line);border-radius:9px;padding:12px 13px;margin-bottom:10px;background:var(--panel-2)}
+/* ---- test case card ---- */
+.tc{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:start;
+  gap:var(--gap-md);border:1px solid var(--line);border-radius:9px;
+  padding:var(--pad-card);margin-bottom:8px;background:var(--panel-2)}
 .tc:last-child{margin-bottom:0}
-.tc-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.tc-h .tid{font:600 10.5px var(--mono);color:var(--text-faint)}
-.tc-h .tt{font-size:13px;font-weight:650;flex:1;min-width:0}
-.tc-d{font-size:12px;color:var(--text-faint);margin-top:6px}
-.tc-f{display:flex;align-items:center;gap:8px;margin-top:9px;flex-wrap:wrap}
+.tc.gap{border-color:var(--purple);background:var(--purple-bg)}
+.tc-n{font:700 11px var(--mono);color:var(--text-faint);text-align:center;
+  padding-top:2px;font-variant-numeric:tabular-nums}
+.tc-b{min-width:0}
+.tc-t{margin:0;font-size:13px;font-weight:650;line-height:1.4}
+.tc-id{font:500 10.5px var(--mono);color:var(--text-faint);margin-top:3px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-d{font-size:12px;color:var(--text-dim);margin:7px 0 0;line-height:1.55}
+.tc-f{display:flex;align-items:center;gap:6px;margin-top:9px;flex-wrap:wrap}
+.tag{font:600 10px var(--sans);padding:2px 7px;border-radius:99px;
+  border:1px solid var(--line);color:var(--text-faint);white-space:nowrap}
+.tag.gap{color:var(--purple);border-color:var(--purple)}
+.tag.warn{color:var(--amber);border-color:var(--amber)}
+.tc>.st{margin-top:1px}
+.tc-grp{display:flex;align-items:center;gap:8px;margin:16px 0 8px;
+  font:700 10px var(--sans);text-transform:uppercase;letter-spacing:.09em;
+  color:var(--text-faint)}
+.tc-grp:first-child{margin-top:2px}
+.tc-grp i{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.tc-grp-n{font-family:var(--mono);color:var(--text-faint);opacity:.75}
+@media(max-width:560px){
+  .tc{grid-template-columns:30px minmax(0,1fr);row-gap:8px}
+  .tc>.st{grid-column:2;justify-self:start}
+}
+
+/* ---- test cases explorer ---- */
+.case{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);
+  margin-bottom:var(--gap-sm);overflow:hidden;box-shadow:var(--shadow)}
+.case.open{border-color:var(--accent-line)}
+.case-h{display:grid;grid-template-columns:16px 54px minmax(0,1fr) minmax(0,160px) auto;
+  align-items:center;gap:var(--gap-md);width:100%;padding:var(--pad-row);
+  background:var(--panel-2);border:0;border-bottom:1px solid transparent;
+  font:inherit;color:inherit;text-align:left;cursor:pointer}
+.case.open .case-h{border-bottom-color:var(--line)}
+.case-h:hover{background:var(--panel-hover)}
+.case-h:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.case.open .sc-caret{transform:none}
+.case:not(.open) .sc-caret{transform:rotate(-90deg)}
+.case-t{min-width:0}
+.case-nm{display:block;font-size:12.5px;font-weight:650;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.case-p{display:block;font:500 11px var(--mono);color:var(--text-faint);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.case-mod{font-size:11.5px;color:var(--text-dim);overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.case-cts{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.case-cts .st{min-width:26px;text-align:center}
+.case-b{padding:0}
+.case.open .case-b{padding:var(--pad-card)}
+@media(max-width:820px){
+  .case-h{grid-template-columns:16px 54px minmax(0,1fr);row-gap:5px}
+  .case-mod{grid-column:3}
+  .case-cts{grid-column:1/-1;justify-content:flex-start}
+}
+
+/* ---- history row action ---- */
+.hist-act{display:flex;flex-direction:column;align-items:flex-end;gap:3px;white-space:nowrap}
+.hist-open{display:inline-flex;align-items:center;gap:5px;font:600 11px var(--sans);
+  color:var(--accent)}
+.hist-open svg{width:13px;height:13px}
+.hist-row .linkbtn{font:500 10.5px var(--sans);color:var(--text-faint)}
+.hist-row .linkbtn:hover{color:var(--accent)}
+
 
 /* ---------- navigator ---------- */
 .navback{position:fixed;inset:0;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;
@@ -1012,6 +1073,23 @@ hr{border:none;border-top:1px solid var(--line-soft);margin:12px 0}
     </div>
   </section>
 
+  <!-- ===================== VIEW 3 · TEST CASES ===================== -->
+  <section class="view scroll" id="view-cases">
+    <header class="sect-head">
+      <h2>Test Cases by Endpoint</h2>
+      <p class="sub" id="caseHint"></p>
+      <div class="searchwrap">
+        <span class="si" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.65" y2="16.65"/></svg>
+        </span>
+        <input type="search" id="caseSearch" autocomplete="off"
+          aria-label="Filter endpoints and test cases"
+          placeholder="Filter by endpoint, module, method or check name">
+      </div>
+    </header>
+    <div id="caseBody"></div>
+  </section>
+
   <!-- ===================== NAVIGATOR ===================== -->
   <div class="navback" id="navBack"></div>
   <aside class="navpanel" id="navPanel">
@@ -1097,6 +1175,7 @@ const STATE = {
   closedSuites:[],      // suite cards the user has collapsed
   seededTrend:false,    // the trend was seeded once with sample runs
   viewing:null,         // runId of an archived snapshot being viewed, or null
+  openCase:null,        // which endpoint is expanded in the Test Cases view
   shared:false,         // this document is a shared standalone report
   catFilter:'all',      // Categories tab: which defect class is shown
   modFilter:'all',      // Suites tab: which module is shown
@@ -1113,7 +1192,7 @@ let persist=function persist(){
     imported:STATE.imported, result:STATE.result, providers:STATE.providers,
     history:STATE.history, pane:STATE.pane,
     catFilter:STATE.catFilter, modFilter:STATE.modFilter, closedSuites:STATE.closedSuites,
-    seededTrend:STATE.seededTrend, viewing:STATE.viewing,
+    seededTrend:STATE.seededTrend, viewing:STATE.viewing, openCase:STATE.openCase,
     theme:document.documentElement.getAttribute('data-theme')
   })); }catch(e){/* private mode — the UI must still work */}
 }
@@ -1208,6 +1287,7 @@ function restore(){
   STATE.catFilter=s.catFilter||'all'; STATE.modFilter=s.modFilter||'all';
   STATE.closedSuites=s.closedSuites||[];
   STATE.seededTrend=!!s.seededTrend; STATE.viewing=s.viewing||null;
+  STATE.openCase=s.openCase||null;
   if(STATE.view==='detail' && !STATE.focus) STATE.view='home';
 }
 
@@ -1629,6 +1709,154 @@ function renderNav(){
 function openNav(){ $('#navPanel').classList.add('on'); $('#navBack').classList.add('on'); renderNav(); }
 function closeNav(){ $('#navPanel').classList.remove('on'); $('#navBack').classList.remove('on'); }
 
+/* ==========================================================================
+   TEST CASES — one deterministic order, used by the endpoint screen and the
+   Test Cases explorer alike, so a check keeps the same number wherever it is
+   read. Grouped by category in a fixed sequence, then by title.
+   ========================================================================== */
+const TC_GROUPS=[
+  {k:'functional',  t:'Functional',  tone:'--blue'},
+  {k:'schema',      t:'Contract & schema', tone:'--amber'},
+  {k:'security',    t:'Security',    tone:'--rose'},
+  {k:'performance', t:'Performance', tone:'--purple'},
+  {k:'resilience',  t:'Resilience',  tone:'--cyan'}
+];
+const TC_TONE = c => (TC_GROUPS.find(g=>g.k===c)||{tone:'--slate'}).tone;
+
+function orderedChecks(){
+  const rank = c => { const i=TC_GROUPS.findIndex(g=>g.k===c); return i<0?TC_GROUPS.length:i; };
+  return SEED.globalTestCases.slice().sort((a,b)=>
+    rank(a.category)-rank(b.category) || a.title.localeCompare(b.title));
+}
+/* TC-01..TC-nn, fixed for the life of the catalogue. */
+let TC_NUM=null;
+function tcNum(id){
+  if(!TC_NUM){
+    TC_NUM=new Map();
+    orderedChecks().forEach((tc,i)=> TC_NUM.set(tc.id,'TC-'+String(i+1).padStart(2,'0')));
+  }
+  return TC_NUM.get(id)||'TC-··';
+}
+
+/* The state a check is in for one API: last run if there is one, else the
+   catalogue's prediction, else PLANNED. */
+function checkState(api, tc, prev){
+  const last = prev && prev.results.find(r=>r.testId===tc.id);
+  if(last) return {state:last.state, r:last};
+  const plan = planFor(api.ref);
+  const pred = plan && plan.global ? plan.global[tc.id] : null;
+  return {state: pred ? pred.state : 'PLANNED', r:null};
+}
+
+function tcCard(api, tc, prev, n){
+  const {state, r} = checkState(api, tc, prev);
+  return `<article class="tc" data-tc="${esc(tc.id)}">
+    <div class="tc-n">${esc(n)}</div>
+    <div class="tc-b">
+      <h4 class="tc-t">${esc(tc.title)}</h4>
+      <div class="tc-id">${esc(tc.id.split('::').pop())}</div>
+      ${r && r.reason ? `<p class="tc-d">${esc(r.reason)}</p>` : ''}
+      <div class="tc-f">
+        <span class="tag" style="color:${cssv(TC_TONE(tc.category))};
+          border-color:${cssv(TC_TONE(tc.category))}">${esc(tc.category)}</span>
+        <span class="tag">${tc.hostLevel?'host-level':'per-API'}</span>
+        ${r && r.executed===false ? '<span class="tag">not executed</span>':''}
+        ${r && r.measuredBy && r.measuredBy!==api.ref
+          ? `<span class="tag" title="${esc(r.measuredBy)}">measured elsewhere</span>`:''}
+        ${r && r.blockedBy ? '<span class="tag warn">blocked on auth</span>':''}
+        ${r && r.state==='FAIL' ? `<button class="linkbtn" data-jira="${esc(tc.id)}">Copy Jira ticket</button>`:''}
+      </div>
+    </div>
+    <span class="st st-${esc(state)}">${esc(state)}</span>
+  </article>`;
+}
+
+/* The whole ordered list for one API, grouped with headings. */
+function tcListFor(api, prev){
+  const gapCard = api.assertionState==='not-asserted' ? `<article class="tc gap">
+      <div class="tc-n">—</div>
+      <div class="tc-b">
+        <h4 class="tc-t">Collection defines no assertions for this request</h4>
+        <div class="tc-id">newman · assertion gap</div>
+        <p class="tc-d">The request executes and returns, but nothing is asserted about the
+          response. It must never render as a pass (D7).</p>
+        <div class="tc-f"><span class="tag gap">assertion gap</span></div>
+      </div>
+      <span class="st st-NOT_ASSERTED">NOT_ASSERTED</span>
+    </article>` : '';
+
+  const byGroup=new Map();
+  orderedChecks().forEach(tc=>{
+    if(!byGroup.has(tc.category)) byGroup.set(tc.category, []);
+    byGroup.get(tc.category).push(tc);
+  });
+  const out=[];
+  byGroup.forEach((list, cat)=>{
+    const g=TC_GROUPS.find(x=>x.k===cat)||{t:cat, tone:'--slate'};
+    out.push(`<div class="tc-grp"><i style="background:${cssv(g.tone)}"></i>
+      ${esc(g.t)}<span class="tc-grp-n">${list.length}</span></div>`);
+    list.forEach(tc=> out.push(tcCard(api, tc, prev, tcNum(tc.id))));
+  });
+  return gapCard + out.join('');
+}
+
+/* ---- Test Cases explorer -------------------------------------------------
+   Every API with its checks, so the whole matrix can be read in one place
+   rather than one endpoint at a time. */
+function renderCases(){
+  const q=($('#caseSearch').value||'').toLowerCase().trim();
+  const R=STATE.result;
+  const apis=allApis().filter(a=>{
+    if(!q) return true;
+    const hay=(a.path+' '+a.module+' '+a.method+' '+(a.name||'')+' '+displayId(a)).toLowerCase();
+    if(hay.includes(q)) return true;
+    return orderedChecks().some(tc=>(tc.title+' '+tc.category+' '+tc.id).toLowerCase().includes(q));
+  });
+  const checks=orderedChecks().length;
+
+  $('#caseHint').innerHTML = q
+    ? `<b>${apis.length}</b> of ${allApis().length} endpoints match “${esc(q)}”`
+    : `<b>${allApis().length}</b> endpoints × <b>${checks}</b> global checks · ${
+        R?'states from the last run':'states predicted by the catalogue'}`;
+
+  const body=$('#caseBody');
+  if(!apis.length){ body.innerHTML=`<div class="empty">Nothing matches “${esc(q)}”.</div>`; return; }
+
+  body.innerHTML=apis.map(a=>{
+    const prev = R && R.apis.find(x=>x.apiRef===a.ref);
+    const counts={};
+    orderedChecks().forEach(tc=>{ const s=checkState(a,tc,prev).state; counts[s]=(counts[s]||0)+1; });
+    const open = STATE.openCase===a.ref;
+    return `<article class="case${open?' open':''}" data-case="${esc(a.ref)}">
+      <button class="case-h" data-case-toggle="${esc(a.ref)}" aria-expanded="${open}">
+        <svg class="sc-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        <span class="m ${esc(a.method)}">${esc(a.method)}</span>
+        <span class="case-t">
+          <span class="case-nm">${esc(a.name||a.subModule||a.path)}</span>
+          <span class="case-p">${esc(a.path)}</span>
+        </span>
+        <span class="case-mod">${esc(a.module)}</span>
+        <span class="case-cts">${Object.keys(counts).sort().map(s=>
+          `<span class="st st-${esc(s)}" title="${s}">${counts[s]}</span>`).join('')}</span>
+      </button>
+      <div class="case-b">${open?tcListFor(a, prev):''}</div>
+    </article>`;
+  }).join('');
+
+  body.querySelectorAll('[data-case-toggle]').forEach(h=> h.onclick=()=>{
+    STATE.openCase = STATE.openCase===h.dataset.caseToggle ? null : h.dataset.caseToggle;
+    persist(); renderCases();
+  });
+  body.querySelectorAll('[data-jira]').forEach(b=> b.onclick=()=>{
+    const ref=b.closest('[data-case]').dataset.case;
+    const api=apiByRef(ref);
+    const prev=R && R.apis.find(x=>x.apiRef===ref);
+    const r=prev && prev.results.find(x=>x.testId===b.dataset.jira);
+    if(r) jiraModal({r, api}, R);
+  });
+}
+
 function authProviders(){
   const p = allApis().filter(a=>/\/auth\/(token|login)/i.test(a.path||''));
   return p.length ? p : allApis().filter(a=>/auth/i.test(a.module||'')).slice(0,4);
@@ -1670,42 +1898,8 @@ function renderDetail(){
     : `Runs the ${SEED.globalTestCases.length} global contract checks against this endpoint (D2).`;
 
   /* --- test cases --- */
-  const plan = planFor(a.ref);
   const prev = STATE.result && STATE.result.apis.find(x=>x.apiRef===a.ref);
-  const rows = SEED.globalTestCases.map(tc=>{
-    const p    = plan && plan.global && plan.global[tc.id];
-    const pre  = p ? p.state : 'PLANNED';
-    const last = prev && prev.results.find(r=>r.testId===tc.id);
-    const st   = last ? last.state : pre;
-    return `<div class="tc">
-      <div class="tc-h">
-        <span class="tid">${esc(tc.id.split('::').pop())}</span>
-        <span class="tt">${esc(tc.title)}</span>
-        <span class="st st-${esc(st)}">${esc(st)}</span>
-      </div>
-      ${last && last.reason ? `<div class="tc-d">${esc(last.reason)}</div>` : ''}
-      <div class="tc-f">
-        <span class="pill">${esc(tc.category)}</span>
-        <span class="pill">${tc.hostLevel?'host-level':'per-API'}</span>
-        ${last && last.executed===false ? '<span class="pill">not executed</span>':''}
-        ${last && last.measuredBy && last.measuredBy!==a.ref
-          ? `<span class="pill" title="${esc(last.measuredBy)}">measured on another API</span>`:''}
-        ${last && last.blockedBy ? `<span class="pill partial">blocked by auth provider</span>`:''}
-        ${last && last.state==='FAIL' ? `<button class="linkbtn" data-jira="${esc(tc.id)}">Copy Jira ticket</button>`:''}
-      </div>
-    </div>`;
-  }).join('');
-
-  const gap = a.assertionState==='not-asserted' ? `<div class="tc">
-      <div class="tc-h"><span class="tid">newman</span>
-        <span class="tt">Collection defines no assertions for this request</span>
-        <span class="st st-NOT_ASSERTED">NOT_ASSERTED</span></div>
-      <div class="tc-d">The request executes and returns, but nothing is asserted about the response.
-        It must never render as a pass (D7).</div>
-      <div class="tc-f"><span class="pill gap">assertion gap</span></div>
-    </div>` : '';
-
-  $('#dCases').innerHTML = gap + rows;
+  $('#dCases').innerHTML = tcListFor(a, prev);
   $('#dCases').querySelectorAll('[data-jira]').forEach(b=> b.onclick=()=>{
     const r = prev && prev.results.find(x=>x.testId===b.dataset.jira);
     if(r) jiraModal({r, api:a}, STATE.result);
@@ -1885,7 +2079,9 @@ const ICO={
   gauge:'<path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>',
   sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   moon:'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+  newtab:'<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>',
   share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/>',
+  cases:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
   history:'<path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/>',
   clipboard:'<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>'
 };
@@ -3211,6 +3407,10 @@ function historyModal(){
           <span class="hist-sub">${s.passed} pass · ${s.failed} fail · ${s.total} results</span>
         </span>
         <span class="hist-dur">${(s.durationMs/1000).toFixed(1)}s<br><span class="hist-sub">${s.apis} APIs</span></span>
+        <span class="hist-act">
+          <span class="hist-open">${svg(ICO.newtab)} New tab</span>
+          <span class="linkbtn" data-open-here="${esc(s.runId)}" role="button">open here</span>
+        </span>
       </button>`).join('')}</div>
      <div class="faint" style="font-size:11.5px;margin-top:12px">
        The most recent ${SNAP_MAX} runs are archived in this browser. Opening one
@@ -3221,15 +3421,32 @@ function historyModal(){
   $$('#ovModal [data-open-snap]').forEach(b=> b.onclick=()=>{
     openSnapshot(b.dataset.openSnap); closeModal();
   });
+  $$('#ovModal [data-open-here]').forEach(b=> b.onclick=e=>{
+    e.stopPropagation(); openSnapshot(b.dataset.openHere, true); closeModal();
+  });
   $('#histClear').onclick=()=>{
     try{ localStorage.removeItem(SNAP_LS); }catch(e){}
     closeModal(); toast('Report history cleared');
   };
 }
 
-function openSnapshot(id){
+/* An archived run opens in its own tab: the snapshot is built into a
+   standalone document and handed to the browser as a blob, so the run you
+   were looking at stays put in this tab. Falls back to opening in place when
+   the popup is blocked or blob URLs are unavailable. */
+function openSnapshot(id, inPlace){
   const s=snapById(id);
   if(!s){ toast('That run is no longer archived'); return; }
+  if(!inPlace){
+    try{
+      const blob=new Blob([buildStandalone(s.result)],{type:'text/html'});
+      const url=URL.createObjectURL(blob);
+      const w=window.open(url,'_blank');
+      if(w){ setTimeout(()=>URL.revokeObjectURL(url), 60000);
+             toast(`${id} opened in a new tab`); return; }
+      URL.revokeObjectURL(url);
+    }catch(e){/* fall through to opening in place */}
+  }
   STATE.result=s.result;
   STATE.viewing = (loadSnaps().slice(-1)[0]||{}).runId===id ? null : id;
   STATE.tab='overview'; persist();
@@ -3394,6 +3611,8 @@ function renderMenu(){
     `<div class="rail-sec"><i class="rs-dot" style="background:${cssv('--accent')}"></i>Workbench</div>`,
     menuRow({t:'Suites & APIs', i:MENU_ICO.suites, act:'suites', tone:'--accent',
              on:onHome, ct:`${mods}/${allApis().length}`}),
+    menuRow({t:'Test Cases', i:MENU_ICO.cases, act:'cases', tone:'--amber',
+             on:STATE.view==='cases', ct:SEED.globalTestCases.length}),
     `<div class="rail-sec"><i class="rs-dot" style="background:${cssv('--blue')}"></i>Report</div>`,
     menuRow({t:'Open Report', i:MENU_ICO.report, view:'analytics', tone:'--blue',
              on:STATE.view==='analytics', dis:!R,
@@ -3417,6 +3636,7 @@ function renderMenu(){
       if(el&&el.scrollIntoView) el.scrollIntoView({behavior:'smooth',block:'start'});
       return;
     }
+    if(a==='cases'){ go('cases'); return; }
     if(a==='history') historyModal();
     if(a==='curl')   curlModal();
     if(a==='nav')    openNav();
@@ -3439,12 +3659,14 @@ function syncView(){
   renderMenu();
   if(STATE.view==='home')   renderHome();
   if(STATE.view==='detail') renderDetail();
+  if(STATE.view==='cases')  renderCases();
   if(onReport)              renderAnalytics();
   if(STATE.view!=='detail' && !onReport) renderTopbar();
 }
 $('#apiSearch').oninput = () => { renderMultiSelect(); renderSuitesGrid(); };
 $('#apiSearch').onkeydown = e => { if(e.key==='Escape') clearSearch(); };
 $('#apiSearchClear').onclick = clearSearch;
+$('#caseSearch').oninput = renderCases;
 $('#btnSelAll').onclick = () => { allApis().forEach(a=>STATE.selected.add(a.ref)); persist(); renderHome(); };
 $('#btnSelNone').onclick = () => { STATE.selected.clear(); persist(); renderHome(); };
 $('#btnSelGaps').onclick = () => { STATE.selected.clear();
@@ -3452,7 +3674,8 @@ $('#btnSelGaps').onclick = () => { STATE.selected.clear();
   persist(); renderHome(); toast('Selected every endpoint with no assertions'); };
 $('#envSel').onchange = e => { STATE.env=e.target.value; persist(); renderStrip(); };
 $('#credSel').onchange = e => { STATE.alias=e.target.value; persist();
-  if(STATE.view==='detail') renderDetail(); };
+  if(STATE.view==='detail') renderDetail();
+  if(STATE.view==='cases')  renderCases(); };
 
 /* --- home --- */
 $('#btnConfigureFirst').onclick = () => {

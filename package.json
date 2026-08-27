@@ -11,7 +11,7 @@
     "report:open": "node scripts/open-allure.js",
     "monitor:run": "node monitoring/health-check.js",
     "ui:build": "python scripts/build_unified_console.py",
-    "ui:test": "node docs/platform-ui/test-unified-console.js && node docs/platform-ui/test-dom.js && node docs/platform-ui/test-export.js && python docs/platform-ui/check-export.py && node docs/platform-ui/test-history.js",
+    "ui:test": "node docs/platform-ui/test-unified-console.js && node docs/platform-ui/test-dom.js && node docs/platform-ui/test-export.js && python docs/platform-ui/check-export.py && node docs/platform-ui/test-history.js && node docs/platform-ui/test-cases.js",
     "ui:serve": "python -m http.server 8910 --directory docs/platform-ui"
   },
   "devDependencies": {

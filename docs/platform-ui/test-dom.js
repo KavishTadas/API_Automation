@@ -423,8 +423,20 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   const tints = rows.filter(b => !b.classList.contains('active'))
     .map(b => (b.querySelector('.ri').getAttribute('style') || ''));
   ok('inactive rows carry a colour', tints.every(x => /color:#/.test(x)), tints.join(' | '));
-  ok('the tints are distinct from one another',
-     new Set(tints).size === tints.length, tints.join(' | '));
+  // distinct *within a section* -- across sections a hue may repeat, which is
+  // what keeps Export amber instead of being pushed onto a danger colour
+  ok('tints are distinct within each section', (() => {
+    const kids = [...$('#railMenu').children];
+    let seen = [], okAll = true;
+    for (const el of kids) {
+      if (el.classList.contains('rail-sec')) { seen = []; continue; }
+      if (!el.classList.contains('rail-item') || el.classList.contains('active')) continue;
+      const c = el.querySelector('.ri').getAttribute('style') || '';
+      if (seen.includes(c)) okAll = false;
+      seen.push(c);
+    }
+    return okAll;
+  })(), 'a section repeats a tint');
   ok('the active row drops its tint and takes the accent',
      rows.filter(b => b.classList.contains('active'))
          .every(b => !b.querySelector('.ri').getAttribute('style')));
