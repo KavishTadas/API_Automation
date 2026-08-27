@@ -672,6 +672,43 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   ]) ok('catalogue carries ' + label, allText.includes(needle), needle);
   ok('no placeholder host survives', !/\{\{|localhost|example\.com/.test(allText));
 
+  console.log('\nmodule bars:');
+  goReport();
+  await wait(90);
+  $$('#anTabs .nitem').find(t => t.dataset.tab === 'overview').click();
+  await wait(90);
+  const barCard = $$('#anBody .ecard').find(c => /Suite Execution/.test(c.textContent));
+  const bars = [...barCard.querySelectorAll('.sbar')];
+  ok('one row per module in the run', bars.length > 0, bars.length + ' rows');
+  ok('every module is labelled',
+     bars.every(b => b.querySelector('.sbar-l').textContent.trim().length > 0),
+     bars.map(b => b.querySelector('.sbar-l').textContent.trim()).join(' | '));
+  ok('labels are real text, not svg glyphs',
+     bars.every(b => b.querySelector('.sbar-l').tagName === 'DIV'));
+  ok('labels are not cut off in the markup',
+     bars.every(b => !b.querySelector('.sbar-l').textContent.includes('\u2026')),
+     'a label still carries an ellipsis');
+  ok('each label carries the full name as a tooltip',
+     bars.every(b => b.querySelector('.sbar-l').getAttribute('title')));
+  ok('every row draws at least one segment',
+     bars.every(b => b.querySelectorAll('.sbar-s').length > 0));
+  ok('every segment names its module and state',
+     bars.every(b => [...b.querySelectorAll('.sbar-s')].every(sg => {
+       const title = sg.getAttribute('title') || '';
+       return title.includes(b.querySelector('.sbar-l').textContent.trim()) &&
+         /(PASS|FAIL|WARN|SKIPPED_NO_TOKEN|NOT_ASSERTED|INFORMATIONAL|NOT_APPLICABLE): \d+/
+           .test(title);
+     })),
+     (bars[0].querySelector('.sbar-s') || {}).title);
+  ok('every row states its pass rate and totals',
+     bars.every(b => /(\d|n\/a)/.test(b.querySelector('.sbar-n').textContent)),
+     bars.map(b => b.querySelector('.sbar-n').textContent.replace(/\s+/g, ' ').trim()).join(' | '));
+  ok('an axis is drawn beneath the bars',
+     barCard.querySelectorAll('.sbar-axis span').length >= 2,
+     barCard.querySelectorAll('.sbar-axis span').length + ' ticks');
+  ok('bar widths are proportional, never over 100%',
+     bars.every(b => parseFloat(b.querySelector('.sbar-t').style.width) <= 100));
+
   console.log('\ntrend graph:');
   goReport();
   await wait(90);
