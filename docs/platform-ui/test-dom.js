@@ -140,6 +140,106 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   ok('selection persisted', Array.isArray(saved.selected) && saved.selected.length === 6,
      JSON.stringify(saved.selected || []).slice(0, 80));
 
+  console.log('\nmasthead + quality gate:');
+  $$('.rail-btn[data-view]').find(b => b.dataset.view === 'analytics').click();
+  await wait(80);
+  const mast = $('#anMast').textContent;
+  ok('masthead shows environment', /ENV:\s*UAT/.test(mast), mast.slice(0, 90));
+  ok('masthead shows the run id', /Run:\s*run-/.test(mast));
+  ok('masthead shows a timestamp', /\d{4}-\d{2}-\d{2}T/.test(mast));
+  ok('masthead shows total duration', /\d+\.\ds total/.test(mast));
+  ok('masthead marks the run simulated', /simulated/i.test(mast));
+  ok('masthead lists engines', $$('#anMast .eng').length >= 1);
+  ok('masthead scores the contract rules', /\d+ \/ \d+ passed/.test(mast));
+  ok('quality gate banner present', !!$('.gate'));
+  ok('gate level is one of the three',
+     /Quality Gate: (PASSED|WARNING|FAILED)/.test(mast), mast.match(/Quality Gate: \w+/));
+  ok('Back to workbench present in masthead', !!$('#anMast [data-back]'));
+
+  console.log('\ntrend + sign-off:');
+  $$('#anTabs .tab').find(t => t.dataset.tab === 'overview').click();
+  await wait(60);
+  ok('sign-off panel rendered', /Executive sign-off/.test($('#anBody').textContent));
+  ok('sign-off states the SLA gate at 700ms', /700ms/.test($('#anBody').textContent));
+  ok('trend card rendered', /Pass-rate trend/.test($('#anBody').textContent));
+  ok('one run shows the not-enough-runs notice',
+     /Not enough runs yet/.test($('#anBody').textContent) || !!$('.trend'));
+
+  // second run -> trend should draw
+  $$('.rail-btn[data-view]').find(b => b.dataset.view === 'home').click();
+  await wait(50);
+  click($('#btnRun'));
+  await wait(1400);
+  $$('#anTabs .tab').find(t => t.dataset.tab === 'overview').click();
+  await wait(80);
+  ok('trend chart draws after a second run', !!$('.trend'));
+  ok('trend has a point per run', $$('.trend circle').length + $$('.trend text').filter(t =>
+     t.textContent === 'n/a').length >= 2, $$('.trend circle').length + ' points');
+  ok('trend is labelled for screen readers', /role="img"/.test($('#anBody').innerHTML));
+
+  console.log('\nshared data contract:');
+  const shared = JSON.parse(window.localStorage.getItem('HCM_SHARED_RUN_DATA') || 'null');
+  ok('HCM_SHARED_RUN_DATA is published', !!shared);
+  ok('bundle carries runId, environment, summary',
+     !!(shared.runId && shared.environment && shared.summary));
+  ok('bundle lists executed APIs', Array.isArray(shared.executedApis) && shared.executedApis.length > 0,
+     (shared.executedApis || []).length + '');
+  ok('bundle lists modules with pass/fail', Array.isArray(shared.modules) &&
+     shared.modules.every(m => m.name && 'passed' in m && 'failed' in m));
+  ok('bundle carries a quality gate',
+     ['PASSED', 'WARNING', 'FAILED'].includes(shared.summary.qualityGate), shared.summary.qualityGate);
+  ok('bundle keeps the contract pass-rate basis',
+     shared.summary.passRateBasis === 'PASS / (PASS + FAIL)', shared.summary.passRateBasis);
+  ok('bundle pass rate is null (not 0) when nothing asserted',
+     shared.summary.passRateApplicable || shared.summary.passRate === null);
+  ok('defects carry a reproducer cURL',
+     (shared.defects || []).every(d => /^curl /.test(d.curl || '')));
+  ok('no credential value in the shared bundle',
+     !/password|secret|Bearer\s+ey/i.test(JSON.stringify(shared)));
+  ok('every defect names its module and endpoint',
+     (shared.defects || []).every(d => d.module && d.endpoint));
+
+  console.log('\npersonas:');
+  const personas = $$('#personaSeg button').map(b => b.dataset.persona);
+  ok('five personas offered', personas.length === 5, personas.join(','));
+  ok('Exec, Dev, QA, DevOps and All present',
+     ['exec', 'dev', 'qa', 'devops', 'all'].every(p => personas.includes(p)), personas.join(','));
+
+  const tabsFor = () => $$('#anTabs .tab').filter(t => !t.hasAttribute('data-persona-hide'))
+    .map(t => t.dataset.tab);
+  $$('#personaSeg button').find(b => b.dataset.persona === 'exec').click();
+  await wait(80);
+  const execTabs = tabsFor();
+  ok('Exec loses the raw-JSON tab', !execTabs.includes('json'), execTabs.join(','));
+  ok('Exec loses the payload-inspection tab', !execTabs.includes('payloads'), execTabs.join(','));
+  ok('Exec keeps performance and contract', execTabs.includes('perf') && execTabs.includes('compliance'));
+  ok('Exec sees the sign-off panel',
+     [...$('#anBody').querySelectorAll('[data-persona-for]')]
+       .filter(e => /Executive sign-off/.test(e.textContent)).every(e => e.style.display !== 'none'));
+
+  $$('#personaSeg button').find(b => b.dataset.persona === 'dev').click();
+  await wait(80);
+  ok('Dev gets the JSON tab back', tabsFor().includes('json'), tabsFor().join(','));
+  ok('Dev hides the exec sign-off',
+     [...$('#anBody').querySelectorAll('[data-persona-for]')]
+       .filter(e => /Executive sign-off/.test(e.textContent)).every(e => e.style.display === 'none'));
+
+  $$('#personaSeg button').find(b => b.dataset.persona === 'all').click();
+  await wait(80);
+  ok('All sees every tab', tabsFor().length === $$('#anTabs .tab').length, tabsFor().join(','));
+  ok('All hides no content',
+     [...$('#view-analytics').querySelectorAll('[data-persona-for]')]
+       .every(e => e.style.display !== 'none'));
+  $$('#personaSeg button').find(b => b.dataset.persona === 'qa').click();
+  await wait(60);
+
+  console.log('\nback navigation:');
+  click($('#anMast [data-back]'));
+  await wait(60);
+  ok('Back to workbench returns to Home', vis('home'));
+  ok('selection survives the round trip', /6 APIs Selected/.test($('#selBadge').textContent),
+     $('#selBadge').textContent);
+
   console.log('\nnavigator:');
   $$('.rail-btn[data-view]').find(b => b.dataset.view === 'home').click();
   await wait(40);

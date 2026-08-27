@@ -151,6 +151,39 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .card-h .sp{flex:1}
 .card-b{padding:14px}
 
+/* ---------- report masthead + gate ---------- */
+.masthead{padding:13px 20px 0;flex-shrink:0}
+.mh-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:8px}
+.mh-row .sp{flex:1}
+.mh-i{font:500 12px var(--mono);color:var(--text-dim)}
+.mh-i b{color:var(--text);font-weight:700}
+.mh-dur{color:var(--accent)}
+.mh-dot{color:var(--text-faint);font-size:10px}
+.mh-lbl{font:700 10.5px var(--sans);text-transform:uppercase;letter-spacing:.07em;color:var(--text-faint)}
+.eng{font:600 10.5px var(--mono);padding:3px 9px;border-radius:6px;background:var(--panel-2);
+  border:1px solid var(--line);color:var(--text-dim)}
+
+.gate{display:flex;align-items:flex-start;gap:14px;margin:0 20px 14px;padding:14px 16px;
+  border-radius:var(--r);border:1px solid var(--gt);
+  background:color-mix(in srgb, var(--gt) 9%, var(--panel))}
+.gate-ico{width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;
+  justify-content:center;font:800 17px var(--sans);color:var(--gt);
+  background:color-mix(in srgb, var(--gt) 18%, transparent)}
+.gate-b{flex:1;min-width:0}
+.gate-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.gate-h h3{margin:0;font-size:15px;font-weight:750;color:var(--gt)}
+.gate-tag{font-size:11.5px;color:var(--text-faint)}
+.gate-t{font-size:12.5px;color:var(--text-dim);margin-top:5px;line-height:1.55}
+.gate-a{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
+@media(max-width:820px){ .gate{flex-wrap:wrap} .gate-a{width:100%} }
+
+.trend{width:100%;height:auto;display:block;overflow:visible}
+.so-row{display:flex;align-items:center;gap:10px;padding:8px 0;
+  border-bottom:1px solid var(--line-soft);font-size:12.5px}
+.so-row:last-of-type{border-bottom:0}
+.so-row span{flex:1;color:var(--text-dim)}
+.so-row b{font-family:var(--mono);font-size:11.5px;text-align:right}
+
 /* ---------- theme toggle ---------- */
 .themetog{display:inline-flex;align-items:center;gap:7px;background:var(--panel-2);
   border:1px solid var(--line);border-radius:99px;padding:4px 11px 4px 8px;cursor:pointer;
@@ -407,11 +440,12 @@ hr{border:none;border-top:1px solid var(--line-soft);margin:12px 0}
       <label for="credSel">Credential alias</label>
       <select id="credSel"></select>
     </div>
-    <div class="seg" id="personaSeg">
-      <button data-persona="qa" class="active">QA</button>
-      <button data-persona="dev">Dev</button>
-      <button data-persona="exec">Exec</button>
-      <button data-persona="devops">DevOps</button>
+    <div class="seg" id="personaSeg" role="group" aria-label="Stakeholder view">
+      <button data-persona="exec" title="Quality gate, trend, sign-off — no raw logs">👔 Exec</button>
+      <button data-persona="dev" title="Failures, status codes, cURL reproducers">💻 Dev</button>
+      <button data-persona="qa" class="active" title="Full matrix, behaviours, Jira tickets">🧪 QA</button>
+      <button data-persona="devops" title="Latency, hosts, CI gate">⚙️ DevOps</button>
+      <button data-persona="all" title="Everything">🌐 All</button>
     </div>
     <button class="themetog" id="btnTheme" role="switch" aria-checked="false"
             aria-label="Toggle light and dark theme" title="Toggle light / dark theme">
@@ -541,6 +575,7 @@ hr{border:none;border-top:1px solid var(--line-soft);margin:12px 0}
   <!-- ===================== ANALYTICS ===================== -->
   <section class="view" id="view-analytics">
     <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+      <div id="anMast"></div>
       <div class="tabs" id="anTabs">
         <button class="tab active" data-tab="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Overview</button>
         <button class="tab" data-tab="defects" data-persona-for="qa,dev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>Defects <span class="badge" id="badgeDefects">0</span></button>
@@ -612,16 +647,97 @@ const STATE = {
   result:null,
   imported:[],          // APIs added via cURL (travel by value, DR-2)
   providers:{},         // apiRef -> authProviderApiId (K1c: travels in the manifest)
+  history:[],           // last N run summaries, newest last — drives the trend chart
   running:false
 };
 const LS = 'hcm-console-v1';
+const SHARED_LS = 'HCM_SHARED_RUN_DATA';   // interop contract, see sharedBundle()
+const HISTORY_MAX = 6;
+
 function persist(){
   try{ localStorage.setItem(LS, JSON.stringify({
     view:STATE.view, tab:STATE.tab, persona:STATE.persona, env:STATE.env,
     alias:STATE.alias, selected:[...STATE.selected], focus:STATE.focus,
     imported:STATE.imported, result:STATE.result, providers:STATE.providers,
+    history:STATE.history,
     theme:document.documentElement.getAttribute('data-theme')
   })); }catch(e){/* private mode — the UI must still work */}
+}
+
+/* ---------------------------------------------------------------------------
+   Interop contract. The result document is the source of truth; this is a
+   flattened projection of it for anything that wants a simpler shape.
+   Written on every run to localStorage['HCM_SHARED_RUN_DATA'].
+
+   Note the two summaries deliberately disagree in one place: `passRate` here is
+   the contract's PASS/(PASS+FAIL) and is **null** when nothing asserted, not 0.
+   A consumer that divides by total would report the 37 unasserted Attendance
+   requests as failures, which is the exact thing D7 forbids.
+--------------------------------------------------------------------------- */
+function sharedBundle(R){
+  const exec=[], defects=[], mods=new Map();
+  R.apis.forEach(a=>{
+    const api=apiByRef(a.apiRef); if(!api) return;
+    const m=api.module;
+    if(!mods.has(m)) mods.set(m,{name:m,passed:0,failed:0,warned:0,blocked:0,notAsserted:0});
+    const bucket=mods.get(m);
+    a.results.forEach(r=>{
+      if(r.referencesHostResult) return;
+      if(r.state==='PASS') bucket.passed++;
+      else if(r.state==='FAIL') bucket.failed++;
+      else if(r.state==='WARN') bucket.warned++;
+      else if(r.state==='SKIPPED_NO_TOKEN') bucket.blocked++;
+      else if(r.state==='NOT_ASSERTED') bucket.notAsserted++;
+      exec.push({
+        id:displayId(api), module:m, name:`${api.method} ${api.path}`,
+        method:api.method, path:api.path,
+        testId:r.testId, title:titleFor(r.testId),
+        status:r.state, executed:r.executed!==false,
+        latencyMs:Math.round(r.durationMs||0),
+        hostLevel:!!r.hostLevel, measuredBy:r.measuredBy||null, blockedBy:r.blockedBy||null
+      });
+      if(r.state==='FAIL') defects.push({
+        id:'DEF-'+String(defects.length+1).padStart(3,'0'),
+        endpoint:`${api.method} ${api.path}`, module:m,
+        severity:/credential_leakage|401_without/.test(r.testId)?'CRITICAL':'HIGH',
+        errorMessage:r.reason, expected:titleFor(r.testId)+' passes',
+        actual:r.reason, curl:curlFor(api)
+      });
+    });
+  });
+  return {
+    runId:R.runId, timestamp:R.startedAt||null, environment:R.environment,
+    simulated:!!R.simulated,
+    summary:{
+      totalTests:R.summary.total,
+      passed:R.summary.counts.PASS, failed:R.summary.counts.FAIL,
+      warned:R.summary.counts.WARN, blocked:R.summary.counts.SKIPPED_NO_TOKEN,
+      notApplicable:R.summary.counts.NOT_APPLICABLE,
+      notAsserted:R.summary.counts.NOT_ASSERTED,
+      informational:R.summary.counts.INFORMATIONAL,
+      passRate:R.summary.passRate,
+      passRateBasis:R.summary.passRateBasis,
+      passRateApplicable:R.summary.passRateApplicable,
+      clean:R.summary.clean, cleanBlockers:R.summary.cleanBlockers,
+      qualityGate:qualityGate(R).level,
+      totalDurationMs:Math.round(R.apis.flatMap(a=>a.results).reduce((n,r)=>n+(r.durationMs||0),0))
+    },
+    modules:[...mods.values()], executedApis:exec, defects
+  };
+}
+function publishShared(R){
+  try{ localStorage.setItem(SHARED_LS, JSON.stringify(sharedBundle(R))); }catch(e){}
+}
+
+/* Gate: a FAIL fails it; anything else that blocks `clean` warns. Deliberately
+   not a percentage threshold — a run can be 100% pass and still not clean. */
+function qualityGate(R){
+  const c=R.summary.counts;
+  if(c.FAIL>0) return {level:'FAILED', tone:'--rose',
+    why:`${c.FAIL} assertion${c.FAIL>1?'s':''} ran and failed`};
+  if(!R.summary.clean) return {level:'WARNING', tone:'--amber',
+    why:`no failures, but ${R.summary.cleanBlockers.join(' and ')} present`};
+  return {level:'PASSED', tone:'--accent', why:'every assertion that ran, passed'};
 }
 function restore(){
   let s=null;
@@ -633,7 +749,7 @@ function restore(){
   STATE.persona=s.persona||'qa'; STATE.env=s.env||STATE.env; STATE.alias=s.alias||STATE.alias;
   STATE.selected=new Set(s.selected||[]); STATE.focus=s.focus||null;
   STATE.imported=s.imported||[]; STATE.result=s.result||null;
-  STATE.providers=s.providers||{};
+  STATE.providers=s.providers||{}; STATE.history=s.history||[];
   if(STATE.view==='detail' && !STATE.focus) STATE.view='home';
 }
 
@@ -816,7 +932,8 @@ function runBatch(refs){
 
   const flat = apis.flatMap(a=>a.results);
   return {
-    runId, environment:STATE.env, requestedTiers:['global_contract'],
+    runId, startedAt:new Date().toISOString().replace(/\.\d+Z$/,'Z'),
+    environment:STATE.env, requestedTiers:['global_contract'],
     catalogueVersion:SEED.catalogueVersion,
     status: anyBlocked ? 'COMPLETED_WITH_ERRORS' : 'COMPLETED',
     statusReason: anyBlocked ? `auth bootstrap failed for: ${anyBlocked}` : null,
@@ -1088,23 +1205,49 @@ function renderDetail(){
    RENDER — ANALYTICS
    ======================================================================== */
 function renderAnalytics(){
-  const body=$('#anBody');
+  const body=$('#anBody'), mast=$('#anMast');
   const R=STATE.result;
   $('#badgeDefects').textContent = R ? (R.summary.counts.FAIL||0) : 0;
   $('#badgeDefects').style.display = (R && R.summary.counts.FAIL) ? '' : 'none';
 
   if(!R){
+    mast.innerHTML='';
     body.innerHTML=`<div class="empty">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       <div>No run yet.</div>
       <div style="margin-top:6px;font-size:12px">Select endpoints in the Console and run a batch — this view reflects
-      <b>only</b> what that run executed.</div></div>`;
+      <b>only</b> what that run executed.</div>
+      <button class="btn btn-primary" id="emptyToConsole" style="margin-top:14px">← Back to workbench</button></div>`;
+    const b=$('#emptyToConsole'); if(b) b.onclick=()=>go('home');
     return;
   }
+  mast.innerHTML = masthead(R) + gateBanner(R);
+  mast.querySelectorAll('[data-back]').forEach(b=> b.onclick=()=> go(b.dataset.back));
+  mast.querySelectorAll('[data-goto]').forEach(b=> b.onclick=()=>{
+    STATE.tab=b.dataset.goto; persist();
+    $$('#anTabs .tab').forEach(x=>x.classList.toggle('active', x.dataset.tab===STATE.tab));
+    renderAnalytics();
+  });
+
   const fn = {overview:tabOverview, defects:tabDefects, suites:tabSuites, behaviors:tabBehaviors,
               timeline:tabTimeline, payloads:tabPayloads, perf:tabPerf, compliance:tabCompliance, json:tabJson}[STATE.tab];
   body.innerHTML = fn(R);
   wireAnalytics(R);
+  const so=$('#soReview'); if(so) so.onclick=()=>{
+    STATE.tab='defects'; persist();
+    $$('#anTabs .tab').forEach(x=>x.classList.toggle('active', x.dataset.tab==='defects'));
+    renderAnalytics();
+  };
+  applyPersonaToContent();
+}
+
+/* Personas filter content, not just tabs. A card marked data-persona-for is
+   shown only to those roles; 'all' sees everything. */
+function applyPersonaToContent(){
+  $$('#view-analytics [data-persona-for]').forEach(el=>{
+    const only=el.dataset.personaFor.split(',');
+    el.style.display = (STATE.persona==='all' || only.includes(STATE.persona)) ? '' : 'none';
+  });
 }
 
 /* ---- shared bits ---- */
@@ -1172,6 +1315,163 @@ function stateBar(counts, total){
     `<div class="bar-seg" style="width:${(counts[s]/total*100).toFixed(2)}%;background:${cssv(STATE_VAR[s])}" title="${s}: ${counts[s]}"></div>`).join('')}</div>`;
 }
 
+/* ---- report masthead ------------------------------------------------------
+   The run's identity band: environment, run id, when, how long, which engines
+   produced it, and how the contract rules scored. Mirrors the source mock's
+   masthead, but every value is read off the result document. */
+function masthead(R){
+  const dur=R.apis.flatMap(a=>a.results).reduce((n,r)=>n+(r.durationMs||0),0);
+  const engines=[...new Set(allApis()
+    .filter(a=>R.apis.some(x=>x.apiRef===a.ref))
+    .map(a=>a.sourceType||'newman'))];
+  const rules=contractRules(R);
+  const passed=rules.filter(r=>r.ok).length;
+  return `<div class="masthead">
+    <div class="mh-row">
+      <button class="backlink" data-back="home" style="margin:0 4px 0 0">← Back to workbench</button>
+      <span class="mh-dot">•</span>
+      <span class="mh-i"><b>ENV:</b> ${esc(R.environment)}</span>
+      <span class="mh-dot">•</span>
+      <span class="mh-i"><b>Run:</b> ${esc(R.runId)}</span>
+      <span class="mh-dot">•</span>
+      <span class="mh-i">${esc(R.startedAt||'—')}</span>
+      <span class="mh-dot">•</span>
+      <span class="mh-i mh-dur">${(dur/1000).toFixed(1)}s total</span>
+      ${R.simulated?'<span class="pill partial" style="margin-left:6px">simulated</span>':''}
+    </div>
+    <div class="mh-row">
+      <span class="mh-lbl">Engines:</span>
+      ${engines.map(e=>`<span class="eng">${esc(e)}</span>`).join('')}
+      <span class="eng">global_contract</span>
+      <span class="sp"></span>
+      <span class="mh-lbl">Contract rules:</span>
+      <span class="pill ${passed===rules.length?'ok':'partial'}">${passed} / ${rules.length} passed</span>
+    </div>
+  </div>`;
+}
+
+/* Gate banner. Reads the seven states, not a percentage. */
+function gateBanner(R){
+  const g=qualityGate(R), c=R.summary.counts;
+  const bits=[];
+  if(c.FAIL)             bits.push(`<b style="color:${cssv('--rose')}">${c.FAIL} failed</b>`);
+  if(c.WARN)             bits.push(`<b style="color:${cssv('--amber')}">${c.WARN} over SLA</b>`);
+  if(c.SKIPPED_NO_TOKEN) bits.push(`<b style="color:${cssv('--amber')}">${c.SKIPPED_NO_TOKEN} blocked on auth</b>`);
+  if(c.NOT_ASSERTED)     bits.push(`<b style="color:${cssv('--purple')}">${c.NOT_ASSERTED} assert nothing</b>`);
+  return `<div class="gate" style="--gt:${cssv(g.tone)}">
+    <div class="gate-ico">${g.level==='PASSED'?'✔':'!'}</div>
+    <div class="gate-b">
+      <div class="gate-h">
+        <h3>Quality Gate: ${g.level}</h3>
+        <span class="gate-tag">${esc(g.why)}</span>
+      </div>
+      <div class="gate-t">
+        ${bits.length?bits.join(' · '):'Nothing outstanding.'}
+        ${c.NOT_ASSERTED?` — an unasserted request is <b>never</b> a pass (D7).`:''}
+        ${!R.summary.passRateApplicable?' Pass rate is <b>n/a</b>: nothing entered the denominator.':''}
+      </div>
+    </div>
+    <div class="gate-a">
+      ${c.FAIL?`<button class="btn btn-primary btn-sm" data-goto="defects">Inspect ${c.FAIL} defect${c.FAIL>1?'s':''}</button>`:''}
+      <button class="btn btn-sm" data-goto="compliance">Contract rules</button>
+    </div>
+  </div>`;
+}
+
+/* Historical trend across the last runs held in this browser. */
+function trendChart(){
+  const h=STATE.history;
+  const W=560, H=150, PL=34, PR=10, PT=12, PB=26;
+  if(h.length<2) return `<div class="empty" style="min-height:150px">
+    <div>Not enough runs yet.</div>
+    <div style="margin-top:5px;font-size:12px">A trend appears from the second run — history is kept in this browser only.</div>
+  </div>`;
+  const vals=h.map(r=>r.passRate==null?null:r.passRate*100);
+  const real=vals.filter(v=>v!=null);
+  const lo=Math.max(0, Math.floor(Math.min(...real)/5)*5-5);
+  const hi=Math.min(100, Math.ceil(Math.max(...real)/5)*5+5);
+  const span=(hi-lo)||1;
+  const x=i=>PL+(W-PL-PR)*(h.length===1?0.5:i/(h.length-1));
+  const y=v=>PT+(H-PT-PB)*(1-(v-lo)/span);
+  const pts=vals.map((v,i)=>v==null?null:[x(i),y(v)]).filter(Boolean);
+  const line=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  const area=pts.length?`${line} L${pts[pts.length-1][0].toFixed(1)} ${H-PB} L${pts[0][0].toFixed(1)} ${H-PB} Z`:'';
+  const ticks=[lo, lo+span/2, hi];
+  return `<svg viewBox="0 0 ${W} ${H}" class="trend" role="img"
+       aria-label="Pass rate across the last ${h.length} runs">
+    ${ticks.map(t=>`<line x1="${PL}" y1="${y(t).toFixed(1)}" x2="${W-PR}" y2="${y(t).toFixed(1)}"
+        stroke="${cssv('--line-soft')}" stroke-width="1"/>
+      <text x="${PL-6}" y="${(y(t)+3.5).toFixed(1)}" text-anchor="end"
+        font-size="9.5" fill="${cssv('--text-faint')}">${t.toFixed(0)}</text>`).join('')}
+    ${area?`<path d="${area}" fill="${cssv('--accent')}" opacity=".10"/>`:''}
+    <path d="${line}" fill="none" stroke="${cssv('--accent')}" stroke-width="2"
+      stroke-linejoin="round" stroke-linecap="round"/>
+    ${vals.map((v,i)=>v==null
+      ? `<text x="${x(i).toFixed(1)}" y="${(H-PB-4)}" text-anchor="middle" font-size="9"
+           fill="${cssv('--text-faint')}">n/a</text>`
+      : `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="3.5"
+           fill="${cssv('--accent')}"><title>${h[i].runId}: ${v.toFixed(1)}%</title></circle>`).join('')}
+    ${h.map((r,i)=>`<text x="${x(i).toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="9"
+        fill="${cssv('--text-faint')}">${esc(r.runId.split('-').pop())}${i===h.length-1?' ▸':''}</text>`).join('')}
+  </svg>`;
+}
+
+/* The contract rules this page can actually verify, checked against the run. */
+function contractRules(R){
+  const all=R.apis.flatMap(a=>a.results);
+  const c=R.summary.counts;
+  const denom=(c.PASS||0)+(c.FAIL||0);
+  return [
+    {t:'Every result carries one of the seven states',
+     ok:all.every(r=>SEED.resultStates.states.some(s=>s.name===r.state))},
+    {t:'Pass rate is PASS / (PASS + FAIL)',
+     ok:denom===0 ? R.summary.passRate===null
+                  : Math.abs(R.summary.passRate-(c.PASS/denom))<1e-9},
+    {t:'Unasserted requests are never counted as passes (D7)',
+     ok:all.filter(r=>r.state==='NOT_ASSERTED').every(r=>r.executed===false)},
+    {t:'Auth failure yields SKIPPED_NO_TOKEN, never FAIL (K1b)',
+     ok:all.filter(r=>r.state==='SKIPPED_NO_TOKEN').every(r=>r.blockedBy)},
+    {t:'SLA breaches advise (WARN), never fail (D11)',
+     ok:!all.some(r=>r.state==='FAIL'&&/response time/i.test(r.reason||''))},
+    {t:'Host probes measured once per host, attributed by measuredBy',
+     ok:all.filter(r=>r.referencesHostResult).every(r=>!!r.measuredBy)},
+    {t:'Every failure states a reason',
+     ok:all.filter(r=>r.state==='FAIL').every(r=>(r.reason||'').trim().length>0)},
+    {t:'No credential value present anywhere in the document',
+     ok:!/password|secret|Bearer\s+ey/i.test(JSON.stringify(R))}
+  ];
+}
+
+/* Executive sign-off — the checklist, each row backed by a real check. */
+function signOff(R){
+  const rules=contractRules(R), g=qualityGate(R), c=R.summary.counts;
+  const row=(k,v,tone)=>`<div class="so-row"><span>${k}</span>
+    <b style="color:${cssv(tone)}">${esc(v)}</b></div>`;
+  return `<div class="card">
+    <div class="card-h"><h3>Executive sign-off</h3><span class="sp"></span>
+      <span class="st st-${g.level==='PASSED'?'PASS':g.level==='WARNING'?'WARN':'FAIL'}">${g.level}</span></div>
+    <div class="card-b">
+      ${row('Contract rules', `${rules.filter(r=>r.ok).length} / ${rules.length} passed`,
+            rules.every(r=>r.ok)?'--accent':'--rose')}
+      ${row('Assertion failures', c.FAIL?`FAIL (${c.FAIL})`:'none', c.FAIL?'--rose':'--accent')}
+      ${row('SLA gate (700ms advisory)', c.WARN?`WARN (${c.WARN} over target)`:'within target',
+            c.WARN?'--amber':'--accent')}
+      ${row('Auth bootstrap', c.SKIPPED_NO_TOKEN?`BLOCKED (${c.SKIPPED_NO_TOKEN})`:'clean',
+            c.SKIPPED_NO_TOKEN?'--amber':'--accent')}
+      ${row('Assertion coverage', c.NOT_ASSERTED?`${c.NOT_ASSERTED} request(s) assert nothing`:'complete',
+            c.NOT_ASSERTED?'--purple':'--accent')}
+      ${row('Pass rate', R.summary.passRateApplicable?pct(R.summary.passRate):'n/a — nothing asserted',
+            R.summary.passRateApplicable?'--text':'--text-faint')}
+      <div class="faint" style="font-size:11.5px;margin-top:10px">
+        A run can read <b>100% pass and not clean</b> — the pass rate counts only PASS and FAIL,
+        so WARN and blocked results sit outside it. Both are shown together, never separately.
+      </div>
+      ${c.FAIL?`<button class="btn btn-primary" id="soReview"
+        style="width:100%;justify-content:center;margin-top:11px">Review root causes</button>`:''}
+    </div>
+  </div>`;
+}
+
 /* ---- tabs ---- */
 function tabOverview(R){
   const perMod = new Map();
@@ -1195,6 +1495,19 @@ function tabOverview(R){
           ${stateBar(s.counts, s.total)}
           <div class="right mono">${pct(s.passRate)}</div></div>`;
       }).join('')}</div></div>
+  </div>
+
+  <div class="grid" style="grid-template-columns:minmax(340px,1.5fr) minmax(300px,1fr);margin-top:14px">
+    <div class="card" data-persona-for="exec,qa,devops,all">
+      <div class="card-h"><h3>Pass-rate trend</h3><span class="sp"></span>
+        <span class="pill">last ${STATE.history.length} run${STATE.history.length===1?'':'s'}</span></div>
+      <div class="card-b">${trendChart()}
+        <div class="faint" style="font-size:11.5px;margin-top:8px">
+          History lives in this browser only — it is not the Allure history folder,
+          and clearing site data clears it.</div>
+      </div>
+    </div>
+    <div data-persona-for="exec,qa,all">${signOff(R)}</div>
   </div>
   ${R.statusReason?`<div class="card sect" style="margin-top:14px;border-color:var(--amber)">
     <div class="card-b row"><span class="st st-SKIPPED_NO_TOKEN">BLOCKED</span>
@@ -1633,7 +1946,7 @@ function syncPersona(){
   $$('#personaSeg button').forEach(b=>b.classList.toggle('active', b.dataset.persona===STATE.persona));
   $$('#anTabs .tab').forEach(t=>{
     const only=t.dataset.personaFor;
-    if(!only){ t.removeAttribute('data-persona-hide'); return; }
+    if(!only || STATE.persona==='all'){ t.removeAttribute('data-persona-hide'); return; }
     only.split(',').includes(STATE.persona)
       ? t.removeAttribute('data-persona-hide') : t.setAttribute('data-persona-hide','');
   });
@@ -1658,10 +1971,18 @@ function startRun(refs){
     if(i<refs.length){ setTimeout(step, 90); return; }
     setTimeout(()=>{
       STATE.result = runBatch(refs);
+      STATE.history.push({
+        runId:STATE.result.runId, at:STATE.result.startedAt,
+        passRate:STATE.result.summary.passRate,
+        clean:STATE.result.summary.clean,
+        gate:qualityGate(STATE.result).level,
+        total:STATE.result.summary.total
+      });
+      if(STATE.history.length>HISTORY_MAX) STATE.history=STATE.history.slice(-HISTORY_MAX);
       STATE.running=false; if(prog) prog.style.display='none';
       STATE.tab='overview';
       $$('#anTabs .tab').forEach(x=>x.classList.toggle('active', x.dataset.tab==='overview'));
-      persist(); syncSel();
+      persist(); publishShared(STATE.result); syncSel();
       go('analytics');
       if(BUS) try{ BUS.postMessage({type:'result', result:STATE.result}); }catch(e){}
       const s=STATE.result.summary;
