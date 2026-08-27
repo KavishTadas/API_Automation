@@ -49,20 +49,46 @@ button,input,select,textarea{font:inherit;color:inherit}
 ::-webkit-scrollbar-track{background:transparent}
 
 /* ---------- Rail ---------- */
-.rail{width:60px;background:var(--rail);border-right:1px solid var(--line);display:flex;
-  flex-direction:column;align-items:center;padding:14px 0;gap:10px;flex-shrink:0;z-index:20}
-.rail-logo{width:36px;height:36px;border-radius:9px;background:var(--accent-bg);
-  border:1px solid var(--accent-line);color:var(--accent);font:700 12px/1 var(--mono);
-  display:flex;align-items:center;justify-content:center;margin-bottom:6px}
-.rail-btn{width:42px;height:42px;border-radius:9px;border:1px solid transparent;background:none;
-  color:var(--text-dim);display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:2px;cursor:pointer;transition:.15s;font-size:9px;font-weight:600}
-.rail-btn svg{width:18px;height:18px}
-.rail-btn:hover{background:var(--panel-2);color:var(--text)}
-.rail-btn.active{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-line)}
-.rail-sp{flex:1}
+/* ---------- side menu ---------- */
+.rail{width:228px;background:var(--rail);border-right:1px solid var(--line);display:flex;
+  flex-direction:column;flex-shrink:0;height:100vh;overflow:hidden;transition:width .18s ease}
+.rail.collapsed{width:60px}
+.rail-brand{display:flex;align-items:center;gap:10px;padding:13px 12px;
+  border-bottom:1px solid var(--line);flex-shrink:0}
+.rail-logo{width:36px;height:36px;border-radius:9px;background:var(--accent-bg);flex-shrink:0;
+  border:1px solid var(--accent-line);color:var(--accent);font:700 13px var(--mono);
+  display:flex;align-items:center;justify-content:center}
+.rail-name{min-width:0;overflow:hidden;white-space:nowrap}
+.rail-name b{display:block;font-size:12.5px;font-weight:700;line-height:1.2}
+.rail-name span{display:block;font-size:10.5px;color:var(--text-faint)}
+.rail-scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:8px 8px 4px}
+.rail-scroll::-webkit-scrollbar{width:6px}
+.rail-scroll::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
+.rail-sec{font:700 9.5px var(--sans);text-transform:uppercase;letter-spacing:.1em;
+  color:var(--text-faint);padding:11px 10px 5px;white-space:nowrap}
+.rail-item{display:flex;align-items:center;gap:10px;width:100%;padding:7px 10px;border-radius:8px;
+  border:1px solid transparent;background:none;color:var(--text-dim);cursor:pointer;
+  font:500 12.5px var(--sans);text-align:left;transition:background .12s,color .12s;margin-bottom:1px}
+.rail-item:hover:not(:disabled){background:var(--panel-2);color:var(--text)}
+.rail-item:disabled{opacity:.4;cursor:not-allowed}
+.rail-item.active{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-line);font-weight:650}
+.rail-item svg{width:16px;height:16px;flex-shrink:0}
+.rail-item .lb{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rail-item .ct{font:700 10px var(--mono);color:var(--text-faint);flex-shrink:0}
+.rail-item.active .ct{color:var(--accent)}
+.rail-item .ct.bad{color:var(--rose)}
+.rail-foot{border-top:1px solid var(--line);padding:8px;flex-shrink:0}
+.rail.collapsed .rail-name,
+.rail.collapsed .rail-sec,
+.rail.collapsed .rail-item .lb,
+.rail.collapsed .rail-item .ct{display:none}
+.rail.collapsed .rail-item{justify-content:center;padding:9px 0}
+.rail.collapsed .rail-brand{justify-content:center;padding:13px 0}
+.rail.collapsed .rail-sec{padding:6px 0;height:1px;overflow:hidden}
+@media(max-width:900px){ .rail{width:60px} .rail .rail-name,.rail .rail-sec,
+  .rail .rail-item .lb,.rail .rail-item .ct{display:none}
+  .rail .rail-item{justify-content:center;padding:9px 0} }
 
-/* ---------- Shell ---------- */
 .shell{flex:1;display:flex;flex-direction:column;min-width:0;height:100vh}
 .topbar{display:flex;align-items:center;gap:14px;padding:10px 20px;border-bottom:1px solid var(--line);
   background:var(--panel);flex-shrink:0;flex-wrap:wrap}
@@ -644,17 +670,18 @@ hr{border:none;border-top:1px solid var(--line-soft);margin:12px 0}
 <body>
 
 <!-- ===================== RAIL ===================== -->
-<nav class="rail">
-  <div class="rail-logo">HCM</div>
-  <button class="rail-btn active" data-view="home" title="Console">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
-    Console
-  </button>
-  <button class="rail-btn" data-view="analytics" title="Analytics">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-    Report
-  </button>
-  <div class="rail-sp"></div>
+<nav class="rail" id="rail">
+  <div class="rail-brand">
+    <div class="rail-logo">HCM</div>
+    <div class="rail-name"><b>API Test Console</b><span>QA Platform</span></div>
+  </div>
+  <div class="rail-scroll" id="railMenu"></div>
+  <div class="rail-foot">
+    <button class="rail-item" id="btnRailCollapse" title="Collapse menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
+      <span class="lb">Collapse</span>
+    </button>
+  </div>
 </nav>
 
 <div class="shell">
@@ -1300,6 +1327,7 @@ function renderSuitesGrid(){
 
 function syncSel(){
   const n=STATE.selected.size;
+  renderMenu();
   $('#selBadge').textContent = `${n} API${n===1?'':'s'} Selected`;
   $('#selBadge').classList.toggle('ok', n>0);
   $('#btnRunLabel').textContent = `Run Selected Batch (${n})`;
@@ -2243,7 +2271,77 @@ function parseCurl(txt){
 
 /* ---------------------------------------------------------------- events -- */
 function go(view){ STATE.view=view; persist(); syncView(); }
-$$('.rail-btn[data-view]').forEach(b=> b.onclick=()=> go(b.dataset.view));
+
+/* ---------------------------------------------------------------------------
+   Side menu. Present on every screen, so the report's own tab bar and the
+   console's buttons are never the only way to reach something. Report rows are
+   built from TABS and honour the active persona, so the menu can never offer a
+   section that persona is not shown.
+--------------------------------------------------------------------------- */
+const MENU_ICO={
+  suites:'<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+  endpoint:'<polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>',
+  report:'<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+  curl:'<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
+  nav:'<line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>',
+  run:'<polygon points="5 3 19 12 5 21 5 3"/>',
+  export:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>'
+};
+function menuRow(o){
+  return `<button class="rail-item${o.on?' active':''}${o.cls?' '+o.cls:''}"
+    ${o.view?`data-view="${o.view}"`:''}${o.tab?` data-menu-tab="${o.tab}"`:''}
+    ${o.act?` data-menu-act="${o.act}"`:''}${o.dis?' disabled':''} title="${esc(o.t)}">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">${o.i}</svg>
+    <span class="lb">${esc(o.t)}</span>
+    ${o.ct!=null?`<span class="ct${o.bad?' bad':''}">${esc(String(o.ct))}</span>`:''}
+  </button>`;
+}
+function renderMenu(){
+  const host=$('#railMenu');
+  if(!host||typeof host.querySelectorAll!=='function') return;   // headless contract harness
+  const R=STATE.result, focus=STATE.focus?apiByRef(STATE.focus):null;
+  const gaps=allApis().filter(a=>a.assertionState==='not-asserted').length;
+  const html=[
+    `<div class="rail-sec">Workbench</div>`,
+    menuRow({t:'Suites & APIs', i:MENU_ICO.suites, view:'home',
+             on:STATE.view==='home', ct:allApis().length}),
+    menuRow({t:focus?`${focus.method} ${focus.path}`:'Endpoint detail', i:MENU_ICO.endpoint,
+             view:'detail', on:STATE.view==='detail', dis:!focus}),
+    menuRow({t:'Run selected batch', i:MENU_ICO.run, act:'run',
+             dis:!STATE.selected.size||STATE.running, ct:STATE.selected.size||null}),
+    `<div class="rail-sec">Report</div>`,
+    menuRow({t:'Open report', i:MENU_ICO.report, view:'analytics',
+             on:STATE.view==='analytics', dis:!R}),
+    ...(R?visibleTabs().map(t=>menuRow({
+        t:t.t+(t.suffix?t.suffix(R):''), i:ICO[t.i],
+        tab:t.k, on:STATE.view==='analytics'&&STATE.tab===t.k,
+        ct:t.badge?(t.badge(R)||null):null, bad:t.k==='defects'
+      })):[]),
+    `<div class="rail-sec">Actions</div>`,
+    menuRow({t:'Import from cURL', i:MENU_ICO.curl, act:'curl'}),
+    menuRow({t:'Navigator', i:MENU_ICO.nav, act:'nav'}),
+    menuRow({t:'Export result JSON', i:MENU_ICO.export, act:'export', dis:!R}),
+    gaps?`<div class="rail-sec">${gaps} assertion gap${gaps===1?'':'s'}</div>`:''
+  ].join('');
+  const m=host;
+  m.innerHTML=html;
+  m.querySelectorAll('[data-view]').forEach(b=> b.onclick=()=> go(b.dataset.view));
+  m.querySelectorAll('[data-menu-tab]').forEach(b=> b.onclick=()=>{
+    STATE.tab=b.dataset.menuTab; STATE.view='analytics'; persist(); syncView(); });
+  m.querySelectorAll('[data-menu-act]').forEach(b=> b.onclick=()=>{
+    const a=b.dataset.menuAct;
+    if(a==='curl')   curlModal();
+    if(a==='nav')    openNav();
+    if(a==='run')    startRun([...STATE.selected]);
+    if(a==='export'){ if(!STATE.result){ toast('Nothing to export — run a batch first'); return; }
+                      copy(JSON.stringify(STATE.result,null,2)); toast('Result document copied to clipboard'); }
+  });
+}
+$('#btnRailCollapse').onclick = () => {
+  const r=$('#rail'); r.classList.toggle('collapsed');
+  try{ localStorage.setItem('hcm-rail', r.classList.contains('collapsed')?'1':'0'); }catch(e){}
+};
 function syncView(){
   /* the rail has two lamps; 'detail' lights the Console lamp */
   const lamp = STATE.view==='detail' ? 'home' : STATE.view;
@@ -2253,6 +2351,7 @@ function syncView(){
   const onReport = STATE.view==='analytics';
   $('.topbar').style.display = onReport ? 'none' : '';
   $('#strip').style.display  = onReport ? 'none' : '';
+  renderMenu();
   if(STATE.view==='home')   renderHome();
   if(STATE.view==='detail') renderDetail();
   if(onReport)              renderAnalytics();
@@ -2379,6 +2478,7 @@ $('#btnRun').onclick = () => startRun([...STATE.selected]);
     document.documentElement.setAttribute('data-theme','dark');
   }
   restore();
+  try{ if(localStorage.getItem('hcm-rail')==='1') $('#rail').classList.add('collapsed'); }catch(e){}
   applyTheme(document.documentElement.getAttribute('data-theme') || 'light');
   renderTopbar(); syncPersona(); syncView();
 })();

@@ -88,7 +88,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   ok('report is not empty', $('#anBody').children.length > 0);
 
   console.log('\nView Report handoff:');
-  $$('.rail-btn[data-view]').find(b => b.dataset.view === 'home').click();
+  $$('.rail-item[data-view]').find(b => b.dataset.view === 'home').click();
   await wait(60);
   ok('can return to Console', vis('home'));
   ok('View Report is now enabled', $('#btnViewReportHome').disabled === false);
@@ -103,7 +103,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   for (const t of $$('#anTabs .nitem')) {
     const name = t.dataset.tab;
     errs.length = 0;
-    $$('.rail-btn[data-view]').find(b => b.dataset.view === 'analytics').click();
+    $$('.rail-item[data-view]').find(b => b.dataset.view === 'analytics').click();
     await wait(20);
     click(t);
     await wait(60);
@@ -141,7 +141,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
      JSON.stringify(saved.selected || []).slice(0, 80));
 
   console.log('\nmasthead + quality gate:');
-  $$('.rail-btn[data-view]').find(b => b.dataset.view === 'analytics').click();
+  $$('.rail-item[data-view]').find(b => b.dataset.view === 'analytics').click();
   await wait(80);
   const mast = $('#anMast').textContent;
   ok('masthead shows environment', /ENV:\s*UAT/.test(mast), mast.slice(0, 90));
@@ -166,7 +166,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
      /Not enough runs yet/.test($('#anBody').textContent) || !!$('.trend'));
 
   // second run -> trend should draw
-  $$('.rail-btn[data-view]').find(b => b.dataset.view === 'home').click();
+  $$('.rail-item[data-view]').find(b => b.dataset.view === 'home').click();
   await wait(50);
   click($('#btnRun'));
   await wait(1400);
@@ -239,8 +239,49 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   ok('selection survives the round trip', /6 APIs Selected/.test($('#selBadge').textContent),
      $('#selBadge').textContent);
 
+  console.log('\nside menu:');
+  ok('menu rendered on every view', $$('#railMenu .rail-item').length > 0,
+     $$('#railMenu .rail-item').length + ' rows');
+  ok('menu has Workbench, Report and Actions sections',
+     $$('#railMenu .rail-sec').map(s => s.textContent.trim())
+       .filter(x => /^(Workbench|Report|Actions)$/.test(x)).length === 3,
+     $$('#railMenu .rail-sec').map(s => s.textContent.trim()).join(' | '));
+  ok('menu marks the current view active', !!$('#railMenu .rail-item.active'));
+  ok('menu counts the loaded APIs', /45/.test($('#railMenu [data-view="home"]').textContent));
+  ok('menu offers every visible report section',
+     $$('#railMenu [data-menu-tab]').length === $$('#anTabs .nitem').length,
+     $$('#railMenu [data-menu-tab]').length + ' vs ' + $$('#anTabs .nitem').length);
+
+  const jump = $$('#railMenu [data-menu-tab]').find(b => b.dataset.menuTab === 'perf');
+  ok('menu can jump straight to a report section', !!jump);
+  click(jump);
+  await wait(90);
+  ok('jumping lands on the report', vis('analytics'));
+  ok('jumping selects that section', $('#anTabs .nitem.active').dataset.tab === 'perf',
+     $('#anTabs .nitem.active').dataset.tab);
+
+  $$('#pswReport button').find(b => b.dataset.persona === 'exec').click();
+  await wait(90);
+  ok('menu honours the persona filter',
+     !$$('#railMenu [data-menu-tab]').some(b => b.dataset.menuTab === 'json'),
+     $$('#railMenu [data-menu-tab]').map(b => b.dataset.menuTab).join(','));
+  $$('#pswReport button').find(b => b.dataset.persona === 'qa').click();
+  await wait(60);
+
+  click($('#btnRailCollapse'));
+  await wait(40);
+  ok('menu collapses', $('#rail').classList.contains('collapsed'));
+  ok('collapsed state persisted', window.localStorage.getItem('hcm-rail') === '1');
+  click($('#btnRailCollapse'));
+  await wait(40);
+  ok('menu expands again', !$('#rail').classList.contains('collapsed'));
+
+  $$('.rail-item[data-view]').find(b => b.dataset.view === 'home').click();
+  await wait(60);
+  ok('menu still present on the console view', $$('#railMenu .rail-item').length > 0);
+
   console.log('\nnavigator:');
-  $$('.rail-btn[data-view]').find(b => b.dataset.view === 'home').click();
+  $$('.rail-item[data-view]').find(b => b.dataset.view === 'home').click();
   await wait(40);
   click($('#btnOpenNav'));
   await wait(60);
