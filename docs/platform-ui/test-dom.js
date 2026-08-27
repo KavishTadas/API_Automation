@@ -672,6 +672,96 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   ]) ok('catalogue carries ' + label, allText.includes(needle), needle);
   ok('no placeholder host survives', !/\{\{|localhost|example\.com/.test(allText));
 
+  console.log('\ntrend graph:');
+  goReport();
+  await wait(90);
+  $$('#anTabs .nitem').find(t => t.dataset.tab === 'overview').click();
+  await wait(90);
+
+  // earlier blocks already ran batches, so pin history to a single entry first
+  window.eval('STATE.history = STATE.history.slice(-1); persist();');
+  $$('#anTabs .nitem').find(t => t.dataset.tab === 'overview').click();
+  await wait(90);
+
+  const trendCard = $$('#anBody .ecard').find(c => /Historical Build Trend/.test(c.textContent));
+  ok('the trend card is on Overview', !!trendCard);
+  ok('it draws an svg after one run', !!trendCard.querySelector('svg.trend'),
+     trendCard.textContent.slice(0, 60));
+  ok('one run plots one point',
+     trendCard.querySelectorAll('svg.trend circle').length === 1,
+     trendCard.querySelectorAll('svg.trend circle').length + ' points');
+  ok('it says a line needs a second run',
+     /a line appears from the second/i.test(trendCard.textContent));
+  ok('no line path is drawn for a single point',
+     trendCard.querySelectorAll('svg.trend path').length === 0);
+  ok('the y axis is labelled in percent',
+     [...trendCard.querySelectorAll('svg.trend text')].some(t => /%$/.test(t.textContent)));
+  ok('the newest point is labelled current',
+     [...trendCard.querySelectorAll('svg.trend text')].some(t => t.textContent === 'current'));
+  ok('the point carries a tooltip with its gate',
+     /gate (PASSED|WARNING|FAILED)/.test(trendCard.querySelector('svg.trend title').textContent),
+     trendCard.querySelector('svg.trend title').textContent);
+  ok('an Add sample runs button is offered', !!$('#anBody [data-hist="seed"]'));
+
+  // seed samples
+  click($('#anBody [data-hist="seed"]'));
+  await wait(140);
+  const t2 = $$('#anBody .ecard').find(c => /Historical Build Trend/.test(c.textContent));
+  const pts = t2.querySelectorAll('svg.trend circle').length;
+  ok('sample runs populate the trend', pts >= 5, pts + ' points');
+  ok('a line is drawn once there are several points',
+     t2.querySelectorAll('svg.trend path').length >= 1);
+  ok('samples are visually distinguished',
+     [...t2.querySelectorAll('svg.trend circle')].some(c => c.getAttribute('stroke-width') !== '0'));
+  ok('the chart says which points are samples',
+     /Hollow points are sample runs/i.test(t2.textContent));
+  ok('sample points name themselves in their tooltip',
+     [...t2.querySelectorAll('svg.trend title')].some(x => /sample/.test(x.textContent)));
+  ok('the run count is shown', /\d+ runs/.test(t2.textContent), t2.textContent.match(/\d+ runs/));
+
+  // samples must be real engine output, and must vary
+  const hist = JSON.parse(window.localStorage.getItem('hcm-console-v1')).history;
+  ok('history persisted', Array.isArray(hist) && hist.length >= 5, (hist || []).length + '');
+  ok('every entry carries a pass rate and a gate',
+     hist.every(r => 'passRate' in r && /^(PASSED|WARNING|FAILED)$/.test(r.gate)));
+  ok('samples are flagged, the real run is not',
+     hist.filter(r => r.sample).length === hist.length - 1,
+     hist.map(r => r.sample ? 'S' : 'R').join(''));
+  const rates = hist.map(r => r.passRate);
+  ok('salted runs differ from one another', new Set(rates).size > 1,
+     rates.map(r => r == null ? 'n/a' : (r * 100).toFixed(1)).join(', '));
+  ok('every rate is a real fraction',
+     rates.every(r => r === null || (r >= 0 && r <= 1)), rates.join(','));
+
+  // clear drops only the samples
+  click($('#anBody [data-hist="clear"]'));
+  await wait(120);
+  const hist2 = JSON.parse(window.localStorage.getItem('hcm-console-v1')).history;
+  ok('Clear removes the samples', !hist2.some(r => r.sample), hist2.length + ' left');
+  ok('Clear keeps the real run', hist2.length === 1, hist2.length + '');
+
+  // a second real run must extend the trend
+  goHome();
+  await wait(60);
+  click($('#btnRun'));
+  await wait(1400);
+  const hist3 = JSON.parse(window.localStorage.getItem('hcm-console-v1')).history;
+  ok('a real run appends to history', hist3.length === 2, hist3.length + '');
+  $$('#anTabs .nitem').find(t => t.dataset.tab === 'overview').click();
+  await wait(90);
+  const t3 = $$('#anBody .ecard').find(c => /Historical Build Trend/.test(c.textContent));
+  ok('two real runs draw a line', t3.querySelectorAll('svg.trend path').length >= 1);
+  ok('two real runs plot two points',
+     t3.querySelectorAll('svg.trend circle').length === 2,
+     t3.querySelectorAll('svg.trend circle').length + '');
+
+  console.log('\nreport overflow:');
+  const css4 = [...doc.querySelectorAll('style')].map(s => s.textContent).join('\n');
+  ok('grid children may shrink', /\.egrid3>\*\{min-width:0\}/.test(css4));
+  ok('report cards may shrink', /\.ecard\{[^}]*min-width:0/.test(css4));
+  ok('wide tables scroll inside their card rather than pushing the page',
+     /\.card-b\{[^}]*overflow-x:auto/.test(css4));
+
   console.log('\nnavigator:');
   goHome();
   await wait(40);

@@ -181,7 +181,7 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .card-h{padding:11px 14px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;gap:9px}
 .card-h h3{margin:0;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim)}
 .card-h .sp{flex:1}
-.card-b{padding:var(--pad-card)}
+.card-b{padding:var(--pad-card);min-width:0;overflow-x:auto}
 
 /* ===========================================================================
    REPORT SKIN — a faithful port of enterprise-dashboard.html.
@@ -332,7 +332,7 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .nitem[data-persona-hide]{display:none}
 
 /* ---- cards ---- */
-.ecard{padding:var(--pad-card);border-radius:16px;background:rgba(15,23,42,.9);
+.ecard{padding:var(--pad-card);border-radius:16px;background:rgba(15,23,42,.9);min-width:0;
   border:1px solid var(--s800);box-shadow:0 4px 14px rgba(0,0,0,.22)}
 [data-theme="light"] .ecard{background:#fff;box-shadow:0 1px 3px rgba(15,26,34,.08)}
 .ecard.rose{border-color:rgba(244,63,94,.3)}
@@ -416,6 +416,7 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 
 /* ---- overview grids ---- */
 .egrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap-lg)}
+.egrid3>*{min-width:0}
 .egrid3 .span2{grid-column:span 2}
 @media(max-width:1040px){ .egrid3{grid-template-columns:1fr} .egrid3 .span2{grid-column:auto} }
 /* ---- filter pill bar ---- */
@@ -1190,8 +1191,9 @@ function planFor(ref){
   return app || null;
 }
 
-function runBatch(refs){
-  const runId = 'run-sim-'+Date.now().toString(36);
+function runBatch(refs, salt){
+  const salted = salt || '';
+  const runId = 'run-sim-'+Date.now().toString(36)+(salted?'-'+salted:'');
   const apis=[];
   let anyBlocked=null;
 
@@ -1230,7 +1232,7 @@ function runBatch(refs){
     const results=[];
 
     SEED.globalTestCases.forEach(tc=>{
-      const seed = hash(ref+'::'+tc.id);
+      const seed = hash(salted+ref+'::'+tc.id);
       const plan = planFor(ref);
       const pred = plan && plan.global ? plan.global[tc.id] : null;
       const planned = !pred || pred.state==='PLANNED';
@@ -1660,6 +1662,11 @@ function renderAnalytics(){
   const th=$('#eTheme'); if(th) th.onclick=toggleTheme;
   const ex=$('#eExport'); if(ex) ex.onclick=exportModal;
   $$('#view-analytics [data-back]').forEach(b=> b.onclick=()=> go(b.dataset.back));
+  $$('#view-analytics [data-hist]').forEach(b=> b.onclick=()=>{
+    if(b.dataset.hist==='clear') STATE.history=STATE.history.filter(r=>!r.sample);
+    else seedSampleHistory();
+    persist(); renderAnalytics();
+  });
   $$('#view-analytics [data-goto]').forEach(b=> b.onclick=()=>{
     STATE.tab=b.dataset.goto; persist(); renderAnalytics();
   });
@@ -1711,39 +1718,48 @@ function stateBar(counts, total){
 /* Historical trend across the last runs held in this browser. */
 function trendChart(){
   const h=STATE.history;
-  const W=560, H=150, PL=34, PR=10, PT=12, PB=26;
-  if(h.length<2) return `<div class="empty" style="min-height:150px">
-    <div>Not enough runs yet.</div>
-    <div style="margin-top:5px;font-size:12px">A trend appears from the second run — history is kept in this browser only.</div>
+  const W=560, H=170, PL=38, PR=12, PT=16, PB=30;
+  if(!h.length) return `<div class="empty" style="min-height:170px">
+    <div>No runs yet.</div>
+    <div style="margin-top:5px;font-size:12px">Run a batch and its pass rate lands here.</div>
   </div>`;
   const vals=h.map(r=>r.passRate==null?null:r.passRate*100);
   const real=vals.filter(v=>v!=null);
-  const lo=Math.max(0, Math.floor(Math.min(...real)/5)*5-5);
-  const hi=Math.min(100, Math.ceil(Math.max(...real)/5)*5+5);
+  const lo = real.length ? Math.max(0, Math.floor(Math.min(...real)/5)*5-5) : 0;
+  const hi = real.length ? Math.min(100, Math.ceil(Math.max(...real)/5)*5+5) : 100;
   const span=(hi-lo)||1;
   const x=i=>PL+(W-PL-PR)*(h.length===1?0.5:i/(h.length-1));
   const y=v=>PT+(H-PT-PB)*(1-(v-lo)/span);
   const pts=vals.map((v,i)=>v==null?null:[x(i),y(v)]).filter(Boolean);
-  const line=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
-  const area=pts.length?`${line} L${pts[pts.length-1][0].toFixed(1)} ${H-PB} L${pts[0][0].toFixed(1)} ${H-PB} Z`:'';
+  const line=pts.map((p,k)=>(k?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  const area=pts.length>1
+    ? `${line} L${pts[pts.length-1][0].toFixed(1)} ${H-PB} L${pts[0][0].toFixed(1)} ${H-PB} Z` : '';
   const ticks=[lo, lo+span/2, hi];
+  const anySample=h.some(r=>r.sample);
   return `<svg viewBox="0 0 ${W} ${H}" class="trend" role="img"
-       aria-label="Pass rate across the last ${h.length} runs">
+       aria-label="Pass rate across the last ${h.length} run${h.length===1?'':'s'}">
     ${ticks.map(t=>`<line x1="${PL}" y1="${y(t).toFixed(1)}" x2="${W-PR}" y2="${y(t).toFixed(1)}"
-        stroke="${cssv('--line-soft')}" stroke-width="1"/>
-      <text x="${PL-6}" y="${(y(t)+3.5).toFixed(1)}" text-anchor="end"
-        font-size="9.5" fill="${cssv('--text-faint')}">${t.toFixed(0)}</text>`).join('')}
+        stroke="${cssv('--s800')}" stroke-width="1"/>
+      <text x="${PL-7}" y="${(y(t)+3.5).toFixed(1)}" text-anchor="end"
+        font-size="9.5" fill="${cssv('--s400')}">${t.toFixed(0)}%</text>`).join('')}
     ${area?`<path d="${area}" fill="${cssv('--accent')}" opacity=".10"/>`:''}
-    <path d="${line}" fill="none" stroke="${cssv('--accent')}" stroke-width="2"
-      stroke-linejoin="round" stroke-linecap="round"/>
+    ${pts.length>1?`<path d="${line}" fill="none" stroke="${cssv('--accent')}" stroke-width="2"
+      stroke-linejoin="round" stroke-linecap="round"/>`:''}
     ${vals.map((v,i)=>v==null
-      ? `<text x="${x(i).toFixed(1)}" y="${(H-PB-4)}" text-anchor="middle" font-size="9"
-           fill="${cssv('--text-faint')}">n/a</text>`
-      : `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="3.5"
-           fill="${cssv('--accent')}"><title>${h[i].runId}: ${v.toFixed(1)}%</title></circle>`).join('')}
-    ${h.map((r,i)=>`<text x="${x(i).toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="9"
-        fill="${cssv('--text-faint')}">${esc(r.runId.split('-').pop())}${i===h.length-1?' ▸':''}</text>`).join('')}
-  </svg>`;
+      ? `<text x="${x(i).toFixed(1)}" y="${(H-PB-6)}" text-anchor="middle" font-size="9"
+           fill="${cssv('--s400')}">n/a</text>`
+      : `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="${h[i].sample?3.2:4.5}"
+           fill="${h[i].sample?cssv('--s900'):cssv('--accent')}"
+           stroke="${cssv('--accent')}" stroke-width="${h[i].sample?1.6:0}"
+           ><title>${esc(h[i].runId)}${h[i].sample?' (sample)':''}: ${v.toFixed(1)}% - gate ${esc(h[i].gate)}</title></circle>`
+      ).join('')}
+    ${h.map((r,i)=>`<text x="${x(i).toFixed(1)}" y="${H-10}" text-anchor="middle" font-size="9"
+        fill="${cssv(i===h.length-1?'--t300':'--s400')}">${i===h.length-1?'current':'#'+(i+1)}</text>`).join('')}
+    ${h.length===1?`<text x="${W/2}" y="${PT+2}" text-anchor="middle" font-size="10"
+        fill="${cssv('--s400')}">one run so far - a line appears from the second</text>`:''}
+  </svg>
+  ${anySample?`<div class="faint" style="font-size:11px;margin-top:7px">
+     Hollow points are sample runs, generated to show the shape of the chart.</div>`:''}`;
 }
 
 /* Lucide glyphs used by the report, inlined (the source pulled these from a CDN). */
@@ -2065,7 +2081,13 @@ function tabOverview(R){
       <div class="ecard-h">
         <div><h3>Historical Build Trend (Last ${HISTORY_MAX} Runs)</h3>
           <p>Pass rate retained across runs in this browser</p></div>
-        <span class="epill te">Archived History</span>
+        <div style="display:flex;gap:var(--gap-sm);align-items:center;flex-wrap:wrap">
+          ${STATE.history.length<2?`<button class="ebtn ebtn-ghost" style="padding:5px 10px"
+             data-hist="seed">Add sample runs</button>`:''}
+          ${STATE.history.length?`<button class="ebtn ebtn-ghost" style="padding:5px 10px"
+             data-hist="clear">Clear</button>`:''}
+          <span class="epill te">${STATE.history.length} run${STATE.history.length===1?'':'s'}</span>
+        </div>
       </div>
       <div style="min-height:180px">${trendChart()}</div>
     </div>
@@ -3194,6 +3216,24 @@ function syncPersona(){
     $$('#anTabs .nitem').forEach(x=>x.classList.toggle('active', x.dataset.tab==='overview'));
   }
   if(STATE.view==='analytics') renderAnalytics();
+}
+
+/* Fills the trend with runs of this same simulator under different salts, so
+   the chart has a shape before you have run five batches yourself. These are
+   real outputs of the engine on this page, not invented numbers, and each is
+   flagged `sample` so the chart draws it hollow and says so. */
+function seedSampleHistory(){
+  const refs = STATE.result ? STATE.result.apis.map(a=>a.apiRef) : [...STATE.selected];
+  if(!refs.length){ toast('Run a batch first - samples follow its selection'); return; }
+  const made=[];
+  for(let i=1;i<=HISTORY_MAX-1;i++){
+    const R=runBatch(refs,'sample'+i);
+    made.push({runId:'sample-'+i, at:R.startedAt, passRate:R.summary.passRate,
+               clean:R.summary.clean, gate:qualityGate(R).level,
+               total:R.summary.total, sample:true});
+  }
+  STATE.history = made.concat(STATE.history.filter(r=>!r.sample)).slice(-HISTORY_MAX);
+  toast('Added '+made.length+' sample runs to the trend');
 }
 
 /* Runs a batch, then hands off to the report view — the "View Report"
