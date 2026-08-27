@@ -83,7 +83,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   await wait(1400);
   ok('a finished run lands on the Report view', vis('analytics'));
   ok('no uncaught error during the run', errs.length === 0, errs.join(' | '));
-  const kpi = $('.scroll#anBody') ? $('#anBody').textContent : '';
+  const kpi = $('#anBody').textContent;
   ok('report shows a pass rate', /%|n\/a/.test(kpi));
   ok('report is not empty', $('#anBody').children.length > 0);
 
@@ -100,7 +100,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   await wait(60);
 
   console.log('\nreport tabs:');
-  for (const t of $$('#anTabs .tab')) {
+  for (const t of $$('#anTabs .nitem')) {
     const name = t.dataset.tab;
     errs.length = 0;
     $$('.rail-btn[data-view]').find(b => b.dataset.view === 'analytics').click();
@@ -147,21 +147,21 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   ok('masthead shows environment', /ENV:\s*UAT/.test(mast), mast.slice(0, 90));
   ok('masthead shows the run id', /Run:\s*run-/.test(mast));
   ok('masthead shows a timestamp', /\d{4}-\d{2}-\d{2}T/.test(mast));
-  ok('masthead shows total duration', /\d+\.\ds total/.test(mast));
+  ok('masthead shows total duration', /\d+\.\ds Total Duration/i.test(mast));
   ok('masthead marks the run simulated', /simulated/i.test(mast));
-  ok('masthead lists engines', $$('#anMast .eng').length >= 1);
-  ok('masthead scores the contract rules', /\d+ \/ \d+ passed/.test(mast));
-  ok('quality gate banner present', !!$('.gate'));
+  ok('masthead lists engines', $$('#anMast .eng-c').length >= 1);
+  ok('masthead scores the contract rules', /\d+ \/ \d+ Rules Passed/i.test(mast));
+  ok('quality gate banner present', !!$('.eqg'));
   ok('gate level is one of the three',
      /Quality Gate: (PASSED|WARNING|FAILED)/.test(mast), mast.match(/Quality Gate: \w+/));
   ok('Back to workbench present in masthead', !!$('#anMast [data-back]'));
 
   console.log('\ntrend + sign-off:');
-  $$('#anTabs .tab').find(t => t.dataset.tab === 'overview').click();
+  $$('#anTabs .nitem').find(t => t.dataset.tab === 'overview').click();
   await wait(60);
-  ok('sign-off panel rendered', /Executive sign-off/.test($('#anBody').textContent));
+  ok('sign-off panel rendered', /Executive Sign-Off Status/i.test($('#anBody').textContent));
   ok('sign-off states the SLA gate at 700ms', /700ms/.test($('#anBody').textContent));
-  ok('trend card rendered', /Pass-rate trend/.test($('#anBody').textContent));
+  ok('trend card rendered', /Historical Build Trend/i.test($('#anBody').textContent));
   ok('one run shows the not-enough-runs notice',
      /Not enough runs yet/.test($('#anBody').textContent) || !!$('.trend'));
 
@@ -170,7 +170,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   await wait(50);
   click($('#btnRun'));
   await wait(1400);
-  $$('#anTabs .tab').find(t => t.dataset.tab === 'overview').click();
+  $$('#anTabs .nitem').find(t => t.dataset.tab === 'overview').click();
   await wait(80);
   ok('trend chart draws after a second run', !!$('.trend'));
   ok('trend has a point per run', $$('.trend circle').length + $$('.trend text').filter(t =>
@@ -200,14 +200,13 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
      (shared.defects || []).every(d => d.module && d.endpoint));
 
   console.log('\npersonas:');
-  const personas = $$('#personaSeg button').map(b => b.dataset.persona);
+  const personas = $$('#pswReport button').map(b => b.dataset.persona);
   ok('five personas offered', personas.length === 5, personas.join(','));
   ok('Exec, Dev, QA, DevOps and All present',
      ['exec', 'dev', 'qa', 'devops', 'all'].every(p => personas.includes(p)), personas.join(','));
 
-  const tabsFor = () => $$('#anTabs .tab').filter(t => !t.hasAttribute('data-persona-hide'))
-    .map(t => t.dataset.tab);
-  $$('#personaSeg button').find(b => b.dataset.persona === 'exec').click();
+  const tabsFor = () => $$('#anTabs .nitem').map(t => t.dataset.tab);
+  $$('#pswReport button').find(b => b.dataset.persona === 'exec').click();
   await wait(80);
   const execTabs = tabsFor();
   ok('Exec loses the raw-JSON tab', !execTabs.includes('json'), execTabs.join(','));
@@ -215,22 +214,22 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   ok('Exec keeps performance and contract', execTabs.includes('perf') && execTabs.includes('compliance'));
   ok('Exec sees the sign-off panel',
      [...$('#anBody').querySelectorAll('[data-persona-for]')]
-       .filter(e => /Executive sign-off/.test(e.textContent)).every(e => e.style.display !== 'none'));
+       .filter(e => /Executive Sign-Off Status/i.test(e.textContent)).every(e => e.style.display !== 'none'));
 
-  $$('#personaSeg button').find(b => b.dataset.persona === 'dev').click();
+  $$('#pswReport button').find(b => b.dataset.persona === 'dev').click();
   await wait(80);
   ok('Dev gets the JSON tab back', tabsFor().includes('json'), tabsFor().join(','));
   ok('Dev hides the exec sign-off',
      [...$('#anBody').querySelectorAll('[data-persona-for]')]
-       .filter(e => /Executive sign-off/.test(e.textContent)).every(e => e.style.display === 'none'));
+       .filter(e => /Executive Sign-Off Status/i.test(e.textContent)).every(e => e.style.display === 'none'));
 
-  $$('#personaSeg button').find(b => b.dataset.persona === 'all').click();
+  $$('#pswReport button').find(b => b.dataset.persona === 'all').click();
   await wait(80);
-  ok('All sees every tab', tabsFor().length === $$('#anTabs .tab').length, tabsFor().join(','));
+  ok('All sees every tab', tabsFor().length === 9, tabsFor().join(','));
   ok('All hides no content',
      [...$('#view-analytics').querySelectorAll('[data-persona-for]')]
        .every(e => e.style.display !== 'none'));
-  $$('#personaSeg button').find(b => b.dataset.persona === 'qa').click();
+  $$('#pswReport button').find(b => b.dataset.persona === 'qa').click();
   await wait(60);
 
   console.log('\nback navigation:');

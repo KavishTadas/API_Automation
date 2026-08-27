@@ -145,38 +145,278 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .card-h .sp{flex:1}
 .card-b{padding:14px}
 
-/* ---------- report masthead + gate ---------- */
-.masthead{padding:13px 20px 0;flex-shrink:0}
-.mh-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:8px}
-.mh-row .sp{flex:1}
-.mh-i{font:500 12px var(--mono);color:var(--text-dim)}
-.mh-i b{color:var(--text);font-weight:700}
-.mh-dur{color:var(--accent)}
-.mh-dot{color:var(--text-faint);font-size:10px}
-.mh-lbl{font:700 10.5px var(--sans);text-transform:uppercase;letter-spacing:.07em;color:var(--text-faint)}
-.eng{font:600 10.5px var(--mono);padding:3px 9px;border-radius:6px;background:var(--panel-2);
-  border:1px solid var(--line);color:var(--text-dim)}
+/* ===========================================================================
+   REPORT SKIN — a faithful port of enterprise-dashboard.html.
+   That page was built on the Tailwind CDN; these are the same palette values
+   resolved to plain CSS so the page stays self-contained. Scoped to
+   #view-analytics so it cannot leak into the console screens.
+   =========================================================================== */
+#view-analytics{
+  --s950:#020617; --s900:#0f172a; --s800:#1e293b; --s700:#334155; --s600:#475569;
+  --s500:#64748b; --s400:#94a3b8; --s300:#cbd5e1; --s200:#e2e8f0; --s100:#f1f5f9;
+  --t900:#0f201f; --t800:#16302e; --t700:#1f5f5b; --t600:#0d9488; --t500:#14b8a6;
+  --t400:#2dd4bf; --t300:#5eead4; --t50:#f0fdfa;
+  --em500:#10b981; --em400:#34d399; --em300:#6ee7b7;
+  --ro600:#e11d48; --ro500:#f43f5e; --ro400:#fb7185; --ro300:#fda4af; --ro950:#4c0519;
+  --am500:#b5762a; --am400:#fbbf24; --am300:#fcd34d;
+  --pu500:#a855f7; --pu400:#c084fc; --pu300:#d8b4fe;
+  --bl400:#60a5fa; --cy400:#22d3ee; --or400:#fb923c;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  background:var(--s950); color:var(--s100);
+  display:none; flex-direction:column; overflow-y:auto; padding:0;
+}
+#view-analytics.active{display:flex}
+/* Light: the source page is dark-only, so this keeps the same hierarchy
+   rather than inventing one. The toggle still works. */
+[data-theme="light"] #view-analytics{
+  --s950:#f7f6f2; --s900:#ffffff; --s800:#e3e6ea; --s700:#cbd3da; --s600:#9aa7b4;
+  --s500:#6b7a8a; --s400:#5a6875; --s300:#3d4854; --s200:#26303a; --s100:#0f1a22;
+  --t300:#12706a; --t400:#0d9488; --ro400:#c81e42; --ro300:#a3122f;
+  --am400:#9a6320; --am300:#7d4f18; --em400:#0f7f52; --em300:#0b6942;
+  --pu400:#7c3aed; --pu300:#6425c9;
+  color:var(--s100);
+}
+#view-analytics .an-wrap{max-width:1280px;width:100%;margin:0 auto;padding:22px 18px 0}
 
-.gate{display:flex;align-items:flex-start;gap:14px;margin:0 20px 14px;padding:14px 16px;
-  border-radius:var(--r);border:1px solid var(--gt);
-  background:color-mix(in srgb, var(--gt) 9%, var(--panel))}
-.gate-ico{width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;
-  justify-content:center;font:800 17px var(--sans);color:var(--gt);
-  background:color-mix(in srgb, var(--gt) 18%, transparent)}
-.gate-b{flex:1;min-width:0}
-.gate-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.gate-h h3{margin:0;font-size:15px;font-weight:750;color:var(--gt)}
-.gate-tag{font-size:11.5px;color:var(--text-faint)}
-.gate-t{font-size:12.5px;color:var(--text-dim);margin-top:5px;line-height:1.55}
-.gate-a{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
-@media(max-width:820px){ .gate{flex-wrap:wrap} .gate-a{width:100%} }
+/* ---- masthead ---- */
+.emast{border-bottom:1px solid var(--s800);padding:16px 18px;position:relative;overflow:hidden;
+  background:linear-gradient(90deg,#0d2221 0%,#163633 50%,#0f201f 100%)}
+[data-theme="light"] .emast{background:linear-gradient(90deg,#e6f2f0 0%,#d7ece8 50%,#e9f4f2 100%)}
+.emast::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 85% 15%,rgba(45,212,191,.12) 0%,transparent 60%)}
+.emast-in{max-width:1280px;margin:0 auto;position:relative;z-index:1}
+.emast-top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.emast-tags{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap}
+.tag-os{font:700 11px var(--mono);text-transform:uppercase;letter-spacing:.12em;color:var(--t300);
+  background:rgba(15,32,31,.6);padding:2px 10px;border-radius:99px;border:1px solid rgba(20,184,166,.3)}
+[data-theme="light"] .tag-os{background:rgba(31,95,91,.10);color:#12706a}
+.tag-std{font:400 11px var(--mono);color:rgba(45,212,191,.8);background:rgba(15,23,42,.5);
+  padding:2px 8px;border-radius:5px;border:1px solid rgba(51,65,85,.6)}
+[data-theme="light"] .tag-std{background:rgba(255,255,255,.6);color:#12706a;border-color:#cbd3da}
+.emast h1{font:700 clamp(21px,2.4vw,30px)/1.15 var(--serif);color:var(--t50);margin:0;
+  letter-spacing:-.02em;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+[data-theme="light"] .emast h1{color:#0e2a28}
+.qg-pill{font:700 12px var(--sans);text-transform:uppercase;letter-spacing:.03em;
+  padding:3px 11px;border-radius:99px;white-space:nowrap}
+.qg-WARNING{background:rgba(181,118,42,.2);color:var(--am300);border:1px solid rgba(181,118,42,.4)}
+.qg-FAILED{background:rgba(244,63,94,.2);color:var(--ro300);border:1px solid rgba(244,63,94,.4)}
+.qg-PASSED{background:rgba(16,185,129,.2);color:var(--em300);border:1px solid rgba(16,185,129,.4)}
+.emast-meta{font:400 12px var(--mono);color:rgba(204,251,241,.7);margin-top:5px;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+[data-theme="light"] .emast-meta{color:#3d5c58}
+.emast-meta strong{color:#fff;font-weight:700}
+[data-theme="light"] .emast-meta strong{color:#0e2a28}
+.emast-meta .ic{color:var(--t400);margin-right:4px}
+.emast-meta .sep{color:var(--s600)}
+.emast-meta .dur{color:var(--em400);font-weight:600}
+.emast-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 
-.trend{width:100%;height:auto;display:block;overflow:visible}
-.so-row{display:flex;align-items:center;gap:10px;padding:8px 0;
-  border-bottom:1px solid var(--line-soft);font-size:12.5px}
-.so-row:last-of-type{border-bottom:0}
-.so-row span{flex:1;color:var(--text-dim)}
-.so-row b{font-family:var(--mono);font-size:11.5px;text-align:right}
+.psw{background:rgba(15,23,42,.9);border:1px solid rgba(20,184,166,.3);padding:4px;
+  border-radius:12px;display:flex;align-items:center;gap:2px;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+[data-theme="light"] .psw{background:rgba(255,255,255,.85);border-color:rgba(31,95,91,.28)}
+.psw-l{font:700 10px var(--mono);text-transform:uppercase;color:var(--t400);padding:0 7px;
+  display:flex;align-items:center;gap:4px;white-space:nowrap}
+.psw button{background:none;border:0;padding:5px 10px;border-radius:8px;cursor:pointer;
+  font:500 12px var(--sans);color:var(--s300);transition:all .15s;white-space:nowrap}
+.psw button:hover{color:#fff;background:rgba(30,41,59,.7)}
+[data-theme="light"] .psw button{color:#3d4854}
+[data-theme="light"] .psw button:hover{color:#0f1a22;background:#eef2f5}
+.psw button.active{background:var(--t700);color:#fff;font-weight:600}
+[data-theme="light"] .psw button.active{background:var(--t700);color:#fff}
+.ebtn{padding:7px 13px;border-radius:12px;font:600 12px var(--sans);cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;transition:all .15s;white-space:nowrap}
+.ebtn-exp{background:rgba(22,48,46,.8);color:#ccfbf1;border:1px solid rgba(13,148,136,.5)}
+.ebtn-exp:hover{background:var(--t700)}
+.ebtn-ico{padding:8px;background:var(--s900);border:1px solid var(--s700);border-radius:12px;
+  color:var(--s300);cursor:pointer;display:inline-flex;transition:all .15s}
+.ebtn-ico:hover{color:#fff;background:var(--s800)}
+.ebtn svg,.ebtn-ico svg{width:14px;height:14px}
+
+.emast-strip{max-width:1280px;margin:12px auto 0;padding-top:12px;
+  border-top:1px solid rgba(22,48,46,.5);display:flex;align-items:center;
+  justify-content:space-between;gap:16px;flex-wrap:wrap;position:relative;z-index:1}
+.eng-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font:400 11px var(--mono)}
+.eng-l{color:var(--t400);font-weight:700;text-transform:uppercase;font-size:10px}
+.eng-c{padding:2px 9px;border-radius:5px;background:rgba(15,23,42,.8);white-space:nowrap}
+[data-theme="light"] .eng-c{background:rgba(255,255,255,.7)}
+.eng-newman{color:var(--or400);border:1px solid rgba(251,146,60,.3)}
+.eng-pytest{color:var(--em400);border:1px solid rgba(16,185,129,.3)}
+.eng-openapi{color:var(--cy400);border:1px solid rgba(34,211,238,.3)}
+.eng-bruno{color:var(--am400);border:1px solid rgba(251,191,36,.3)}
+.eng-allure{color:var(--pu400);border:1px solid rgba(168,85,247,.3)}
+.eng-global{color:var(--t300);border:1px solid rgba(20,184,166,.3)}
+.cmp-row{display:flex;align-items:center;gap:8px;font:400 11px var(--mono)}
+.cmp-l{color:var(--s400)}
+.cmp-b{padding:2px 10px;border-radius:99px;font-weight:700;display:inline-flex;align-items:center;gap:5px}
+.cmp-ok{background:rgba(16,185,129,.2);color:var(--em300);border:1px solid rgba(16,185,129,.4)}
+.cmp-no{background:rgba(244,63,94,.2);color:var(--ro300);border:1px solid rgba(244,63,94,.4)}
+.cmp-b svg{width:13px;height:13px}
+
+/* ---- nav ---- */
+.enav{position:sticky;top:0;z-index:20;background:rgba(15,23,42,.95);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--s800);padding:8px 18px}
+[data-theme="light"] .enav{background:rgba(255,255,255,.95)}
+.enav-in{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:4px;
+  overflow-x:auto;scrollbar-width:thin}
+.enav-in::-webkit-scrollbar{height:6px}
+.enav-in::-webkit-scrollbar-thumb{background:rgba(148,163,184,.3);border-radius:99px}
+.nitem{padding:6px 12px;border-radius:8px;font:500 12px var(--mono);color:var(--s300);
+  background:none;border:0;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+  transition:all .15s;white-space:nowrap}
+.nitem:hover{color:#fff;background:var(--s800)}
+[data-theme="light"] .nitem{color:#3d4854}
+[data-theme="light"] .nitem:hover{color:#0f1a22;background:#eef2f5}
+.nitem.active{background:var(--t700);color:#fff;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+[data-theme="light"] .nitem.active{color:#fff}
+.nitem svg{width:14px;height:14px}
+.nitem .nb{background:var(--ro500);color:#fff;font:700 10px var(--sans);
+  padding:1px 6px;border-radius:99px}
+.nitem[data-persona-hide]{display:none}
+
+/* ---- cards ---- */
+.ecard{padding:16px 18px;border-radius:16px;background:rgba(15,23,42,.9);
+  border:1px solid var(--s800);box-shadow:0 4px 14px rgba(0,0,0,.22)}
+[data-theme="light"] .ecard{background:#fff;box-shadow:0 1px 3px rgba(15,26,34,.08)}
+.ecard.rose{border-color:rgba(244,63,94,.3)}
+.ecard-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.ecard-h h3{margin:0;font:700 13px var(--mono);color:#fff}
+[data-theme="light"] .ecard-h h3{color:#0f1a22}
+.ecard-h p{margin:2px 0 0;font-size:11.5px;color:var(--s400)}
+
+/* ---- quality gate banner ---- */
+.eqg{border-radius:16px;padding:17px 19px;display:flex;align-items:center;
+  justify-content:space-between;gap:16px;flex-wrap:wrap;
+  border:1px solid var(--s800);border-left:4px solid var(--qgc);
+  background:linear-gradient(90deg,var(--qgbg) 0%,var(--s900) 55%,var(--s900) 100%);
+  box-shadow:0 10px 26px rgba(0,0,0,.3)}
+[data-theme="light"] .eqg{box-shadow:0 2px 8px rgba(15,26,34,.08)}
+.eqg-l{display:flex;align-items:flex-start;gap:14px;min-width:0}
+.eqg-ico{padding:10px;border-radius:12px;flex-shrink:0;display:flex;
+  background:var(--qgbg2);color:var(--qgc);border:1px solid var(--qgbd)}
+.eqg-ico svg{width:23px;height:23px}
+.eqg-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.eqg-h h2{margin:0;font:700 15px var(--sans);color:#fff}
+[data-theme="light"] .eqg-h h2{color:#0f1a22}
+.eqg-tag{padding:2px 8px;font:700 10px var(--mono);text-transform:uppercase;border-radius:4px}
+.eqg-tag.crit{background:var(--ro500);color:#fff}
+.eqg-tag.warn{background:var(--am500);color:#fff}
+.eqg-tag.ok{background:var(--em500);color:#04231a}
+.eqg-tag.sub{background:rgba(168,85,247,.3);color:var(--pu300);border:1px solid rgba(168,85,247,.4)}
+.eqg-p{font-size:12px;color:var(--s300);margin:5px 0 0;max-width:62em;line-height:1.6}
+[data-theme="light"] .eqg-p{color:#3d4854}
+.eqg-p strong{font-weight:700}
+.eqg-a{display:flex;align-items:center;gap:9px;flex-shrink:0;flex-wrap:wrap}
+.ebtn-danger{background:var(--ro600);color:#fff;border:0;font-family:var(--mono);font-weight:700;
+  padding:9px 14px;box-shadow:0 6px 16px rgba(225,29,72,.3)}
+.ebtn-danger:hover{background:var(--ro500)}
+.ebtn-ghost{background:var(--s800);color:var(--s200);border:1px solid var(--s700);padding:9px 14px}
+.ebtn-ghost:hover{background:var(--s700)}
+[data-theme="light"] .ebtn-ghost{background:#eef2f5;color:#26303a;border-color:#cbd3da}
+
+/* ---- stat cards ---- */
+.estats{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.estat{padding:16px;border-radius:16px;background:rgba(15,23,42,.9);border:1px solid var(--s800);
+  box-shadow:0 4px 12px rgba(0,0,0,.2)}
+[data-theme="light"] .estat{background:#fff;box-shadow:0 1px 3px rgba(15,26,34,.08)}
+.estat.rose{border-color:rgba(244,63,94,.3)}
+.estat-h{display:flex;align-items:center;justify-content:space-between;
+  font:600 11.5px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--s400)}
+.estat-ic{padding:6px;border-radius:8px;display:inline-flex}
+.estat-ic svg{width:16px;height:16px}
+.ic-teal{background:rgba(20,184,166,.1);color:var(--t400)}
+.ic-blue{background:rgba(96,165,250,.1);color:var(--bl400)}
+.ic-rose{background:rgba(244,63,94,.1);color:var(--ro400)}
+.ic-amber{background:rgba(251,191,36,.1);color:var(--am400)}
+.estat-v{margin-top:9px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.estat-n{font:900 30px var(--mono);color:#fff;letter-spacing:-.02em}
+[data-theme="light"] .estat-n{color:#0f1a22}
+.estat-n.rose{color:var(--ro400)}
+.estat-n.sm{font-size:24px}
+.estat-n .u{font:400 11.5px var(--mono);color:var(--s400)}
+.estat-sub{font:500 11.5px var(--mono);color:var(--s400)}
+.estat-sub.amber{color:var(--am400)}
+.estat-bar{width:100%;background:var(--s800);border-radius:99px;height:8px;margin-top:12px;
+  overflow:hidden;display:flex}
+.estat-bar i{height:8px;display:block}
+.estat-bar .p{background:var(--em500)}
+.estat-bar .f{background:var(--ro500)}
+.estat-bar .w{background:var(--am400)}
+.estat-bar .o{background:var(--s600)}
+.estat-f{display:flex;justify-content:space-between;gap:8px;margin-top:9px;
+  font:400 11px var(--mono);color:var(--s400);flex-wrap:wrap}
+.estat-f .g{color:var(--em400);font-weight:700}
+.estat-f .r{color:var(--ro400);font-weight:700}
+.estat-f .t{color:var(--t400)}
+.estat-f .a{color:var(--am400);font-weight:700}
+.estat-chips{display:flex;justify-content:space-between;gap:6px;margin-top:12px;
+  font:700 10px var(--mono);flex-wrap:wrap}
+.estat-chips span{padding:2px 7px;border-radius:4px}
+.ch-pu{background:rgba(168,85,247,.2);color:var(--pu300)}
+.ch-am{background:rgba(251,191,36,.2);color:var(--am300)}
+.ch-ro{background:rgba(244,63,94,.2);color:var(--ro300)}
+.ch-te{background:rgba(20,184,166,.2);color:var(--t300)}
+
+/* ---- overview grids ---- */
+.egrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.egrid3 .span2{grid-column:span 2}
+@media(max-width:1040px){ .egrid3{grid-template-columns:1fr} .egrid3 .span2{grid-column:auto} }
+.epill{padding:2px 9px;font:700 11.5px var(--mono);border-radius:5px;white-space:nowrap}
+.epill.em{background:rgba(16,185,129,.1);color:var(--em400);border:1px solid rgba(16,185,129,.2)}
+.epill.te{background:rgba(20,184,166,.1);color:var(--t300);border:1px solid rgba(20,184,166,.2)}
+.epill.am{background:rgba(251,191,36,.1);color:var(--am400);border:1px solid rgba(251,191,36,.2)}
+.donut-wrap{position:relative;flex:1;min-height:200px;display:flex;align-items:center;justify-content:center}
+.donut-mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;pointer-events:none;font-family:var(--mono)}
+.donut-mid b{font:900 24px var(--mono);color:#fff}
+[data-theme="light"] .donut-mid b{color:#0f1a22}
+.donut-mid i{font:600 10px var(--mono);color:var(--s400);text-transform:uppercase;font-style:normal}
+.elegend{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;padding-top:12px;
+  border-top:1px solid var(--s800);font:400 11.5px var(--mono)}
+.elegend div{display:flex;align-items:center;gap:8px}
+.elegend .sw{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.elegend span{color:var(--s300)}
+[data-theme="light"] .elegend span{color:#3d4854}
+.elegend strong{color:#fff}
+[data-theme="light"] .elegend strong{color:#0f1a22}
+.ekey{display:flex;align-items:center;gap:14px;font:400 11.5px var(--mono);flex-wrap:wrap}
+.ekey .k{display:flex;align-items:center;gap:6px}
+.ekey .sq{width:10px;height:10px;border-radius:2px}
+.ecard-f{margin-top:12px;padding-top:12px;border-top:1px solid var(--s800);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  font:400 11.5px var(--mono);color:var(--s400);flex-wrap:wrap}
+.ecard-f .bad{color:var(--ro400);font-weight:700}
+.ecard-f .good{color:var(--em400);font-weight:700}
+
+/* ---- sign-off ---- */
+.eso-h{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.eso-h .ic{padding:6px;border-radius:8px;background:rgba(20,184,166,.2);color:var(--t400);display:inline-flex}
+.eso-h .ic svg{width:16px;height:16px}
+.eso-h h3{margin:0;font:700 13px var(--mono);color:#fff}
+[data-theme="light"] .eso-h h3{color:#0f1a22}
+.eso-p{font-size:11.5px;color:var(--s300);line-height:1.6;margin:0}
+[data-theme="light"] .eso-p{color:#3d4854}
+.eso-list{margin-top:12px;display:flex;flex-direction:column;gap:8px;font-family:var(--mono);font-size:11.5px}
+.eso-row{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:9px 11px;border-radius:9px;background:var(--s950);border:1px solid var(--s800)}
+[data-theme="light"] .eso-row{background:#f7f9fa;border-color:#e3e6ea}
+.eso-row>span{color:var(--s400)}
+.eso-row>b{font-weight:700;text-align:right}
+.eso-ok{color:var(--em400)} .eso-bad{color:var(--ro400)}
+.eso-warn{color:var(--am400)} .eso-dim{color:var(--s400)}
+.ebtn-full{width:100%;justify-content:center;padding:10px;background:var(--t800);
+  color:#ccfbf1;border:0;font-weight:600;margin-top:14px}
+.ebtn-full:hover{background:var(--t700)}
+.trend{width:100%;height:auto;display:block;overflow:visible;min-height:180px}
+
+/* ---- footer ---- */
+.efoot{border-top:1px solid var(--s800);margin-top:26px;padding:16px 18px;
+  background:rgba(15,23,42,.5)}
+[data-theme="light"] .efoot{background:#f1f4f6}
+.efoot-in{max-width:1280px;margin:0 auto;display:flex;align-items:center;
+  justify-content:space-between;gap:16px;flex-wrap:wrap;font:400 11.5px var(--mono)}
+.efoot-l{color:var(--t400);font-weight:700}
+.efoot-r{color:var(--s500)}
 
 /* ---------- theme toggle ---------- */
 .themetog{display:inline-flex;align-items:center;gap:7px;background:var(--panel-2);
@@ -563,21 +803,13 @@ hr{border:none;border-top:1px solid var(--line-soft);margin:12px 0}
 
   <!-- ===================== ANALYTICS ===================== -->
   <section class="view" id="view-analytics">
-    <div style="flex:1;display:flex;flex-direction:column;min-width:0">
-      <div id="anMast"></div>
-      <div class="tabs" id="anTabs">
-        <button class="tab active" data-tab="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Overview</button>
-        <button class="tab" data-tab="defects" data-persona-for="qa,dev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>Defects <span class="badge" id="badgeDefects">0</span></button>
-        <button class="tab" data-tab="suites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Modules</button>
-        <button class="tab" data-tab="behaviors" data-persona-for="qa,dev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>Behaviors</button>
-        <button class="tab" data-tab="timeline" data-persona-for="qa,dev,devops"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Timeline</button>
-        <button class="tab" data-tab="payloads" data-persona-for="qa,dev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg>Payloads</button>
-        <button class="tab" data-tab="perf" data-persona-for="qa,dev,devops,exec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Performance</button>
-        <button class="tab" data-tab="compliance" data-persona-for="qa,devops,exec"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Contract</button>
-        <button class="tab" data-tab="json" data-persona-for="dev,devops"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>JSON</button>
-      </div>
-      <div class="scroll" id="anBody"></div>
-    </div>
+    <div id="anMast"></div>
+    <nav class="enav"><div class="enav-in" id="anTabs"></div></nav>
+    <div class="an-wrap" id="anBody"></div>
+    <footer class="efoot"><div class="efoot-in">
+      <span class="efoot-l">OMFYS Enterprise QA Operating System <span style="color:var(--s600)">&bull;</span> Allure 2.x API Standard Compliance</span>
+      <span class="efoot-r">Traceability: Requirement &hArr; testId &hArr; result document &hArr; Jira/ADO Defect</span>
+    </div></footer>
   </section>
 </div>
 
@@ -1196,8 +1428,6 @@ function renderDetail(){
 function renderAnalytics(){
   const body=$('#anBody'), mast=$('#anMast');
   const R=STATE.result;
-  $('#badgeDefects').textContent = R ? (R.summary.counts.FAIL||0) : 0;
-  $('#badgeDefects').style.display = (R && R.summary.counts.FAIL) ? '' : 'none';
 
   if(!R){
     mast.innerHTML='';
@@ -1210,23 +1440,26 @@ function renderAnalytics(){
     const b=$('#emptyToConsole'); if(b) b.onclick=()=>go('home');
     return;
   }
-  mast.innerHTML = masthead(R) + gateBanner(R);
-  mast.querySelectorAll('[data-back]').forEach(b=> b.onclick=()=> go(b.dataset.back));
-  mast.querySelectorAll('[data-goto]').forEach(b=> b.onclick=()=>{
-    STATE.tab=b.dataset.goto; persist();
-    $$('#anTabs .tab').forEach(x=>x.classList.toggle('active', x.dataset.tab===STATE.tab));
-    renderAnalytics();
-  });
+  mast.innerHTML = masthead(R);
+  renderTabs(R);
 
   const fn = {overview:tabOverview, defects:tabDefects, suites:tabSuites, behaviors:tabBehaviors,
               timeline:tabTimeline, payloads:tabPayloads, perf:tabPerf, compliance:tabCompliance, json:tabJson}[STATE.tab];
-  body.innerHTML = fn(R);
+  body.innerHTML = gateBanner(R) + fn(R);
   wireAnalytics(R);
-  const so=$('#soReview'); if(so) so.onclick=()=>{
-    STATE.tab='defects'; persist();
-    $$('#anTabs .tab').forEach(x=>x.classList.toggle('active', x.dataset.tab==='defects'));
-    renderAnalytics();
+
+  /* masthead controls */
+  $$('#pswReport button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.persona===STATE.persona);
+    b.onclick=()=>{ STATE.persona=b.dataset.persona; persist(); syncPersona(); renderAnalytics(); };
+  });
+  const ex=$('#eExport'); if(ex) ex.onclick=()=>{
+    copy(JSON.stringify(STATE.result,null,2)); toast('Result document copied to clipboard');
   };
+  $$('#view-analytics [data-back]').forEach(b=> b.onclick=()=> go(b.dataset.back));
+  $$('#view-analytics [data-goto]').forEach(b=> b.onclick=()=>{
+    STATE.tab=b.dataset.goto; persist(); renderAnalytics();
+  });
   applyPersonaToContent();
 }
 
@@ -1234,42 +1467,10 @@ function renderAnalytics(){
    shown only to those roles; 'all' sees everything. */
 function applyPersonaToContent(){
   $$('#view-analytics [data-persona-for]').forEach(el=>{
+    if(el.closest('#anTabs')) return;
     const only=el.dataset.personaFor.split(',');
     el.style.display = (STATE.persona==='all' || only.includes(STATE.persona)) ? '' : 'none';
   });
-}
-
-/* ---- shared bits ---- */
-function kpiRow(R){
-  const c=R.summary.counts;
-  const exec = R.apis.flatMap(a=>a.results).filter(r=>r.executed).length;
-  return `<div class="grid kpis">
-    <div class="kpi">
-      <div class="k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>Pass rate</div>
-      <div class="v" style="color:${R.summary.passRateApplicable?'var(--accent)':'var(--slate)'}">${pct(R.summary.passRate)}</div>
-      <div class="d">${esc(R.summary.passRateBasis)}${R.summary.passRateApplicable?'':' · no assertion ran'}</div>
-    </div>
-    <div class="kpi">
-      <div class="k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Clean</div>
-      <div class="v" style="color:${R.summary.clean?'var(--accent)':'var(--amber)'}">${R.summary.clean?'Yes':'No'}</div>
-      <div class="d">${R.summary.cleanBlockers.length?'Blocked by '+R.summary.cleanBlockers.map(b=>`<span class="st st-${b}">${b}</span>`).join(' '):'No blocking states'}</div>
-    </div>
-    <div class="kpi">
-      <div class="k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Results</div>
-      <div class="v">${R.summary.total}</div>
-      <div class="d">${exec} executed · ${R.apis.length} API${R.apis.length>1?'s':''}</div>
-    </div>
-    <div class="kpi">
-      <div class="k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>Failures</div>
-      <div class="v" style="color:${c.FAIL?'var(--rose)':'var(--text)'}">${c.FAIL||0}</div>
-      <div class="d">${c.SKIPPED_NO_TOKEN||0} blocked · ${c.NOT_ASSERTED||0} unasserted</div>
-    </div>
-    <div class="kpi">
-      <div class="k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Run status</div>
-      <div class="v" style="font-size:19px;color:${R.status==='COMPLETED'?'var(--accent)':'var(--amber)'}">${esc(R.status)}</div>
-      <div class="d">${esc(R.runId)} · ${esc(R.environment)}</div>
-    </div>
-  </div>`;
 }
 
 /** Donut over all seven states — never a binary pass/fail split. */
@@ -1302,69 +1503,6 @@ function donut(counts){
 function stateBar(counts, total){
   return `<div class="bar-track">${STATES.filter(s=>counts[s]).map(s=>
     `<div class="bar-seg" style="width:${(counts[s]/total*100).toFixed(2)}%;background:${cssv(STATE_VAR[s])}" title="${s}: ${counts[s]}"></div>`).join('')}</div>`;
-}
-
-/* ---- report masthead ------------------------------------------------------
-   The run's identity band: environment, run id, when, how long, which engines
-   produced it, and how the contract rules scored. Mirrors the source mock's
-   masthead, but every value is read off the result document. */
-function masthead(R){
-  const dur=R.apis.flatMap(a=>a.results).reduce((n,r)=>n+(r.durationMs||0),0);
-  const engines=[...new Set(allApis()
-    .filter(a=>R.apis.some(x=>x.apiRef===a.ref))
-    .map(a=>a.sourceType||'newman'))];
-  const rules=contractRules(R);
-  const passed=rules.filter(r=>r.ok).length;
-  return `<div class="masthead">
-    <div class="mh-row">
-      <button class="backlink" data-back="home" style="margin:0 4px 0 0">← Back to workbench</button>
-      <span class="mh-dot">•</span>
-      <span class="mh-i"><b>ENV:</b> ${esc(R.environment)}</span>
-      <span class="mh-dot">•</span>
-      <span class="mh-i"><b>Run:</b> ${esc(R.runId)}</span>
-      <span class="mh-dot">•</span>
-      <span class="mh-i">${esc(R.startedAt||'—')}</span>
-      <span class="mh-dot">•</span>
-      <span class="mh-i mh-dur">${(dur/1000).toFixed(1)}s total</span>
-      ${R.simulated?'<span class="pill partial" style="margin-left:6px">simulated</span>':''}
-    </div>
-    <div class="mh-row">
-      <span class="mh-lbl">Engines:</span>
-      ${engines.map(e=>`<span class="eng">${esc(e)}</span>`).join('')}
-      <span class="eng">global_contract</span>
-      <span class="sp"></span>
-      <span class="mh-lbl">Contract rules:</span>
-      <span class="pill ${passed===rules.length?'ok':'partial'}">${passed} / ${rules.length} passed</span>
-    </div>
-  </div>`;
-}
-
-/* Gate banner. Reads the seven states, not a percentage. */
-function gateBanner(R){
-  const g=qualityGate(R), c=R.summary.counts;
-  const bits=[];
-  if(c.FAIL)             bits.push(`<b style="color:${cssv('--rose')}">${c.FAIL} failed</b>`);
-  if(c.WARN)             bits.push(`<b style="color:${cssv('--amber')}">${c.WARN} over SLA</b>`);
-  if(c.SKIPPED_NO_TOKEN) bits.push(`<b style="color:${cssv('--amber')}">${c.SKIPPED_NO_TOKEN} blocked on auth</b>`);
-  if(c.NOT_ASSERTED)     bits.push(`<b style="color:${cssv('--purple')}">${c.NOT_ASSERTED} assert nothing</b>`);
-  return `<div class="gate" style="--gt:${cssv(g.tone)}">
-    <div class="gate-ico">${g.level==='PASSED'?'✔':'!'}</div>
-    <div class="gate-b">
-      <div class="gate-h">
-        <h3>Quality Gate: ${g.level}</h3>
-        <span class="gate-tag">${esc(g.why)}</span>
-      </div>
-      <div class="gate-t">
-        ${bits.length?bits.join(' · '):'Nothing outstanding.'}
-        ${c.NOT_ASSERTED?` — an unasserted request is <b>never</b> a pass (D7).`:''}
-        ${!R.summary.passRateApplicable?' Pass rate is <b>n/a</b>: nothing entered the denominator.':''}
-      </div>
-    </div>
-    <div class="gate-a">
-      ${c.FAIL?`<button class="btn btn-primary btn-sm" data-goto="defects">Inspect ${c.FAIL} defect${c.FAIL>1?'s':''}</button>`:''}
-      <button class="btn btn-sm" data-goto="compliance">Contract rules</button>
-    </div>
-  </div>`;
 }
 
 /* Historical trend across the last runs held in this browser. */
@@ -1405,6 +1543,333 @@ function trendChart(){
   </svg>`;
 }
 
+/* Lucide glyphs used by the report, inlined (the source pulled these from a CDN). */
+const ICO={
+  dash:'<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>',
+  tags:'<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".9" fill="currentColor"/>',
+  layers:'<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+  branch:'<line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/>',
+  gantt:'<path d="M8 6h10"/><path d="M6 12h9"/><path d="M11 18h7"/><path d="M3 4v16"/>',
+  cpu:'<rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"/>',
+  zap:'<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+  checks:'<path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/>',
+  filecode:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m10 13-2 2 2 2"/><path d="m14 17 2-2-2-2"/>',
+  server:'<rect x="2" y="3" width="20" height="8" rx="2"/><rect x="2" y="13" width="20" height="8" rx="2"/><line x1="6" y1="7" x2="6.01" y2="7"/><line x1="6" y1="17" x2="6.01" y2="17"/>',
+  commit:'<circle cx="12" cy="12" r="3"/><line x1="3" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="21" y2="12"/>',
+  clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  timer:'<line x1="10" y1="2" x2="14" y2="2"/><line x1="12" y1="14" x2="15" y2="11"/><circle cx="12" cy="14" r="8"/>',
+  usercheck:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/>',
+  download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+  shieldcheck:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+  shieldalert:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/>',
+  flame:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+  percent:'<line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
+  check2:'<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+  octagon:'<polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
+  gauge:'<path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>',
+  clipboard:'<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>'
+};
+const svg=(d,cls)=>`<svg class="${cls||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+
+/* Tab bar — labels, icon colours and badge as the source dashboard carried them. */
+const TABS=[
+  {k:'overview',   t:'Overview',              i:'dash',     c:''},
+  {k:'defects',    t:'Categories',            i:'tags',     c:'var(--am400)', badge:R=>R.summary.counts.FAIL||0},
+  {k:'suites',     t:'Suites',                i:'layers',   c:'var(--bl400)', suffix:R=>` (${R.apis.length}/${allApis().length})`},
+  {k:'behaviors',  t:'Behaviors (BDD)',       i:'branch',   c:'var(--pu400)', p:'qa,dev'},
+  {k:'timeline',   t:'Timeline',              i:'gantt',    c:'var(--em400)', p:'qa,dev,devops'},
+  {k:'payloads',   t:'API Infra & Payloads',  i:'cpu',      c:'var(--cy400)', p:'qa,dev'},
+  {k:'perf',       t:'Performance & SLA',     i:'zap',      c:'var(--am400)', p:'qa,dev,devops,exec'},
+  {k:'compliance', t:'Compliance Rules',      i:'checks',   c:'var(--t400)',  p:'qa,devops,exec'},
+  {k:'json',       t:'Config & JSON',         i:'filecode', c:'var(--s400)',  p:'dev,devops'}
+];
+function visibleTabs(){
+  return TABS.filter(t=> !t.p || STATE.persona==='all' || t.p.split(',').includes(STATE.persona));
+}
+function renderTabs(R){
+  const vis=visibleTabs();
+  /* a persona switch can hide the tab you were on */
+  if(!vis.some(t=>t.k===STATE.tab)) STATE.tab='overview';
+  $('#anTabs').innerHTML=vis.map(t=>{
+    const on=STATE.tab===t.k, n=t.badge?t.badge(R):0;
+    return `<button class="nitem${on?' active':''}" data-tab="${t.k}"${t.p?` data-persona-for="${t.p}"`:''}>
+      <span style="color:${on?'#fff':(t.c||'currentColor')};display:inline-flex">${svg(ICO[t.i])}</span>
+      ${esc(t.t)}${t.suffix?esc(t.suffix(R)):''}${n?`<span class="nb">${n}</span>`:''}
+    </button>`;}).join('');
+  $$('#anTabs .nitem').forEach(b=> b.onclick=()=>{ STATE.tab=b.dataset.tab; persist(); renderAnalytics(); });
+}
+
+/* Masthead — the identity band. Every value is read off the run. */
+function masthead(R){
+  const dur=R.apis.flatMap(a=>a.results).reduce((n,r)=>n+(r.durationMs||0),0);
+  const g=qualityGate(R), rules=contractRules(R), okN=rules.filter(r=>r.ok).length;
+  const src=new Set(allApis().filter(a=>R.apis.some(x=>x.apiRef===a.ref)).map(a=>a.sourceType||'newman'));
+  const eng=[];
+  if(src.has('newman')) eng.push(['Newman / Postman','eng-newman']);
+  eng.push(['PyTest','eng-pytest'],['OpenAPI 3.1','eng-openapi']);
+  if(src.has('bruno')) eng.push(['Bruno','eng-bruno']);
+  eng.push(['global_contract','eng-global']);
+  return `<header class="emast"><div class="emast-in">
+    <div class="emast-top">
+      <div style="min-width:0">
+        <div class="emast-tags">
+          <span class="tag-os">OMFYS &middot; Enterprise QA Operating System</span>
+          <span class="tag-std">Contract v${esc(R.catalogueVersion)}</span>
+          ${R.simulated?'<span class="tag-std" style="color:var(--am300);border-color:rgba(181,118,42,.45)">Simulated run</span>':''}
+        </div>
+        <h1>HCM Platform APIs
+          <span class="qg-pill qg-${g.level}">Quality Gate: ${g.level}${
+            R.summary.passRateApplicable?` (${pct(R.summary.passRate)})`:' (n/a)'}</span>
+        </h1>
+        <p class="emast-meta">
+          <span><span class="ic">${svg(ICO.server)}</span>ENV: <strong>${esc(R.environment)}</strong></span>
+          <span class="sep">&bull;</span>
+          <span><span class="ic">${svg(ICO.commit)}</span>Run: <strong>${esc(R.runId)}</strong></span>
+          <span class="sep">&bull;</span>
+          <span><span class="ic">${svg(ICO.clock)}</span>${esc(R.startedAt||'—')}</span>
+          <span class="sep">&bull;</span>
+          <span class="dur"><span class="ic">${svg(ICO.timer)}</span>${(dur/1000).toFixed(1)}s Total Duration</span>
+        </p>
+      </div>
+      <div class="emast-right">
+        <div class="psw" id="pswReport">
+          <span class="psw-l">${svg(ICO.usercheck)} View:</span>
+          <button data-persona="all">Unified</button>
+          <button data-persona="exec">&#128084; Exec</button>
+          <button data-persona="dev">&#128187; Dev</button>
+          <button data-persona="qa">&#129514; QA</button>
+          <button data-persona="devops">&#9881;&#65039; DevOps</button>
+        </div>
+        <button class="ebtn ebtn-exp" id="eExport">${svg(ICO.download)} Export</button>
+        <button class="ebtn-ico" data-back="home" title="Back to workbench">&#8592;</button>
+      </div>
+    </div>
+    <div class="emast-strip">
+      <div class="eng-row"><span class="eng-l">Testing Engines:</span>
+        ${eng.map(e=>`<span class="eng-c ${e[1]}">${esc(e[0])}</span>`).join('')}</div>
+      <div class="cmp-row"><span class="cmp-l">Standard Compliance:</span>
+        <span class="cmp-b ${okN===rules.length?'cmp-ok':'cmp-no'}">${svg(ICO.shieldcheck)}
+          ${okN} / ${rules.length} Rules Passed (${Math.round(okN/rules.length*100)}%)</span></div>
+    </div>
+  </div></header>`;
+}
+
+/* Quality gate banner. */
+function gateBanner(R){
+  const g=qualityGate(R), c=R.summary.counts, rules=contractRules(R);
+  const tone={
+    FAILED :['var(--ro500)','rgba(76,5,25,.9)','rgba(244,63,94,.2)','rgba(244,63,94,.3)','crit','Blocker / Critical'],
+    WARNING:['var(--am400)','rgba(69,42,10,.9)','rgba(251,191,36,.2)','rgba(251,191,36,.3)','warn','Advisory'],
+    PASSED :['var(--em500)','rgba(4,45,32,.9)','rgba(16,185,129,.2)','rgba(16,185,129,.3)','ok','Clean']
+  }[g.level];
+  const bits=[];
+  if(c.FAIL)             bits.push(`<strong style="color:var(--ro300)">${c.FAIL} assertion failure${c.FAIL>1?'s':''}</strong>`);
+  if(c.WARN)             bits.push(`<strong style="color:var(--am300)">${c.WARN} over the 700ms advisory</strong>`);
+  if(c.SKIPPED_NO_TOKEN) bits.push(`<strong style="color:var(--am300)">${c.SKIPPED_NO_TOKEN} blocked on auth bootstrap</strong>`);
+  if(c.NOT_ASSERTED)     bits.push(`<strong style="color:var(--pu300)">${c.NOT_ASSERTED} that assert nothing</strong>`);
+  const title = g.level==='PASSED'
+    ? `Quality Gate: Clean (${R.summary.total} results &middot; 0 unclassified)`
+    : `Quality Gate: ${g.level==='FAILED'?'Action Required':'Review Advised'} (${c.FAIL||0} defect${c.FAIL===1?'':'s'} classified &middot; 0 unknown)`;
+  return `<div class="eqg" style="--qgc:${tone[0]};--qgbg:${tone[1]};--qgbg2:${tone[2]};--qgbd:${tone[3]}">
+    <div class="eqg-l">
+      <div class="eqg-ico">${svg(g.level==='PASSED'?ICO.shieldcheck:ICO.shieldalert)}</div>
+      <div style="min-width:0">
+        <div class="eqg-h">
+          <h2>${title}</h2>
+          <span class="eqg-tag ${tone[4]}">${tone[5]}</span>
+          ${c.NOT_ASSERTED?`<span class="eqg-tag sub">Assertion Gap &times;${c.NOT_ASSERTED}</span>`:''}
+        </div>
+        <p class="eqg-p">${bits.length?'This run carries '+bits.join(', ')+'.':'Every assertion that ran, passed.'}
+          ${c.NOT_ASSERTED?' An unasserted request executes but is <strong style="color:var(--pu300)">never</strong> a pass (D7).':''}
+          ${!R.summary.passRateApplicable?' Pass rate is <strong style="color:var(--s300)">n/a</strong> &mdash; nothing entered the denominator.':''}</p>
+      </div>
+    </div>
+    <div class="eqg-a">
+      ${c.FAIL?`<button class="ebtn ebtn-danger" data-goto="defects">${svg(ICO.flame)} Inspect Defects</button>`:''}
+      <button class="ebtn ebtn-ghost" data-goto="compliance">Contract Rules (${okCount(rules)}/${rules.length})</button>
+    </div>
+  </div>`;
+}
+function okCount(rules){ return rules.filter(r=>r.ok).length; }
+
+/* The four executive metrics. */
+function kpiRow(R){
+  const c=R.summary.counts, all=R.apis.flatMap(a=>a.results);
+  const mods=new Set(R.apis.map(a=>{const x=apiByRef(a.apiRef);return x?x.module:'—';}));
+  const durs=all.filter(r=>r.executed&&r.durationMs>0).map(r=>r.durationMs).sort((a,b)=>a-b);
+  const avg=durs.length?durs.reduce((a,b)=>a+b,0)/durs.length:0;
+  const p95=durs.length?durs[Math.min(durs.length-1,Math.floor(durs.length*0.95))]:0;
+  const dur=all.reduce((n,r)=>n+(r.durationMs||0),0);
+  const denom=(c.PASS||0)+(c.FAIL||0);
+  const pw=denom?c.PASS/denom*100:0, fw=denom?c.FAIL/denom*100:0;
+  const sec=all.filter(r=>r.state==='FAIL'&&/credential_leakage|401_without/.test(r.testId)).length;
+  const sch=all.filter(r=>r.state==='FAIL'&&/schema|content_type/.test(r.testId)).length;
+  const fun=Math.max(0,(c.FAIL||0)-sec-sch);
+  return `<section class="estats">
+    <div class="estat">
+      <div class="estat-h"><span>Success Rate</span><span class="estat-ic ic-teal">${svg(ICO.percent)}</span></div>
+      <div class="estat-v"><span class="estat-n">${pct(R.summary.passRate)}</span>
+        <span class="estat-sub amber">PASS / (PASS + FAIL)</span></div>
+      <div class="estat-bar">${denom
+        ? `<i class="p" style="width:${pw.toFixed(2)}%"></i><i class="f" style="width:${fw.toFixed(2)}%"></i>`
+        : `<i class="o" style="width:100%"></i>`}</div>
+      <div class="estat-f"><span class="g">${c.PASS||0} Passed</span><span class="r">${c.FAIL||0} Failed</span></div>
+    </div>
+    <div class="estat">
+      <div class="estat-h"><span>Total Test Cases</span><span class="estat-ic ic-blue">${svg(ICO.check2)}</span></div>
+      <div class="estat-v"><span class="estat-n">${R.summary.total}</span>
+        <span class="estat-sub">across ${mods.size} suite${mods.size===1?'':'s'}</span></div>
+      <div class="estat-f"><span>${c.NOT_APPLICABLE||0} Not Applicable</span>
+        <span class="t">${R.summary.referencedHostResults||0} Host-Referenced</span></div>
+    </div>
+    <div class="estat${c.FAIL?' rose':''}">
+      <div class="estat-h"><span>Defect Classification</span><span class="estat-ic ic-rose">${svg(ICO.octagon)}</span></div>
+      <div class="estat-v"><span class="estat-n${c.FAIL?' rose':''}">${c.FAIL||0}</span>
+        <span class="estat-sub">classified &middot; 0 unknown</span></div>
+      <div class="estat-chips">
+        <span class="ch-pu">${sec} Security</span>
+        <span class="ch-am">${sch} Schema</span>
+        <span class="ch-ro">${fun} Functional</span>
+      </div>
+    </div>
+    <div class="estat">
+      <div class="estat-h"><span>Response Times</span><span class="estat-ic ic-amber">${svg(ICO.gauge)}</span></div>
+      <div class="estat-v"><span class="estat-n sm">${avg.toFixed(1)}<span class="u">ms avg</span></span>
+        <span style="color:var(--s600)">/</span>
+        <span class="estat-n sm" style="color:var(--am400)">${p95.toFixed(0)}<span class="u">ms p95</span></span></div>
+      <div class="estat-f"><span class="a">${c.WARN||0} SLA Breach${c.WARN===1?'':'es'}</span>
+        <span>${(dur/1000).toFixed(1)}s Total Run</span></div>
+    </div>
+  </section>`;
+}
+
+/* Horizontal stacked bars with an axis, one row per module. */
+function suiteBars(perMod){
+  const rows=[...perMod.entries()].map(m=>({m:m[0], s:summarise(m[1])}));
+  const max=Math.max(1,...rows.map(r=>r.s.total));
+  const step=Math.max(1,Math.ceil(max/6));
+  const ticks=[]; for(let v=0;v<=max;v+=step) ticks.push(v);
+  const LW=160,BW=520,H=Math.max(1,rows.length)*32+26,W=LW+BW+16;
+  const seq=['PASS','FAIL','WARN','SKIPPED_NO_TOKEN','NOT_ASSERTED','INFORMATIONAL','NOT_APPLICABLE'];
+  return `<svg viewBox="0 0 ${W} ${H}" class="trend" role="img"
+      aria-label="Result states per module"><g font-family="ui-monospace,monospace">
+    ${ticks.map(v=>`<line x1="${(LW+v/max*BW).toFixed(1)}" y1="2" x2="${(LW+v/max*BW).toFixed(1)}" y2="${H-22}"
+        stroke="${cssv('--s800')}" stroke-width="1"/>
+      <text x="${(LW+v/max*BW).toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="9.5"
+        fill="${cssv('--s400')}">${v}</text>`).join('')}
+    ${rows.map((r,i)=>{
+      const y=6+i*32; let x=LW;
+      const segs=seq.map(s=>{
+        const n=r.s.counts[s]||0; if(!n) return '';
+        const w=n/max*BW;
+        const seg=`<rect x="${x.toFixed(1)}" y="${y}" width="${w.toFixed(1)}" height="20" rx="2"
+          fill="${cssv(STATE_VAR[s])}"><title>${esc(r.m)} — ${s}: ${n}</title></rect>`;
+        x+=w; return seg;}).join('');
+      return `<text x="${LW-10}" y="${y+14}" text-anchor="end" font-size="11"
+          fill="${cssv('--s300')}">${esc(r.m.length>24?r.m.slice(0,23)+'…':r.m)}</text>${segs}`;
+    }).join('')}
+  </g></svg>`;
+}
+
+/* Executive sign-off — every row backed by a real check on this run. */
+function signOff(R){
+  const rules=contractRules(R), g=qualityGate(R), c=R.summary.counts;
+  const row=(k,v,cls)=>`<div class="eso-row"><span>${k}</span><b class="${cls}">${esc(v)}</b></div>`;
+  return `<div class="ecard" style="display:flex;flex-direction:column;justify-content:space-between">
+    <div>
+      <div class="eso-h"><span class="ic">${svg(ICO.clipboard)}</span>
+        <h3>Executive Sign-Off Status</h3></div>
+      <p class="eso-p">Contract checklist verification for this run:</p>
+      <div class="eso-list">
+        ${row('Unknown Defect Bucket:', okCount(rules)===rules.length?'0% (Compliant)':`${rules.length-okCount(rules)} rule(s) broken`,
+              okCount(rules)===rules.length?'eso-ok':'eso-bad')}
+        ${row('Assertion Failure Gate:', c.FAIL?`FAIL (${c.FAIL})`:'PASS (0)', c.FAIL?'eso-bad':'eso-ok')}
+        ${row('SLA Latency Gate:', c.WARN?`WARN (${c.WARN} over 700ms)`:'PASS (within 700ms)', c.WARN?'eso-warn':'eso-ok')}
+        ${row('Auth Bootstrap Gate:', c.SKIPPED_NO_TOKEN?`BLOCKED (${c.SKIPPED_NO_TOKEN})`:'PASS', c.SKIPPED_NO_TOKEN?'eso-warn':'eso-ok')}
+        ${row('Assertion Coverage:', c.NOT_ASSERTED?`${c.NOT_ASSERTED} assert nothing`:'Complete', c.NOT_ASSERTED?'eso-warn':'eso-ok')}
+        ${row('Pass Rate:', R.summary.passRateApplicable?pct(R.summary.passRate):'n/a — nothing asserted',
+              R.summary.passRateApplicable?'eso-ok':'eso-dim')}
+      </div>
+      <p class="eso-p" style="margin-top:11px;color:var(--s400)">A run can read
+        <b style="color:var(--em400)">100% pass</b> and still not be clean — WARN and blocked
+        results sit outside the denominator, so both are always shown together.</p>
+    </div>
+    ${c.FAIL?`<button class="ebtn ebtn-full" data-goto="defects">Review Root Causes &amp; Fixes</button>`:''}
+  </div>`;
+}
+
+/* ---- tabs ---- */
+function tabOverview(R){
+  const perMod=new Map();
+  R.apis.forEach(a=>{
+    const api=apiByRef(a.apiRef); const m=api?api.module:'—';
+    if(!perMod.has(m)) perMod.set(m,[]);
+    perMod.get(m).push(...a.results);
+  });
+  const c=R.summary.counts;
+  const best=[...perMod.entries()].map(x=>({m:x[0],s:summarise(x[1])}))
+    .filter(x=>x.s.passRate!=null).sort((a,b)=>b.s.passRate-a.s.passRate)[0];
+  const worst=[...perMod.entries()].map(x=>({m:x[0],s:summarise(x[1])}))
+    .filter(x=>x.s.counts.FAIL>0).sort((a,b)=>b.s.counts.FAIL-a.s.counts.FAIL)[0];
+  return kpiRow(R) + `
+  <div class="egrid3" style="margin-top:20px">
+    <div class="ecard" style="display:flex;flex-direction:column">
+      <div class="ecard-h">
+        <div><h3>Test Status Distribution</h3><p>All seven contract states</p></div>
+        <span class="epill em">${pct(R.summary.passRate)} Pass</span>
+      </div>
+      <div class="donut-wrap">${donut(R.summary.counts)}
+        <div class="donut-mid"><b>${R.summary.total}</b><i>Total Results</i></div>
+      </div>
+      <div class="elegend">
+        <div><span class="sw" style="background:${cssv('--accent')}"></span>
+          <span>Passed: <strong>${c.PASS||0}</strong></span></div>
+        <div><span class="sw" style="background:${cssv('--rose')}"></span>
+          <span>Failed: <strong style="color:var(--ro400)">${c.FAIL||0}</strong></span></div>
+      </div>
+    </div>
+
+    <div class="ecard span2" style="display:flex;flex-direction:column">
+      <div class="ecard-h">
+        <div><h3>Suite Execution &amp; Defect Density</h3><p>Result states per module</p></div>
+        <div class="ekey">
+          <span class="k" style="color:var(--em400)"><span class="sq" style="background:${cssv('--accent')}"></span> Passed</span>
+          <span class="k" style="color:var(--ro400)"><span class="sq" style="background:${cssv('--rose')}"></span> Failed</span>
+          <span class="k" style="color:var(--am400)"><span class="sq" style="background:${cssv('--amber')}"></span> Warn</span>
+        </div>
+      </div>
+      <div style="flex:1;min-height:200px">${suiteBars(perMod)}</div>
+      <div class="ecard-f">
+        <span class="good">${best?`${esc(best.m)}: ${pct(best.s.passRate)} (${best.s.counts.PASS}/${best.s.counts.PASS+best.s.counts.FAIL})`:'No module asserted'}</span>
+        <span class="${worst?'bad':''}">${worst
+          ? `${esc(worst.m)}: ${worst.s.counts.FAIL} failure${worst.s.counts.FAIL>1?'s':''}`
+          : 'No failures in this run'}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="egrid3" style="margin-top:20px">
+    <div class="ecard span2" data-persona-for="exec,qa,devops">
+      <div class="ecard-h">
+        <div><h3>Historical Build Trend (Last ${HISTORY_MAX} Runs)</h3>
+          <p>Pass rate retained across runs in this browser</p></div>
+        <span class="epill te">Archived History</span>
+      </div>
+      <div style="min-height:180px">${trendChart()}</div>
+    </div>
+    <div data-persona-for="exec,qa">${signOff(R)}</div>
+  </div>
+
+  ${R.statusReason?`<div class="ecard rose" style="margin-top:20px">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span class="eqg-tag warn">Blocked</span>
+      <span style="font:400 11.5px ui-monospace,monospace;color:var(--s300)">${esc(R.statusReason)}</span>
+    </div></div>`:''}
+  <div class="ecard" style="margin-top:20px">
+    <p class="eso-p" style="color:var(--s400)">${esc(R.applicabilityNote)}</p>
+  </div>`;
+}
+
 /* The contract rules this page can actually verify, checked against the run. */
 function contractRules(R){
   const all=R.apis.flatMap(a=>a.results);
@@ -1429,80 +1894,6 @@ function contractRules(R){
     {t:'No credential value present anywhere in the document',
      ok:!/password|secret|Bearer\s+ey/i.test(JSON.stringify(R))}
   ];
-}
-
-/* Executive sign-off — the checklist, each row backed by a real check. */
-function signOff(R){
-  const rules=contractRules(R), g=qualityGate(R), c=R.summary.counts;
-  const row=(k,v,tone)=>`<div class="so-row"><span>${k}</span>
-    <b style="color:${cssv(tone)}">${esc(v)}</b></div>`;
-  return `<div class="card">
-    <div class="card-h"><h3>Executive sign-off</h3><span class="sp"></span>
-      <span class="st st-${g.level==='PASSED'?'PASS':g.level==='WARNING'?'WARN':'FAIL'}">${g.level}</span></div>
-    <div class="card-b">
-      ${row('Contract rules', `${rules.filter(r=>r.ok).length} / ${rules.length} passed`,
-            rules.every(r=>r.ok)?'--accent':'--rose')}
-      ${row('Assertion failures', c.FAIL?`FAIL (${c.FAIL})`:'none', c.FAIL?'--rose':'--accent')}
-      ${row('SLA gate (700ms advisory)', c.WARN?`WARN (${c.WARN} over target)`:'within target',
-            c.WARN?'--amber':'--accent')}
-      ${row('Auth bootstrap', c.SKIPPED_NO_TOKEN?`BLOCKED (${c.SKIPPED_NO_TOKEN})`:'clean',
-            c.SKIPPED_NO_TOKEN?'--amber':'--accent')}
-      ${row('Assertion coverage', c.NOT_ASSERTED?`${c.NOT_ASSERTED} request(s) assert nothing`:'complete',
-            c.NOT_ASSERTED?'--purple':'--accent')}
-      ${row('Pass rate', R.summary.passRateApplicable?pct(R.summary.passRate):'n/a — nothing asserted',
-            R.summary.passRateApplicable?'--text':'--text-faint')}
-      <div class="faint" style="font-size:11.5px;margin-top:10px">
-        A run can read <b>100% pass and not clean</b> — the pass rate counts only PASS and FAIL,
-        so WARN and blocked results sit outside it. Both are shown together, never separately.
-      </div>
-      ${c.FAIL?`<button class="btn btn-primary" id="soReview"
-        style="width:100%;justify-content:center;margin-top:11px">Review root causes</button>`:''}
-    </div>
-  </div>`;
-}
-
-/* ---- tabs ---- */
-function tabOverview(R){
-  const perMod = new Map();
-  R.apis.forEach(a=>{
-    const api=apiByRef(a.apiRef); const m=api?api.module:'—';
-    if(!perMod.has(m)) perMod.set(m,[]);
-    perMod.get(m).push(...a.results);
-  });
-  return kpiRow(R) + `
-  <div class="grid" style="grid-template-columns:minmax(320px,1fr) minmax(340px,1.3fr)">
-    <div class="card"><div class="card-h"><h3>Result distribution</h3></div>
-      <div class="card-b">${donut(R.summary.counts)}
-        <hr><div class="faint" style="font-size:11.5px">
-        Only <b>PASS</b> and <b>FAIL</b> enter the pass-rate denominator. The other five states are
-        counted and shown, never silently folded into a pass.</div>
-      </div></div>
-    <div class="card"><div class="card-h"><h3>By module</h3></div>
-      <div class="card-b">${[...perMod.entries()].map(([m,rs])=>{
-        const s=summarise(rs);
-        return `<div class="bar-row"><div class="trunc" title="${esc(m)}">${esc(m)}</div>
-          ${stateBar(s.counts, s.total)}
-          <div class="right mono">${pct(s.passRate)}</div></div>`;
-      }).join('')}</div></div>
-  </div>
-
-  <div class="grid" style="grid-template-columns:minmax(340px,1.5fr) minmax(300px,1fr);margin-top:14px">
-    <div class="card" data-persona-for="exec,qa,devops,all">
-      <div class="card-h"><h3>Pass-rate trend</h3><span class="sp"></span>
-        <span class="pill">last ${STATE.history.length} run${STATE.history.length===1?'':'s'}</span></div>
-      <div class="card-b">${trendChart()}
-        <div class="faint" style="font-size:11.5px;margin-top:8px">
-          History lives in this browser only — it is not the Allure history folder,
-          and clearing site data clears it.</div>
-      </div>
-    </div>
-    <div data-persona-for="exec,qa,all">${signOff(R)}</div>
-  </div>
-  ${R.statusReason?`<div class="card sect" style="margin-top:14px;border-color:var(--amber)">
-    <div class="card-b row"><span class="st st-SKIPPED_NO_TOKEN">BLOCKED</span>
-    <span class="mono" style="font-size:11.5px">${esc(R.statusReason)}</span></div></div>`:''}
-  <div class="card" style="margin-top:14px"><div class="card-b faint" style="font-size:11.5px">
-    ${esc(R.applicabilityNote)}</div></div>`;
 }
 
 function tabDefects(R){
@@ -1858,16 +2249,15 @@ function syncView(){
   const lamp = STATE.view==='detail' ? 'home' : STATE.view;
   $$('.rail-btn[data-view]').forEach(b=>b.classList.toggle('active', b.dataset.view===lamp));
   $$('.view').forEach(v=>v.classList.toggle('active', v.id==='view-'+STATE.view));
-  if(STATE.view==='home')      renderHome();
-  if(STATE.view==='detail')    renderDetail();
-  if(STATE.view==='analytics'){ renderAnalytics(); renderStrip(); }
-  if(STATE.view!=='detail')    renderTopbar();
+  /* the report carries its own masthead, so the console chrome steps aside */
+  const onReport = STATE.view==='analytics';
+  $('.topbar').style.display = onReport ? 'none' : '';
+  $('#strip').style.display  = onReport ? 'none' : '';
+  if(STATE.view==='home')   renderHome();
+  if(STATE.view==='detail') renderDetail();
+  if(onReport)              renderAnalytics();
+  if(STATE.view!=='detail' && !onReport) renderTopbar();
 }
-$$('#anTabs .tab').forEach(t=> t.onclick=()=>{
-  STATE.tab=t.dataset.tab; persist();
-  $$('#anTabs .tab').forEach(x=>x.classList.toggle('active', x===t));
-  renderAnalytics();
-});
 $('#apiSearch').oninput = () => { renderMultiSelect(); renderSuitesGrid(); };
 $('#btnSelAll').onclick = () => { allApis().forEach(a=>STATE.selected.add(a.ref)); persist(); renderHome(); };
 $('#btnSelNone').onclick = () => { STATE.selected.clear(); persist(); renderHome(); };
@@ -1933,16 +2323,16 @@ $$('#personaSeg button').forEach(b=> b.onclick=()=>{
 });
 function syncPersona(){
   $$('#personaSeg button').forEach(b=>b.classList.toggle('active', b.dataset.persona===STATE.persona));
-  $$('#anTabs .tab').forEach(t=>{
+  $$('#anTabs .nitem').forEach(t=>{
     const only=t.dataset.personaFor;
     if(!only || STATE.persona==='all'){ t.removeAttribute('data-persona-hide'); return; }
     only.split(',').includes(STATE.persona)
       ? t.removeAttribute('data-persona-hide') : t.setAttribute('data-persona-hide','');
   });
-  const active=$('#anTabs .tab.active');
+  const active=$('#anTabs .nitem.active');
   if(active && active.hasAttribute('data-persona-hide')){
     STATE.tab='overview';
-    $$('#anTabs .tab').forEach(x=>x.classList.toggle('active', x.dataset.tab==='overview'));
+    $$('#anTabs .nitem').forEach(x=>x.classList.toggle('active', x.dataset.tab==='overview'));
   }
   if(STATE.view==='analytics') renderAnalytics();
 }
@@ -1970,7 +2360,7 @@ function startRun(refs){
       if(STATE.history.length>HISTORY_MAX) STATE.history=STATE.history.slice(-HISTORY_MAX);
       STATE.running=false; if(prog) prog.style.display='none';
       STATE.tab='overview';
-      $$('#anTabs .tab').forEach(x=>x.classList.toggle('active', x.dataset.tab==='overview'));
+      $$('#anTabs .nitem').forEach(x=>x.classList.toggle('active', x.dataset.tab==='overview'));
       persist(); publishShared(STATE.result); syncSel();
       go('analytics');
       if(BUS) try{ BUS.postMessage({type:'result', result:STATE.result}); }catch(e){}
