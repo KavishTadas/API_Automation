@@ -416,6 +416,36 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   click($('#apiSearchClear'));
   await wait(70);
 
+  console.log('\nmenu colour:');
+  const rows = $$('#railMenu .rail-item');
+  ok('every row wraps its icon in a tintable span',
+     rows.every(b => b.querySelector('.ri > svg')));
+  const tints = rows.filter(b => !b.classList.contains('active'))
+    .map(b => (b.querySelector('.ri').getAttribute('style') || ''));
+  ok('inactive rows carry a colour', tints.every(x => /color:#/.test(x)), tints.join(' | '));
+  ok('the tints are distinct from one another',
+     new Set(tints).size === tints.length, tints.join(' | '));
+  ok('the active row drops its tint and takes the accent',
+     rows.filter(b => b.classList.contains('active'))
+         .every(b => !b.querySelector('.ri').getAttribute('style')));
+  ok('section headers carry a matching dot',
+     $$('#railMenu .rail-sec .rs-dot').length === $$('#railMenu .rail-sec').length,
+     $$('#railMenu .rail-sec .rs-dot').length + ' of ' + $$('#railMenu .rail-sec').length);
+  ok('section dots are coloured',
+     $$('#railMenu .rs-dot').every(d => /background:#/.test(d.getAttribute('style') || '')));
+  ok('the assertion-gap chip is called out',
+     !!$('#railMenu .rail-gap') &&
+     /\d+ assertion gap/.test($('#railMenu .rail-gap').textContent),
+     ($('#railMenu .rail-gap') || {}).textContent);
+  ok('the gap chip explains itself on hover',
+     /assert nothing/.test(($('#railMenu .rail-gap') || {}).title || ''));
+  ok('Open Report badges the failure count once a run exists',
+     !$('#railMenu [data-view="analytics"]').disabled
+       ? !!$('#railMenu [data-view="analytics"] .ct') : true,
+     ($('#railMenu [data-view="analytics"] .ct') || {}).textContent);
+  ok('labels stay in the text colour, so contrast never rides on the tint',
+     rows.every(b => !(b.querySelector('.lb').getAttribute('style') || '').includes('color')));
+
   console.log('\nside menu:');
   ok('menu rendered on every view', $$('#railMenu .rail-item').length > 0,
      $$('#railMenu .rail-item').length + ' rows');
