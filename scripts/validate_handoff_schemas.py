@@ -90,6 +90,7 @@ def _drift_checks() -> list[tuple[str, list[str]]]:
         ASSERTION_STATES,
         GLOBAL_TEST_CATEGORIES,
         ApplicabilityState,
+        build_catalogue,
     )
     from tests.global_contract.result_emitter import (
         CLEAN_BLOCKING_STATES,
@@ -114,6 +115,7 @@ def _drift_checks() -> list[tuple[str, list[str]]]:
     manifest = _load(BUNDLE / "schema-run-manifest.json")
     result = _load(BUNDLE / "schema-result.json")
     catalogue = _load(BUNDLE / "schema-catalogue.json")
+    sample_catalogue = _load(BUNDLE / "sample-catalogue.json")
 
     states = [state.name for state in ResultState]
     rules = catalogue["$defs"]["classificationRules"]["properties"]
@@ -168,6 +170,16 @@ def _drift_checks() -> list[tuple[str, list[str]]]:
             rules["executedStates"]["const"],
         ),
         ("reasonSeparator", [REASON_SEPARATOR], [rules["reasonSeparator"]["const"]]),
+        (
+            # The tier grew 12 -> 22 on main while the bundle sat on a branch, and
+            # every check here still passed: the samples were self-consistent and no
+            # enum had changed. Nothing tied the SHIPPED catalogue to the tier the
+            # engine actually discovers, so the drift was invisible until a reader
+            # counted by hand. This is that tie.
+            "shipped sample-catalogue lists every global check the engine discovers",
+            [case["id"] for case in build_catalogue()["testCases"]["global"]],
+            [case["id"] for case in sample_catalogue["testCases"]["global"]],
+        ),
     ]
 
     checks: list[tuple[str, list[str]]] = []

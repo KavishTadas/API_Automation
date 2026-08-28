@@ -1,9 +1,10 @@
 /* Real-DOM smoke test: load the built page in jsdom and drive it the way a
    QA engineer would — pick APIs, run, View Report, walk the tabs, toggle theme. */
 const fs = require('fs');
+const path = require('path');
 const { JSDOM } = require('jsdom');
 
-const F = 'c:\\Users\\parth.divekar\\Downloads\\API_Automation\\docs\\platform-ui\\unified-console.html';
+const F = path.join(__dirname, 'unified-console.html');
 const dom = new JSDOM(fs.readFileSync(F, 'utf8'), {
   runScripts: 'dangerously', pretendToBeVisual: true, url: 'http://localhost/'
 });

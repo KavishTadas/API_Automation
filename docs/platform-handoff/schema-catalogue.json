@@ -31,7 +31,7 @@
       "type": "object",
       "required": ["global", "apiSpecific"],
       "additionalProperties": false,
-      "description": "The global set is published ONCE rather than duplicated under every API - it is the same twelve checks for all of them, and repeating them per API would multiply the document by the inventory size for no added information.",
+      "description": "The global set is published ONCE rather than duplicated under every API - it is the same checks for all of them, and repeating them per API would multiply the document by the inventory size for no added information. The size of the tier is deliberately not stated here: it grows as checks are added, so read the count off the `global` array rather than from this description.",
       "properties": {
         "global": {
           "type": "array",
