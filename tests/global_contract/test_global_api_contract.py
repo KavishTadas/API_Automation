@@ -1817,3 +1817,395 @@ def test_special_characters_in_input(
         f"{response.status_code} for Unicode input; a server error means the "
         "input was not handled"
     )
+
+
+# ===========================================================================
+# Additional cross-cutting checks.
+#
+# Every one is gated on metadata this repo actually holds — the declared
+# method, the inventory's Access column, its Request Parameters, its Request
+# Body Schema, or the resolved host. Nothing here assumes a field the
+# inventory does not carry: where the data is absent the check reports
+# NOT_APPLICABLE naming the field, the same as the original twelve.
+#
+# None of these sends a method the endpoint did not declare. TRACE is the one
+# exception and is safe by construction: it echoes, it mutates nothing, and
+# the check exists precisely because it should be refused.
+# ===========================================================================
+
+#: Header values that disclose a product version, e.g. "nginx/1.24.0".
+_VERSION_IN_HEADER = re.compile(r"\d+\.\d+")
+
+#: Markers of an internal failure leaking into a response body.
+_INTERNAL_LEAK_MARKERS = (
+    "traceback (most recent call last)",
+    "at java.",
+    "at org.springframework",
+    "org.hibernate",
+    "javax.servlet",
+    "system.nullreferenceexception",
+    ".java:",
+    ".py\", line ",
+    "stack trace",
+    "sqlexception",
+    "syntax error at or near",
+)
+
+
+def _headers_with(api_row: dict[str, Any], extra: str) -> dict[str, Any]:
+    """Return the row with ``extra`` merged into its Request Parameters headers.
+
+    ``Request Parameters`` is a pipe-delimited string the request helper parses
+    (``headers: k=v; k2=v2 | query: ...``). Appending another ``headers:``
+    section is how a check overrides one without reaching into the helper,
+    which is generated and must not be edited.
+    """
+    existing = api_row.get("Request Parameters", "") or ""
+    joined = f"{existing} | headers: {extra}" if existing else f"headers: {extra}"
+    return {**api_row, "Request Parameters": joined}
+
+
+def _bootstrap_or_request(
+    operation_case: OperationCase,
+    global_contract_context: GlobalContractContext,
+    api_row: dict[str, Any],
+) -> httpx.Response:
+    """Reuse the bootstrap response for this operation, or issue one."""
+    response = global_contract_context.bootstrap_responses.get(
+        (operation_case.method, operation_case.path)
+    )
+    if response is None:
+        response = perform_api_request(
+            api_row, global_contract_context.config_for(operation_case)
+        )
+    return response
+
+
+@allure.title("Transport is HTTPS — {param_id}")
+@pytest.mark.parametrize("operation_case", build_contract_params())
+def test_transport_is_https(
+    operation_case: OperationCase,
+    global_contract_context: GlobalContractContext,
+) -> None:
+    """The resolved host must be TLS. Metadata only — issues no request."""
+    api_row = _require_runnable(operation_case, global_contract_context)
+
+    resolved = _resolve_templates(
+        api_row.get("Base URL", ""), global_contract_context.config_for(operation_case)
+    ).strip()
+    if not resolved or "{{" in resolved:
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            "base URL did not resolve, so its scheme cannot be checked",
+            field="Base URL",
+        )
+
+    scheme = urlsplit(resolved).scheme.lower()
+    assert scheme == "https", (
+        f"{operation_case.method} {operation_case.path} resolves to {scheme}://; "
+        "credentials and tokens must never cross a plaintext transport"
+    )
+
+
+@allure.title("Private endpoint refuses an anonymous caller — {param_id}")
+@pytest.mark.parametrize("operation_case", build_contract_params())
+def test_private_endpoint_rejects_anonymous_access(
+    operation_case: OperationCase,
+    global_contract_context: GlobalContractContext,
+) -> None:
+    """A private endpoint called with no Authorization header must refuse.
+
+    Distinct from ``test_401_without_valid_token``, which sends a *malformed*
+    token. This sends none at all, which is the shape an unauthenticated
+    caller actually takes.
+    """
+    api_row = _require_runnable(operation_case, global_contract_context)
+
+    access = str(api_row.get("Access", "")).strip().lower()
+    if access != "private":
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            f"endpoint is declared '{access or 'undeclared'}', not private",
+            field="Access",
+        )
+
+    anonymous = {**api_row, "Request Parameters": "", "Auth Type": ""}
+    response = perform_api_request(
+        anonymous, {"__suppress_auth__": "1", **global_contract_context.config_for(operation_case)}
+    )
+
+    assert response.status_code in (401, 403), (
+        f"{operation_case.method} {operation_case.path} is declared private but "
+        f"returned {response.status_code} to a caller sending no credential; "
+        "expected 401 or 403"
+    )
+
+
+@allure.title("Error responses are machine readable — {param_id}")
+@pytest.mark.parametrize("operation_case", build_contract_params())
+def test_error_response_is_machine_readable(
+    operation_case: OperationCase,
+    global_contract_context: GlobalContractContext,
+) -> None:
+    """A 4xx must answer in JSON, not an HTML error page.
+
+    Uses the same unknown-route mutation as the 404 check, and inherits its
+    guard: where the endpoint routes a path variable the mutation is ambiguous.
+    """
+    api_row = _require_runnable(operation_case, global_contract_context)
+
+    if _resolver().declares_path_variables(operation_case.method, operation_case.path):
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            "endpoint accepts path variables; unknown-route mutation is ambiguous",
+            field="path_variables",
+        )
+
+    response = perform_api_request(
+        {**api_row, "Endpoint / Path": f"{operation_case.path.rstrip('/')}/nonexistent-xyz"},
+        global_contract_context.config_for(operation_case),
+    )
+
+    if response.status_code < 400:
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            f"unknown route returned {response.status_code}; no error body to inspect",
+            field="error_response",
+        )
+
+    content_type = response.headers.get("content-type", "").lower()
+    assert "json" in content_type, (
+        f"{operation_case.method} {operation_case.path} answered its "
+        f"{response.status_code} with content-type '{content_type or 'none'}'; "
+        "an API client cannot parse an HTML error page"
+    )
+
+
+@allure.title("Error responses hide internal detail — {param_id}")
+@pytest.mark.parametrize("operation_case", build_contract_params())
+def test_error_response_hides_internals(
+    operation_case: OperationCase,
+    global_contract_context: GlobalContractContext,
+) -> None:
+    """An error body must not carry a stack trace, class path or SQL fragment."""
+    api_row = _require_runnable(operation_case, global_contract_context)
+
+    if _resolver().declares_path_variables(operation_case.method, operation_case.path):
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            "endpoint accepts path variables; unknown-route mutation is ambiguous",
+            field="path_variables",
+        )
+
+    response = perform_api_request(
+        {**api_row, "Endpoint / Path": f"{operation_case.path.rstrip('/')}/nonexistent-xyz"},
+        global_contract_context.config_for(operation_case),
+    )
+
+    if response.status_code < 400:
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            f"unknown route returned {response.status_code}; no error body to inspect",
+            field="error_response",
+        )
+
+    body = (response.text or "").lower()
+    leaked = [marker for marker in _INTERNAL_LEAK_MARKERS if marker in body]
+    assert not leaked, (
+        f"{operation_case.method} {operation_case.path} leaked internal detail in "
+        f"its {response.status_code} body: {leaked}"
+    )
+
+
+@allure.title("Write endpoints refuse an unsupported media type — {param_id}")
+@pytest.mark.parametrize("operation_case", build_contract_params())
+def test_unsupported_media_type_rejected(
+    operation_case: OperationCase,
+    global_contract_context: GlobalContractContext,
+) -> None:
+    """A JSON endpoint sent text/plain must refuse it rather than parse it.
+
+    Gated on a documented request body: an endpoint the inventory records no
+    body for has no media type to get wrong.
+    """
+    api_row = _require_runnable(operation_case, global_contract_context)
+
+    if operation_case.method not in {"POST", "PUT", "PATCH"}:
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            f"{operation_case.method} carries no request body",
+            field="HTTP Method",
+        )
+    if not str(api_row.get("Request Body", "")).strip():
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            "inventory records no request body for this endpoint",
+            field="Request Body",
+        )
+
+    response = perform_api_request(
+        _headers_with(api_row, "Content-Type=text/plain"),
+        global_contract_context.config_for(operation_case),
+    )
+
+    assert response.status_code >= 400, (
+        f"{operation_case.method} {operation_case.path} accepted a text/plain body "
+        f"with {response.status_code}; a JSON endpoint should answer 415"
+    )
+
+
+@allure.title("Declared idempotency matches the method — {param_id}")
+@pytest.mark.parametrize("operation_case", build_contract_params())
+def test_declared_idempotency_matches_method(
+    operation_case: OperationCase,
+    global_contract_context: GlobalContractContext,
+) -> None:
+    """PUT and DELETE are idempotent by RFC 9110; GET and HEAD are safe.
+
+    Metadata only. Verifying idempotency by repeating a write would mutate a
+    real environment twice, so this checks the *declaration* instead — a PUT
+    documented as non-idempotent is a contract error worth surfacing.
+    """
+    _require_runnable(operation_case, global_contract_context)
+
+    if operation_case.idempotent is None:
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            "idempotency is not declared for this operation",
+            field="idempotent",
+        )
+
+    expected = operation_case.method in {"GET", "HEAD", "PUT", "DELETE", "OPTIONS"}
+    assert operation_case.idempotent == expected, (
+        f"{operation_case.method} {operation_case.path} declares "
+        f"idempotent={operation_case.idempotent}; RFC 9110 makes "
+        f"{operation_case.method} {'idempotent' if expected else 'non-idempotent'}"
+    )
+
+
+@allure.title("Paginated list declares its page metadata — {param_id}")
+@pytest.mark.parametrize("operation_case", build_contract_params())
+def test_paginated_list_declares_page_metadata(
+    operation_case: OperationCase,
+    global_contract_context: GlobalContractContext,
+) -> None:
+    """A list documented as paginated must return page metadata with the page."""
+    api_row = _require_runnable(operation_case, global_contract_context)
+
+    if not operation_case.paginated:
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            "operation is not declared paginated",
+            field="paginated",
+        )
+
+    response = _bootstrap_or_request(operation_case, global_contract_context, api_row)
+    if response.status_code >= 400:
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            f"list returned {response.status_code}; no page to inspect",
+            field="response",
+        )
+
+    try:
+        payload = response.json()
+    except ValueError:
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            "response is not JSON; page metadata cannot be located",
+            field="response",
+        )
+
+    candidates = {"page", "pagenumber", "pagesize", "total", "totalelements",
+                  "totalpages", "count", "offset", "limit", "hasnext", "next"}
+    seen: set[str] = set()
+    if isinstance(payload, dict):
+        seen = {str(key).lower().replace("_", "") for key in payload}
+        for wrapper in ("data", "result", "payload", "meta", "pageable"):
+            inner = payload.get(wrapper)
+            if isinstance(inner, dict):
+                seen |= {str(key).lower().replace("_", "") for key in inner}
+
+    assert seen & candidates, (
+        f"{operation_case.method} {operation_case.path} is documented as paginated "
+        f"but its response carries no page metadata; saw keys {sorted(seen) or 'none'}"
+    )
+
+
+@allure.title("Host sets the baseline security response headers")
+@pytest.mark.parametrize("operation_case", build_contract_params())
+def test_security_headers_present(
+    operation_case: OperationCase,
+    global_contract_context: GlobalContractContext,
+) -> None:
+    """X-Content-Type-Options, and a framing policy.
+
+    Host-level: these are set by the gateway, not by an endpoint, so this is
+    measured once per host and referenced from the other APIs on it.
+    """
+    api_row = _require_runnable(operation_case, global_contract_context)
+    response = _bootstrap_or_request(operation_case, global_contract_context, api_row)
+
+    headers = {key.lower(): value for key, value in response.headers.items()}
+    missing = []
+    if headers.get("x-content-type-options", "").strip().lower() != "nosniff":
+        missing.append("X-Content-Type-Options: nosniff")
+    framing = headers.get("x-frame-options", "") or headers.get("content-security-policy", "")
+    if "frame" not in framing.lower() and "deny" not in framing.lower() \
+            and "sameorigin" not in framing.lower():
+        missing.append("X-Frame-Options or a CSP frame-ancestors directive")
+
+    assert not missing, (
+        f"{urlsplit(str(response.url)).netloc} does not set: {'; '.join(missing)}"
+    )
+
+
+@allure.title("Host discloses no product version in its headers")
+@pytest.mark.parametrize("operation_case", build_contract_params())
+def test_no_server_version_disclosure(
+    operation_case: OperationCase,
+    global_contract_context: GlobalContractContext,
+) -> None:
+    """Server and X-Powered-By must not carry a version number.
+
+    Host-level. A banner naming the exact build hands an attacker the CVE list
+    for free; the header may stay, the version must not.
+    """
+    api_row = _require_runnable(operation_case, global_contract_context)
+    response = _bootstrap_or_request(operation_case, global_contract_context, api_row)
+
+    disclosed = {
+        name: value
+        for name, value in response.headers.items()
+        if name.lower() in {"server", "x-powered-by", "x-aspnet-version"}
+        and _VERSION_IN_HEADER.search(value or "")
+    }
+
+    assert not disclosed, (
+        f"{urlsplit(str(response.url)).netloc} discloses a product version: {disclosed}"
+    )
+
+
+@allure.title("Host refuses the TRACE method")
+@pytest.mark.parametrize("operation_case", build_contract_params())
+def test_trace_method_is_disabled(
+    operation_case: OperationCase,
+    global_contract_context: GlobalContractContext,
+) -> None:
+    """TRACE echoes the request back and must be off.
+
+    Host-level, and the one check here that sends a method the endpoint did
+    not declare. It is safe by construction: TRACE mutates nothing, and the
+    check exists precisely because it should be refused.
+    """
+    api_row = _require_runnable(operation_case, global_contract_context)
+
+    response = perform_api_request(
+        {**api_row, "HTTP Method": "TRACE", "Request Body": ""},
+        global_contract_context.config_for(operation_case),
+    )
+
+    assert response.status_code >= 400, (
+        f"{urlsplit(str(response.url)).netloc} answered TRACE with "
+        f"{response.status_code}; TRACE echoes the request and must be disabled"
+    )

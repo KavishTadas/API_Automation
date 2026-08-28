@@ -1,0 +1,1381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HCM API Test Console — Platform Hub</title>
+<style>
+:root {
+--bg: #0C0F14;
+--rail: #11151D;
+--panel: #161C26;
+--panel-2: #1E2634;
+--panel-hover: #242E3E;
+--line: #2A3445;
+--text: #E8EEF5;
+--text-dim: #8B98A9;
+--accent: #3ED9C5;
+--accent-dim: #245951;
+--accent-bg: rgba(62,217,197,0.08);
+--blue: #5B9FED;
+--blue-bg: rgba(91,159,237,0.12);
+--warn: #F2B84B;
+--fail: #EF6161;
+--purple: #B388FF;
+--mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, "Liberation Mono", monospace;
+--sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+background: var(--bg); color: var(--text); font-family: var(--sans);
+font-size: 14px; line-height: 1.5; display: flex; overflow-x: hidden;
+}
+/* Left Navigation Rail */
+.rail {
+width: 58px; background: var(--rail); border-right: 1px solid var(--line);
+display: flex; flex-direction: column; align-items: center; padding: 14px 0; gap: 18px;
+flex-shrink: 0; z-index: 10;
+}
+.rail-logo {
+width: 34px; height: 34px; border-radius: 8px; background: var(--accent-bg);
+border: 1px solid var(--accent-dim); color: var(--accent); font-family: var(--mono);
+font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center;
+}
+.rail-btn {
+width: 38px; height: 38px; border-radius: 8px; border: 1px solid transparent;
+background: transparent; color: var(--text-dim); display: flex; align-items: center;
+justify-content: center; cursor: pointer; transition: all 0.2s ease;
+}
+.rail-btn:hover { background: var(--panel-2); color: var(--text); border-color: var(--line); }
+.rail-btn.active { background: var(--accent-bg); color: var(--accent); border-color: var(--accent-dim); }
+.rail-divider { width: 24px; height: 1px; background: var(--line); margin: 4px 0; }
+/* App Outer Workspace */
+.app-container { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 100vh; }
+/* Top Bar */
+.topbar {
+display: flex; align-items: center; justify-content: space-between;
+padding: 12px 24px; border-bottom: 1px solid var(--line);
+background: linear-gradient(180deg, #131822, #0C0F14); flex-shrink: 0;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-tag {
+font-family: var(--mono); font-weight: 700; letter-spacing: 0.5px;
+color: var(--accent); font-size: 12px; border: 1px solid var(--accent-dim);
+padding: 3px 8px; border-radius: 4px; background: var(--accent-bg); text-decoration: none;
+cursor: pointer; transition: all 0.2s ease;
+}
+.brand-tag:hover { background: rgba(62,217,197,0.18); }
+.brand-info h1 { font-size: 15px; font-weight: 600; margin: 0; letter-spacing: 0.2px; }
+.brand-info .sub { color: var(--text-dim); font-size: 12px; margin-top: 1px; }
+.header-actions { display: flex; align-items: center; gap: 12px; }
+.env-select select {
+background: var(--panel-2); color: var(--text); border: 1px solid var(--line);
+border-radius: 6px; padding: 7px 12px; font-family: var(--mono); font-size: 12.5px; cursor: pointer;
+}
+.btn-sidebar-toggle {
+background: var(--panel-2); border: 1px solid var(--line); color: var(--text);
+padding: 7px 12px; border-radius: 6px; font-size: 12.5px; font-weight: 600;
+display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s ease;
+}
+.btn-sidebar-toggle:hover { border-color: var(--accent); color: var(--accent); }
+/* Status Strip */
+.strip {
+display: flex; gap: 10px; flex-wrap: wrap; padding: 10px 24px;
+border-bottom: 1px solid var(--line); background: #10141B; flex-shrink: 0; align-items: center;
+}
+.chip {
+font-family: var(--mono); font-size: 11px; padding: 4px 10px; border-radius: 20px;
+border: 1px solid var(--line); color: var(--text-dim); display: flex; align-items: center; gap: 6px;
+}
+.chip.ok { border-color: rgba(62,217,197,0.35); color: var(--accent); }
+.chip.bad { border-color: rgba(239,97,97,0.35); color: var(--fail); }
+.chip.blue { border-color: rgba(91,159,237,0.35); color: var(--blue); }
+.chip .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+/* Method Badges */
+.badge-method {
+font-family: var(--mono); font-size: 10px; font-weight: 700; padding: 3px 7px;
+border-radius: 4px; letter-spacing: 0.5px; display: inline-block; text-align: center; min-width: 48px;
+}
+.badge-method.POST { background: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent-dim); }
+.badge-method.GET { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(91,159,237,0.3); }
+.badge-method.PUT { background: rgba(242,184,75,0.12); color: var(--warn); border: 1px solid rgba(242,184,75,0.3); }
+.badge-method.DELETE { background: rgba(239,97,97,0.12); color: var(--fail); border: 1px solid rgba(239,97,97,0.3); }
+.badge-method.PATCH { background: rgba(179,136,255,0.12); color: var(--purple); border: 1px solid rgba(179,136,255,0.3); }
+/* Generic Button Styles */
+.btn {
+font-family: var(--sans); font-size: 12.5px; font-weight: 600; cursor: pointer;
+border-radius: 6px; border: 1px solid var(--line); background: var(--panel-2); color: var(--text);
+padding: 8px 14px; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 6px; justify-content: center;
+}
+.btn:hover { border-color: var(--text-dim); background: var(--panel-hover); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; border-color: var(--line) !important; filter: none !important; }
+.btn-primary { background: var(--accent); color: #0B1613; border: none; font-weight: 700; }
+.btn-primary:hover { filter: brightness(1.1); }
+.btn-secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--line); }
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+.btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--text-dim); }
+.btn-ghost:hover { border-color: var(--text-dim); color: var(--text); }
+/* Views Container */
+.view-pane { flex: 1; display: none; padding: 24px; overflow-y: auto; }
+.view-pane.active { display: block; }
+/* HOME VIEW LAYOUT */
+.quick-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+.search-bar-wrap { margin-bottom: 20px; position: relative; }
+.search-bar-wrap input {
+width: 100%; background: var(--panel); border: 1px solid var(--line); color: var(--text);
+border-radius: 8px; padding: 11px 16px 11px 40px; font-size: 13px; font-family: var(--sans);
+transition: all 0.2s ease;
+}
+.search-bar-wrap input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px rgba(62,217,197,0.1); }
+.search-bar-wrap .search-icon {
+position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+color: var(--text-dim); font-size: 14px; pointer-events: none;
+}
+/* Quick Run Box with Multi-Select */
+.card-quick-run {
+background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+padding: 20px; margin-bottom: 24px; background: linear-gradient(135deg, #161C26, #121721);
+}
+.quick-run-header {
+display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;
+}
+.quick-run-header h2 {
+font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent);
+margin: 0; font-weight: 700; display: flex; align-items: center; gap: 8px;
+}
+.multi-select-controls { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+.btn-text-action { background: none; border: none; color: var(--accent); cursor: pointer; padding: 0; font-size: 12px; font-weight: 600; }
+.btn-text-action:hover { text-decoration: underline; }
+.dot-sep { color: var(--text-dim); }
+.multi-select-box {
+background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+max-height: 230px; overflow-y: auto; padding: 8px 12px; margin-bottom: 16px;
+}
+.multi-select-group { margin-bottom: 10px; }
+.multi-select-group:last-child { margin-bottom: 0; }
+.multi-select-group-header {
+font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
+color: var(--text-dim); padding: 6px 8px 4px; border-bottom: 1px solid rgba(255,255,255,0.05);
+display: flex; justify-content: space-between;
+}
+.multi-select-item {
+display: flex; align-items: center; justify-content: space-between; padding: 7px 8px;
+border-radius: 6px; cursor: pointer; transition: background 0.15s ease; user-select: none;
+}
+.multi-select-item:hover { background: var(--panel-hover); }
+.multi-select-item-left { display: flex; align-items: center; gap: 10px; }
+.multi-select-item input[type=checkbox] {
+accent-color: var(--accent); width: 15px; height: 15px; cursor: pointer; margin: 0;
+}
+.multi-select-item-label { font-size: 13px; font-weight: 500; color: var(--text); }
+.multi-select-item-id { font-family: var(--mono); font-size: 11.5px; color: var(--text-dim); }
+.quick-run-actions { display: flex; gap: 12px; align-items: center; }
+/* Suite Grid & Cards */
+.suites-header {
+display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+}
+.suites-header h2 {
+font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim);
+margin: 0; font-weight: 700;
+}
+.suites-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 18px; }
+.card-suite {
+background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+overflow: hidden; transition: all 0.2s ease;
+}
+.card-suite:hover { border-color: rgba(62,217,197,0.3); }
+.suite-card-header {
+padding: 16px 20px; background: var(--panel-2); border-bottom: 1px solid var(--line);
+display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+}
+.suite-title-group { display: flex; align-items: center; gap: 10px; }
+.suite-icon {
+width: 32px; height: 32px; border-radius: 6px; background: var(--accent-bg);
+border: 1px solid var(--accent-dim); color: var(--accent); display: flex;
+align-items: center; justify-content: center; font-size: 14px; font-weight: bold;
+}
+.suite-name { font-weight: 600; font-size: 14px; color: var(--text); }
+.suite-desc { font-size: 11.5px; color: var(--text-dim); margin-top: 2px; }
+.suite-badge {
+font-family: var(--mono); font-size: 11px; padding: 3px 8px; border-radius: 12px;
+background: var(--bg); border: 1px solid var(--line); color: var(--text-dim);
+}
+.suite-badge.ok { border-color: var(--accent-dim); color: var(--accent); background: var(--accent-bg); }
+.api-list { list-style: none; padding: 0; margin: 0; }
+.api-item {
+display: flex; align-items: center; justify-content: space-between; padding: 12px 20px;
+border-bottom: 1px solid var(--line); cursor: pointer; transition: background 0.15s ease;
+}
+.api-item:last-child { border-bottom: none; }
+.api-item:hover { background: var(--panel-hover); }
+.api-item-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.api-item-id { font-family: var(--mono); font-size: 11.5px; color: var(--text-dim); width: 60px; flex-shrink: 0; }
+.api-item-name { font-weight: 500; font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.api-item-endpoint { font-family: var(--mono); font-size: 11.5px; color: var(--text-dim); }
+/* DETAIL VIEW LAYOUT */
+.detail-nav-back { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 16px; cursor: pointer; color: var(--accent); font-size: 13px; font-weight: 600; }
+.detail-nav-back:hover { text-decoration: underline; }
+.layout-detail {
+display: grid; grid-template-columns: 380px 1fr; gap: 20px; min-height: calc(100vh - 160px);
+}
+.pane-detail { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 20px; }
+.pane-detail h2 {
+font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim);
+margin: 0 0 14px 0; font-weight: 600;
+}
+label { display: block; font-size: 12px; color: var(--text-dim); margin: 14px 0 6px; }
+label:first-of-type { margin-top: 0; }
+select, textarea, input[type=text] {
+width: 100%; background: var(--bg); border: 1px solid var(--line); color: var(--text);
+border-radius: 6px; padding: 9px 10px; font-family: var(--mono); font-size: 12.5px;
+}
+select:focus, textarea:focus, input[type=text]:focus { border-color: var(--accent); outline: none; }
+textarea { resize: vertical; min-height: 110px; }
+.readonly { color: var(--text-dim); background: var(--panel-2); }
+.row-inputs { display: flex; gap: 8px; }
+.row-inputs > * { flex: 1; }
+.add-cred { display: flex; gap: 6px; margin-top: 8px; }
+.add-cred input { flex: 1; }
+.hint { font-size: 11.5px; color: var(--text-dim); margin-top: 6px; }
+/* TEST CASES CARD STYLING */
+.test-case-card {
+background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+padding: 14px 16px; margin-bottom: 12px; transition: border-color 0.2s ease;
+}
+.test-case-card:hover { border-color: rgba(62,217,197,0.3); }
+.test-case-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.test-case-title { font-weight: 600; font-size: 13px; color: var(--text); }
+.test-case-id { font-family: var(--mono); font-size: 11.5px; color: var(--text-dim); margin-right: 8px; }
+.test-case-category {
+font-family: var(--mono); font-size: 10px; font-weight: 700; padding: 2px 7px;
+border-radius: 4px; background: var(--panel-2); color: var(--text-dim); border: 1px solid var(--line);
+}
+.test-case-desc { font-size: 12px; color: var(--text-dim); margin-top: 4px; line-height: 1.4; }
+.test-case-status {
+font-family: var(--mono); font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 12px;
+display: inline-flex; align-items: center; gap: 5px;
+}
+.test-case-status.pending { background: var(--panel-2); color: var(--text-dim); border: 1px solid var(--line); }
+.test-case-status.pass { background: rgba(62,217,197,0.12); color: var(--accent); border: 1px solid rgba(62,217,197,0.4); }
+.test-case-status.fail { background: rgba(239,97,97,0.12); color: var(--fail); border: 1px solid rgba(239,97,97,0.4); }
+.meta-card {
+background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; margin-bottom: 14px;
+}
+.meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; }
+.meta-item .k { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-dim); }
+.meta-item .v { font-family: var(--mono); font-size: 12.5px; margin-top: 2px; word-break: break-all; }
+.status-pill {
+display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 20px;
+font-family: var(--mono); font-size: 12px; font-weight: 600;
+}
+.status-pill.pass { background: rgba(62,217,197,0.12); color: var(--accent); border: 1px solid rgba(62,217,197,0.4); }
+.status-pill.fail { background: rgba(239,97,97,0.12); color: var(--fail); border: 1px solid rgba(239,97,97,0.4); }
+.assertions { list-style: none; padding: 0; margin: 0; }
+.assertions li {
+display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--line);
+font-size: 12.5px;
+}
+.assertions li:last-child { border-bottom: none; }
+.assertions .a-status { font-family: var(--mono); font-size: 11px; }
+.assertions .a-status.pass { color: var(--accent); }
+.assertions .a-status.fail { color: var(--fail); }
+.tabs { display: flex; gap: 2px; margin: 18px 0 10px; }
+.tab {
+padding: 7px 12px; font-size: 12px; border-radius: 6px 6px 0 0; cursor: pointer;
+color: var(--text-dim); border: 1px solid transparent;
+}
+.tab.active { background: var(--bg); color: var(--text); border-color: var(--line); border-bottom-color: var(--bg); }
+pre.json {
+background: var(--bg); border: 1px solid var(--line); border-radius: 0 8px 8px 8px;
+padding: 14px; font-family: var(--mono); font-size: 11.5px; overflow: auto; max-height: 340px;
+margin: 0; white-space: pre-wrap; word-break: break-word;
+}
+/* Batch Report Cards */
+.batch-summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.batch-summary-card { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; text-align: center; }
+.batch-summary-card .k { font-size: 10px; text-transform: uppercase; color: var(--text-dim); }
+.batch-summary-card .v { font-size: 18px; font-weight: 700; font-family: var(--mono); margin-top: 2px; }
+.batch-item-card {
+background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px; margin-bottom: 12px;
+}
+.batch-item-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+.empty {
+display: flex; flex-direction: column; align-items: center; justify-content: center;
+height: 100%; color: var(--text-dim); text-align: center; padding: 60px 20px;
+}
+.empty .mark { font-family: var(--mono); font-size: 28px; color: var(--line); margin-bottom: 10px; }
+.footer-note {
+font-size: 11px; color: var(--text-dim); padding: 12px 24px; border-top: 1px solid var(--line);
+background: var(--bg); flex-shrink: 0;
+}
+/* RIGHT-SIDE SLIDING SIDEBAR NAVIGATOR */
+.sidebar-backdrop {
+position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);
+z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+}
+.sidebar-backdrop.open { opacity: 1; pointer-events: auto; }
+.sidebar-nav {
+position: fixed; top: 0; right: 0; width: 340px; height: 100%; background: var(--panel);
+border-left: 1px solid var(--line); z-index: 101; transform: translateX(100%);
+transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column;
+box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+}
+.sidebar-nav.open { transform: translateX(0); }
+.sidebar-header {
+padding: 16px 20px; border-bottom: 1px solid var(--line); display: flex; align-items: center;
+justify-content: space-between; background: var(--panel-2);
+}
+.sidebar-header h3 { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--accent); }
+.btn-close-sidebar { background: transparent; border: none; color: var(--text-dim); cursor: pointer; font-size: 16px; }
+.btn-close-sidebar:hover { color: var(--text); }
+.sidebar-search { padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.sidebar-search input { background: var(--bg); padding: 8px 12px; font-size: 12px; }
+.sidebar-content { flex: 1; overflow-y: auto; padding: 12px 0; }
+.sidebar-suite-title {
+padding: 10px 20px 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;
+letter-spacing: 0.8px; color: var(--text-dim); display: flex; justify-content: space-between;
+}
+.sidebar-api-item {
+padding: 8px 20px; display: flex; align-items: center; justify-content: space-between;
+cursor: pointer; transition: background 0.15s ease; font-size: 12.5px;
+}
+.sidebar-api-item:hover { background: var(--panel-hover); color: var(--accent); }
+/* MODAL SYSTEM */
+.modal-overlay {
+position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);
+z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px;
+opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+}
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
+.modal-box {
+background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto;
+box-shadow: 0 20px 40px rgba(0,0,0,0.6); transform: scale(0.95); transition: transform 0.2s ease;
+}
+.modal-overlay.open .modal-box { transform: scale(1); }
+.modal-header {
+padding: 16px 22px; border-bottom: 1px solid var(--line); background: var(--panel-2);
+display: flex; align-items: center; justify-content: space-between;
+}
+.modal-header h3 { margin: 0; font-size: 15px; font-weight: 600; color: var(--text); }
+.modal-body { padding: 22px; }
+.modal-footer {
+padding: 14px 22px; border-top: 1px solid var(--line); background: var(--panel-2);
+display: flex; justify-content: flex-end; gap: 10px;
+}
+.parsed-preview {
+background: var(--bg); border: 1px solid var(--line); border-radius: 8px;
+padding: 14px; margin-top: 14px; font-family: var(--mono); font-size: 12px;
+}
+.parsed-preview .k { color: var(--text-dim); text-transform: uppercase; font-size: 10px; }
+.parsed-preview .v { color: var(--accent); margin-bottom: 8px; word-break: break-all; }
+</style>
+</head>
+<body>
+<!-- Left Navigation Rail -->
+<aside class="rail">
+<div class="rail-logo">QA</div>
+<button class="rail-btn active" id="railHomeBtn" title="Home / Suites Dashboard">
+<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 00-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 00-1 1m-6 0h6"/></svg>
+</button>
+<button class="rail-btn" id="railGridBtn" title="All APIs Grid">
+<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+</button>
+<button class="rail-btn" id="railAddBtn" title="Quick Add">
+<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+</button>
+<div class="rail-divider"></div>
+<button class="rail-btn" id="railNavToggleBtn" title="Open Navigator Sidebar">
+<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+</aside>
+<div class="app-container">
+<!-- Topbar Header -->
+<header class="topbar">
+<div class="brand">
+<span class="brand-tag" id="headerTag">HCM/QA</span>
+<div class="brand-info">
+<h1 id="headerTitle">API Test Console — Home</h1>
+<div class="sub" id="headerSub">Browse suites, manage APIs, and launch test runs</div>
+</div>
+</div>
+<div class="header-actions">
+<div class="env-select">
+<select id="envSelect">
+<option value="Dev">Environment: Dev</option>
+<option value="QA">Environment: QA</option>
+<option value="UAT" selected>Environment: UAT</option>
+</select>
+</div>
+<button class="btn-sidebar-toggle" id="openSidebarBtn">
+<span>☰ Navigator</span>
+<span class="suite-badge" id="totalApiBadge">0</span>
+</button>
+</div>
+</header>
+<!-- Compliance / System Strip -->
+<div class="strip" id="globalStrip">
+<span class="chip ok"><span class="dot"></span>Local Mock Engine Ready</span>
+<span class="chip blue" id="suiteCountChip"><span class="dot"></span>4 Suites Active</span>
+<span class="chip ok" id="apiCountChip"><span class="dot"></span>8 APIs Loaded</span>
+<span class="chip" id="envChip"><span class="dot"></span>Target: UAT</span>
+</div>
+<!-- VIEW 1: MAIN HOME LANDING PAGE -->
+<main class="view-pane active" id="view-home">
+<!-- Quick Actions Row -->
+<div class="quick-actions">
+<button class="btn btn-secondary" id="btnOpenCurlModal">+ Add cURL</button>
+<button class="btn btn-secondary" id="btnOpenSuiteModal">+ Add Suite</button>
+<button class="btn btn-secondary" id="btnOpenApiModal">+ Add API</button>
+</div>
+<!-- Quick Run Box with Multi-Select -->
+<div class="card-quick-run">
+<div class="quick-run-header">
+<h2><span>⚡</span> API Selection & Quick Run (Multi-Select)</h2>
+<div class="multi-select-controls">
+<button class="btn-text-action" id="btnMultiSelectAll">Select All</button>
+<span class="dot-sep">•</span>
+<button class="btn-text-action" id="btnMultiDeselectAll">Clear Selection</button>
+<span class="suite-badge ok" id="multiSelectedBadge" style="margin-left:8px;">0 APIs Selected</span>
+</div>
+</div>
+<!-- Multi-Select Checkbox Container -->
+<div class="multi-select-box" id="multiSelectBox"></div>
+<!-- Quick Run Actions -->
+<div class="quick-run-actions">
+<button class="btn btn-primary" id="btnBatchRun" disabled>
+<span>⚡ Run Selected Batch (0)</span>
+</button>
+<button class="btn btn-secondary" id="btnConfigureFirst" disabled>
+<span>Configure First →</span>
+</button>
+</div>
+</div>
+<!-- Main Search Filter Bar -->
+<div class="search-bar-wrap">
+<span class="search-icon">🔍</span>
+<input type="text" id="globalSearchInput" placeholder="Search any API by name, ID, endpoint, or method across all suites..." />
+</div>
+<!-- Suite Grid Header -->
+<div class="suites-header">
+<h2>Test Suites & API Endpoints</h2>
+<span class="hint" id="searchMatchCount">Showing all suites</span>
+</div>
+<!-- Suite Grid -->
+<div class="suites-grid" id="suitesGrid"></div>
+</main>
+<!-- VIEW 2: API DETAIL / CONFIGURE RUN PAGE -->
+<main class="view-pane" id="view-detail">
+<div class="detail-nav-back" id="backToHomeBtn">← Back to Suites</div>
+<div class="layout-detail">
+<!-- Left Pane: Configure Run -->
+<div class="pane-detail">
+<h2>Configure Run</h2>
+<label for="detailApiSelect">API</label>
+<select id="detailApiSelect"></select>
+<div class="row-inputs">
+<div>
+<label>Method</label>
+<input type="text" class="readonly" id="apiMethod" readonly />
+</div>
+<div>
+<label>Module</label>
+<input type="text" class="readonly" id="apiModule" readonly />
+</div>
+</div>
+<label>Endpoint</label>
+<input type="text" class="readonly" id="apiEndpoint" readonly />
+<label for="credSelect">Credential alias for this API</label>
+<select id="credSelect"></select>
+<div class="add-cred">
+<input type="text" id="newCredName" placeholder="e.g. leave-svc-uat-02" />
+<button class="btn btn-secondary" id="addCredBtn">+ Add alias</button>
+</div>
+<div class="hint">Alias only — no secret value is stored or displayed here.</div>
+<label for="payload">Request payload (editable JSON)</label>
+<textarea id="payload"></textarea>
+<button class="btn btn-save" id="saveBtn">Save test</button>
+<button class="btn btn-primary btn-run" id="runBtn">Run test</button>
+<div class="hint" id="runHint"></div>
+</div>
+<!-- Right Pane: Test Cases for this API Endpoint -->
+<div class="pane-detail" id="testCasesPane">
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+<h2 style="margin:0;">Test Cases for this Endpoint</h2>
+<button class="btn btn-secondary" id="btnViewReport" disabled style="display:inline-flex; align-items:center; gap:6px;">
+<span>📊 View Report</span>
+</button>
+</div>
+<div id="testCasesContainer"></div>
+</div>
+</div>
+</main>
+<footer class="footer-note">
+Prototype only — payloads are mocked locally, no request leaves the browser. Purpose: confirm input fields and output JSON shape.
+</footer>
+</div>
+<!-- RIGHT-SIDE SLIDING SIDEBAR NAVIGATOR -->
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+<aside class="sidebar-nav" id="sidebarNav">
+<div class="sidebar-header">
+<h3>Suite & API Navigator</h3>
+<button class="btn-close-sidebar" id="closeSidebarBtn">✕</button>
+</div>
+<div class="sidebar-search">
+<input type="text" id="sidebarSearchInput" placeholder="Filter APIs by name..." />
+</div>
+<div class="sidebar-content" id="sidebarContent"></div>
+</aside>
+<!-- MODAL 1: ADD cURL -->
+<div class="modal-overlay" id="modalCurl">
+<div class="modal-box">
+<div class="modal-header">
+<h3>+ Import API from cURL Command</h3>
+<button class="btn-close-sidebar closeModalBtn">✕</button>
+</div>
+<div class="modal-body">
+<label for="curlTextarea">Paste Raw cURL Command</label>
+<textarea id="curlTextarea" placeholder='curl -X POST "https://devmcdphcmplatform.omfysgroup.com/v1/leave/apply" -H "Content-Type: application/json" -d "{\"leaveType\":\"SICK\",\"fromDate\":\"2026-09-01\"}"'></textarea>
+<div class="parsed-preview" id="curlPreview" style="display:none;">
+<div class="k">Parsed Method</div>
+<div class="v" id="parsedMethod">POST</div>
+<div class="k">Parsed Endpoint</div>
+<div class="v" id="parsedEndpoint">https://...</div>
+<div class="k">Parsed Body Payload</div>
+<pre class="json" id="parsedBody" style="max-height:120px;"></pre>
+</div>
+<label for="curlSuiteSelect">Assign to Suite</label>
+<select id="curlSuiteSelect"></select>
+<label for="curlApiName">API Name</label>
+<input type="text" id="curlApiName" placeholder="e.g. Apply Leave Fast Track" />
+</div>
+<div class="modal-footer">
+<button class="btn btn-ghost closeModalBtn">Cancel</button>
+<button class="btn btn-primary" id="btnSaveCurlApi">Parse & Save API</button>
+</div>
+</div>
+</div>
+<!-- MODAL 2: ADD SUITE -->
+<div class="modal-overlay" id="modalSuite">
+<div class="modal-box">
+<div class="modal-header">
+<h3>+ Add New Test Suite</h3>
+<button class="btn-close-sidebar closeModalBtn">✕</button>
+</div>
+<div class="modal-body">
+<label for="suiteNameInput">Suite Name (required)</label>
+<input type="text" id="suiteNameInput" placeholder="e.g. HCM - Payroll & Compensation" />
+<label for="suiteDescInput">Description (optional)</label>
+<textarea id="suiteDescInput" placeholder="e.g. Endpoints related to payslip generation and salary structures" style="min-height:80px;"></textarea>
+</div>
+<div class="modal-footer">
+<button class="btn btn-ghost closeModalBtn">Cancel</button>
+<button class="btn btn-primary" id="btnSaveSuite">Create Suite</button>
+</div>
+</div>
+</div>
+<!-- MODAL 3: ADD API -->
+<div class="modal-overlay" id="modalApi">
+<div class="modal-box">
+<div class="modal-header">
+<h3>+ Add New API Endpoint</h3>
+<button class="btn-close-sidebar closeModalBtn">✕</button>
+</div>
+<div class="modal-body">
+<label for="apiModalSuiteSelect">Target Suite</label>
+<select id="apiModalSuiteSelect"></select>
+<div class="row-inputs">
+<div>
+<label for="apiModalId">API ID</label>
+<input type="text" id="apiModalId" placeholder="e.g. API-050" />
+</div>
+<div>
+<label for="apiModalMethod">HTTP Method</label>
+<select id="apiModalMethod">
+<option value="POST">POST</option>
+<option value="GET">GET</option>
+<option value="PUT">PUT</option>
+<option value="DELETE">DELETE</option>
+<option value="PATCH">PATCH</option>
+</select>
+</div>
+</div>
+<label for="apiModalName">API Name</label>
+<input type="text" id="apiModalName" placeholder="e.g. Get Employee Payslip" />
+<label for="apiModalModule">Module Name</label>
+<input type="text" id="apiModalModule" placeholder="e.g. HCM - Payroll" />
+<label for="apiModalUrl">Full Endpoint URL</label>
+<input type="text" id="apiModalUrl" placeholder="https://devmcdphcmplatform.omfysgroup.com/v1/payroll/payslip" />
+<label for="apiModalPayload">Default Request Payload (JSON)</label>
+<textarea id="apiModalPayload" placeholder='{\n "empId": "OMI-1002",\n "month": 8\n}'></textarea>
+<div class="strip" id="modalApiChips" style="margin-top:12px; padding:6px 0; background:transparent; border:none;">
+<span class="chip bad" id="chipModalJson"><span class="dot"></span>Valid JSON</span>
+<span class="chip bad" id="chipModalUrl"><span class="dot"></span>Endpoint Provided</span>
+</div>
+</div>
+<div class="modal-footer">
+<button class="btn btn-ghost closeModalBtn">Cancel</button>
+<button class="btn btn-primary" id="btnSaveNewApi">Save API Entry</button>
+</div>
+</div>
+</div>
+<!-- MODAL 4: EXECUTION REPORT -->
+<div class="modal-overlay" id="modalReport">
+<div class="modal-box" style="max-width: 760px;">
+<div class="modal-header">
+<h3 id="modalReportTitle">📊 Test Execution Report</h3>
+<button class="btn-close-sidebar closeModalBtn">✕</button>
+</div>
+<div class="modal-body" id="modalReportContent"></div>
+<div class="modal-footer">
+<button class="btn btn-ghost closeModalBtn">Close Report</button>
+</div>
+</div>
+</div>
+<script>
+// INITIAL DATA SEED
+let SUITES = [
+{
+id: "suite-leave",
+name: "HCM - Leave Management",
+description: "Endpoints for leave requests, approvals, and balance reports",
+apis: [
+{
+id: "API-001", name: "Apply Leave", module: "HCM - Leave Management",
+method: "POST", baseUrl: "https://devmcdphcmplatform.omfysgroup.com", path: "/v1/leave/apply",
+owner: "Reaper", sourceType: "Newman", sourceCollection: "Leave_API.json",
+samplePayload: { leaveType: "SICK", fromDate: "2026-08-01", toDate: "2026-08-02", reason: "Family function" }
+},
+{
+id: "API-002", name: "Get All Leave Reports", module: "HCM - Leave Management",
+method: "GET", baseUrl: "https://devmcdphcmplatform.omfysgroup.com", path: "/user/leaves/getAllLeaveReports",
+owner: "Reaper", sourceType: "Newman", sourceCollection: "Leave_API.json",
+samplePayload: { month: 8, year: 2026 }
+},
+{
+id: "API-003", name: "Cancel Leave Request", module: "HCM - Leave Management",
+method: "DELETE", baseUrl: "https://devmcdphcmplatform.omfysgroup.com", path: "/v1/leave/cancel/LR-2026",
+owner: "Reaper", sourceType: "Newman", sourceCollection: "Leave_API.json",
+samplePayload: { cancelReason: "Plans changed" }
+}
+]
+},
+{
+id: "suite-auth",
+name: "HCM - Auth & Security",
+description: "Authentication token generation and user session management",
+apis: [
+{
+id: "API-004", name: "Employee Login", module: "HCM - Auth",
+method: "POST", baseUrl: "https://dev_mcdp_be.omfysgroup.com", path: "/auth/token",
+owner: "Reaper", sourceType: "Newman", sourceCollection: "Employee_Auth_API.json",
+samplePayload: { empCode: "OMI-XXXX", password: "•••••••" }
+},
+{
+id: "API-005", name: "Refresh Auth Token", module: "HCM - Auth",
+method: "POST", baseUrl: "https://dev_mcdp_be.omfysgroup.com", path: "/auth/refresh",
+owner: "Reaper", sourceType: "Newman", sourceCollection: "Employee_Auth_API.json",
+samplePayload: { refreshToken: "eyJhbGciOi..." }
+}
+]
+},
+{
+id: "suite-attendance",
+name: "HCM - Attendance Management",
+description: "Attendance logging, policy definitions, and shift threshold adjustments",
+apis: [
+{
+id: "API-014", name: "Get Attendance Policies", module: "HCM - Attendance Management",
+method: "GET", baseUrl: "https://uat_mcdp_hcm.omfysgroup.com", path: "/attendance/policies",
+owner: "Parth", sourceType: "Newman", sourceCollection: "Attendance_Management_API.json",
+samplePayload: {}
+},
+{
+id: "API-021", name: "Update Shift Threshold", module: "HCM - Attendance Management",
+method: "PUT", baseUrl: "https://uat_mcdp_hcm.omfysgroup.com", path: "/attendance/threshold",
+owner: "Parth", sourceType: "Newman", sourceCollection: "Attendance_Threshold_API.json",
+samplePayload: { thresholdMinutes: 15, applyFrom: "2026-09-01" }
+}
+]
+},
+{
+id: "suite-payroll",
+name: "HCM - Payroll & Compensation",
+description: "Salary slips, tax computation, and component breakups",
+apis: [
+{
+id: "API-030", name: "Generate Payslip", module: "HCM - Payroll",
+method: "POST", baseUrl: "https://uat_mcdp_hcm.omfysgroup.com", path: "/payroll/generate-slip",
+owner: "Parth", sourceType: "Newman", sourceCollection: "Payroll_API.json",
+samplePayload: { empId: "OMI-1002", month: 8, year: 2026 }
+}
+]
+}
+];
+// TEST CASES DATABASE PER API ENDPOINT
+const TEST_CASES_DB = {
+"API-001": [
+{ id: "TC-API001-01", title: "Apply Leave with Valid Parameters", category: "Functional", desc: "Verify successful leave creation for SICK leave with valid from/to dates." },
+{ id: "TC-API001-02", title: "Validate Request Payload & Date String Format", category: "Schema", desc: "Ensure date strings conform strictly to YYYY-MM-DD standard format." },
+{ id: "TC-API001-03", title: "Authorization Header Security & Zero Token Leakage", category: "Security", desc: "Verify no raw bearer tokens or secret keys leak into response payload." },
+{ id: "TC-API001-04", title: "SLA Latency Response Time Verification (<400ms)", category: "Performance", desc: "Ensure endpoint latency stays within defined 400ms SLA target." }
+],
+"API-002": [
+{ id: "TC-API002-01", title: "Fetch All Leave Reports for Target Month & Year", category: "Functional", desc: "Verify HTTP 200 response when month (8) and year (2026) parameters are supplied." },
+{ id: "TC-API002-02", title: "Response Contract & JSON Schema Validation", category: "Schema", desc: "Validate that returned report structure matches defined API schema spec." },
+{ id: "TC-API002-03", title: "Token Masking & Redaction in Execution Logs", category: "Security", desc: "Ensure sensitive headers and credential aliases are masked with [REDACTED]." },
+{ id: "TC-API002-04", title: "Response Latency Benchmark within SLA Limit", category: "Performance", desc: "Verify total execution response time stays within latency SLA threshold." }
+],
+"API-003": [
+{ id: "TC-API003-01", title: "Cancel Leave Request by LR Identifier", category: "Functional", desc: "Verify successful cancellation request execution using DELETE method." },
+{ id: "TC-API003-02", title: "Reason Field Payload Requirement Check", category: "Schema", desc: "Ensure mandatory cancelReason string is provided in payload." }
+],
+"API-004": [
+{ id: "TC-API004-01", title: "Employee Login & JWT Token Generation", category: "Auth", desc: "Verify JWT token generation with valid empCode and password." },
+{ id: "TC-API004-02", title: "Mask Password Parameter String in Logs", category: "Security", desc: "Ensure password field is masked with [REDACTED] in all execution logs." }
+],
+"API-005": [
+{ id: "TC-API005-01", title: "Refresh Auth Token Session Verification", category: "Auth", desc: "Verify session token renewal endpoint using valid refreshToken string." }
+],
+"API-014": [
+{ id: "TC-API014-01", title: "Fetch Active Attendance Policies", category: "Policy", desc: "Verify retrieval of attendance policies and shift threshold definitions." }
+],
+"API-021": [
+{ id: "TC-API021-01", title: "Update Shift Threshold Minutes Configuration", category: "Config", desc: "Verify PUT request updates shift threshold minutes and effective date." }
+],
+"API-030": [
+{ id: "TC-API030-01", title: "Generate Monthly Payslip Document", category: "Payroll", desc: "Verify payslip calculation payload for employee ID and target period." }
+]
+};
+let credentials = ["leave-svc-uat-01", "attendance-svc-uat-01", "payroll-svc-uat-01"];
+let runCounter = 0;
+let currentSelectedApiId = "API-001";
+let selectedApiIds = new Set(["API-001", "API-002"]);
+let currentExecutionReports = {};
+// Helper Functions
+function getAllApis() {
+const list = [];
+SUITES.forEach(s => s.apis.forEach(a => list.push({ ...a, suiteName: s.name, suiteId: s.id })));
+return list;
+}
+function findApiById(id) {
+return getAllApis().find(a => a.id === id);
+}
+function getTestCasesForApi(apiId) {
+if (TEST_CASES_DB[apiId]) return TEST_CASES_DB[apiId];
+// Fallback for custom added APIs
+const api = findApiById(apiId);
+const name = api ? api.name : 'Custom Endpoint';
+return [
+{ id: `TC-${apiId}-01`, title: `${name} — Functional Spec Contract Check`, category: "Functional", desc: "Verify HTTP status code and response payload contract." },
+{ id: `TC-${apiId}-02`, title: `${name} — Schema Validation & Redaction`, category: "Schema", desc: "Validate parameter schema and zero credential leakage." },
+{ id: `TC-${apiId}-03`, title: `${name} — Latency SLA Benchmark Check`, category: "Performance", desc: "Ensure response time complies with SLA latency targets." }
+];
+}
+// Navigation View Switcher
+function switchView(viewName, apiIdToLoad) {
+document.querySelectorAll('.view-pane').forEach(el => el.classList.remove('active'));
+if (viewName === 'detail') {
+document.getElementById('view-detail').classList.add('active');
+if (apiIdToLoad) {
+currentSelectedApiId = apiIdToLoad;
+document.getElementById('detailApiSelect').value = apiIdToLoad;
+loadApiDetails();
+}
+const api = findApiById(currentSelectedApiId);
+document.getElementById('headerTag').textContent = `HCM / ${api ? api.id : 'Detail'}`;
+document.getElementById('headerTitle').textContent = `API Test Console — ${api ? api.name : 'Detail'}`;
+document.getElementById('headerSub').textContent = `Configuring ${api ? api.baseUrl + api.path : 'API run'}`;
+} else {
+document.getElementById('view-home').classList.add('active');
+document.getElementById('headerTag').textContent = 'HCM/QA';
+document.getElementById('headerTitle').textContent = 'API Test Console — Home';
+document.getElementById('headerSub').textContent = 'Browse suites, manage APIs, and launch test runs';
+}
+}
+// Render Multi-Select Box
+function renderMultiSelectBox() {
+const container = document.getElementById('multiSelectBox');
+let html = SUITES.map(suite => `
+<div class="multi-select-group">
+<div class="multi-select-group-header">
+<span>${suite.name}</span>
+<span>${suite.apis.length} APIs</span>
+</div>
+${suite.apis.map(api => {
+const isChecked = selectedApiIds.has(api.id);
+return `
+<div class="multi-select-item" onclick="toggleMultiSelectApi('${api.id}', event)">
+<div class="multi-select-item-left">
+<input type="checkbox" id="chk-${api.id}" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); toggleMultiSelectApi('${api.id}');" />
+<span class="badge-method ${api.method}">${api.method}</span>
+<span class="multi-select-item-label">${api.name}</span>
+</div>
+<span class="multi-select-item-id">${api.id}</span>
+</div>
+`;
+}).join('')}
+</div>
+`).join('');
+container.innerHTML = html;
+updateMultiSelectState();
+}
+function toggleMultiSelectApi(apiId, event) {
+if (selectedApiIds.has(apiId)) {
+selectedApiIds.delete(apiId);
+} else {
+selectedApiIds.add(apiId);
+}
+const chk = document.getElementById(`chk-${apiId}`);
+if (chk) chk.checked = selectedApiIds.has(apiId);
+updateMultiSelectState();
+}
+function updateMultiSelectState() {
+const count = selectedApiIds.size;
+document.getElementById('multiSelectedBadge').textContent = `${count} APIs Selected`;
+const batchBtn = document.getElementById('btnBatchRun');
+const configBtn = document.getElementById('btnConfigureFirst');
+batchBtn.disabled = count === 0;
+configBtn.disabled = count === 0;
+batchBtn.innerHTML = `<span>⚡ Run Selected Batch (${count})</span>`;
+}
+document.getElementById('btnMultiSelectAll').addEventListener('click', () => {
+getAllApis().forEach(a => selectedApiIds.add(a.id));
+renderMultiSelectBox();
+});
+document.getElementById('btnMultiDeselectAll').addEventListener('click', () => {
+selectedApiIds.clear();
+renderMultiSelectBox();
+});
+// Render Main Home Page Suites Grid
+function renderSuitesGrid(filterQuery = '') {
+const container = document.getElementById('suitesGrid');
+const q = filterQuery.toLowerCase().trim();
+let totalApisCount = 0;
+let matchesCount = 0;
+const html = SUITES.map(suite => {
+const filteredApis = suite.apis.filter(a =>
+!q || a.name.toLowerCase().includes(q) || a.id.toLowerCase().includes(q) ||
+a.path.toLowerCase().includes(q) || a.method.toLowerCase().includes(q) || suite.name.toLowerCase().includes(q)
+);
+totalApisCount += suite.apis.length;
+matchesCount += filteredApis.length;
+if (q && filteredApis.length === 0) return '';
+return `
+<div class="card-suite">
+<div class="suite-card-header">
+<div class="suite-title-group">
+<div class="suite-icon">📁</div>
+<div>
+<div class="suite-name">${suite.name}</div>
+<div class="suite-desc">${suite.description || 'API endpoints collection'}</div>
+</div>
+</div>
+<span class="suite-badge">${suite.apis.length} APIs</span>
+</div>
+<ul class="api-list">
+${filteredApis.map(api => `
+<li class="api-item" onclick="switchView('detail', '${api.id}')">
+<div class="api-item-left">
+<span class="badge-method ${api.method}">${api.method}</span>
+<span class="api-item-id">${api.id}</span>
+<span class="api-item-name">${api.name}</span>
+</div>
+<span class="api-item-endpoint">${api.path}</span>
+</li>
+`).join('')}
+</ul>
+</div>
+`;
+}).join('');
+container.innerHTML = html || `<div class="empty" style="grid-column:1/-1;"><div class="mark">🔍</div><div>No APIs matched "${filterQuery}"</div></div>`;
+// Update Header Badges
+document.getElementById('totalApiBadge').textContent = totalApisCount;
+document.getElementById('suiteCountChip').innerHTML = `<span class="dot"></span>${SUITES.length} Suites Active`;
+document.getElementById('apiCountChip').innerHTML = `<span class="dot"></span>${totalApisCount} APIs Loaded`;
+document.getElementById('searchMatchCount').textContent = q ? `Showing ${matchesCount} matching APIs` : `Showing all ${SUITES.length} suites`;
+}
+// Render Dropdowns
+function renderDropdownOptions() {
+const detailSelect = document.getElementById('detailApiSelect');
+const modalSuiteSelect = document.getElementById('apiModalSuiteSelect');
+const curlSuiteSelect = document.getElementById('curlSuiteSelect');
+let groupedHtml = SUITES.map(s => `
+<optgroup label="${s.name}">
+${s.apis.map(a => `<option value="${a.id}">${a.id} — ${a.name} (${a.method})</option>`).join('')}
+</optgroup>
+`).join('');
+detailSelect.innerHTML = groupedHtml;
+detailSelect.value = currentSelectedApiId;
+let suiteOptions = SUITES.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+modalSuiteSelect.innerHTML = suiteOptions;
+curlSuiteSelect.innerHTML = suiteOptions;
+// Credential Select
+const credSelect = document.getElementById('credSelect');
+const prevCred = credSelect.value;
+credSelect.innerHTML = `<option value="">— select credential alias —</option>` +
+credentials.map(c => `<option value="${c}">${c}</option>`).join('');
+if (credentials.includes(prevCred)) credSelect.value = prevCred;
+}
+// Render Sidebar Content
+function renderSidebar(filterQuery = '') {
+const container = document.getElementById('sidebarContent');
+const q = filterQuery.toLowerCase().trim();
+const html = SUITES.map(suite => {
+const apis = suite.apis.filter(a =>
+!q || a.name.toLowerCase().includes(q) || a.id.toLowerCase().includes(q)
+);
+if (q && apis.length === 0) return '';
+return `
+<div class="sidebar-suite-title">
+<span>${suite.name}</span>
+<span>(${apis.length})</span>
+</div>
+${apis.map(a => `
+<div class="sidebar-api-item" onclick="switchView('detail', '${a.id}'); closeSidebar();">
+<div>
+<span style="font-family:var(--mono); color:var(--text-dim); margin-right:6px;">${a.id}</span>
+<span>${a.name}</span>
+</div>
+<span class="badge-method ${a.method}">${a.method}</span>
+</div>
+`).join('')}
+`;
+}).join('');
+container.innerHTML = html || `<div style="padding:20px; text-align:center; color:var(--text-dim); font-size:12px;">No matching APIs</div>`;
+}
+// RENDER TEST CASES LIST FOR SELECTED API
+function renderTestCasesForApi(apiId) {
+const container = document.getElementById('testCasesContainer');
+const testCases = getTestCasesForApi(apiId);
+const existingReport = currentExecutionReports[apiId];
+const btnReport = document.getElementById('btnViewReport');
+if (existingReport) {
+btnReport.disabled = false;
+btnReport.className = 'btn btn-primary';
+btnReport.innerHTML = `<span>📊 View Report ✓</span>`;
+} else {
+btnReport.disabled = true;
+btnReport.className = 'btn btn-secondary';
+btnReport.innerHTML = `<span>📊 View Report</span>`;
+}
+const html = testCases.map((tc, index) => {
+let statusClass = 'pending';
+let statusLabel = '● PENDING RUN';
+if (existingReport) {
+const assertion = existingReport.assertions[index % existingReport.assertions.length];
+const isPass = assertion ? assertion.pass : existingReport.overallStatus === 'PASS';
+statusClass = isPass ? 'pass' : 'fail';
+statusLabel = isPass ? '● PASSED' : '● FAILED';
+}
+return `
+<div class="test-case-card">
+<div class="test-case-header">
+<div>
+<span class="test-case-id">${tc.id}</span>
+<span class="test-case-title">${tc.title}</span>
+</div>
+<span class="test-case-status ${statusClass}">${statusLabel}</span>
+</div>
+<div style="display:flex; align-items:center; justify-content:space-between; margin-top:6px;">
+<span class="test-case-desc">${tc.desc}</span>
+<span class="test-case-category">${tc.category}</span>
+</div>
+</div>
+`;
+}).join('');
+container.innerHTML = html;
+}
+// Detail Page Logic
+function loadApiDetails() {
+const api = findApiById(document.getElementById('detailApiSelect').value);
+if (!api) return;
+currentSelectedApiId = api.id;
+document.getElementById('apiMethod').value = api.method;
+document.getElementById('apiModule').value = api.module;
+document.getElementById('apiEndpoint').value = api.baseUrl + api.path;
+document.getElementById('payload').value = JSON.stringify(api.samplePayload, null, 2);
+updateCompliance();
+renderTestCasesForApi(api.id);
+}
+function updateCompliance() {
+const api = findApiById(document.getElementById('detailApiSelect').value);
+const env = document.getElementById('envSelect').value;
+const cred = document.getElementById('credSelect').value;
+let payloadValid = true;
+try { JSON.parse(document.getElementById('payload').value); } catch(e) { payloadValid = false; }
+const runBtn = document.getElementById('runBtn');
+const runHint = document.getElementById('runHint');
+const allOk = api && env && cred && payloadValid;
+runBtn.disabled = !allOk;
+runHint.textContent = allOk ? '' : 'Select a credential alias and valid JSON payload to enable test run.';
+document.getElementById('envChip').innerHTML = `<span class="dot"></span>Target: ${env}`;
+return allOk;
+}
+// Mock Execution Report
+function redact(obj) {
+const clone = JSON.parse(JSON.stringify(obj));
+const sensitive = ['password', 'token', 'secret', 'authorization'];
+function walk(o) {
+for (const k in o) {
+if (sensitive.some(s => k.toLowerCase().includes(s))) o[k] = '[REDACTED]';
+else if (typeof o[k] === 'object' && o[k] !== null) walk(o[k]);
+}
+}
+walk(clone);
+return clone;
+}
+function mockReportForApi(api) {
+runCounter++;
+const env = document.getElementById('envSelect').value || 'UAT';
+const cred = document.getElementById('credSelect').value || credentials[0];
+const pass = Math.random() > 0.2;
+const assertions = [
+{ name: 'status_code_matches_spec', pass: true },
+{ name: 'response_matches_schema', pass: pass },
+{ name: 'no_credential_leakage_in_response', pass: true },
+{ name: 'response_time_within_sla', pass: Math.random() > 0.15 }
+];
+return {
+runId: `run-${Date.now()}-${runCounter}`,
+timestamp: new Date().toISOString(),
+apiIdentifier: api.id,
+apiName: api.name,
+module: api.module,
+sourceType: api.sourceType || 'Newman',
+sourceCollection: api.sourceCollection || `${api.module.replace(/[^a-zA-Z]/g, '_')}.json`,
+owner: api.owner || 'Platform Team',
+environment: env,
+credentialAlias: cred,
+httpStatus: pass ? 200 : 500,
+responseTimeMs: Math.floor(110 + Math.random() * 320),
+overallStatus: assertions.every(a => a.pass) ? 'PASS' : 'FAIL',
+assertions: assertions,
+request: redact({ method: api.method, url: api.baseUrl + api.path, body: api.samplePayload, headers: { Authorization: 'Bearer <token>' } }),
+response: redact({ status: pass ? 200 : 500, body: pass ? { requestId: `REQ-2026-${Math.floor(1000+Math.random()*9000)}`, status: 'SUCCESS', timestamp: new Date().toISOString() } : { errorCode: 'INTERNAL_ERROR', message: 'Mocked execution failure' } })
+};
+}
+function renderReportInModal(report) {
+const el = document.getElementById('modalReportContent');
+const statusClass = report.overallStatus === 'PASS' ? 'pass' : 'fail';
+document.getElementById('modalReportTitle').textContent = `📊 Test Execution Report — ${report.apiIdentifier} (${report.apiName})`;
+el.innerHTML = `
+<div class="meta-card">
+<span class="status-pill ${statusClass}">${report.overallStatus === 'PASS' ? '● PASS' : '● FAIL'}</span>
+<div class="meta-grid" style="margin-top:14px;">
+<div class="meta-item"><div class="k">API Identifier</div><div class="v">${report.apiIdentifier}</div></div>
+<div class="meta-item"><div class="k">Module</div><div class="v">${report.module}</div></div>
+<div class="meta-item"><div class="k">Owner</div><div class="v">${report.owner}</div></div>
+<div class="meta-item"><div class="k">Environment</div><div class="v">${report.environment}</div></div>
+<div class="meta-item"><div class="k">Credential alias</div><div class="v">${report.credentialAlias}</div></div>
+<div class="meta-item"><div class="k">HTTP status</div><div class="v">${report.httpStatus}</div></div>
+<div class="meta-item"><div class="k">Response time</div><div class="v">${report.responseTimeMs} ms</div></div>
+</div>
+</div>
+<div class="meta-card">
+<div class="k" style="font-size:10.5px; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-dim); margin-bottom:8px;">Assertions</div>
+<ul class="assertions">
+${report.assertions.map(a => `<li><span>${a.name}</span><span class="a-status ${a.pass ? 'pass' : 'fail'}">${a.pass ? 'PASS' : 'FAIL'}</span></li>`).join('')}
+</ul>
+</div>
+<div class="tabs">
+<div class="tab active" data-tab="raw">Raw JSON (output contract)</div>
+<div class="tab" data-tab="reqres">Redacted request / response</div>
+</div>
+<div id="modalTabBody"></div>
+`;
+const tabBody = document.getElementById('modalTabBody');
+function showTab(tab) {
+if (tab === 'raw') {
+tabBody.innerHTML = `<pre class="json">${JSON.stringify(report, null, 2)}</pre>`;
+} else {
+tabBody.innerHTML = `<pre class="json">${JSON.stringify({ request: report.request, response: report.response }, null, 2)}</pre>`;
+}
+}
+el.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+el.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+t.classList.add('active');
+showTab(t.dataset.tab);
+}));
+showTab('raw');
+openModal('modalReport');
+}
+function renderBatchReport(reports) {
+const el = document.getElementById('modalReportContent');
+document.getElementById('modalReportTitle').textContent = `⚡ Multi-API Batch Execution Report`;
+const totalRuns = reports.length;
+const passedCount = reports.filter(r => r.overallStatus === 'PASS').length;
+const failedCount = totalRuns - passedCount;
+const avgTime = Math.round(reports.reduce((acc, r) => acc + r.responseTimeMs, 0) / totalRuns);
+let summaryHtml = `
+<div class="meta-card">
+<div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--accent); margin-bottom:12px;">⚡ Multi-API Batch Run Summary</div>
+<div class="batch-summary-grid">
+<div class="batch-summary-card"><div class="k">Total Executed</div><div class="v" style="color:var(--text);">${totalRuns}</div></div>
+<div class="batch-summary-card"><div class="k">Passed</div><div class="v" style="color:var(--accent);">${passedCount}</div></div>
+<div class="batch-summary-card"><div class="k">Failed</div><div class="v" style="color:var(--fail);">${failedCount}</div></div>
+<div class="batch-summary-card"><div class="k">Avg Response</div><div class="v" style="color:var(--blue);">${avgTime} ms</div></div>
+</div>
+</div>
+`;
+let itemsHtml = reports.map((r, i) => `
+<div class="batch-item-card">
+<div class="batch-item-header" onclick="document.getElementById('batch-json-${i}').style.display = document.getElementById('batch-json-${i}').style.display === 'none' ? 'block' : 'none';">
+<div>
+<span class="badge-method ${findApiById(r.apiIdentifier)?.method || 'POST'}">${findApiById(r.apiIdentifier)?.method || 'POST'}</span>
+<span style="font-family:var(--mono); font-weight:700; margin:0 8px;">${r.apiIdentifier}</span>
+<span style="font-weight:600;">${r.apiName}</span>
+</div>
+<div>
+<span class="status-pill ${r.overallStatus === 'PASS' ? 'pass' : 'fail'}">${r.overallStatus === 'PASS' ? '● PASS' : '● FAIL'}</span>
+<span style="font-family:var(--mono); font-size:11px; color:var(--text-dim); margin-left:10px;">${r.responseTimeMs} ms</span>
+</div>
+</div>
+<div id="batch-json-${i}" style="display:none; margin-top:12px;">
+<pre class="json">${JSON.stringify(r, null, 2)}</pre>
+</div>
+</div>
+`).join('');
+el.innerHTML = summaryHtml + itemsHtml;
+openModal('modalReport');
+}
+// BATCH RUN ACTIONS
+document.getElementById('btnBatchRun').addEventListener('click', () => {
+const ids = Array.from(selectedApiIds);
+if (ids.length === 0) return;
+const reports = ids.map(id => {
+const api = findApiById(id);
+const rep = mockReportForApi(api);
+currentExecutionReports[id] = rep;
+return rep;
+});
+switchView('detail', ids[0]);
+renderBatchReport(reports);
+});
+document.getElementById('btnConfigureFirst').addEventListener('click', () => {
+const ids = Array.from(selectedApiIds);
+if (ids.length === 0) return;
+switchView('detail', ids[0]);
+});
+// SIDEBAR TOGGLE
+function openSidebar() {
+document.getElementById('sidebarNav').classList.add('open');
+document.getElementById('sidebarBackdrop').classList.add('open');
+}
+function closeSidebar() {
+document.getElementById('sidebarNav').classList.remove('open');
+document.getElementById('sidebarBackdrop').classList.remove('open');
+}
+document.getElementById('openSidebarBtn').addEventListener('click', openSidebar);
+document.getElementById('railNavToggleBtn').addEventListener('click', openSidebar);
+document.getElementById('closeSidebarBtn').addEventListener('click', closeSidebar);
+document.getElementById('sidebarBackdrop').addEventListener('click', closeSidebar);
+document.getElementById('sidebarSearchInput').addEventListener('input', (e) => renderSidebar(e.target.value));
+// MODAL OPEN / CLOSE HANDLERS
+function openModal(modalId) {
+document.getElementById(modalId).classList.add('open');
+}
+function closeModal(modalId) {
+document.getElementById(modalId).classList.remove('open');
+}
+document.querySelectorAll('.closeModalBtn').forEach(btn => {
+btn.addEventListener('click', () => {
+document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'));
+});
+});
+document.getElementById('btnOpenCurlModal').addEventListener('click', () => openModal('modalCurl'));
+document.getElementById('btnOpenSuiteModal').addEventListener('click', () => openModal('modalSuite'));
+document.getElementById('btnOpenApiModal').addEventListener('click', () => openModal('modalApi'));
+document.getElementById('railAddBtn').addEventListener('click', () => openModal('modalApi'));
+// cURL PARSER ENGINE
+document.getElementById('curlTextarea').addEventListener('input', (e) => {
+const raw = e.target.value.trim();
+const preview = document.getElementById('curlPreview');
+if (!raw) { preview.style.display = 'none'; return; }
+let method = 'GET';
+if (raw.includes('-X POST') || raw.includes('--request POST') || raw.includes('-d ') || raw.includes('--data')) method = 'POST';
+else if (raw.includes('-X PUT') || raw.includes('--request PUT')) method = 'PUT';
+else if (raw.includes('-X DELETE') || raw.includes('--request DELETE')) method = 'DELETE';
+else if (raw.includes('-X PATCH') || raw.includes('--request PATCH')) method = 'PATCH';
+let endpoint = 'https://api.example.com/v1/endpoint';
+const urlMatch = raw.match(/https?:\/\/[^\s"']+/);
+if (urlMatch) endpoint = urlMatch[0];
+let body = {};
+const dataMatch = raw.match(/(-d|--data|--data-raw)\s+['"]({.*?})['"]/s) || raw.match(/({[\s\S]*})/);
+if (dataMatch) {
+try { body = JSON.parse(dataMatch[1]); } catch(err) { body = { rawData: dataMatch[1] }; }
+}
+document.getElementById('parsedMethod').textContent = method;
+document.getElementById('parsedEndpoint').textContent = endpoint;
+document.getElementById('parsedBody').textContent = JSON.stringify(body, null, 2);
+preview.style.display = 'block';
+});
+document.getElementById('btnSaveCurlApi').addEventListener('click', () => {
+const method = document.getElementById('parsedMethod').textContent;
+const url = document.getElementById('parsedEndpoint').textContent;
+const suiteId = document.getElementById('curlSuiteSelect').value;
+const name = document.getElementById('curlApiName').value.trim() || 'cURL Imported API';
+let payload = {};
+try { payload = JSON.parse(document.getElementById('parsedBody').textContent); } catch(e) {}
+const suite = SUITES.find(s => s.id === suiteId);
+if (!suite) return;
+const newId = `API-0${Math.floor(100 + Math.random() * 900)}`;
+const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`);
+const newApi = {
+id: newId,
+name: name,
+module: suite.name,
+method: method,
+baseUrl: urlObj.origin,
+path: urlObj.pathname,
+owner: 'cURL Import',
+sourceType: 'cURL',
+samplePayload: payload
+};
+suite.apis.push(newApi);
+selectedApiIds.add(newId);
+renderSuitesGrid();
+renderDropdownOptions();
+renderMultiSelectBox();
+renderSidebar();
+closeModal('modalCurl');
+switchView('detail', newId);
+});
+// SAVE SUITE
+document.getElementById('btnSaveSuite').addEventListener('click', () => {
+const name = document.getElementById('suiteNameInput').value.trim();
+const desc = document.getElementById('suiteDescInput').value.trim();
+if (!name) return;
+const newSuite = {
+id: `suite-${Date.now()}`,
+name: name,
+description: desc || 'Custom suite',
+apis: []
+};
+SUITES.push(newSuite);
+document.getElementById('suiteNameInput').value = '';
+document.getElementById('suiteDescInput').value = '';
+renderSuitesGrid();
+renderDropdownOptions();
+renderMultiSelectBox();
+renderSidebar();
+closeModal('modalSuite');
+});
+// LIVE VALIDATION IN ADD API MODAL
+const apiModalPayload = document.getElementById('apiModalPayload');
+const apiModalUrl = document.getElementById('apiModalUrl');
+function validateModalApi() {
+let validJson = true;
+try { JSON.parse(apiModalPayload.value || '{}'); } catch(e) { validJson = false; }
+const chipJson = document.getElementById('chipModalJson');
+chipJson.className = `chip ${validJson ? 'ok' : 'bad'}`;
+const hasUrl = !!apiModalUrl.value.trim();
+const chipUrl = document.getElementById('chipModalUrl');
+chipUrl.className = `chip ${hasUrl ? 'ok' : 'bad'}`;
+}
+apiModalPayload.addEventListener('input', validateModalApi);
+apiModalUrl.addEventListener('input', validateModalApi);
+// SAVE NEW API
+document.getElementById('btnSaveNewApi').addEventListener('click', () => {
+const suiteId = document.getElementById('apiModalSuiteSelect').value;
+const id = document.getElementById('apiModalId').value.trim() || `API-0${Math.floor(100 + Math.random() * 900)}`;
+const method = document.getElementById('apiModalMethod').value;
+const name = document.getElementById('apiModalName').value.trim() || 'New Endpoint';
+const moduleName = document.getElementById('apiModalModule').value.trim() || 'HCM Module';
+const rawUrl = document.getElementById('apiModalUrl').value.trim() || 'https://devmcdphcmplatform.omfysgroup.com/v1/new';
+let payload = {};
+try { payload = JSON.parse(apiModalPayload.value || '{}'); } catch(e) {}
+const suite = SUITES.find(s => s.id === suiteId);
+if (!suite) return;
+let baseUrl = 'https://devmcdphcmplatform.omfysgroup.com';
+let path = '/v1/custom';
+try {
+const parsed = new URL(rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`);
+baseUrl = parsed.origin;
+path = parsed.pathname;
+} catch(e) {}
+const newApi = {
+id: id,
+name: name,
+module: moduleName,
+method: method,
+baseUrl: baseUrl,
+path: path,
+owner: 'QA Lead',
+sourceType: 'Console UI',
+samplePayload: payload
+};
+suite.apis.push(newApi);
+selectedApiIds.add(id);
+renderSuitesGrid();
+renderDropdownOptions();
+renderMultiSelectBox();
+renderSidebar();
+closeModal('modalApi');
+switchView('detail', id);
+});
+// GLOBAL SEARCH FILTER
+document.getElementById('globalSearchInput').addEventListener('input', (e) => {
+renderSuitesGrid(e.target.value);
+});
+// RAIL NAVIGATION
+document.getElementById('railHomeBtn').addEventListener('click', () => switchView('home'));
+document.getElementById('railGridBtn').addEventListener('click', () => switchView('home'));
+document.getElementById('backToHomeBtn').addEventListener('click', () => switchView('home'));
+document.getElementById('headerTag').addEventListener('click', () => switchView('home'));
+// DETAIL PAGE EVENT LISTENERS
+const detailApiSelect = document.getElementById('detailApiSelect');
+detailApiSelect.addEventListener('change', loadApiDetails);
+document.getElementById('envSelect').addEventListener('change', updateCompliance);
+document.getElementById('credSelect').addEventListener('change', updateCompliance);
+document.getElementById('payload').addEventListener('input', updateCompliance);
+document.getElementById('addCredBtn').addEventListener('click', () => {
+const val = document.getElementById('newCredName').value.trim();
+if (!val) return;
+if (!credentials.includes(val)) credentials.push(val);
+document.getElementById('newCredName').value = '';
+renderDropdownOptions();
+document.getElementById('credSelect').value = val;
+updateCompliance();
+});
+const saveBtn = document.getElementById('saveBtn');
+saveBtn.addEventListener('click', () => {
+if (!updateCompliance()) return;
+const originalText = saveBtn.textContent;
+saveBtn.textContent = 'Saved ✓';
+saveBtn.style.borderColor = 'var(--accent)';
+saveBtn.style.color = 'var(--accent)';
+setTimeout(() => {
+saveBtn.textContent = originalText;
+saveBtn.style.borderColor = '';
+saveBtn.style.color = '';
+}, 1800);
+});
+// VIEW REPORT BUTTON LISTENER
+document.getElementById('btnViewReport').addEventListener('click', () => {
+const apiId = document.getElementById('detailApiSelect').value;
+const report = currentExecutionReports[apiId];
+if (report) {
+renderReportInModal(report);
+}
+});
+// RUN TEST BUTTON LISTENER
+document.getElementById('runBtn').addEventListener('click', () => {
+if (!updateCompliance()) return;
+const api = findApiById(document.getElementById('detailApiSelect').value);
+const report = mockReportForApi(api);
+// Store report in state
+currentExecutionReports[api.id] = report;
+// Update Test Cases List with Live PASS/FAIL status
+renderTestCasesForApi(api.id);
+});
+// INITIALIZE
+renderSuitesGrid();
+renderDropdownOptions();
+renderMultiSelectBox();
+renderSidebar();
+loadApiDetails();
+</script>
+</body>
+</html>

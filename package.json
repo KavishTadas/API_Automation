@@ -9,7 +9,10 @@
     "report:generate": "node scripts/generate-allure.js",
     "report:html": "node scripts/generate-html-index.js",
     "report:open": "node scripts/open-allure.js",
-    "monitor:run": "node monitoring/health-check.js"
+    "monitor:run": "node monitoring/health-check.js",
+    "ui:build": "python scripts/build_unified_console.py",
+    "ui:test": "node docs/platform-ui/test-unified-console.js && node docs/platform-ui/test-dom.js && node docs/platform-ui/test-export.js && python docs/platform-ui/check-export.py && node docs/platform-ui/test-history.js && node docs/platform-ui/test-cases.js",
+    "ui:serve": "python -m http.server 8910 --directory docs/platform-ui"
   },
   "devDependencies": {
     "@stoplight/spectral-cli": "^6.15.1",
@@ -17,6 +20,7 @@
     "allure-commandline": "2.29.0",
     "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
+    "jsdom": "^28.0.1",
     "newman": "6.2.2",
     "newman-reporter-allure": "2.15.1",
     "newman-reporter-htmlextra": "1.23.1",
