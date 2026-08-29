@@ -1120,7 +1120,7 @@ html[data-fx="on"] .bar-track > *{position:relative;z-index:1}
 html[data-fx="on"] [data-fx-tone="pass"]  {--fx-glow:rgba(16,185,129,.34); --fx-glow-2:rgba(16,185,129,.12)}
 html[data-fx="on"] [data-fx-tone="warn"]  {--fx-glow:rgba(217,153,54,.34);  --fx-glow-2:rgba(217,153,54,.12)}
 html[data-fx="on"] [data-fx-tone="fail"]  {--fx-glow:rgba(244,63,94,.32);   --fx-glow-2:rgba(244,63,94,.11)}
-html[data-fx="on"] [data-fx-tone="quiet"] {--fx-glow:rgba(100,116,139,.26); --fx-glow-2:rgba(100,116,139,.09)}
+html[data-fx="on"] [data-fx-tone="quiet"] {--fx-glow:rgba(96,132,190,.44); --fx-glow-2:rgba(96,132,190,.16)}
 
 [data-theme="light"] html[data-fx="on"] [data-fx-tone],
 html[data-fx="on"] [data-theme="light"] [data-fx-tone]{filter:saturate(1.1)}
@@ -1176,7 +1176,7 @@ html[data-fx="on"] .fx-sweep circle{
    other as it does. That parallax is the whole effect -- rotating a single
    flat drawing only ever looks like a rotating drawing. */
 #qabot{
-  position:fixed; right:22px; bottom:18px; width:104px; height:165px;
+  position:fixed; right:20px; bottom:14px; width:126px; height:200px;
   z-index:60; cursor:pointer; border:0; padding:0; background:none;
   display:none;
   perspective:520px; perspective-origin:50% 42%;
@@ -1289,9 +1289,9 @@ html[data-fx="on"] #qabot{display:block}
 
 /* happy: slits arch up, everything runs brighter and quicker */
 #qabot.mood-ok{--bot-core:#2dd4bf; --bot-eye:#e8ffff}
-#qabot.mood-ok .bot-eye-l{transform:rotate(-9deg);transform-origin:52.5px 37.5px}
-#qabot.mood-ok .bot-eye-r{transform:rotate(9deg);transform-origin:67.5px 37.5px}
-#qabot.mood-ok .bot-mouth{transform:translateY(1px) scaleX(1.1);transform-origin:60px 52px}
+#qabot.mood-ok .bot-eye-l{transform:rotate(-9deg);transform-origin:51px 43px}
+#qabot.mood-ok .bot-eye-r{transform:rotate(9deg);transform-origin:69px 43px}
+#qabot.mood-ok .bot-mouth{transform:translateY(1px) scaleX(1.1);transform-origin:60px 61px}
 #qabot.mood-ok .bot-3d{animation-duration:3s, 9s}
 #qabot.mood-ok .bot-core-lamp{animation-duration:2.1s}
 
@@ -1302,10 +1302,10 @@ html[data-fx="on"] #qabot{display:block}
 /* failing: the wave stops, the head hangs, the thrusters gutter */
 #qabot.mood-sad{--bot-core:#f43f5e; --bot-eye:#ffdbe2}
 #qabot.mood-sad .bot-arm-r{animation:none;transform:rotate(-4deg)}
-#qabot.mood-sad .bot-eye-l{transform:rotate(15deg);transform-origin:52.5px 37.5px}
-#qabot.mood-sad .bot-eye-r{transform:rotate(-15deg);transform-origin:67.5px 37.5px}
+#qabot.mood-sad .bot-eye-l{transform:rotate(15deg);transform-origin:51px 43px}
+#qabot.mood-sad .bot-eye-r{transform:rotate(-15deg);transform-origin:69px 43px}
 #qabot.mood-sad .bot-eyes{animation:none;opacity:.75}
-#qabot.mood-sad .bot-mouth{transform:translateY(4px) scaleY(-1);transform-origin:60px 52px}
+#qabot.mood-sad .bot-mouth{transform:translateY(3px) rotate(180deg);transform-origin:60px 61px}
 #qabot.mood-sad .bot-head{animation:none;transform:rotate(0) translateY(5px)}
 #qabot.mood-sad .bot-jets{animation-duration:.22s;opacity:.45;transform:scaleY(.5)}
 #qabot.mood-sad .bot-core-lamp{animation-duration:1s}
@@ -1318,24 +1318,52 @@ html[data-fx="on"] #qabot{display:block}
    In from off the top-right, banked and small, thrusters open; flares to
    slow, dips past the resting point, settles. The overshoot is what makes it
    read as landing rather than as a slide into place. */
+/* Timing is set per keyframe, not once on the animation. A single easing
+   function is applied to every segment, so an ease-out curve decelerates into
+   each waypoint and accelerates out of it -- which is exactly what made the
+   old landing look like it stopped in mid-air and started again.
+
+   Here the descent accelerates like something falling, the flare bleeds that
+   speed off over a long ease-out, and only the last settle eases both ways.
+   Waypoints are spaced to match the distance covered between them so no
+   segment has to travel four times as far as its neighbour in the same time. */
 @keyframes botArrive{
-  0%  {opacity:0; transform:translate(190px,-280px) scale(.4)  rotate(22deg)}
-  12% {opacity:1}
-  55% {opacity:1; transform:translate(26px,-46px)  scale(.92) rotate(9deg)}
-  74% {           transform:translate(0,22px)      scale(1.06) rotate(-5deg)}
-  87% {           transform:translate(0,-9px)      scale(.98) rotate(2deg)}
+  0%{
+    opacity:0; transform:translate(210px,-300px) scale(.34) rotate(24deg);
+    animation-timing-function:cubic-bezier(.42,0,.86,.42);   /* accelerate in */
+  }
+  38%{
+    opacity:1; transform:translate(96px,-150px) scale(.62) rotate(17deg);
+    animation-timing-function:cubic-bezier(.32,0,.5,.62);    /* still falling */
+  }
+  62%{
+    transform:translate(30px,-52px) scale(.87) rotate(9deg);
+    animation-timing-function:cubic-bezier(.16,.62,.32,1);   /* flare, bleed speed */
+  }
+  82%{
+    transform:translate(0,16px) scale(1.05) rotate(-4deg);
+    animation-timing-function:cubic-bezier(.4,0,.3,1);       /* compress on contact */
+  }
+  92%{
+    transform:translate(0,-6px) scale(.985) rotate(1.5deg);
+    animation-timing-function:cubic-bezier(.35,0,.2,1);      /* rebound */
+  }
   100%{opacity:1; transform:none}
 }
-#qabot.is-arriving{animation:botArrive 1.9s cubic-bezier(.2,.72,.3,1) both}
+#qabot.is-arriving{animation:botArrive 2.3s linear both}
 
 /* Thrusters wide open through the descent, easing back as it settles. */
+/* Thrust follows the flight: open through the descent, hardest during the
+   flare that arrests it, easing back once weight is on the ground. */
 @keyframes botArriveJets{
-  0%,55%{opacity:1; transform:scaleY(2.6)}
-  80%   {opacity:1; transform:scaleY(1.5)}
-  100%  {opacity:.9;transform:scaleY(1)}
+  0%  {opacity:.9; transform:scaleY(2.2)}
+  38% {opacity:1;  transform:scaleY(2.6)}
+  62% {opacity:1;  transform:scaleY(3.1)}
+  82% {opacity:1;  transform:scaleY(1.4)}
+  100%{opacity:.9; transform:scaleY(1)}
 }
 #qabot.is-arriving .bot-jets{
-  animation:botArriveJets 1.9s cubic-bezier(.2,.72,.3,1) both;
+  animation:botArriveJets 2.3s linear both;
   transform-origin:60px 176px;
 }
 /* It holds its pose on the way down rather than idling. */
@@ -1344,13 +1372,14 @@ html[data-fx="on"] #qabot{display:block}
 #qabot.is-arriving .bot-arm-l{animation:none}
 
 /* Landing shockwave, once. */
+/* The shockwave belongs to the contact, so it stays dark until then. */
 @keyframes botTouchdown{
-  0%  {opacity:0;   transform:translateX(-50%) rotateX(78deg) scale(.2)}
-  55% {opacity:.55; transform:translateX(-50%) rotateX(78deg) scale(1.7)}
-  100%{opacity:0;   transform:translateX(-50%) rotateX(78deg) scale(2.6)}
+  0%,70%{opacity:0;   transform:translateX(-50%) rotateX(78deg) scale(.2)}
+  84%   {opacity:.6;  transform:translateX(-50%) rotateX(78deg) scale(1.9)}
+  100%  {opacity:0;   transform:translateX(-50%) rotateX(78deg) scale(3)}
 }
 #qabot.is-arriving .bot-ground{
-  animation:botTouchdown 1.9s cubic-bezier(.2,.72,.3,1) both;
+  animation:botTouchdown 2.3s ease-out both;
 }
 
 /* -- the crest beacon ------------------------------------------------------
@@ -1391,7 +1420,7 @@ html[data-fx="on"] #qabot{display:block}
 
 /* Speech. Anchored to the bot, wrapping to the viewport on small screens. */
 #qasay{
-  position:fixed; right:134px; bottom:86px; z-index:61;
+  position:fixed; right:154px; bottom:96px; z-index:61;
   max-width:min(330px, calc(100vw - 150px));
   padding:11px 14px; border-radius:13px 13px 3px 13px;
   background:var(--s900,#0f172a); color:var(--text,#e2e8f0);
@@ -1505,7 +1534,7 @@ html[data-fx="on"][data-theme="light"] .estat:hover{
 html[data-fx="on"][data-theme="light"] [data-fx-tone="pass"] {--fx-glow:rgba(5,150,105,.42); --fx-glow-2:rgba(5,150,105,.16)}
 html[data-fx="on"][data-theme="light"] [data-fx-tone="warn"] {--fx-glow:rgba(202,138,4,.42);  --fx-glow-2:rgba(202,138,4,.16)}
 html[data-fx="on"][data-theme="light"] [data-fx-tone="fail"] {--fx-glow:rgba(225,29,72,.38);  --fx-glow-2:rgba(225,29,72,.14)}
-html[data-fx="on"][data-theme="light"] [data-fx-tone="quiet"]{--fx-glow:rgba(51,90,140,.30);  --fx-glow-2:rgba(51,90,140,.11)}
+html[data-fx="on"][data-theme="light"] [data-fx-tone="quiet"]{--fx-glow:rgba(45,88,150,.46);  --fx-glow-2:rgba(45,88,150,.17)}
 
 /* Charts get a real cast shadow in light, so the 3D tilt has something to
    throw depth onto. */
@@ -1581,6 +1610,96 @@ html[data-fx="on"][data-theme="light"] .fx-tilt svg.trend{
 [data-theme="light"] #qasay{
   border-color:#c8d6e4;
   box-shadow:0 2px 5px rgba(20,45,80,.10), 0 16px 34px -10px rgba(20,45,80,.24);
+}
+
+
+/* ==========================================================================
+   CHART PRESENCE
+
+   A run can legitimately be one flat colour -- 100% NOT_APPLICABLE when a host
+   is unreachable, for instance -- and that colour must stay honest. So the
+   charts get presentation of their own that does not depend on the data being
+   colourful: a rotating sheen, a sweeping highlight, depth on the ring.
+
+   None of it encodes anything. It is there so a single-state report still
+   looks designed rather than dead.
+   ========================================================================== */
+
+/* A slow conic sweep behind the donut. Sits under the ring, so the ring's own
+   colours are never tinted by it. */
+html[data-fx="on"] .chart-wrap::after{
+  content:"";
+  position:absolute;
+  left:50%; top:50%;
+  width:190px; height:190px;
+  margin:-95px 0 0 -95px;
+  border-radius:50%;
+  z-index:0;
+  background:conic-gradient(from 0deg,
+    transparent 0deg,
+    var(--fx-glow, rgba(96,132,190,.44)) 55deg,
+    transparent 130deg,
+    var(--fx-glow-2, rgba(96,132,190,.16)) 210deg,
+    transparent 300deg);
+  filter:blur(16px);
+  opacity:.85;
+  animation:fxSheen 11s linear infinite;
+  pointer-events:none;
+}
+@keyframes fxSheen{to{transform:rotate(360deg)}}
+
+/* Depth on the ring itself, so it reads as a solid band rather than a flat
+   stroke. Uses the segment's own colour, so nothing is recoloured. */
+html[data-fx="on"] svg.spark circle{
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.28));
+}
+[data-theme="light"] html[data-fx="on"] svg.spark circle,
+html[data-fx="on"][data-theme="light"] svg.spark circle{
+  filter:drop-shadow(0 2px 4px rgba(20,45,80,.22));
+}
+
+/* A highlight travelling across the module bars. Overlaid, so the underlying
+   state colours are untouched. */
+html[data-fx="on"] .sbar-t{position:relative;overflow:hidden}
+html[data-fx="on"] .sbar-t::after{
+  content:"";
+  position:absolute; inset:0;
+  background:linear-gradient(100deg,
+    transparent 0%, rgba(255,255,255,.20) 46%,
+    rgba(255,255,255,.30) 52%, transparent 100%);
+  transform:translateX(-120%);
+  animation:fxBarSweep 4.6s ease-in-out infinite;
+  pointer-events:none;
+}
+[data-theme="light"] html[data-fx="on"] .sbar-t::after,
+html[data-fx="on"][data-theme="light"] .sbar-t::after{
+  background:linear-gradient(100deg,
+    transparent 0%, rgba(255,255,255,.55) 46%,
+    rgba(255,255,255,.75) 52%, transparent 100%);
+}
+@keyframes fxBarSweep{
+  0%,55%{transform:translateX(-120%)}
+  100%  {transform:translateX(120%)}
+}
+/* Stagger by row so the bars do not flash in unison. */
+html[data-fx="on"] .sbar:nth-child(2n) .sbar-t::after{animation-delay:.5s}
+html[data-fx="on"] .sbar:nth-child(3n) .sbar-t::after{animation-delay:1s}
+html[data-fx="on"] .sbar:nth-child(5n) .sbar-t::after{animation-delay:1.5s}
+
+/* Bar segments get a vertical sheen so they read as a solid form. */
+html[data-fx="on"] .sbar-s{
+  background-image:linear-gradient(180deg, rgba(255,255,255,.22), rgba(0,0,0,.10));
+}
+
+/* The KPI ring on the success-rate card, given the same depth. */
+html[data-fx="on"] .estat-bar i{
+  box-shadow:0 0 10px -2px currentColor;
+}
+
+@media(prefers-reduced-motion:reduce){
+  html[data-fx="on"] .chart-wrap::after,
+  html[data-fx="on"] .sbar-t::after{animation:none}
+  html[data-fx="on"] .sbar-t::after{opacity:0}
 }
 
 </style>
@@ -5338,11 +5457,13 @@ function buildLayer(){
 
     /* helmet shell */
     [34,  '<g class="bot-head">' +
-            plate('M60 8 q16 0 22 12 l2 18 q1 16 -10 24 l-14 8 l-14 -8' +
-                  ' q-11 -8 -10 -24 l2 -18 q6 -12 22 -12 z', RED) +
-            /* ear pieces */
-            plate('M36 34 h-6 v12 h6 z', RED_D) +
-            plate('M84 34 h6 v12 h-6 z', RED_D) +
+            /* Helmet silhouette: domed crown, straight temples, jaw drawn in
+               to a blunt chin. */
+            plate('M60 5 q17 0 23 13 l2 17 q1 13 -3 22 l-9 15 q-6 6 -13 7' +
+                  ' q-7 -1 -13 -7 l-9 -15 q-4 -9 -3 -22 l2 -17 q6 -13 23 -13 z', RED) +
+            /* Temple panels: the red flanks the gold rather than ringing it. */
+            plate('M37 26 l-4 6 l1 15 l5 7 l3 -12 z', RED_D) +
+            plate('M83 26 l4 6 l-1 15 l-5 7 l-3 -12 z', RED_D) +
             /* crest light -- inside .bot-head so it nods with the head */
             '<path d="M60 10 L60 1" stroke="' + GOLD + '" stroke-width="3.4"' +
               ' stroke-linecap="round"/>' +
@@ -5357,21 +5478,33 @@ function buildLayer(){
 
     /* faceplate and eyes, furthest forward */
     [46,  '<g class="bot-face">' +
-            /* the faceted mask: peak at the brow, angular cheeks, pointed chin */
-            plate('M60 12 l7 9 l6 -2 l3 13 l-3 12 l-6 10 l-7 5 l-7 -5 l-6 -10' +
-                  ' l-3 -12 l3 -13 l6 2 z', GOLD) +
-            /* brow shadow */
-            '<path d="M47 33 q13 -5 26 0" stroke="' + GOLD_D +
-              '" stroke-width="2" fill="none"/>' +
+            /* Faceplate: wide across the brow, faceted cheeks, hard angular
+               jaw drawn to a blunt chin. A rounded plate is the single thing
+               that most stops this reading as the mask. */
+            plate('M60 17 l11 4 l7 9 l-1 14 l-5 11 l-6 8 l-6 4 l-6 -4 l-6 -8' +
+                  ' l-5 -11 l-1 -14 l7 -9 z', GOLD) +
+            /* Red crest: crown to a point between the brows. */
+            plate('M60 5 l6 10 l-2 14 l-4 5 l-4 -5 l-2 -14 z', RED) +
+            /* Brow ridge dipping to a V. This carries the expression -- far
+               more than the eyes do. */
+            plate('M42 33 l9 -4 l9 5 l9 -5 l9 4 l-2 6 l-7 -3 l-9 5 l-9 -5' +
+                  ' l-7 3 z', RED_D) +
+            /* Cheek seams: line survives at this size, shading does not. */
+            '<path d="M48 50 l5 9 M72 50 l-5 9" stroke="' + GOLD_D +
+              '" stroke-width="1.6" fill="none" stroke-linecap="round"/>' +
             '<g class="bot-eyes" filter="url(#botGlow)">' +
-              '<path class="bot-eye bot-eye-l" d="M48 36 L57 33 L57 40 L48 42 Z"' +
-                ' fill="var(--bot-eye,#f2feff)" stroke="' + INK + '" stroke-width="1.2"/>' +
-              '<path class="bot-eye bot-eye-r" d="M72 36 L63 33 L63 40 L72 42 Z"' +
-                ' fill="var(--bot-eye,#f2feff)" stroke="' + INK + '" stroke-width="1.2"/>' +
+              /* Swept quadrilaterals, inner ends rising to a point. */
+              '<path class="bot-eye bot-eye-l" d="M44 43 L57 38 L58 44 L45 48 Z"' +
+                ' fill="var(--bot-eye,#f2feff)" stroke="' + INK + '" stroke-width="1.3"/>' +
+              '<path class="bot-eye bot-eye-r" d="M76 43 L63 38 L62 44 L75 48 Z"' +
+                ' fill="var(--bot-eye,#f2feff)" stroke="' + INK + '" stroke-width="1.3"/>' +
             '</g>' +
-            /* jaw vent */
-            '<path class="bot-mouth" d="M53 50 q7 4 14 0 l-1 4 q-6 3 -12 0 z"' +
-              ' fill="' + GOLD_D + '" stroke="' + INK + '" stroke-width="1.2"/>' +
+            /* Vented jaw, with real bars. */
+            '<g class="bot-mouth">' +
+              plate('M50 58 h20 l-2 7 h-16 z', GOLD_D) +
+              '<path d="M55 58 v7 M60 58 v7 M65 58 v7" stroke="' + INK +
+                '" stroke-width="1.2" fill="none"/>' +
+            '</g>' +
           '</g>']
   ];
 
@@ -5433,7 +5566,7 @@ function buildLayer(){
 
     /* Fly in, land, and only then greet. Waving while still descending reads
        as a glitch rather than a greeting. */
-    var ARRIVAL_MS = 1900;
+    var ARRIVAL_MS = 2300;
     bot.classList.add('is-arriving');
     setTimeout(function(){
       if(!bot) return;
