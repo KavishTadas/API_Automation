@@ -4369,23 +4369,43 @@ function seedSampleHistory(quiet){
 
 /* Runs a batch, then hands off to the report view — the "View Report"
    contract: execute, then land on the Enterprise Overview for that run. */
+/* A live run costs roughly 14s of engine startup plus 6.5s per endpoint,
+   measured against UAT. Used only to tell the user what to expect. */
+const LIVE_FIXED_MS = 14000, LIVE_PER_API_MS = 6500;
+const liveEstimateMs = n => LIVE_FIXED_MS + n * LIVE_PER_API_MS;
+const humanMs = ms => ms < 60000 ? Math.round(ms/1000)+'s'
+                                 : Math.floor(ms/60000)+'m ' + Math.round((ms%60000)/1000)+'s';
+
 function startRun(refs){
   if(STATE.shared){ toast('This is a shared report — it cannot run tests'); return; }
   if(STATE.running || !refs.length) return;
   STATE.running=true; syncSel();
-  const prog=$('#runProg'), fill=$('#runProgFill');
+  const prog=$('#runProg'), fill=$('#runProgFill'), label=$('#btnRunLabel');
   if(prog){ prog.style.display='block'; fill.style.width='0'; }
-  let i=0;
-  const step=async ()=>{
-    i++; if(fill) fill.style.width=Math.round(i/refs.length*100)+'%';
-    if(i<refs.length){ setTimeout(step, 90); return; }
-    setTimeout(async ()=>{
-      /* Live when the harness is serving this page, simulated otherwise. */
-      if(!LIVE.checked) await detectHarness();
-      let doc = LIVE.available ? await postRun(refs) : null;
-      STATE.result = doc || runBatch(refs);
-      STATE.live = !!doc;
-      STATE.viewing = null;              // a new run supersedes any snapshot being viewed
+
+  const finish = async () => {
+    /* Live when the harness is serving this page, simulated otherwise. */
+    if(!LIVE.checked) await detectHarness();
+
+    let doc = null;
+    if(LIVE.available){
+      /* A live run is minutes, not milliseconds. Show elapsed against an
+         estimate rather than a bar that completes while the run is still
+         going -- a full bar with nothing happening reads as a hang. */
+      const est = liveEstimateMs(refs.length), t0 = Date.now();
+      const tick = setInterval(() => {
+        const el = Date.now() - t0;
+        if(fill) fill.style.width = Math.min(96, el / est * 100).toFixed(1) + '%';
+        if(label) label.textContent =
+          `Running ${refs.length} on real endpoints — ${humanMs(el)} of ~${humanMs(est)}`;
+      }, 500);
+      try { doc = await postRun(refs); }
+      finally { clearInterval(tick); }
+    }
+
+    STATE.result = doc || runBatch(refs);
+    STATE.live = !!doc;
+    STATE.viewing = null;              // a new run supersedes any snapshot being viewed
       saveSnapshot(STATE.result);
       STATE.history.push({
         runId:STATE.result.runId, at:STATE.result.startedAt,
@@ -4402,12 +4422,32 @@ function startRun(refs){
       go('analytics');
       if(BUS) try{ BUS.postMessage({type:'result', result:STATE.result}); }catch(e){}
       const s=STATE.result.summary;
-      toast(`Run complete — ${pct(s.passRate)} pass${s.clean?'':', not clean'}`);
-    }, 160);
+      if(label) label.textContent = `Run Selected Batch (${STATE.selected.size})`;
+      toast(`${STATE.live?'Live run':'Run'} complete — ${pct(s.passRate)} pass${s.clean?'':', not clean'}`);
+  };
+
+  /* The simulation is instant, so it keeps its short animation for feedback.
+     A live run goes straight to finish(), which drives its own elapsed timer. */
+  if(LIVE.available){ finish(); return; }
+  let i=0;
+  const step=()=>{
+    i++; if(fill) fill.style.width=Math.round(i/refs.length*100)+'%';
+    if(i<refs.length){ setTimeout(step, Math.min(90, 1200/refs.length)); return; }
+    setTimeout(finish, 120);
   };
   step();
 }
-$('#btnRun').onclick = () => startRun([...STATE.selected]);
+$('#btnRun').onclick = () => {
+  const refs=[...STATE.selected];
+  /* A large live batch is minutes. Say so before it starts rather than
+     leaving the user watching a bar. */
+  if(LIVE.available && refs.length > 8){
+    const est=humanMs(liveEstimateMs(refs.length));
+    if(!confirm(`${refs.length} endpoints against real endpoints takes about ${est}.\n\n`+
+                `The report opens when the engine returns. Continue?`)) return;
+  }
+  startRun(refs);
+};
 
 /* ---------------------------------------------------------------- boot -- */
 (function init(){
