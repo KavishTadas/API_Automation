@@ -1244,7 +1244,7 @@ html[data-fx="on"] #qabot{display:block}
   75%{transform:rotate(-2deg)}
   90%{transform:rotate(16deg)}
 }
-.bot-arm-r{transform-origin:75px 84px;transform:rotate(10deg)}
+.bot-arm-r{transform-origin:92px 84px;transform:rotate(10deg)}
 /* Idle: an occasional small wave. */
 @keyframes botWaveIdle{
   0%,86%,100%{transform:rotate(10deg)}
@@ -1257,19 +1257,19 @@ html[data-fx="on"] #qabot{display:block}
 #qabot.is-waving .bot-palm{animation:botPalm 1.5s ease-in-out 2}
 @keyframes botPalm{0%,100%{opacity:.5}50%{opacity:1}}
 
-.bot-arm-l{transform-origin:35px 88px;animation:botSway 3.8s ease-in-out infinite}
+.bot-arm-l{transform-origin:28px 84px;animation:botSway 3.8s ease-in-out infinite}
 @keyframes botSway{0%,100%{transform:rotate(0)}50%{transform:rotate(-6deg)}}
 
-.bot-head{transform-origin:60px 52px;animation:botNod 5.4s ease-in-out infinite}
+.bot-head{transform-origin:60px 50px;animation:botNod 5.4s ease-in-out infinite}
 @keyframes botNod{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
 
 .bot-eyes{animation:botSlit 4.8s ease-in-out infinite}
 @keyframes botSlit{0%,92%,100%{opacity:1}95%{opacity:.2}}
 
-.bot-core-lamp{transform-origin:60px 96px;animation:botCore 2.6s ease-in-out infinite}
+.bot-core-lamp{transform-origin:60px 94px;animation:botCore 2.6s ease-in-out infinite}
 @keyframes botCore{0%,100%{opacity:.82;transform:scale(.93)}50%{opacity:1;transform:scale(1.09)}}
 
-.bot-jets{transform-origin:60px 150px;animation:botJet .45s ease-in-out infinite}
+.bot-jets{transform-origin:60px 176px;animation:botJet .45s ease-in-out infinite}
 @keyframes botJet{
   0%,100%{opacity:.9;transform:scaleY(1)}
   40%{opacity:.6;transform:scaleY(.8)}
@@ -1279,8 +1279,8 @@ html[data-fx="on"] #qabot{display:block}
 .bot-ring{animation:botRing 3.2s ease-out infinite}
 .bot-ring.d2{animation-delay:1.6s}
 @keyframes botRing{
-  0%  {r:30; opacity:.4; stroke-width:2.2}
-  100%{r:50; opacity:0;  stroke-width:.3}
+  0%  {r:34; opacity:.38; stroke-width:2.2}
+  100%{r:56; opacity:0;   stroke-width:.3}
 }
 
 /* -- moods, drawn rather than tinted --------------------------------------
@@ -1289,9 +1289,9 @@ html[data-fx="on"] #qabot{display:block}
 
 /* happy: slits arch up, everything runs brighter and quicker */
 #qabot.mood-ok{--bot-core:#2dd4bf; --bot-eye:#e8ffff}
-#qabot.mood-ok .bot-eye-l{transform:rotate(-9deg);transform-origin:52.5px 41px}
-#qabot.mood-ok .bot-eye-r{transform:rotate(9deg);transform-origin:67.5px 41px}
-#qabot.mood-ok .bot-mouth{transform:translateY(1px) scaleX(1.1);transform-origin:60px 55px}
+#qabot.mood-ok .bot-eye-l{transform:rotate(-9deg);transform-origin:52.5px 37.5px}
+#qabot.mood-ok .bot-eye-r{transform:rotate(9deg);transform-origin:67.5px 37.5px}
+#qabot.mood-ok .bot-mouth{transform:translateY(1px) scaleX(1.1);transform-origin:60px 52px}
 #qabot.mood-ok .bot-3d{animation-duration:3s, 9s}
 #qabot.mood-ok .bot-core-lamp{animation-duration:2.1s}
 
@@ -1302,10 +1302,10 @@ html[data-fx="on"] #qabot{display:block}
 /* failing: the wave stops, the head hangs, the thrusters gutter */
 #qabot.mood-sad{--bot-core:#f43f5e; --bot-eye:#ffdbe2}
 #qabot.mood-sad .bot-arm-r{animation:none;transform:rotate(-4deg)}
-#qabot.mood-sad .bot-eye-l{transform:rotate(15deg);transform-origin:52.5px 41px}
-#qabot.mood-sad .bot-eye-r{transform:rotate(-15deg);transform-origin:67.5px 41px}
+#qabot.mood-sad .bot-eye-l{transform:rotate(15deg);transform-origin:52.5px 37.5px}
+#qabot.mood-sad .bot-eye-r{transform:rotate(-15deg);transform-origin:67.5px 37.5px}
 #qabot.mood-sad .bot-eyes{animation:none;opacity:.75}
-#qabot.mood-sad .bot-mouth{transform:translateY(4px) scaleY(-1);transform-origin:60px 55px}
+#qabot.mood-sad .bot-mouth{transform:translateY(4px) scaleY(-1);transform-origin:60px 52px}
 #qabot.mood-sad .bot-head{animation:none;transform:rotate(0) translateY(5px)}
 #qabot.mood-sad .bot-jets{animation-duration:.22s;opacity:.45;transform:scaleY(.5)}
 #qabot.mood-sad .bot-core-lamp{animation-duration:1s}
@@ -1313,6 +1313,73 @@ html[data-fx="on"] #qabot{display:block}
 #qabot.mood-sad .bot-ring{animation-duration:5.5s;opacity:.45}
 /* even when it is clicked, a failing run gets a half-hearted wave */
 #qabot.mood-sad.is-waving .bot-arm-r{animation:botWave 2.4s ease-in-out 1;opacity:.85}
+
+/* -- the arrival ----------------------------------------------------------
+   In from off the top-right, banked and small, thrusters open; flares to
+   slow, dips past the resting point, settles. The overshoot is what makes it
+   read as landing rather than as a slide into place. */
+@keyframes botArrive{
+  0%  {opacity:0; transform:translate(190px,-280px) scale(.4)  rotate(22deg)}
+  12% {opacity:1}
+  55% {opacity:1; transform:translate(26px,-46px)  scale(.92) rotate(9deg)}
+  74% {           transform:translate(0,22px)      scale(1.06) rotate(-5deg)}
+  87% {           transform:translate(0,-9px)      scale(.98) rotate(2deg)}
+  100%{opacity:1; transform:none}
+}
+#qabot.is-arriving{animation:botArrive 1.9s cubic-bezier(.2,.72,.3,1) both}
+
+/* Thrusters wide open through the descent, easing back as it settles. */
+@keyframes botArriveJets{
+  0%,55%{opacity:1; transform:scaleY(2.6)}
+  80%   {opacity:1; transform:scaleY(1.5)}
+  100%  {opacity:.9;transform:scaleY(1)}
+}
+#qabot.is-arriving .bot-jets{
+  animation:botArriveJets 1.9s cubic-bezier(.2,.72,.3,1) both;
+  transform-origin:60px 176px;
+}
+/* It holds its pose on the way down rather than idling. */
+#qabot.is-arriving .bot-3d{animation:none;transform:rotateY(-8deg)}
+#qabot.is-arriving .bot-arm-r,
+#qabot.is-arriving .bot-arm-l{animation:none}
+
+/* Landing shockwave, once. */
+@keyframes botTouchdown{
+  0%  {opacity:0;   transform:translateX(-50%) rotateX(78deg) scale(.2)}
+  55% {opacity:.55; transform:translateX(-50%) rotateX(78deg) scale(1.7)}
+  100%{opacity:0;   transform:translateX(-50%) rotateX(78deg) scale(2.6)}
+}
+#qabot.is-arriving .bot-ground{
+  animation:botTouchdown 1.9s cubic-bezier(.2,.72,.3,1) both;
+}
+
+/* -- the crest beacon ------------------------------------------------------
+   Idles dim and slow. Goes bright, fast and haloed only when there is
+   something unread, so the signal keeps its meaning. */
+.bot-beacon{transform-origin:60px -1px;animation:botBeacon 3.4s ease-in-out infinite}
+@keyframes botBeacon{
+  0%,100%{opacity:.34;transform:scale(.82)}
+  50%    {opacity:.62;transform:scale(1)}
+}
+.bot-halo{opacity:0}
+
+#qabot.has-news .bot-beacon{animation:botBeaconNews .82s ease-in-out infinite}
+@keyframes botBeaconNews{
+  0%,100%{opacity:.75;transform:scale(.9)}
+  50%    {opacity:1;  transform:scale(1.35)}
+}
+#qabot.has-news .bot-halo{animation:botHalo 1.7s ease-out infinite}
+#qabot.has-news .bot-halo.d2{animation-delay:.85s}
+@keyframes botHalo{
+  0%  {r:4;  opacity:.7; stroke-width:1.8}
+  100%{r:19; opacity:0;  stroke-width:.2}
+}
+/* The whole figure leans in a little when it has something to say. */
+#qabot.has-news .bot-head{animation:botNodNews 1.7s ease-in-out infinite}
+@keyframes botNodNews{
+  0%,100%{transform:rotate(-3deg)}
+  50%    {transform:rotate(3deg)}
+}
 
 /* a click gives the whole figure a hop */
 #qabot.is-hit .bot-3d{animation:botHit .62s cubic-bezier(.34,1.56,.64,1)}
@@ -1333,13 +1400,15 @@ html[data-fx="on"] #qabot{display:block}
   font:500 12.5px/1.55 var(--mono, ui-monospace, monospace);
   opacity:0; transform:translateY(8px) scale(.96); transform-origin:100% 100%;
   transition:opacity .3s ease, transform .3s cubic-bezier(.22,.61,.36,1);
+  /* Hoverable: the bubble closes when the reader leaves it, which it
+     cannot detect while it ignores the pointer. */
   pointer-events:none;
 }
 [data-theme="light"] #qasay{
   background:#fff; color:#0f1a22; border-color:#d6e0e8;
   box-shadow:0 10px 26px rgba(15,26,34,.14);
 }
-#qasay.on{opacity:1;transform:none}
+#qasay.on{opacity:1;transform:none;pointer-events:auto}
 #qasay b{color:var(--accent, #2dd4bf);font-weight:700}
 #qasay b.bad{color:var(--ro400, #fb7185)}
 #qasay b.good{color:var(--em400, #34d399)}
@@ -1360,11 +1429,158 @@ html[data-fx="on"] #qabot{display:block}
   html[data-fx="on"] .fx-tick,
   html[data-fx="on"] .fx-sweep circle{animation:none}
   html[data-fx="on"] .fx-tilt{transition:none;transform:none}
+  #qabot.is-arriving,#qabot.is-arriving .bot-jets,#qabot.is-arriving .bot-ground{
+    animation:none; transform:none; opacity:1}
   #qabot .bot-3d,#qabot .bot-ground,#qabot .bot-arm-r,#qabot .bot-arm-l,
   #qabot .bot-head,#qabot .bot-eyes,#qabot .bot-core-lamp,#qabot .bot-jets,
-  #qabot .bot-ring{animation:none}
+  #qabot .bot-ring,#qabot .bot-beacon,#qabot .bot-halo{animation:none}
+  /* The beacon still has to be able to signal, so it holds bright rather
+     than flashing. */
+  #qabot.has-news .bot-beacon{opacity:1}
   #qabot .bot-3d{transition:none}
   #qabot{transition:none}
+}
+
+
+/* ==========================================================================
+   LIGHT MODE, WITH PRESENCE
+
+   Light was a legibility fallback -- white cards, hairline borders, 8% black
+   shadows. It read as a document rather than a product. Light needs different
+   devices to carry the same weight as dark, not simply darker values.
+
+   Nothing here applies unless [data-theme="light"] is set, so dark mode is
+   untouched by every rule below.
+   ========================================================================== */
+
+/* A flat white field has no depth for a shadow to sit on. A very slight
+   vertical wash gives the cards something to lift away from. */
+[data-theme="light"] #view-analytics,
+[data-theme="light"] .view.scroll{
+  background:
+    radial-gradient(1200px 520px at 12% -8%, #e8f2ff 0%, transparent 62%),
+    radial-gradient(1000px 480px at 92% 4%, #e6f7f3 0%, transparent 58%),
+    linear-gradient(180deg, #f4f7fb 0%, #eef3f8 100%);
+}
+
+/* Two shadows at different radii: a tight contact shadow and a wide ambient
+   one, both tinted toward the page's blue rather than neutral grey. A single
+   flat grey shadow simply vanishes on white. */
+[data-theme="light"] .ecard,
+[data-theme="light"] .estat,
+[data-theme="light"] .eqg,
+[data-theme="light"] .fbar{
+  border-color:#c8d6e4;
+  box-shadow:
+    0 1px 2px rgba(20,45,80,.10),
+    0 8px 22px -6px rgba(20,45,80,.14);
+}
+
+/* Cards lift toward the reader on hover -- the same depth language the charts
+   already use, applied to the surfaces holding them. */
+html[data-fx="on"][data-theme="light"] .ecard,
+html[data-fx="on"][data-theme="light"] .estat{
+  transition:transform .32s cubic-bezier(.22,.61,.36,1),
+             box-shadow .32s cubic-bezier(.22,.61,.36,1);
+}
+html[data-fx="on"][data-theme="light"] .ecard:hover,
+html[data-fx="on"][data-theme="light"] .estat:hover{
+  transform:translateY(-3px);
+  box-shadow:
+    0 2px 4px rgba(20,45,80,.12),
+    0 18px 38px -10px rgba(20,45,80,.26);
+}
+
+/* THE PULSE, MADE VISIBLE.
+   The glow is drawn by adding colour, which on a white ground returns white --
+   which is why the pulse could not be seen in light mode at all. Multiplying
+   instead darkens toward the hue, so the same animation finally reads. */
+[data-theme="light"] .chart-wrap::before,
+[data-theme="light"] .sbars::before,
+[data-theme="light"] svg.trend::before,
+[data-theme="light"] .fx-aura::before{
+  mix-blend-mode:multiply;
+  filter:blur(20px);
+}
+html[data-fx="on"][data-theme="light"] [data-fx-tone="pass"] {--fx-glow:rgba(5,150,105,.42); --fx-glow-2:rgba(5,150,105,.16)}
+html[data-fx="on"][data-theme="light"] [data-fx-tone="warn"] {--fx-glow:rgba(202,138,4,.42);  --fx-glow-2:rgba(202,138,4,.16)}
+html[data-fx="on"][data-theme="light"] [data-fx-tone="fail"] {--fx-glow:rgba(225,29,72,.38);  --fx-glow-2:rgba(225,29,72,.14)}
+html[data-fx="on"][data-theme="light"] [data-fx-tone="quiet"]{--fx-glow:rgba(51,90,140,.30);  --fx-glow-2:rgba(51,90,140,.11)}
+
+/* Charts get a real cast shadow in light, so the 3D tilt has something to
+   throw depth onto. */
+html[data-fx="on"][data-theme="light"] .fx-tilt .spark,
+html[data-fx="on"][data-theme="light"] .fx-tilt svg.trend{
+  filter:drop-shadow(0 10px 14px rgba(20,45,80,.18));
+}
+
+/* Buttons: saturated, with a gradient and a lift. A flat pale fill on a pale
+   page reads as disabled. */
+[data-theme="light"] .btn-primary,
+[data-theme="light"] .psw button.active,
+[data-theme="light"] .nitem.active,
+[data-theme="light"] .fpill.active{
+  background:linear-gradient(180deg,#0f8a80 0%,#0b6f68 100%);
+  border-color:#0a5f59;
+  color:#fff;
+  box-shadow:0 2px 5px rgba(11,111,104,.32), inset 0 1px 0 rgba(255,255,255,.22);
+}
+[data-theme="light"] .btn-primary:hover,
+[data-theme="light"] .psw button.active:hover{
+  background:linear-gradient(180deg,#12a094 0%,#0d7d75 100%);
+  box-shadow:0 4px 12px rgba(11,111,104,.38), inset 0 1px 0 rgba(255,255,255,.26);
+}
+[data-theme="light"] .ebtn-ghost,
+[data-theme="light"] .btn{
+  border-color:#b9cadb; color:#173049; font-weight:600;
+  box-shadow:0 1px 2px rgba(20,45,80,.08);
+}
+[data-theme="light"] .ebtn-ghost:hover,
+[data-theme="light"] .btn:hover{
+  background:#e3ecf6; border-color:#8fa9c4; color:#0d1f33;
+}
+
+/* Text: the greys were mid-tone and washed out against white. */
+[data-theme="light"] .emast h1,
+[data-theme="light"] .ecard-h h3,
+[data-theme="light"] .eqg-h h2,
+[data-theme="light"] .eso-h h3{color:#0a1826}
+[data-theme="light"] .estat-n{color:#08131f;text-shadow:0 1px 0 rgba(255,255,255,.7)}
+[data-theme="light"] .emast-meta,
+[data-theme="light"] .eqg-p,
+[data-theme="light"] .eso-p,
+[data-theme="light"] .ecard-h p{color:#2c4459}
+[data-theme="light"] .psw button,
+[data-theme="light"] .nitem,
+[data-theme="light"] .fpill{color:#2c4459;font-weight:600}
+
+/* Status colours carry the report's meaning, so they get the strongest
+   treatment of all -- they must never be the palest thing on the page. */
+[data-theme="light"] .estat-f .g,
+[data-theme="light"] .ecard-f .good{color:#046c4e}
+[data-theme="light"] .estat-f .r,
+[data-theme="light"] .ecard-f .bad{color:#b3123c}
+[data-theme="light"] .estat-f .a,
+[data-theme="light"] .estat-sub.amber{color:#9a6700}
+
+/* A hairline of the card's own meaning across its top edge. Structural, not
+   decorative: it only appears on cards that carry a state. */
+[data-theme="light"] .ecard.rose,
+[data-theme="light"] .estat.rose{
+  border-top:2px solid #e11d48;
+}
+
+/* The chips along the strip were near-invisible on white. */
+[data-theme="light"] .chip{
+  background:#fff; border-color:#c2d3e4; color:#173049; font-weight:600;
+  box-shadow:0 1px 2px rgba(20,45,80,.07);
+}
+[data-theme="light"] .chip.ok{border-color:#5bbfa8;color:#046c4e}
+
+/* The assistant's speech bubble needs the same lift as everything else. */
+[data-theme="light"] #qasay{
+  border-color:#c8d6e4;
+  box-shadow:0 2px 5px rgba(20,45,80,.10), 0 16px 34px -10px rgba(20,45,80,.24);
 }
 
 </style>
@@ -5014,115 +5230,148 @@ function buildLayer(){
 
   /* ---------------------------------------------------------------- bot -- */
   /* Each entry is one depth layer: [z-offset, svg body]. They share a viewBox
-     so the parts register exactly; only the depth differs. */
+     so the parts register exactly; only the depth differs.
+
+     Flat comic fills with a heavy black outline on every plate -- no gradients.
+     The outline is what makes the figure read as drawn rather than rendered. */
   var BOT_DEFS =
     '<defs>' +
-      '<linearGradient id="botRed" x1=".2" y1="0" x2=".8" y2="1">' +
-        '<stop offset="0" stop-color="#ff7a5e"/><stop offset=".45" stop-color="#d02f2f"/>' +
-        '<stop offset="1" stop-color="#7e1212"/></linearGradient>' +
-      '<linearGradient id="botRedD" x1=".2" y1="0" x2=".8" y2="1">' +
-        '<stop offset="0" stop-color="#cf3d3d"/><stop offset="1" stop-color="#6d1010"/>' +
-      '</linearGradient>' +
-      '<linearGradient id="botGold" x1=".2" y1="0" x2=".85" y2="1">' +
-        '<stop offset="0" stop-color="#fff3c4"/><stop offset=".42" stop-color="#f3c14b"/>' +
-        '<stop offset="1" stop-color="#b8790f"/></linearGradient>' +
-      '<radialGradient id="botCore" cx=".5" cy=".45">' +
+      '<radialGradient id="botCore" cx=".42" cy=".38">' +
         '<stop offset="0" stop-color="#ffffff"/>' +
-        '<stop offset=".4" stop-color="var(--bot-core,#7ff3ea)"/>' +
-        '<stop offset="1" stop-color="var(--bot-core,#2dd4bf)" stop-opacity=".1"/>' +
+        '<stop offset=".38" stop-color="var(--bot-core,#8fe3fb)"/>' +
+        '<stop offset="1" stop-color="var(--bot-core,#29a8df)"/>' +
       '</radialGradient>' +
       '<linearGradient id="botJet" x1="0" y1="0" x2="0" y2="1">' +
-        '<stop offset="0" stop-color="#ffffff" stop-opacity=".95"/>' +
-        '<stop offset=".3" stop-color="var(--bot-core,#7ff3ea)" stop-opacity=".7"/>' +
-        '<stop offset="1" stop-color="var(--bot-core,#2dd4bf)" stop-opacity="0"/>' +
+        '<stop offset="0" stop-color="#ffffff" stop-opacity=".9"/>' +
+        '<stop offset=".35" stop-color="var(--bot-core,#8fe3fb)" stop-opacity=".65"/>' +
+        '<stop offset="1" stop-color="var(--bot-core,#29a8df)" stop-opacity="0"/>' +
       '</linearGradient>' +
-      /* Rim light along the top-left, which is what sells a curved surface. */
-      '<linearGradient id="botRim" x1="0" y1="0" x2=".7" y2="1">' +
-        '<stop offset="0" stop-color="#fff" stop-opacity=".55"/>' +
-        '<stop offset=".35" stop-color="#fff" stop-opacity="0"/></linearGradient>' +
       '<filter id="botGlow" x="-90%" y="-90%" width="280%" height="280%">' +
-        '<feGaussianBlur stdDeviation="2.6" result="b"/>' +
+        '<feGaussianBlur stdDeviation="2.4" result="b"/>' +
         '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>' +
       '</filter>' +
     '</defs>';
 
+  /* One place for the palette, so a plate cannot drift out of the set. */
+  var RED = '#e62429', RED_D = '#a8161c', GOLD = '#f5c518', GOLD_D = '#d09b06',
+      INK = '#141414', LW = '2.2';
+
+  function plate(d, fill){
+    return '<path d="' + d + '" fill="' + fill + '" stroke="' + INK +
+           '" stroke-width="' + LW + '" stroke-linejoin="round"/>';
+  }
+
   var BOT_LAYERS = [
-    /* exhaust, furthest back */
+    /* repulsor exhaust, furthest back */
     [-46, '<g class="bot-jets" filter="url(#botGlow)">' +
-            '<path d="M47 150 Q51 168 51 182 Q51 168 55 150 Z" fill="url(#botJet)"/>' +
-            '<path d="M65 150 Q69 168 69 182 Q69 168 73 150 Z" fill="url(#botJet)"/>' +
+            '<path d="M48 176 Q52 186 52 194 Q52 186 56 176 Z" fill="url(#botJet)"/>' +
+            '<path d="M64 176 Q68 186 68 194 Q68 186 72 176 Z" fill="url(#botJet)"/>' +
           '</g>'],
 
-    /* sonar rings sit behind the figure so they read as coming off it */
-    [-30, '<circle class="bot-ring" cx="60" cy="96" r="30" fill="none"' +
-            ' stroke="var(--bot-core,#2dd4bf)"/>' +
-          '<circle class="bot-ring d2" cx="60" cy="96" r="30" fill="none"' +
-            ' stroke="var(--bot-core,#2dd4bf)"/>'],
+    /* sonar rings, behind the figure so they read as coming off it */
+    [-30, '<circle class="bot-ring" cx="60" cy="104" r="34" fill="none"' +
+            ' stroke="var(--bot-core,#29a8df)"/>' +
+          '<circle class="bot-ring d2" cx="60" cy="104" r="34" fill="none"' +
+            ' stroke="var(--bot-core,#29a8df)"/>'],
 
     /* legs and boots */
-    [-14, '<rect x="45" y="116" width="14" height="27" rx="6.5" fill="url(#botRedD)"/>' +
-          '<rect x="61" y="116" width="14" height="27" rx="6.5" fill="url(#botRedD)"/>' +
-          '<path d="M44 137 h16 v9 q0 5 -5 5 h-6 q-5 0 -5 -5 z" fill="url(#botGold)"/>' +
-          '<path d="M60 137 h16 v9 q0 5 -5 5 h-6 q-5 0 -5 -5 z" fill="url(#botGold)"/>'],
+    [-14, plate('M44 138 h15 v26 l-2 10 h-13 l-2 -10 z', RED) +
+          plate('M61 138 h15 v26 l-2 10 h-13 l-2 -10 z', RED) +
+          /* knee plates */
+          plate('M44 150 h15 v7 h-15 z', RED_D) +
+          plate('M61 150 h15 v7 h-15 z', RED_D) +
+          /* boots */
+          plate('M40 172 h20 v9 q0 4 -5 4 h-11 q-4 0 -4 -4 z', RED) +
+          plate('M60 172 h20 v9 q0 4 -4 4 h-11 q-5 0 -5 -4 z', RED) +
+          plate('M41 179 h18 v3 h-18 z', GOLD_D) +
+          plate('M61 179 h18 v3 h-18 z', GOLD_D)],
 
-    /* resting arm, behind the torso */
+    /* the resting arm, behind the torso */
     [-6,  '<g class="bot-arm-l">' +
-            '<rect x="28" y="84" width="14" height="28" rx="7" fill="url(#botRed)"/>' +
-            '<circle cx="35" cy="116" r="8.4" fill="url(#botGold)"/>' +
-            '<circle cx="33" cy="113" r="2.6" fill="#fff" opacity=".5"/>' +
+            /* pauldron */
+            plate('M14 78 q1 -14 14 -16 q13 2 14 16 l0 14 q-14 7 -28 0 z', RED) +
+            plate('M20 84 a6 6 0 1 0 12 0 a6 6 0 1 0 -12 0 z', RED_D) +
+            /* upper arm and forearm */
+            plate('M17 94 h22 v22 h-22 z', RED) +
+            plate('M18 116 h20 v24 q0 4 -4 4 h-12 q-4 0 -4 -4 z', RED) +
+            /* fist */
+            plate('M18 142 h20 v11 q0 4 -4 4 h-12 q-4 0 -4 -4 z', RED_D) +
           '</g>'],
 
-    /* torso */
-    [0,   '<path d="M43 77 h34 q7 0 7 8 l-2 31 q-1 9 -10 9 h-24 q-9 0 -10 -9 l-2 -31 q0 -8 7 -8 z"' +
-            ' fill="url(#botRed)"/>' +
-          '<path d="M52 77 h16 l-2 47 h-12 z" fill="url(#botGold)" opacity=".9"/>' +
-          '<rect x="41" y="77" width="38" height="6" rx="3" fill="url(#botGold)"/>' +
-          '<path d="M43 77 h34 q7 0 7 8 l-1 6 q-3 -8 -12 -9 h-22 q-9 1 -12 9 l-1 -6 q0 -8 7 -8 z"' +
-            ' fill="url(#botRim)"/>'],
+    /* torso: red chest, gold segmented abdomen, neck and collar */
+    [0,   /* Neck and collar sit on the torso layer, not the head: the two are
+             at different depths and a neck travelling with the head would
+             drift off the shoulders exactly as the figure turns. */
+          plate('M52 60 h16 v16 h-16 z', RED_D) +
+          plate('M38 72 h44 q4 0 4 6 l-2 30 h-48 l-2 -30 q0 -6 4 -6 z', RED) +
+          /* gold abdomen with segments */
+          plate('M42 108 h36 l-3 22 q-15 6 -30 0 z', GOLD) +
+          '<path d="M45 116 h30 M46 123 h28" stroke="' + GOLD_D +
+            '" stroke-width="1.8" fill="none"/>' +
+          /* hip belt */
+          plate('M42 128 h36 v10 q-18 6 -36 0 z', RED) +
+          /* chest highlight plates */
+          plate('M44 76 h14 v10 h-14 z', RED_D) +
+          plate('M62 76 h14 v10 h-14 z', RED_D)],
 
     /* arc reactor, proud of the chest */
-    [16,  '<g class="bot-core" filter="url(#botGlow)">' +
-            '<circle cx="60" cy="96" r="10.5" fill="url(#botGold)"/>' +
-            '<circle cx="60" cy="96" r="8" fill="#0e1a24"/>' +
-            '<circle class="bot-core-lamp" cx="60" cy="96" r="6.4" fill="url(#botCore)"/>' +
+    [16,  '<g class="bot-core">' +
+            '<circle cx="60" cy="94" r="11" fill="' + GOLD + '" stroke="' + INK +
+              '" stroke-width="' + LW + '"/>' +
+            '<circle class="bot-core-lamp" cx="60" cy="94" r="7.6"' +
+              ' fill="url(#botCore)" stroke="' + INK + '" stroke-width="1.4"' +
+              ' filter="url(#botGlow)"/>' +
           '</g>'],
 
-    /* the waving arm, in front so it crosses the chest as it swings */
+    /* the waving arm, raised and bent so the wave is actually visible */
     [30,  '<g class="bot-arm-r">' +
-            /* Drawn shoulder -> elbow -> wrist as one stroked limb, so the arm
-               reads as raised rather than as a block stuck to the head. */
-            '<path d="M75 84 L88 62 L92 50" fill="none" stroke="url(#botRed)"' +
-              ' stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>' +
-            '<circle cx="94" cy="46" r="8" fill="url(#botGold)"/>' +
-            '<circle cx="91.6" cy="43.4" r="2.5" fill="#fff" opacity=".55"/>' +
-            '<circle class="bot-palm" cx="94" cy="46" r="3.2" fill="var(--bot-core,#7ff3ea)"' +
-              ' opacity=".9"/>' +
+            plate('M106 78 q-1 -14 -14 -16 q-13 2 -14 16 l0 14 q14 7 28 0 z', RED) +
+            plate('M88 84 a6 6 0 1 0 12 0 a6 6 0 1 0 -12 0 z', RED_D) +
+            /* upper arm angled out, forearm up */
+            plate('M83 92 h20 l4 20 h-20 z', RED) +
+            plate('M92 66 h19 v26 h-19 z', RED) +
+            /* gauntlet and open palm */
+            plate('M91 52 h21 v14 h-21 z', RED_D) +
+            '<circle class="bot-palm" cx="101.5" cy="58" r="5"' +
+              ' fill="url(#botCore)" stroke="' + INK + '" stroke-width="1.6"/>' +
           '</g>'],
 
     /* helmet shell */
     [34,  '<g class="bot-head">' +
-            '<path d="M60 13 c14 0 24 11 24 25 c0 16 -9 27 -24 27 c-15 0 -24 -11 -24 -27' +
-              ' c0 -14 10 -25 24 -25 z" fill="url(#botRed)"/>' +
-            '<path d="M36 36 c-4 1 -5 7 -1 10 l5 1 z" fill="url(#botRedD)"/>' +
-            '<path d="M84 36 c4 1 5 7 1 10 l-5 1 z" fill="url(#botRedD)"/>' +
-            '<path d="M60 13 c14 0 24 11 24 25 l-6 0 c0 -12 -8 -21 -18 -21 z"' +
-              ' fill="url(#botRim)"/>' +
+            plate('M60 8 q16 0 22 12 l2 18 q1 16 -10 24 l-14 8 l-14 -8' +
+                  ' q-11 -8 -10 -24 l2 -18 q6 -12 22 -12 z', RED) +
+            /* ear pieces */
+            plate('M36 34 h-6 v12 h6 z', RED_D) +
+            plate('M84 34 h6 v12 h-6 z', RED_D) +
+            /* crest light -- inside .bot-head so it nods with the head */
+            '<path d="M60 10 L60 1" stroke="' + GOLD + '" stroke-width="3.4"' +
+              ' stroke-linecap="round"/>' +
+            '<circle class="bot-halo" cx="60" cy="-1" r="4" fill="none"' +
+              ' stroke="var(--bot-core,#29a8df)" stroke-width="1.6"/>' +
+            '<circle class="bot-halo d2" cx="60" cy="-1" r="4" fill="none"' +
+              ' stroke="var(--bot-core,#29a8df)" stroke-width="1.6"/>' +
+            '<circle class="bot-beacon" cx="60" cy="-1" r="3.8"' +
+              ' fill="var(--bot-core,#29a8df)" stroke="' + INK +
+              '" stroke-width="1.4" filter="url(#botGlow)"/>' +
           '</g>'],
 
     /* faceplate and eyes, furthest forward */
     [46,  '<g class="bot-face">' +
-            '<path d="M60 24 c10 0 16 7 16 15 c0 12 -7 22 -16 22 c-9 0 -16 -10 -16 -22' +
-              ' c0 -8 6 -15 16 -15 z" fill="url(#botGold)"/>' +
-            '<path d="M45 38 q15 -6 30 0 l-1.5 -4.5 q-13.5 -4.5 -27 0 z"' +
-              ' fill="url(#botRedD)" opacity=".5"/>' +
+            /* the faceted mask: peak at the brow, angular cheeks, pointed chin */
+            plate('M60 12 l7 9 l6 -2 l3 13 l-3 12 l-6 10 l-7 5 l-7 -5 l-6 -10' +
+                  ' l-3 -12 l3 -13 l6 2 z', GOLD) +
+            /* brow shadow */
+            '<path d="M47 33 q13 -5 26 0" stroke="' + GOLD_D +
+              '" stroke-width="2" fill="none"/>' +
             '<g class="bot-eyes" filter="url(#botGlow)">' +
-              '<path class="bot-eye bot-eye-l" d="M48 39 L57 37 L57 43.4 L48 44.8 Z"' +
-                ' fill="var(--bot-eye,#dffcff)"/>' +
-              '<path class="bot-eye bot-eye-r" d="M72 39 L63 37 L63 43.4 L72 44.8 Z"' +
-                ' fill="var(--bot-eye,#dffcff)"/>' +
+              '<path class="bot-eye bot-eye-l" d="M48 36 L57 33 L57 40 L48 42 Z"' +
+                ' fill="var(--bot-eye,#f2feff)" stroke="' + INK + '" stroke-width="1.2"/>' +
+              '<path class="bot-eye bot-eye-r" d="M72 36 L63 33 L63 40 L72 42 Z"' +
+                ' fill="var(--bot-eye,#f2feff)" stroke="' + INK + '" stroke-width="1.2"/>' +
             '</g>' +
-            '<path class="bot-mouth" d="M53 53 q7 4 14 0 l-1 3.5 q-6 2.5 -12 0 z"' +
-              ' fill="#6d4a0c" opacity=".8"/>' +
+            /* jaw vent */
+            '<path class="bot-mouth" d="M53 50 q7 4 14 0 l-1 4 q-6 3 -12 0 z"' +
+              ' fill="' + GOLD_D + '" stroke="' + INK + '" stroke-width="1.2"/>' +
           '</g>']
   ];
 
@@ -5140,6 +5389,7 @@ function buildLayer(){
   }
 
   var bot = null, say = null, sayTimer = null, waveTimer = null, faceTimer = null;
+  var lastSignature = null, hideTimer = null, overBot = false, overSay = false;
 
   function buildBot(){
     if(bot || !document.body) return;
@@ -5157,6 +5407,13 @@ function buildLayer(){
     document.body.appendChild(say);
     document.body.appendChild(bot);
 
+    on(bot, 'pointerenter', function(){ overBot = true;
+      if(hideTimer) clearTimeout(hideTimer); });
+    on(bot, 'pointerleave', function(){ overBot = false; scheduleHide(); });
+    on(say, 'pointerenter', function(){ overSay = true;
+      if(hideTimer) clearTimeout(hideTimer); });
+    on(say, 'pointerleave', function(){ overSay = false; scheduleHide(); });
+
     on(bot, 'click', function(){
       /* Restarting an animation needs the class off, a reflow, then on --
          otherwise a second click inside the cycle does nothing visible. */
@@ -5164,6 +5421,7 @@ function buildLayer(){
       void bot.offsetWidth;
       bot.classList.add('is-hit', 'is-waving');
       applyMood();
+      bot.classList.remove('has-news');   // read
       speak(report(), 11000);
       if(waveTimer) clearTimeout(waveTimer);
       waveTimer = setTimeout(function(){
@@ -5173,23 +5431,48 @@ function buildLayer(){
 
     applyMood();
 
-    /* Says hello once, waves while it does, then gets out of the way. */
+    /* Fly in, land, and only then greet. Waving while still descending reads
+       as a glitch rather than a greeting. */
+    var ARRIVAL_MS = 1900;
+    bot.classList.add('is-arriving');
     setTimeout(function(){
       if(!bot) return;
+      bot.classList.remove('is-arriving');
       bot.classList.add('is-waving');
       speak('<b>Hi!</b> I am your QA co-pilot.<br>' +
             '<span class="dim">Click me any time for the run status and anything critical.</span>',
             6500);
       setTimeout(function(){ if(bot) bot.classList.remove('is-waving'); }, 3200);
-    }, 1100);
+    }, ARRIVAL_MS);
+  }
+
+  function hideSay(){
+    if(say) say.classList.remove('on');
+    if(sayTimer) clearTimeout(sayTimer);
+    if(hideTimer) clearTimeout(hideTimer);
+  }
+
+  /* Close once the reader has moved away from both the bubble and the figure.
+     The grace period covers the gap between them -- they do not touch, so
+     crossing from one to the other briefly leaves both. */
+  function scheduleHide(){
+    if(hideTimer) clearTimeout(hideTimer);
+    hideTimer = setTimeout(function(){
+      if(!overBot && !overSay) hideSay();
+    }, 420);
   }
 
   function speak(html, hold){
     if(!say) return;
-    say.innerHTML = html + '<span class="qa-dismiss">click me again for the next read</span>';
+    say.innerHTML = html +
+      '<span class="qa-dismiss">move away to dismiss &middot; click me for the next read</span>';
     say.classList.add('on');
     if(sayTimer) clearTimeout(sayTimer);
-    sayTimer = setTimeout(function(){ say.classList.remove('on'); }, hold || 7000);
+    if(hideTimer) clearTimeout(hideTimer);
+    /* Backstop for keyboard and touch, where no pointer ever leaves. */
+    sayTimer = setTimeout(function(){
+      if(!overBot && !overSay) hideSay();
+    }, hold || 7000);
   }
 
   /* -- mood ---------------------------------------------------------------
@@ -5230,8 +5513,24 @@ function buildLayer(){
     return 'ok';
   }
 
+  /* A signature of what is on screen. Re-rendering the same result -- a tab
+     switch, a persona change -- must not read as news, or the beacon means
+     nothing within a minute. */
+  function runSignature(run){
+    if(!run) return 'none';
+    var c = run.c || {};
+    return [run.R.runId, run.s.total, c.PASS|0, c.FAIL|0, c.WARN|0].join('|');
+  }
+
   function applyMood(){
     if(!bot) return;
+    var run = readRun();
+    var sig = runSignature(run);
+    if(sig !== lastSignature){
+      lastSignature = sig;
+      /* Only a real result is worth announcing. */
+      if(run) bot.classList.add('has-news');
+    }
     var m = moodFor(readRun());
     bot.classList.remove('mood-ok', 'mood-warn', 'mood-sad');
     bot.classList.add('mood-' + m);
@@ -5345,7 +5644,12 @@ function buildLayer(){
   }
   function glide(){
     current += (target - current) * 0.12;
-    if(bot) bot.style.transform = 'translateY(' + current.toFixed(1) + 'px)';
+    /* An inline transform beats a keyframe, so the drift stays out of the way
+       until the landing is done. Otherwise the figure snaps to its scroll
+       offset mid-flight. */
+    if(bot && !bot.classList.contains('is-arriving')){
+      bot.style.transform = 'translateY(' + current.toFixed(1) + 'px)';
+    }
     if(Math.abs(target - current) > 0.4 && window.requestAnimationFrame){
       window.requestAnimationFrame(glide);
     }else{

@@ -1,0 +1,230 @@
+================================================================================
+ HCM API AUTOMATION PLATFORM — TECHNOLOGY STACK
+================================================================================
+ Every language, runtime, library and tool this project actually uses, with the
+ version installed on the development machine and one line on what it does here.
+
+ Compiled by inspecting the working tree and querying each tool directly, not
+ from documentation. Versions are what is installed and running today.
+
+ Project      : hcm-api-automation
+ Compiled     : 29 August 2026
+ Platform     : Windows 10 Pro (10.0.19045), 64-bit
+ Scale        : 45 API endpoints · 22 contract checks each · 9 Postman
+                collections · 7 automated UI test suites
+
+ NOTE ON THE FILENAME
+ requirements.txt already exists in this repository and is the live pip
+ dependency file — pip installs from it, so overwriting it with a summary would
+ break every environment setup. This document is therefore kept separately.
+ requirements.txt remains the machine-readable list; this file is the readable
+ one.
+
+================================================================================
+ 1. PROGRAMMING LANGUAGES
+================================================================================
+
+ Python 3.12.10                                          78 files
+   The test engine. Executes every API contract check, resolves credentials,
+   classifies results and generates the test suites.
+   (CI pins 3.11; the language floor declared in pyproject.toml is >=3.11.)
+
+ JavaScript (ES2022, Node + browser)                      22 files
+   Two roles: Node scripts drive Newman/Postman runs and build artefacts;
+   browser JavaScript powers the entire unified console UI.
+
+ HTML5                                                     6 files
+   The console and report interfaces. Hand-authored, no template engine.
+
+ CSS3                                                inline, ~1,400 lines
+   All styling, theming, charts, 3D transforms and animation. No framework.
+
+ YAML                                                      4 files
+   The OpenAPI specification and the GitHub Actions CI pipeline.
+
+ JSON                                                     55 files
+   Postman collections, the API inventory, run manifests and handoff schemas.
+
+ Markdown                                                 16 files
+   Engineering documentation and handoff notes.
+
+ Shell (POSIX sh)                                          1 file
+   A helper script for local runs.
+
+================================================================================
+ 2. RUNTIMES AND CORE TOOLING
+================================================================================
+
+ Python           3.12.10   Runs the contract engine and all generators.
+ Node.js          24.19.0   Runs Newman, the build scripts and the UI test suites.
+ npm              11.17.0   JavaScript package manager and task runner.
+ Git              2.55.0    Version control. Branch-per-change, nothing pushed
+                            without review.
+ Java             NOT INSTALLED on this machine — see section 8.
+
+================================================================================
+ 3. PYTHON LIBRARIES  (installed versions)
+================================================================================
+
+ pytest                 9.1.1    Test runner for the global contract tier. Every
+                                 check is a parametrised pytest test.
+ httpx                  0.28.1   The HTTP client every API request goes through.
+                                 Chosen for its connection pooling and its
+                                 separate connect/read timeouts.
+ fastapi                0.141.1  Serves the local harness: /run executes a batch,
+                                 /console serves the UI same-origin.
+ uvicorn                0.52.4   ASGI server that hosts the FastAPI harness.
+ starlette              1.6.0    FastAPI's underlying web toolkit (routing,
+                                 requests, responses).
+ pydantic               2.13.4   Validates the run-manifest payloads the console
+                                 posts to the harness.
+ jsonschema             4.26.0   Validates API responses against their declared
+                                 JSON Schema (Draft 2020-12).
+ allure-pytest          2.16.0   Emits Allure result files from the Python tier.
+ allure-python-commons  2.16.0   Shared Allure model used by the above.
+ PyYAML                 6.0.3    Parses the OpenAPI specification.
+ openpyxl               3.1.5    Reads and writes the .xlsx API inventory
+                                 exchanged with the business team.
+ python-dotenv          1.2.3    Loads credentials and base URLs from .env, which
+                                 is gitignored and never committed.
+ anyio                  4.14.2   Async concurrency layer beneath httpx/starlette.
+ httpcore               1.0.9    The low-level HTTP transport under httpx.
+ h11                    0.16.0   HTTP/1.1 protocol implementation.
+ certifi                2026.7.22 The CA bundle used to verify TLS. Verification
+                                 is never disabled anywhere in this project.
+
+================================================================================
+ 4. NODE / JAVASCRIPT LIBRARIES  (installed versions)
+================================================================================
+
+ newman                    6.2.2     Runs the 9 Postman collections from the
+                                     command line.
+ newman-reporter-allure    2.15.1    Converts Newman output into Allure results.
+ newman-reporter-htmlextra 1.23.1    Standalone HTML report for a Newman run.
+ allure-commandline        2.29.0    Builds the browsable Allure report from all
+                                     result files.
+ jsdom                     28.1.0    Headless DOM. Runs the console UI in Node so
+                                     the 7 UI suites can click real buttons.
+ ajv                       8.20.0    JSON Schema validation on the Node side.
+ @stoplight/spectral-cli   6.15.1    Lints the OpenAPI spec for contract defects.
+ yaml                      2.9.0     YAML parsing for Node scripts.
+ dotenv                    17.4.2    Loads .env for the Node scripts.
+ cross-env                 10.1.0    Sets environment variables portably across
+                                     Windows and Linux.
+
+================================================================================
+ 5. FRONT-END: WHAT IS DELIBERATELY *NOT* USED
+================================================================================
+
+ The unified console has ZERO third-party front-end libraries. Verified by
+ inspection: the page contains exactly two <script> tags — one JSON data block
+ and one inline script — and zero external network references.
+
+   NOT used: three.js, motion.js, React, Vue, Angular, jQuery, D3, Chart.js,
+             GSAP, Tailwind, Bootstrap, or any CDN.
+
+ Everything below is hand-written instead:
+
+ SVG (hand-authored)        Every chart — donut, trend line, module bars — and
+                            the QA assistant figure. Drawn as SVG paths computed
+                            from the run data.
+ CSS 3D Transforms          The 3D depth. The assistant is 8 co-ordinate-aligned
+                            SVG layers stacked in a preserve-3d container across
+                            92px of depth; rotating it produces genuine parallax.
+                            This is what a 3D library would otherwise provide.
+ CSS Keyframe Animation     Hover, wave, orbit, thruster flicker, chart entrance,
+                            pulse-glow and the donut sweep.
+ CSS Custom Properties      Theming (light/dark), mood colours and the runtime
+                            3D rotation values.
+ Web APIs                   MutationObserver (re-decorates the report when it
+                            re-renders), requestAnimationFrame (smooth motion),
+                            localStorage (report history, preferences),
+                            matchMedia (honours prefers-reduced-motion),
+                            Pointer Events (the figure turns to face the reader),
+                            Fetch (talks to the local harness).
+
+ WHY THIS MATTERS FOR THE ORGANISATION
+   - No supply-chain risk in the UI: nothing is downloaded at page load.
+   - Works fully offline and behind a firewall.
+   - A shared report is a single self-contained .html file that opens anywhere,
+     with no server and no internet.
+
+================================================================================
+ 6. TESTING AND QUALITY
+================================================================================
+
+ pytest                Runs 22 contract checks against each of 45 endpoints.
+ Newman / Postman      Executes the 9 existing Postman collections unchanged.
+ jsdom test suites     7 suites covering the console: contract invariants, DOM
+                       behaviour, export formats, report history and sharing,
+                       test-case rendering, and the motion layer.
+ Allure                The reporting format shared by both the Python and Newman
+                       tiers, so one report covers everything.
+ Spectral              Static linting of the OpenAPI contract.
+ Custom regression     A dedicated script proves no credential can reach a log,
+                       report or Allure attachment.
+
+================================================================================
+ 7. ARCHITECTURE AND METHODS USED
+================================================================================
+
+ Seven-state result model     Every check resolves to exactly one of PASS, FAIL,
+                              WARN, SKIPPED_NO_TOKEN, NOT_APPLICABLE,
+                              NOT_ASSERTED or INFORMATIONAL. A request that
+                              asserted nothing can never be counted as a pass.
+ Honest pass rate             passRate = PASS / (PASS + FAIL), and is null — not
+                              zero — when nothing ran. Results outside that
+                              denominator are always shown alongside it.
+ Stateless engine             API definitions travel by value in the run
+                              manifest; the engine persists nothing between runs.
+ Credential aliasing          A manifest names an alias, never a secret. Values
+                              resolve at run time from .env or CI secrets.
+ AST-based discovery          The catalogue is derived by parsing the test module
+                              itself, so a new check registers automatically.
+ Connection pooling           One reused HTTP client. Measured: 1156 ms/request
+                              unpooled against 17 ms pooled.
+ Circuit breaking             A host that fails to connect is remembered for the
+                              rest of the run, so an outage costs one timeout
+                              rather than one per check.
+ Template-and-build           The console is generated from a template by a build
+                              script; the built file is never hand-edited.
+ Progressive enhancement      The motion layer is gated behind one attribute and
+                              feature-detects every browser API, so the console
+                              works fully with it switched off.
+ Accessibility                Honours prefers-reduced-motion; live regions are
+                              announced; all controls are keyboard-focusable.
+
+================================================================================
+ 8. CI/CD AND ENVIRONMENT
+================================================================================
+
+ GitHub Actions        .github/workflows/api-tests.yml — checks out, installs
+                       Node 24 and Python 3.11, generates the inventory and the
+                       test suites, runs the tiers, builds the Allure report and
+                       uploads it as an artifact.
+ actions/setup-java    The CI pipeline installs Java because allure-commandline
+                       requires a JVM to build the browsable report.
+
+ ACTION REQUIRED — Java is NOT installed on this development machine.
+   Consequence: `npm run report:generate` (the browsable Allure report) will not
+   run locally. Everything else — the Python tier, Newman, the unified console
+   and all 7 UI suites — works without it, and CI is unaffected because the
+   pipeline installs its own JVM. Install a JDK 11+ if local Allure reports are
+   needed.
+
+================================================================================
+ 9. HOW TO INSTALL EVERYTHING
+================================================================================
+
+   python -m pip install -r requirements.txt      # runtime dependencies
+   python -m pip install -e ".[dev]"              # pytest, Allure, schema tools
+   npm ci                                         # all Node tooling
+
+ Run:
+   python -m harness.serve                        # then open /console
+   npm run ui:test                                # the 7 UI suites
+   npm run test:uat                               # the Postman collections
+
+================================================================================
+ END OF DOCUMENT
+================================================================================
