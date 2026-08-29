@@ -504,6 +504,11 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .ch-te{background:rgba(20,184,166,.2);color:var(--t300)}
 
 /* ---- overview grids ---- */
+/* align-items:start is deliberate and stays. Stretching once made a 300px
+   trend chart float in a 700px card because the sign-off panel beside it was
+   taller -- filling a row by inflating a chart is worse than leaving the row
+   ragged. The fix for a ragged row is to stop one card growing without bound,
+   which is what the legend cap below does. */
 .egrid3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--gap-lg);align-items:start}
 .egrid3>*{min-width:0}
 .egrid3 .span2{grid-column:span 2}
@@ -1037,8 +1042,18 @@ hr{border:none;border-top:1px solid var(--line-soft);margin:12px 0}
 /* ---------- Charts ---------- */
 .chart-wrap{display:flex;align-items:center;justify-content:center;
   gap:var(--gap-lg);flex-wrap:wrap;width:100%}
-.legend{display:flex;flex-direction:column;gap:5px;font-size:12px;
+/* Capped. One row per suite grows without limit -- twelve suites made this
+   card half again the height of the chart beside it, and that difference is
+   the whole reason the row looked misaligned. Scrolling the overflow keeps
+   every suite reachable while the card stays the size of its chart. */
+.legend{max-height:186px;overflow-y:auto;overscroll-behavior:contain;
+  padding-right:4px;
+  display:flex;flex-direction:column;gap:5px;font-size:12px;
   min-width:190px;flex:1}
+.legend::-webkit-scrollbar{width:6px}
+.legend::-webkit-scrollbar-thumb{background:var(--s700);border-radius:99px}
+[data-theme="light"] .legend::-webkit-scrollbar-thumb{background:#c3d0dd}
+.legend::-webkit-scrollbar-track{background:transparent}
 .legend .li{display:grid;grid-template-columns:10px 1fr auto 34px;
   align-items:center;gap:9px}
 .legend .sw{width:10px;height:10px;border-radius:3px;flex-shrink:0}
@@ -3907,7 +3922,8 @@ function tabOverview(R){
           <span class="k" style="color:var(--am400)"><span class="sq" style="background:${cssv('--amber')}"></span> Warn</span>`}
         </div>
       </div>
-      <div style="flex:1;min-height:200px">${suiteBars(perMod, oneState)}</div>
+      <div style="flex:1;min-height:200px;display:flex;flex-direction:column;
+        justify-content:center">${suiteBars(perMod, oneState)}</div>
       <div class="ecard-f">
         <span class="good">${best?`${esc(best.m)}: ${pct(best.s.passRate)} (${best.s.counts.PASS}/${best.s.counts.PASS+best.s.counts.FAIL})`:'No module asserted'}</span>
         <span class="${worst?'bad':''}">${worst
