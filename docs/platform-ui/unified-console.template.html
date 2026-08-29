@@ -1316,6 +1316,7 @@ const STATE = {
   closedSuites:[],      // suite cards the user has collapsed
   seededTrend:false,    // the trend was seeded once with sample runs
   viewing:null,         // runId of an archived snapshot being viewed, or null
+  live:false,           // the run on screen came from the harness, not the simulation
   openCase:null,        // which endpoint is expanded in the Test Cases view
   shared:false,         // this document is a shared standalone report
   catFilter:'all',      // Categories tab: which defect class is shown
@@ -1330,7 +1331,7 @@ let persist=function persist(){
   try{ localStorage.setItem(LS, JSON.stringify({
     view:STATE.view, tab:STATE.tab, persona:STATE.persona, env:STATE.env,
     alias:STATE.alias, selected:[...STATE.selected], focus:STATE.focus,
-    imported:STATE.imported, result:STATE.result, providers:STATE.providers,
+    imported:STATE.imported, result:STATE.result, providers:STATE.providers, live:STATE.live,
     history:STATE.history, pane:STATE.pane,
     catFilter:STATE.catFilter, modFilter:STATE.modFilter, closedSuites:STATE.closedSuites,
     seededTrend:STATE.seededTrend, viewing:STATE.viewing, openCase:STATE.openCase,
@@ -1423,7 +1424,7 @@ function restore(){
   STATE.persona=s.persona||'qa'; STATE.env=s.env||STATE.env; STATE.alias=s.alias||STATE.alias;
   STATE.selected=new Set(s.selected||[]); STATE.focus=s.focus||null;
   STATE.imported=s.imported||[]; STATE.result=s.result||null;
-  STATE.providers=s.providers||{}; STATE.history=s.history||[];
+  STATE.providers=s.providers||{}; STATE.history=s.history||[]; STATE.live=!!s.live;
   STATE.pane=s.pane||'suites';
   STATE.catFilter=s.catFilter||'all'; STATE.modFilter=s.modFilter||'all';
   STATE.closedSuites=s.closedSuites||[];
@@ -1508,6 +1509,79 @@ function withEvidence(result, tc, api, seed){
     actual:{status:act.status, body:act.body, from:act.from}
   };
   return result;
+}
+
+/* ==========================================================================
+   LIVE BRIDGE — optional.
+
+   Served from the harness at /console, the page is same-origin and can post a
+   run manifest to /run, which executes the real pytest engine against UAT.
+   Opened from file:// there is no harness, so it falls back to the simulation
+   and says so. The page stays useful either way; nothing here is required for
+   it to work standalone.
+
+   The result contract is already shared, so a live document drops straight
+   into the report: summary and apis[] are field-for-field identical to what
+   runBatch() produces. Only the alias spelling differs.
+   ========================================================================== */
+const LIVE = {available:false, checked:false, base:''};
+
+/* The catalogue publishes aliases as env-key style (ATTENDANCE_SVC_UAT_01);
+   a manifest carries them hyphenated (attendance-svc-uat-01). Normalising in
+   one place so a run cannot post an alias the engine will not resolve. */
+function aliasForManifest(a){
+  return String(a || '').trim().toLowerCase().replace(/_/g, '-');
+}
+
+async function detectHarness(){
+  LIVE.checked = true;
+  /* Only when served over http(s) from the harness itself. A file:// page has
+     origin "null" and would be refused, so do not even try. */
+  if(!/^https?:$/.test(location.protocol)){ LIVE.available = false; return false; }
+  LIVE.base = location.origin;
+  try{
+    const r = await fetch(LIVE.base + '/health', {method:'GET'});
+    const j = await r.json();
+    LIVE.available = !!(j && j.status === 'ok');
+  }catch(e){ LIVE.available = false; }
+  return LIVE.available;
+}
+
+function manifestFor(refs){
+  return {
+    runId: 'console-' + Date.now().toString(36),
+    environment: STATE.env,
+    requestedTiers: ['global_contract'],
+    apis: refs.map(ref => {
+      const entry = {ref, credentialAlias: aliasForManifest(STATE.alias)};
+      const prov = STATE.providers[ref];
+      if(prov) entry.authProviderApiId = prov;
+      return entry;
+    })
+  };
+}
+
+/* Returns a result document, or null when the harness could not be reached or
+   rejected the manifest. A null tells the caller to fall back rather than
+   leaving the user with a blank report. */
+async function postRun(refs){
+  try{
+    const res = await fetch(LIVE.base + '/run', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(manifestFor(refs))
+    });
+    const doc = await res.json();
+    if(!res.ok || doc.status === 'ABORTED'){
+      const why = (doc.errors && doc.errors.join('; ')) || doc.statusReason || ('HTTP ' + res.status);
+      toast('Harness rejected the run: ' + why);
+      return doc && doc.summary ? doc : null;
+    }
+    return doc;
+  }catch(e){
+    toast('Harness unreachable — showing a simulated run instead');
+    return null;
+  }
 }
 
 function runBatch(refs, salt){
@@ -1799,7 +1873,9 @@ function renderStrip(){
   const gaps=apis.filter(a=>a.assertionState==='not-asserted').length;
   const R=STATE.result;
   $('#strip').innerHTML=[
-    `<span class="chip ok"><span class="d"></span>Simulated Engine Ready</span>`,
+    LIVE.available
+      ? `<span class="chip ok"><span class="d"></span>Live Engine &middot; harness attached</span>`
+      : `<span class="chip"><span class="d"></span>Simulated Engine &middot; standalone</span>`,
     `<span class="chip blue"><span class="d"></span>${mods.size} Suites Active</span>`,
     `<span class="chip ok"><span class="d"></span>${apis.length} APIs Loaded</span>`,
     gaps?`<span class="chip warn"><span class="d"></span>${gaps} Assertion Gaps</span>`:'',
@@ -2599,7 +2675,9 @@ function masthead(R){
         <div class="emast-tags">
           <span class="tag-os">OMFYS &middot; Enterprise QA Operating System</span>
           <span class="tag-std">Contract v${esc(R.catalogueVersion)}</span>
-          ${R.simulated?'<span class="tag-std" style="color:var(--am300);border-color:rgba(181,118,42,.45)">Simulated run</span>':''}
+          ${STATE.live
+            ? '<span class="tag-std" style="color:var(--em300);border-color:rgba(16,185,129,.45)">Live run &middot; real endpoints</span>'
+            : (R.simulated?'<span class="tag-std" style="color:var(--am300);border-color:rgba(181,118,42,.45)">Simulated run</span>':'')}
         </div>
         <h1>HCM Platform APIs
           <span class="qg-pill qg-${g.level}">Quality Gate: ${g.level}${
@@ -4298,11 +4376,15 @@ function startRun(refs){
   const prog=$('#runProg'), fill=$('#runProgFill');
   if(prog){ prog.style.display='block'; fill.style.width='0'; }
   let i=0;
-  const step=()=>{
+  const step=async ()=>{
     i++; if(fill) fill.style.width=Math.round(i/refs.length*100)+'%';
     if(i<refs.length){ setTimeout(step, 90); return; }
-    setTimeout(()=>{
-      STATE.result = runBatch(refs);
+    setTimeout(async ()=>{
+      /* Live when the harness is serving this page, simulated otherwise. */
+      if(!LIVE.checked) await detectHarness();
+      let doc = LIVE.available ? await postRun(refs) : null;
+      STATE.result = doc || runBatch(refs);
+      STATE.live = !!doc;
       STATE.viewing = null;              // a new run supersedes any snapshot being viewed
       saveSnapshot(STATE.result);
       STATE.history.push({
@@ -4351,6 +4433,15 @@ $('#btnRun').onclick = () => startRun([...STATE.selected]);
   try{ if(localStorage.getItem('hcm-rail')==='1') $('#rail').classList.add('collapsed'); }catch(e){}
   applyTheme(document.documentElement.getAttribute('data-theme') || 'light');
   renderTopbar(); syncPersona(); syncView();
+
+  /* Probe for the harness after the first paint. A shared report never has one,
+     and the page must render before the probe rather than wait on it. */
+  if(!STATE.shared){
+    detectHarness().then(live=>{
+      renderStrip();
+      if(live) toast('Harness attached — runs execute against real endpoints');
+    });
+  }
 })();
 </script>
 </body>

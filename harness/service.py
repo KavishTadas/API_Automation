@@ -63,6 +63,13 @@ LOOPBACK = frozenset({"127.0.0.1", "localhost", "::1"})
 
 UI_PATH = Path(__file__).with_name("ui.html")
 
+#: The unified console, served from this origin so it can call /run without
+#: CORS. Opened from file:// its origin is "null" and every request is refused;
+#: served from here it is same-origin and the allowlist stays as tight as it is.
+CONSOLE_PATH = (
+    Path(__file__).resolve().parents[1] / "docs" / "platform-ui" / "unified-console.html"
+)
+
 app = FastAPI(
     title="Local Validation Harness (disposable)",
     description="Not the platform plugin. Proves the Sprint 1-4 contracts locally.",
@@ -270,3 +277,19 @@ def index(request: Request) -> HTMLResponse:
     if not UI_PATH.exists():
         raise HTTPException(status_code=404, detail="ui.html not found")
     return HTMLResponse(UI_PATH.read_text(encoding="utf-8"))
+
+
+@app.get("/console", response_class=HTMLResponse)
+def console(request: Request) -> HTMLResponse:
+    """The unified console, same-origin so its fetches to /run are permitted.
+
+    The file is read per request rather than cached: it is generated output,
+    and a rebuild during a session should be picked up by a refresh.
+    """
+    assert_loopback(request.client.host if request.client else "")
+    if not CONSOLE_PATH.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="unified-console.html not built - run scripts/build_unified_console.py",
+        )
+    return HTMLResponse(CONSOLE_PATH.read_text(encoding="utf-8"))
