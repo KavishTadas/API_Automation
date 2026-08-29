@@ -83,6 +83,62 @@ function boot(html, opts) {
     return clean || !/\bis clean\b/i.test(said);
   })(), said.slice(0, 90));
 
+  console.log('\nthe figure has real depth:');
+  const layers = a.$$('#qabot .bot-layer');
+  ok('it is built from stacked layers, not one flat drawing',
+     layers.length >= 8, layers.length + ' layers');
+  ok('every layer sits at its own depth', (() => {
+    const z = layers.map(l => l.style.getPropertyValue('--z'));
+    return new Set(z).size === z.length && z.every(v => /px$/.test(v));
+  })(), layers.map(l => l.style.getPropertyValue('--z')).join(' '));
+  ok('the layers span enough depth to parallax', (() => {
+    const n = layers.map(l => parseFloat(l.style.getPropertyValue('--z')));
+    return Math.max(...n) - Math.min(...n) >= 60;
+  })());
+  ok('they sit in a preserve-3d box', !!a.$('#qabot .bot-3d'));
+  ok('the contact shadow is separate from the figure', !!a.$('#qabot .bot-ground'));
+  ok('every layer actually draws', layers.every(l => !!l.querySelector('svg')));
+
+  console.log('\nit responds to the reader:');
+  a.w.dispatchEvent(new a.w.MouseEvent('pointermove',
+    { clientX: 20, clientY: 20, bubbles: true }));
+  await wait(40);
+  ok('it turns toward the pointer',
+     /-?\d+(\.\d+)?deg/.test(a.$('#qabot').style.getPropertyValue('--bot-yaw')),
+     a.$('#qabot').style.getPropertyValue('--bot-yaw') || '(unset)');
+  ok('the turn is clamped short of side-on', (() => {
+    const y = parseFloat(a.$('#qabot').style.getPropertyValue('--bot-yaw'));
+    return Math.abs(y) <= 24;
+  })(), a.$('#qabot').style.getPropertyValue('--bot-yaw'));
+  ok('it waves on every click', (() => {
+    a.$('#qabot').classList.remove('is-waving');
+    a.click(a.$('#qabot'));
+    return a.$('#qabot').classList.contains('is-waving');
+  })(), 'no wave on click');
+
+  console.log('\nits mood follows the run:');
+  const setRun = js => {
+    a.w.eval(js);
+    a.w.eval('document.getElementById("anBody").innerHTML += "<i></i>"');
+  };
+  setRun("STATE.result={runId:'m',startedAt:'2026-01-01',apis:[]," +
+         "summary:{total:4,counts:{PASS:4},passRate:1,clean:true,cleanBlockers:[]}}");
+  await wait(90);
+  ok('a clean run makes it happy',
+     a.$('#qabot').classList.contains('mood-ok'), a.$('#qabot').className);
+  setRun("STATE.result.summary.counts={PASS:2,WARN:1};" +
+         "STATE.result.summary.clean=false;" +
+         "STATE.result.summary.cleanBlockers=['WARN']");
+  await wait(90);
+  ok('warnings make it cautious',
+     a.$('#qabot').classList.contains('mood-warn'), a.$('#qabot').className);
+  setRun("STATE.result.summary.counts={PASS:2,FAIL:3}");
+  await wait(90);
+  ok('a failing run makes it sad',
+     a.$('#qabot').classList.contains('mood-sad'), a.$('#qabot').className);
+  ok('and it never looks happy while the run is failing',
+     !a.$('#qabot').classList.contains('mood-ok'));
+
   console.log('\nit switches off without a trace:');
   a.w.eval('fxToggle()');
   await wait(40);
