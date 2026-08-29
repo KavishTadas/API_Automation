@@ -2495,6 +2495,7 @@ function renderAnalytics(){
   $$('#view-analytics [data-back]').forEach(b=> b.onclick=()=> go(b.dataset.back));
   const sb=$('#snapBack'); if(sb) sb.onclick=backToLatest;
   $$('#view-analytics [data-hist]').forEach(b=> b.onclick=()=>{
+    if(STATE.shared) return;
     if(b.dataset.hist==='clear'){ STATE.history=STATE.history.filter(r=>!r.sample);
                                   STATE.seededTrend=true; }
     else seedSampleHistory();
@@ -2944,12 +2945,16 @@ function tabOverview(R){
     <div class="ecard span2" data-persona-for="exec,qa,devops">
       <div class="ecard-h">
         <div><h3>Historical Build Trend (Last ${HISTORY_MAX} Runs)</h3>
-          <p>Pass rate retained across runs in this browser</p></div>
+          <p>${STATE.shared ? 'Pass rate across the runs held when this report was shared'
+                            : 'Pass rate retained across runs in this browser'}</p></div>
         <div style="display:flex;gap:var(--gap-sm);align-items:center;flex-wrap:wrap">
+          ${/* A shared file is a record. Seeding or clearing its trend would
+               edit someone else's report in front of the reader. */
+            STATE.shared ? '' : `
           ${STATE.history.some(r=>r.sample)?'':`<button class="ebtn ebtn-ghost" style="padding:5px 10px"
              data-hist="seed">Add sample runs</button>`}
           ${STATE.history.length?`<button class="ebtn ebtn-ghost" style="padding:5px 10px"
-             data-hist="clear">Clear</button>`:''}
+             data-hist="clear">Clear</button>`:''}`}
           <span class="epill te">${STATE.history.filter(r=>!r.sample).length} real${
             STATE.history.some(r=>r.sample)?` &middot; ${STATE.history.filter(r=>r.sample).length} sample`:''}</span>
         </div>
@@ -4058,9 +4063,19 @@ function snapStripRe(){
 }
 function buildStandalone(R){
   const doc=PRISTINE.replace(snapStripRe(), '');
-  const payload=JSON.stringify({runId:R.runId, sharedAt:new Date().toISOString(), result:R})
-    .replace(new RegExp(LT+'/','g'), LT+'\\/')
-    .replace(new RegExp(LT+'!--','g'), LT+'\\!--');
+  /* The trend travels with the report. The recipient's browser holds none of
+     the sender's runs, so without this their chart falls back to a single
+     synthesized point and reads as broken. Sample points are dropped on the
+     way out: they are invented, the recipient cannot clear them, and nothing
+     survives a screenshot to say they were not real. */
+  const payload=JSON.stringify({runId:R.runId, sharedAt:new Date().toISOString(), result:R,
+                                history:(STATE.history||[]).filter(r=>!r.sample)})
+    /* Every < becomes its JSON unicode escape: it can no longer open a tag
+       or a comment, and unlike a backslash-prefixed < it stays valid JSON.
+       The previous form escaped a comment opener as backslash-bang, which is
+       not a JSON escape at all, so a captured HTML response body made the
+       payload unparseable and the shared file booted as an empty console. */
+    .replace(/</g, '\\u003c');
   const tag=snapOpenTag()+payload+snapCloseTag()+'\n';
   const at=doc.search(new RegExp(LT+'\\/head>','i'));
   if(at<0) return doc.replace(new RegExp(LT+'body([^>]*)>','i'), m=>m+'\n'+tag);
@@ -4460,11 +4475,15 @@ $('#btnRun').onclick = () => {
     /* A shared file is read-only and self-contained: no restore, no persist. */
     STATE.shared=true; STATE.result=shared.result; STATE.view='analytics';
     STATE.tab='overview'; STATE.seededTrend=true;
-    STATE.history=[{runId:shared.result.runId, at:shared.result.startedAt,
-                    passRate:shared.result.summary.passRate,
-                    clean:shared.result.summary.clean,
-                    gate:qualityGate(shared.result).level,
-                    total:shared.result.summary.total}];
+    /* Prefer the trend carried in the file. Files written before it travelled
+       carry none, so synthesize the one point they do describe. */
+    STATE.history = (Array.isArray(shared.history) && shared.history.length)
+      ? shared.history
+      : [{runId:shared.result.runId, at:shared.result.startedAt,
+          passRate:shared.result.summary.passRate,
+          clean:shared.result.summary.clean,
+          gate:qualityGate(shared.result).level,
+          total:shared.result.summary.total}];
     persist=function(){};
     document.documentElement.setAttribute('data-shared','');
   } else {

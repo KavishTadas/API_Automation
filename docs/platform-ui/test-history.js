@@ -268,6 +268,38 @@ function boot(html, opts) {
   ok('sharing twice does not nest payloads',
      (shared.match(/<script id="shared-snapshot"/g) || []).length === 1);
 
+  /* The recipient's browser holds none of the sender's runs, so anything the
+     trend needs has to be inside the file. */
+  const embedded = (() => {
+    const m = shared.match(
+      /<script id="shared-snapshot" type="application\/json">([\s\S]*?)<\/script>/);
+    if (!m) return null;
+    try { return JSON.parse(m[1]); } catch (e) { return { parseError: e.message }; }
+  })();
+  ok('the embedded payload is parseable JSON',
+     !!(embedded && !embedded.parseError), embedded && embedded.parseError);
+  ok('the trend travels with the report',
+     !!(embedded && Array.isArray(embedded.history) && embedded.history.length >= 2),
+     embedded && embedded.history ? embedded.history.length + ' rows' : 'no history key');
+  ok('no invented point travels with it',
+     !!(embedded && (embedded.history || []).every(r => !r.sample)));
+  ok('the carried rows are the shape the chart reads',
+     !!(embedded && (embedded.history || []).every(r =>
+        'runId' in r && 'passRate' in r && 'gate' in r)));
+
+  /* A response body carrying an HTML comment used to be escaped as backslash-bang,
+     which is not a JSON escape, so the payload would not parse and the file
+     booted as an empty console instead of a report. */
+  ok('a response body with an html comment still shares', (() => {
+    const R = JSON.parse(a.w.eval('JSON.stringify(STATE.result)'));
+    R.apis[0].results[0].evidence = { body: '<!-- cached --></scr' + 'ipt>' };
+    const f = a.w.buildStandalone(R);
+    const m = f.match(
+      /<script id="shared-snapshot" type="application\/json">([\s\S]*?)<\/script>/);
+    if (!m) return false;
+    try { JSON.parse(m[1]); return true; } catch (e) { return false; }
+  })(), 'payload did not survive an html comment');
+
   // ---------------------------------------------------------------- part 5
   console.log('\nopening the shared file cold (no storage, no server):');
   const cold = boot(shared, { storageQuota: 0 });
@@ -314,6 +346,20 @@ function boot(html, opts) {
   ok('it wrote nothing to storage', (() => {
     try { cold.w.localStorage; return false; } catch (e) { return true; }
   })(), 'storage was reachable');
+
+  const ovTab = cold.$$('#anTabs .nitem').find(t => t.dataset.tab === 'overview');
+  if (ovTab) cold.click(ovTab);
+  ok('the trend survived the trip',
+     cold.w.eval('STATE.history.length') >= 2,
+     cold.w.eval('STATE.history.length') + ' points');
+  ok('the trend draws a line, not a lone point',
+     !!cold.$('#anBody svg.trend path'),
+     'no path in the trend svg');
+  ok('it does not claim the trend came from this browser',
+     !/retained across runs in this browser/i.test(cold.$('#anBody').textContent));
+  ok('a view-only file offers no trend controls',
+     cold.$$('#anBody [data-hist]').length === 0,
+     cold.$$('#anBody [data-hist]').map(b => b.dataset.hist).join(', '));
 
   console.log('\n%s', bad === 0 ? 'HISTORY + SHARE OK' : bad + ' ISSUE(S)');
   process.exit(bad === 0 ? 0 : 1);
