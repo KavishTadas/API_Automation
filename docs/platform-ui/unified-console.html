@@ -1170,46 +1170,98 @@ html[data-fx="on"] .fx-sweep circle{
   animation:fxSweep 1.05s cubic-bezier(.22,.61,.36,1) both;
 }
 
-/* -- the QA bot ----------------------------------------------------------- */
+/* -- the QA bot -----------------------------------------------------------
+   A full figure, so it needs room: sized in one place and everything inside
+   is proportional to the viewBox. */
 #qabot{
-  position:fixed; right:22px; bottom:26px; width:74px; height:74px;
+  position:fixed; right:20px; bottom:20px; width:92px; height:141px;
   z-index:60; cursor:pointer; border:0; padding:0; background:none;
-  display:none; /* shown only when the layer is on */
-  filter:drop-shadow(0 8px 18px rgba(0,0,0,.34));
+  display:none;
+  filter:drop-shadow(0 10px 20px rgba(0,0,0,.40));
   transition:transform .55s cubic-bezier(.22,.61,.36,1);
   touch-action:manipulation;
+  --bot-core:#2dd4bf;
+  --bot-eye:#dffcff;
 }
 html[data-fx="on"] #qabot{display:block}
 #qabot svg{width:100%;height:100%;display:block;overflow:visible}
-#qabot:focus-visible{outline:2px solid var(--accent);outline-offset:6px;border-radius:50%}
+#qabot:focus-visible{outline:2px solid var(--accent);outline-offset:6px;border-radius:14px}
 
-@keyframes fxFloat{
-  0%,100%{transform:translateY(0)}
-  50%    {transform:translateY(-7px)}
+/* Mood. Read from the run, so the corner of the page cannot look pleased
+   while the report is failing. */
+#qabot.mood-warn{--bot-core:#e0a63a; --bot-eye:#fff2d4}
+#qabot.mood-sad {--bot-core:#f43f5e; --bot-eye:#ffd9e0}
+
+/* hover flight */
+@keyframes fxFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+#qabot .bot-body{animation:fxFloat 3.6s ease-in-out infinite;transform-origin:60px 92px}
+#qabot.mood-sad .bot-body{animation-duration:5.4s}
+
+/* the wave — the whole arm swings from the shoulder */
+@keyframes fxWave{
+  0%,62%,100%{transform:rotate(16deg)}
+  70%{transform:rotate(-16deg)}
+  78%{transform:rotate(12deg)}
+  86%{transform:rotate(-13deg)}
+  94%{transform:rotate(6deg)}
 }
-#qabot .bot-body{animation:fxFloat 3.4s ease-in-out infinite;transform-origin:50% 50%}
+#qabot .bot-arm-r{transform-origin:83px 90px;animation:fxWave 4.2s ease-in-out infinite}
+#qabot.is-greeting .bot-arm-r{animation:fxWave 1.5s ease-in-out 3}
+/* A failing run gets no wave: the arm comes down and stays down. */
+#qabot.mood-sad .bot-arm-r{animation:none;transform:rotate(4deg)}
 
-@keyframes fxBlink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.08)}}
-#qabot .bot-eye{animation:fxBlink 5.2s ease-in-out infinite;transform-origin:50% 50%}
+#qabot .bot-arm-l{transform-origin:35px 88px}
+@keyframes fxSway{0%,100%{transform:rotate(0)}50%{transform:rotate(-5deg)}}
+#qabot .bot-arm-l{animation:fxSway 3.6s ease-in-out infinite}
+
+/* the head tips as it hovers; on a bad run it hangs */
+@keyframes fxTilt{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg)}}
+#qabot .bot-head{transform-origin:60px 60px;animation:fxTilt 5s ease-in-out infinite}
+#qabot.mood-sad .bot-head{animation:none;transform:rotate(0) translateY(4px)}
+
+/* eye slits power-cycle; on a bad run they droop and dim */
+@keyframes fxSlit{0%,92%,100%{opacity:1}95%{opacity:.25}}
+#qabot .bot-eyes{animation:fxSlit 4.6s ease-in-out infinite}
+#qabot.mood-sad .bot-eye-l{transform:rotate(13deg);transform-origin:51px 43px}
+#qabot.mood-sad .bot-eye-r{transform:rotate(-13deg);transform-origin:69px 43px}
+#qabot.mood-sad .bot-eyes{animation:none;opacity:.8}
+/* and the jaw vent turns down */
+#qabot.mood-sad .bot-mouth{transform:translateY(3px) scaleY(-1);transform-origin:60px 62px}
+
+/* the reactor breathes; faster and redder when something failed */
+@keyframes fxCore{0%,100%{opacity:.82;transform:scale(.94)}50%{opacity:1;transform:scale(1.08)}}
+#qabot .bot-core-lamp{animation:fxCore 2.6s ease-in-out infinite;transform-origin:60px 96px}
+#qabot.mood-sad .bot-core-lamp{animation-duration:1.05s}
+
+/* thrusters flicker; they gutter on a bad run rather than burning clean */
+@keyframes fxJet{
+  0%,100%{opacity:.85;transform:scaleY(1)}
+  40%{opacity:.55;transform:scaleY(.82)}
+  70%{opacity:1;transform:scaleY(1.12)}
+}
+#qabot .bot-jets{animation:fxJet .5s ease-in-out infinite;transform-origin:60px 150px}
+#qabot.mood-sad .bot-jets{animation-duration:.24s;opacity:.5;transform:scaleY(.55)}
 
 @keyframes fxRing{
-  0%  {r:26; opacity:.5; stroke-width:2.4}
-  100%{r:40; opacity:0;  stroke-width:.4}
+  0%  {r:30; opacity:.42; stroke-width:2.2}
+  100%{r:48; opacity:0;   stroke-width:.3}
 }
-#qabot .bot-ring{animation:fxRing 3s ease-out infinite}
-#qabot .bot-ring.d2{animation-delay:1.5s}
+#qabot .bot-ring{animation:fxRing 3.2s ease-out infinite}
+#qabot .bot-ring.d2{animation-delay:1.6s}
+#qabot.mood-sad .bot-ring{animation-duration:5s;opacity:.5}
 
-#qabot.is-hit .bot-body{animation:fxHit .55s cubic-bezier(.34,1.56,.64,1)}
+/* a click gives it a hop */
+#qabot.is-hit .bot-body{animation:fxHit .6s cubic-bezier(.34,1.56,.64,1)}
 @keyframes fxHit{
   0%{transform:translateY(0) scale(1)}
-  35%{transform:translateY(-13px) scale(1.1)}
+  32%{transform:translateY(-16px) scale(1.07)}
   100%{transform:translateY(0) scale(1)}
 }
 
 /* Speech. Anchored to the bot, wrapping to the viewport on small screens. */
 #qasay{
-  position:fixed; right:104px; bottom:44px; z-index:61;
-  max-width:min(310px, calc(100vw - 132px));
+  position:fixed; right:120px; bottom:74px; z-index:61;
+  max-width:min(330px, calc(100vw - 150px));
   padding:11px 14px; border-radius:13px 13px 3px 13px;
   background:var(--s900,#0f172a); color:var(--text,#e2e8f0);
   border:1px solid var(--s700,#334155);
@@ -1225,6 +1277,9 @@ html[data-fx="on"] #qabot{display:block}
 }
 #qasay.on{opacity:1;transform:none}
 #qasay b{color:var(--accent, #2dd4bf);font-weight:700}
+#qasay b.bad{color:var(--ro400, #fb7185)}
+#qasay b.good{color:var(--em400, #34d399)}
+#qasay .dim{opacity:.72}
 #qasay .qa-dismiss{
   display:block;margin-top:7px;font-size:10.5px;opacity:.6;letter-spacing:.04em;
 }
@@ -1241,7 +1296,9 @@ html[data-fx="on"] #qabot{display:block}
   html[data-fx="on"] .fx-tick,
   html[data-fx="on"] .fx-sweep circle{animation:none}
   html[data-fx="on"] .fx-tilt{transition:none;transform:none}
-  #qabot .bot-body,#qabot .bot-eye,#qabot .bot-ring{animation:none}
+  #qabot .bot-body,#qabot .bot-arm-r,#qabot .bot-arm-l,#qabot .bot-head,
+  #qabot .bot-eyes,#qabot .bot-core-lamp,#qabot .bot-jets,
+  #qabot .bot-ring{animation:none}
   #qabot{transition:none}
 }
 
@@ -4852,26 +4909,104 @@ function buildLayer(){
   }
 
   /* ---------------------------------------------------------------- bot -- */
-  var BOT_SVG =
-    '<svg viewBox="0 0 96 96" aria-hidden="true">' +
-      '<circle class="bot-ring" cx="48" cy="50" r="26" fill="none" stroke="var(--accent,#2dd4bf)"/>' +
-      '<circle class="bot-ring d2" cx="48" cy="50" r="26" fill="none" stroke="var(--accent,#2dd4bf)"/>' +
-      '<g class="bot-body">' +
-        '<ellipse cx="48" cy="78" rx="17" ry="4" fill="rgba(0,0,0,.22)"/>' +
-        '<rect x="26" y="30" width="44" height="38" rx="14" ' +
-              'fill="var(--s800,#1e293b)" stroke="var(--accent,#2dd4bf)" stroke-width="2"/>' +
-        '<rect x="43" y="17" width="10" height="12" rx="4" fill="var(--s700,#334155)"/>' +
-        '<circle cx="48" cy="14" r="4.5" fill="var(--accent,#2dd4bf)"/>' +
-        '<g class="bot-eye">' +
-          '<circle cx="39" cy="46" r="5.2" fill="#fff"/>' +
-          '<circle cx="57" cy="46" r="5.2" fill="#fff"/>' +
-          '<circle cx="40" cy="47" r="2.4" fill="#0f172a"/>' +
-          '<circle cx="58" cy="47" r="2.4" fill="#0f172a"/>' +
-        '</g>' +
-        '<path d="M40 58 Q48 63 56 58" fill="none" stroke="var(--accent,#2dd4bf)" ' +
-              'stroke-width="2.2" stroke-linecap="round"/>' +
-      '</g>' +
-    '</svg>';
+  var BOT_SVG = [
+    '<svg viewBox="0 0 120 184" aria-hidden="true">',
+      '<defs>',
+        '<linearGradient id="botRed" x1="0" y1="0" x2="0" y2="1">',
+          '<stop offset="0" stop-color="#f2604a"/><stop offset=".55" stop-color="#c62b2b"/>',
+          '<stop offset="1" stop-color="#8d1717"/></linearGradient>',
+        '<linearGradient id="botRedD" x1="0" y1="0" x2="0" y2="1">',
+          '<stop offset="0" stop-color="#c33636"/><stop offset="1" stop-color="#7d1414"/>',
+        '</linearGradient>',
+        '<linearGradient id="botGold" x1="0" y1="0" x2="0" y2="1">',
+          '<stop offset="0" stop-color="#ffe9a3"/><stop offset=".5" stop-color="#f0be47"/>',
+          '<stop offset="1" stop-color="#c98d1c"/></linearGradient>',
+        '<radialGradient id="botCore">',
+          '<stop offset="0" stop-color="#ffffff"/>',
+          '<stop offset=".45" stop-color="var(--bot-core,#7ff3ea)"/>',
+          '<stop offset="1" stop-color="var(--bot-core,#2dd4bf)" stop-opacity=".15"/>',
+        '</radialGradient>',
+        '<linearGradient id="botJet" x1="0" y1="0" x2="0" y2="1">',
+          '<stop offset="0" stop-color="var(--bot-core,#7ff3ea)" stop-opacity=".95"/>',
+          '<stop offset=".45" stop-color="var(--bot-core,#2dd4bf)" stop-opacity=".45"/>',
+          '<stop offset="1" stop-color="var(--bot-core,#2dd4bf)" stop-opacity="0"/>',
+        '</linearGradient>',
+        '<filter id="botGlow" x="-80%" y="-80%" width="260%" height="260%">',
+          '<feGaussianBlur stdDeviation="2.4" result="b"/>',
+          '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>',
+        '</filter>',
+      '</defs>',
+
+      '<ellipse class="bot-shadow" cx="60" cy="176" rx="19" ry="4.5" fill="rgba(0,0,0,.28)"/>',
+      '<circle class="bot-ring" cx="60" cy="92" r="30" fill="none" stroke="var(--bot-core,#2dd4bf)"/>',
+      '<circle class="bot-ring d2" cx="60" cy="92" r="30" fill="none" stroke="var(--bot-core,#2dd4bf)"/>',
+
+      '<g class="bot-body">',
+
+        /* repulsor exhaust, drawn under the boots */
+        '<g class="bot-jets" filter="url(#botGlow)">',
+          '<path d="M46 150 Q51 166 51 178 Q51 166 56 150 Z" fill="url(#botJet)"/>',
+          '<path d="M64 150 Q69 166 69 178 Q69 166 74 150 Z" fill="url(#botJet)"/>',
+        '</g>',
+
+        /* legs + boots */
+        '<rect x="45" y="116" width="14" height="27" rx="6.5" fill="url(#botRedD)"/>',
+        '<rect x="61" y="116" width="14" height="27" rx="6.5" fill="url(#botRedD)"/>',
+        '<path d="M44 138 h16 v8 q0 5 -5 5 h-6 q-5 0 -5 -5 z" fill="url(#botGold)"/>',
+        '<path d="M60 138 h16 v8 q0 5 -5 5 h-6 q-5 0 -5 -5 z" fill="url(#botGold)"/>',
+
+        /* left arm, resting */
+        '<g class="bot-arm-l">',
+          '<rect x="29" y="84" width="13" height="27" rx="6.5" fill="url(#botRed)"/>',
+          '<circle cx="35.5" cy="115" r="8" fill="url(#botGold)"/>',
+          '<circle cx="35.5" cy="115" r="3" fill="#fff" opacity=".55"/>',
+        '</g>',
+
+        /* torso */
+        '<path d="M43 78 h34 q6 0 6 7 l-2 30 q-1 8 -9 8 h-24 q-8 0 -9 -8 l-2 -30 q0 -7 6 -7 z"',
+              ' fill="url(#botRed)"/>',
+        '<path d="M52 78 h16 l-2 45 h-12 z" fill="url(#botGold)" opacity=".92"/>',
+        '<rect x="42" y="78" width="36" height="5" rx="2.5" fill="url(#botGold)"/>',
+
+        /* arc reactor */
+        '<g class="bot-core" filter="url(#botGlow)">',
+          '<circle cx="60" cy="96" r="10" fill="url(#botGold)"/>',
+          '<circle cx="60" cy="96" r="7.6" fill="#12202b"/>',
+          '<circle class="bot-core-lamp" cx="60" cy="96" r="6.2" fill="url(#botCore)"/>',
+        '</g>',
+
+        /* right arm — the one that waves. Pivots at the shoulder. */
+        '<g class="bot-arm-r">',
+          '<rect x="77" y="62" width="13" height="30" rx="6.5" fill="url(#botRed)"/>',
+          '<circle cx="83.5" cy="58" r="8.6" fill="url(#botGold)"/>',
+          '<circle cx="83.5" cy="58" r="3.2" fill="#fff" opacity=".6"/>',
+        '</g>',
+
+        /* helmet */
+        '<g class="bot-head">',
+          '<path d="M60 8 c19 0 33 14 33 33 c0 20 -12 35 -33 35 c-21 0 -33 -15 -33 -35',
+                ' c0 -19 14 -33 33 -33 z" fill="url(#botRed)"/>',
+          '<path d="M27 36 c-4 1 -5 8 -1 11 l5 2 z" fill="url(#botRedD)"/>',
+          '<path d="M93 36 c4 1 5 8 1 11 l-5 2 z" fill="url(#botRedD)"/>',
+          /* gold faceplate */
+          '<path d="M60 22 c12 0 20 8 20 19 c0 15 -9 28 -20 28 c-11 0 -20 -13 -20 -28',
+                ' c0 -11 8 -19 20 -19 z" fill="url(#botGold)"/>',
+          /* brow ridge */
+          '<path d="M41 39 q19 -7 38 0 l-2 -5 q-17 -6 -34 0 z" fill="url(#botRedD)" opacity=".55"/>',
+          /* eye slits */
+          '<g class="bot-eyes" filter="url(#botGlow)">',
+            '<path class="bot-eye bot-eye-l" d="M45.5 41 L56 38.6 L56 46 L45.5 47.6 Z"',
+                  ' fill="var(--bot-eye,#dffcff)"/>',
+            '<path class="bot-eye bot-eye-r" d="M74.5 41 L64 38.6 L64 46 L74.5 47.6 Z"',
+                  ' fill="var(--bot-eye,#dffcff)"/>',
+          '</g>',
+          /* jaw vent */
+          '<path class="bot-mouth" d="M50 60 q10 4 20 0 l-1.5 4 q-8.5 3 -17 0 z"',
+                ' fill="#7a5410" opacity=".75"/>',
+        '</g>',
+      '</g>',
+    '</svg>'
+  ].join('');
 
   var bot = null, say = null, sayTimer = null;
 
@@ -4895,8 +5030,21 @@ function buildLayer(){
       bot.classList.remove('is-hit');
       void bot.offsetWidth;
       bot.classList.add('is-hit');
-      speak(report());
+      applyMood();
+      speak(report(), 11000);
     });
+
+    applyMood();
+
+    /* Says hello once, waves while it does, then gets out of the way. */
+    setTimeout(function(){
+      if(!bot) return;
+      bot.classList.add('is-greeting');
+      speak('<b>Hi!</b> I am your QA co-pilot.<br>' +
+            '<span class="dim">Click me any time for the run status and anything critical.</span>',
+            6000);
+      setTimeout(function(){ if(bot) bot.classList.remove('is-greeting'); }, 4800);
+    }, 1100);
   }
 
   function speak(html, hold){
@@ -4907,50 +5055,110 @@ function buildLayer(){
     sayTimer = setTimeout(function(){ say.classList.remove('on'); }, hold || 7000);
   }
 
-  /* What the bot says. Every line is a number already on screen -- it reads
-     the report back, it does not judge it. An empty console says so plainly
-     rather than inventing encouragement. */
+  /* -- mood ---------------------------------------------------------------
+     Derived from the run on screen. 'Critical' reuses the report's own
+     severityOf() rather than inventing a second severity scale, so what the
+     bot calls critical is what the Defects tab calls critical. */
+  function readRun(){
+    try{
+      if(typeof STATE === 'undefined' || !STATE.result || !STATE.result.summary) return null;
+      var R = STATE.result, c = R.summary.counts || {}, crit = 0, critNames = [];
+      if(typeof apiByRef === 'function' && typeof severityOf === 'function'){
+        for(var i = 0; i < R.apis.length; i++){
+          var a = R.apis[i];
+          var failed = a.results.filter(function(r){ return r.state === 'FAIL'; }).length;
+          if(!failed) continue;
+          var api = apiByRef(a.apiRef);
+          if(api && severityOf(api).k === 'Critical'){
+            crit += failed;
+            if(api.name && critNames.indexOf(api.name) < 0) critNames.push(api.name);
+          }
+        }
+      }
+      return {
+        R:R, c:c, s:R.summary,
+        fail:c.FAIL || 0, warn:c.WARN || 0, pass:c.PASS || 0,
+        blocked:c.SKIPPED_NO_TOKEN || 0, gaps:c.NOT_ASSERTED || 0,
+        crit:crit, critNames:critNames,
+        apis:R.apis.length,
+        gate:(typeof qualityGate === 'function') ? qualityGate(R).level : ''
+      };
+    }catch(e){ return null; }
+  }
+
+  function moodFor(run){
+    if(!run) return 'ok';
+    if(run.fail > 0) return 'sad';
+    if(run.warn > 0 || !run.s.clean) return 'warn';
+    return 'ok';
+  }
+
+  function applyMood(){
+    if(!bot) return;
+    var m = moodFor(readRun());
+    bot.classList.remove('mood-ok', 'mood-warn', 'mood-sad');
+    bot.classList.add('mood-' + m);
+    bot.setAttribute('aria-label', {
+      ok:  'QA assistant — the run on screen has no failures. Activate for the full status.',
+      warn:'QA assistant — the run on screen has warnings. Activate for the full status.',
+      sad: 'QA assistant — the run on screen has failures. Activate for the full status.'
+    }[m]);
+    return m;
+  }
+
+  /* What the bot says. Every figure is one the report already shows -- it
+     reads the result back, it does not judge it, and it never phrases an
+     absence as a pass. */
   var turn = 0;
   function report(){
-    var R = null;
-    try{ R = (typeof STATE !== 'undefined') ? STATE.result : null; }catch(e){}
-    if(!R || !R.summary){
-      return 'No run on screen yet. Pick some endpoints and run a batch — ' +
-             'I will read the result back to you.';
+    var run = readRun();
+    if(!run){
+      return '<b>Nothing to report yet.</b><br>Pick some endpoints and run a batch — ' +
+             'I will read the result straight back to you.';
     }
-    var s = R.summary, c = s.counts || {};
-    var lines = [];
+    var out = [];
 
-    var rate = (s.passRate === null || s.passRate === undefined)
-      ? 'Pass rate is <b>not defined</b> for this run — nothing landed in the ' +
-        'denominator, so there is no ratio to quote.'
-      : 'Pass rate is <b>' + (s.passRate * 100).toFixed(1) + '%</b>, from ' +
-        (c.PASS || 0) + ' passed and ' + (c.FAIL || 0) + ' failed.';
-    lines.push(rate);
+    out.push(run.fail
+      ? '<b class="bad">' + run.fail + ' check' + (run.fail === 1 ? '' : 's') + ' failing</b>' +
+        ' across ' + run.apis + ' API' + (run.apis === 1 ? '' : 's') + '.'
+      : '<b class="good">No failures</b> across ' + run.apis +
+        ' API' + (run.apis === 1 ? '' : 's') + '.');
 
-    var outside = (s.total || 0) - ((c.PASS || 0) + (c.FAIL || 0));
+    out.push(run.s.passRate === null || run.s.passRate === undefined
+      ? 'Pass rate <b>undefined</b> — nothing landed in the denominator.'
+      : 'Pass rate <b>' + (run.s.passRate * 100).toFixed(1) + '%</b> · ' +
+        run.pass + ' passed / ' + run.fail + ' failed.');
+
+    if(run.crit){
+      out.push('<b class="bad">' + run.crit + ' on Critical endpoints</b>' +
+               (run.critNames.length
+                 ? ' — ' + esc(run.critNames.slice(0, 2).join(', ')) +
+                   (run.critNames.length > 2 ? ' +' + (run.critNames.length - 2) + ' more' : '')
+                 : '') + '.');
+    }else if(run.fail){
+      out.push('None of them on a Critical endpoint.');
+    }
+
+    var outside = (run.s.total || 0) - (run.pass + run.fail);
     if(outside > 0){
-      lines.push('<b>' + outside + '</b> of ' + s.total + ' results sit outside that ' +
-                 'ratio — skipped, not applicable or unasserted. They are not passes.');
+      out.push('<span class="dim">' + outside + ' of ' + run.s.total +
+               ' sit outside that ratio — skipped, not applicable or unasserted. ' +
+               'Not passes.</span>');
     }
-    if(c.FAIL){
-      lines.push('<b>' + c.FAIL + '</b> failing check' + (c.FAIL === 1 ? '' : 's') +
-                 '. The Defects tab has each one with its reason.');
-    }
-    if(c.WARN){
-      lines.push('<b>' + c.WARN + '</b> warning' + (c.WARN === 1 ? '' : 's') +
-                 ' — advisory only, they never fail a run.');
-    }
-    if(!s.clean){
-      lines.push('This run is <b>not clean</b>: a full pass rate and a clean run ' +
-                 'are different claims, and only one of them is true here.');
-    }
-    if(R.simulated){
-      lines.push('Heads up — this is a <b>simulated</b> run. No endpoint was called.');
-    }
-    var pick = lines[turn % lines.length];
-    turn++;
-    return pick;
+
+    /* One rotating footnote, so a second click adds something. */
+    var extra = [];
+    if(run.blocked) extra.push(run.blocked + ' blocked on auth — no token, so nothing was asserted.');
+    if(run.gaps)    extra.push(run.gaps + ' ran with no assertion attached.');
+    if(run.warn)    extra.push(run.warn + ' warning' + (run.warn === 1 ? '' : 's') +
+                               ' — advisory, they never fail a run.');
+    if(!run.s.clean) extra.push('Not a clean run: a full pass rate and a clean run are ' +
+                                'different claims.');
+    if(run.R.simulated) extra.push('This is a simulated run — no endpoint was called.');
+    if(!extra.length) extra.push('Gate: ' + (run.gate || 'n/a') + '.');
+    out.push('<span class="dim">' + extra[turn++ % extra.length] + '</span>');
+
+    return out.join('<br>');
   }
 
   /* -- the bot travels with the reader ------------------------------------ */
@@ -4991,7 +5199,7 @@ function buildLayer(){
     if(body){
       decorate(body);
       if(typeof MutationObserver === 'function'){
-        new MutationObserver(function(){ decorate(body); })
+        new MutationObserver(function(){ decorate(body); applyMood(); })
           .observe(body, {childList:true, subtree:true});
       }
     }

@@ -23,6 +23,33 @@ from scripts import pinned_tls
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 DEFAULT_TIMEOUT = float(os.getenv("API_TEST_TIMEOUT", "30"))
+
+#: Connecting is a different question from responding. A reachable host
+#: completes a TCP handshake in well under a second; one that cannot is not
+#: going to become reachable by waiting the full read budget. Kept separate so
+#: a genuinely slow API still gets its 30s to answer.
+CONNECT_TIMEOUT = float(os.getenv("API_TEST_CONNECT_TIMEOUT", "6"))
+
+REQUEST_TIMEOUT = httpx.Timeout(
+    DEFAULT_TIMEOUT,
+    connect=CONNECT_TIMEOUT,
+)
+
+#: Hosts that failed to connect during this run, and why. Populated on the
+#: first failure and consulted before every later request, so an unreachable
+#: host costs one timeout for the whole run rather than one per check -- with
+#: 22 checks per endpoint that is the difference between seconds and minutes.
+#: Process-scoped, so each pytest session starts clean and a host that comes
+#: back is retried on the next run.
+_UNREACHABLE_HOSTS: dict[str, str] = {}
+
+
+def _host_key(url: "httpx.URL | str") -> str:
+    try:
+        parsed = url if isinstance(url, httpx.URL) else httpx.URL(str(url))
+        return f"{parsed.scheme}://{parsed.netloc.decode('ascii', 'replace')}"
+    except Exception:
+        return str(url)
 REDACTED = "***REDACTED***"
 SENSITIVE_KEY_PATTERN = re.compile(
     r"emp[_.-]*code|emp[_.-]*password|password|secret|token",
@@ -339,7 +366,7 @@ def perform_api_request(api: dict[str, str], config: dict[str, str]) -> httpx.Re
     request_kwargs: dict[str, Any] = {
         "headers": headers,
         "params": params,
-        "timeout": DEFAULT_TIMEOUT,
+        "timeout": REQUEST_TIMEOUT,
     }
 
     if body_text:
@@ -348,6 +375,12 @@ def perform_api_request(api: dict[str, str], config: dict[str, str]) -> httpx.Re
             request_kwargs["json"] = parsed_json
         else:
             request_kwargs["content"] = body_text
+
+    down = _UNREACHABLE_HOSTS.get(_host_key(url))
+    if down:
+        # Already proven unreachable in this run. Waiting again would cost
+        # another connect timeout to learn the same thing.
+        pytest.skip(down)
 
     with httpx.Client() as client:
         request = client.build_request(method, url, **request_kwargs)
@@ -365,6 +398,19 @@ def perform_api_request(api: dict[str, str], config: dict[str, str]) -> httpx.Re
                 name="Request Exception",
                 attachment_type=allure.attachment_type.TEXT,
             )
+            if isinstance(error, (httpx.ConnectError, httpx.ConnectTimeout)):
+                # The host never accepted a connection, so no contract was
+                # exercised. That is an untested endpoint, not a broken one --
+                # calling it a failure blames the API for the environment.
+                # Remembered so the remaining checks on this host return at
+                # once instead of each paying the same timeout.
+                reason = (
+                    f"host {_host_key(request.url)} is unreachable "
+                    f"({type(error).__name__}); "
+                    f"every check on it is untested, not failed"
+                )
+                _UNREACHABLE_HOSTS[_host_key(request.url)] = reason
+                pytest.skip(reason)
             raise
 
         _attach_response(response, sensitive_values)
@@ -386,7 +432,7 @@ def _send_pinned_request(request: httpx.Request) -> httpx.Response:
         request.url.raw_path.decode("ascii"),
         headers=dict(request.headers),
         content=request.content,
-        timeout=DEFAULT_TIMEOUT,
+        timeout=CONNECT_TIMEOUT + DEFAULT_TIMEOUT,
     )
     return httpx.Response(
         status_code=pinned_response.status_code,
