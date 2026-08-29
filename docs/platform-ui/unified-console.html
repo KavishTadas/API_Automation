@@ -1697,11 +1697,20 @@ html[data-fx="on"] .sbar-s{
     rgba(0,0,0,.16) 100%);
 }
 /* A pastel is already light; the full sheen flattens it back toward white. */
-html[data-fx="on"] .sbar-s.sbar-suite{
+html[data-fx="on"][data-theme="light"] .sbar-s.sbar-suite{
   background-image:linear-gradient(180deg,
     rgba(255,255,255,.26) 0%,
     rgba(255,255,255,.04) 50%,
     rgba(0,0,0,.12) 100%);
+}
+/* In dark the fill is saturated rather than pale, and a white sheen laid over
+   it lifts the top back toward white -- undoing the saturation. Barely any
+   white, and the shading comes from the dark end instead. */
+html[data-fx="on"] .sbar-s.sbar-suite{
+  background-image:linear-gradient(180deg,
+    rgba(255,255,255,.12) 0%,
+    rgba(255,255,255,.02) 40%,
+    rgba(0,0,0,.22) 100%);
 }
 /* The legend swatches pick up the same shading, so the key matches the chart. */
 html[data-fx="on"] .legend .sw{
@@ -3644,20 +3653,29 @@ function moduleHue(name){
 function modulePastel(name){
   const dark = document.documentElement.getAttribute('data-theme') === 'dark';
   const step = moduleIndex(name) % 3;
-  const l = (dark ? 74 : 70) + step * 3;
-  const sat = (dark ? 68 : 74) + (step === 1 ? 6 : 0);
+  /* Light wants a pastel: pale enough to sit under the text without competing
+     with it. Dark wants the opposite. The same tint against a dark ground is
+     the brightest thing on the page, and eleven of them crowd into the top of
+     the lightness range where they stop being distinguishable -- so dark drops
+     to mid lightness and pushes saturation instead. */
+  const l = (dark ? 56 : 70) + step * 3;
+  const sat = (dark ? 74 : 74) + (step === 1 ? 6 : 0);
   return `hsl(${moduleHue(name)},${sat}%,${l}%)`;
 }
 function moduleGlow(name){
   const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-  return `hsla(${moduleHue(name)},85%,${dark ? 68 : 58}%,${dark ? .55 : .42})`;
+  /* The glow stays a little lighter than the fill in both themes, so it reads
+     as light coming off the bar rather than as a thicker bar. */
+  return `hsla(${moduleHue(name)},88%,${dark ? 62 : 58}%,${dark ? .5 : .42})`;
 }
 
 function moduleColor(name, alpha){
   const dark = document.documentElement.getAttribute('data-theme') === 'dark';
   const step = moduleIndex(name) % 3;
-  const l = (dark ? 64 : 45) + step * 5;
-  const sat = (dark ? 60 : 58) + (step === 1 ? 8 : 0);
+  /* Same reasoning as modulePastel: mid lightness and more saturation in dark,
+     so the ring reads as coloured rather than as pale. */
+  const l = (dark ? 58 : 45) + step * 5;
+  const sat = (dark ? 72 : 58) + (step === 1 ? 8 : 0);
   return `hsla(${moduleHue(name)},${sat}%,${l}%,${alpha === undefined ? 1 : alpha})`;
 }
 
