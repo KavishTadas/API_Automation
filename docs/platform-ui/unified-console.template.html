@@ -1186,10 +1186,29 @@ html[data-fx="on"] .fx-sweep circle{
   transition:transform .5s cubic-bezier(.22,.61,.36,1);
   touch-action:manipulation;
   --bot-core:#2dd4bf;
-  --bot-eye:#dffcff;
+  --bot-eye:#e8faff;
   --bot-yaw:0deg;
   --bot-pitch:0deg;
 }
+/* The eye slits and the palm repulsor emit rather than merely being pale, so
+   both carry the beam filter -- whose flood-color follows `color`. Setting it
+   here means a mood retints the halo by changing one property, and the filter
+   itself never has to know moods exist. */
+#qabot .bot-eyes,
+#qabot .bot-palm{color:#6fd6ff}
+#qabot.mood-warn .bot-eyes,
+#qabot.mood-warn .bot-palm{color:#ffc46b}
+#qabot.mood-sad .bot-eyes,
+#qabot.mood-sad .bot-palm{color:#ff8098}
+
+/* A slow flicker in the beam. Real emitters are never perfectly steady, and a
+   constant glow reads as a sticker rather than a light. */
+@keyframes botBeamPulse{
+  0%,100%{opacity:1}
+  45%    {opacity:.74}
+}
+#qabot .bot-palm{animation:botBeamPulse 2.4s ease-in-out infinite}
+#qabot.mood-sad .bot-palm{animation-duration:1.1s;opacity:.85}
 html[data-fx="on"] #qabot{display:block}
 #qabot:focus-visible{outline:2px solid var(--accent);outline-offset:8px;border-radius:16px}
 
@@ -2076,12 +2095,28 @@ function publishShared(R){
 
 /* Gate: a FAIL fails it; anything else that blocks `clean` warns. Deliberately
    not a percentage threshold — a run can be 100% pass and still not clean. */
+/* True but misleading on its own: three metadata-only checks passing is
+   arithmetically 100% on a run that reached no endpoint at all. The figure
+   stays -- hiding it would hide the arithmetic -- but it gets labelled. */
+function rateIsHollow(R){
+  return ((R.summary||{}).unreachableResults||0) > 0;
+}
+
 function qualityGate(R){
   const c=R.summary.counts;
+  const unreachable=R.summary.unreachableResults||0;
   if(c.FAIL>0) return {level:'FAILED', tone:'--rose',
     why:`${c.FAIL} assertion${c.FAIL>1?'s':''} ran and failed`};
+  /* Checked before the generic not-clean branch so the reason names the real
+     cause. A run that never reached the server must not present as a pass
+     whatever the arithmetic says. */
+  if(unreachable) return {level:'BLOCKED', tone:'--amber',
+    why:`the server could not be reached — ${unreachable} check${unreachable>1?'s':''} `
+        + `never ran, so this run tested nothing`};
   if(!R.summary.clean) return {level:'WARNING', tone:'--amber',
-    why:`no failures, but ${R.summary.cleanBlockers.join(' and ')} present`};
+    why:R.summary.cleanBlockers.length
+      ? `no failures, but ${R.summary.cleanBlockers.join(' and ')} present`
+      : `no failures, but nothing entered the pass-rate denominator`};
   return {level:'PASSED', tone:'--accent', why:'every assertion that ran, passed'};
 }
 function restore(){
@@ -3514,7 +3549,10 @@ function gateBanner(R){
   const tone={
     FAILED :['var(--ro500)','rgba(76,5,25,.9)','rgba(244,63,94,.2)','rgba(244,63,94,.3)','crit','Blocker / Critical'],
     WARNING:['var(--am400)','rgba(69,42,10,.9)','rgba(251,191,36,.2)','rgba(251,191,36,.3)','warn','Advisory'],
-    PASSED :['var(--em500)','rgba(4,45,32,.9)','rgba(16,185,129,.2)','rgba(16,185,129,.3)','ok','Clean']
+    PASSED :['var(--em500)','rgba(4,45,32,.9)','rgba(16,185,129,.2)','rgba(16,185,129,.3)','ok','Clean'],
+    /* Distinct from WARNING on purpose: a warning is a result worth reviewing,
+       whereas this is the absence of any result at all. */
+    BLOCKED:['var(--am400)','rgba(58,38,8,.92)','rgba(251,191,36,.22)','rgba(251,191,36,.34)','warn','Not Tested']
   }[g.level];
   const bits=[];
   if(c.FAIL)             bits.push(`<strong style="color:var(--ro300)">${c.FAIL} assertion failure${c.FAIL>1?'s':''}</strong>`);
@@ -3523,6 +3561,8 @@ function gateBanner(R){
   if(c.NOT_ASSERTED)     bits.push(`<strong style="color:var(--pu300)">${c.NOT_ASSERTED} that assert nothing</strong>`);
   const title = g.level==='PASSED'
     ? `Quality Gate: Clean (${R.summary.total} results &middot; 0 unclassified)`
+    : g.level==='BLOCKED'
+    ? `Quality Gate: Not Tested (${R.summary.unreachableResults} check${R.summary.unreachableResults===1?'':'s'} never reached the server)`
     : `Quality Gate: ${g.level==='FAILED'?'Action Required':'Review Advised'} (${c.FAIL||0} defect${c.FAIL===1?'':'s'} classified &middot; 0 unknown)`;
   return `<div class="eqg" style="--qgc:${tone[0]};--qgbg:${tone[1]};--qgbg2:${tone[2]};--qgbd:${tone[3]}">
     <div class="eqg-l">
@@ -3533,7 +3573,15 @@ function gateBanner(R){
           <span class="eqg-tag ${tone[4]}">${tone[5]}</span>
           ${c.NOT_ASSERTED?`<span class="eqg-tag sub">Assertion Gap &times;${c.NOT_ASSERTED}</span>`:''}
         </div>
-        <p class="eqg-p">${bits.length?'This run carries '+bits.join(', ')+'.':'Every assertion that ran, passed.'}
+        <p class="eqg-p">${
+          /* "Every assertion that ran, passed" is true but reads as an
+             endorsement directly under a gate that says Not Tested. When the
+             server was never reached, say that first. */
+          g.level==='BLOCKED'
+            ? `The server was not reachable, so ${R.summary.unreachableResults} check`
+              + `${R.summary.unreachableResults===1?'':'s'} never ran. Nothing here describes `
+              + `the API's behaviour.`
+            : bits.length?'This run carries '+bits.join(', ')+'.':'Every assertion that ran, passed.'}
           ${c.NOT_ASSERTED?' An unasserted request executes but is <strong style="color:var(--pu300)">never</strong> a pass (D7).':''}
           ${!R.summary.passRateApplicable?' Pass rate is <strong style="color:var(--s300)">n/a</strong> &mdash; nothing entered the denominator.':''}</p>
       </div>
@@ -3568,6 +3616,10 @@ function kpiRow(R){
         ? `<i class="p" style="width:${pw.toFixed(2)}%"></i><i class="f" style="width:${fw.toFixed(2)}%"></i>`
         : `<i class="o" style="width:100%"></i>`}</div>
       <div class="estat-f"><span class="g">${c.PASS||0} Passed</span><span class="r">${c.FAIL||0} Failed</span></div>
+      ${rateIsHollow(R)?`<div class="estat-sub amber" style="margin-top:8px;line-height:1.45">
+        server unreachable &mdash; ${R.summary.unreachableResults} checks never ran,
+        so this rate covers only checks that issue no request
+      </div>`:''}
     </div>
     <div class="estat">
       <div class="estat-h"><span>Total Test Cases</span><span class="estat-ic ic-blue">${svg(ICO.check2)}</span></div>
@@ -5637,6 +5689,16 @@ function buildLayer(){
         '<feGaussianBlur stdDeviation="2.4" result="b"/>' +
         '<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>' +
       '</filter>' +
+      /* Repulsor beam. Two shadows -- a tight core and a wide halo -- which is
+         what makes a light read as emitting rather than as merely blurred.
+         flood-color is currentColor so CSS can retint it per mood without the
+         filter needing to know anything about moods. */
+      '<filter id="botBeam" x="-160%" y="-160%" width="420%" height="420%">' +
+        '<feDropShadow dx="0" dy="0" stdDeviation="1.5" flood-color="currentColor"' +
+          ' flood-opacity=".95"/>' +
+        '<feDropShadow dx="0" dy="0" stdDeviation="4.5" flood-color="currentColor"' +
+          ' flood-opacity=".6"/>' +
+      '</filter>' +
     '</defs>';
 
   /* One place for the palette, so a plate cannot drift out of the set. */
@@ -5720,7 +5782,8 @@ function buildLayer(){
             /* gauntlet and open palm */
             plate('M91 52 h21 v14 h-21 z', RED_D) +
             '<circle class="bot-palm" cx="101.5" cy="58" r="5"' +
-              ' fill="url(#botCore)" stroke="' + INK + '" stroke-width="1.6"/>' +
+              ' fill="var(--bot-eye,#e8faff)" stroke="' + INK + '" stroke-width="1.6"' +
+              ' filter="url(#botBeam)"/>' +
           '</g>'],
 
     /* helmet shell */
@@ -5760,7 +5823,7 @@ function buildLayer(){
             /* Cheek seams: line survives at this size, shading does not. */
             '<path d="M48 50 l5 9 M72 50 l-5 9" stroke="' + GOLD_D +
               '" stroke-width="1.6" fill="none" stroke-linecap="round"/>' +
-            '<g class="bot-eyes" filter="url(#botGlow)">' +
+            '<g class="bot-eyes" filter="url(#botBeam)">' +
               /* Swept quadrilaterals, inner ends rising to a point. */
               '<path class="bot-eye bot-eye-l" d="M44 43 L57 38 L58 44 L45 48 Z"' +
                 ' fill="var(--bot-eye,#f2feff)" stroke="' + INK + '" stroke-width="1.3"/>' +

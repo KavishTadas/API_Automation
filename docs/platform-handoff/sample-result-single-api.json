@@ -27,7 +27,8 @@
     "cleanBlockers": [
       "FAIL",
       "SKIPPED_NO_TOKEN"
-    ]
+    ],
+    "unreachableResults": 0
   },
   "apis": [
     {
@@ -55,7 +56,8 @@
         "passRateApplicable": true,
         "passRateBasis": "PASS / (PASS + FAIL)",
         "clean": true,
-        "cleanBlockers": []
+        "cleanBlockers": [],
+        "unreachableResults": 0
       },
       "results": [
         {

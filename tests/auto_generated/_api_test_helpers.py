@@ -441,10 +441,13 @@ def perform_api_request(api: dict[str, str], config: dict[str, str]) -> httpx.Re
             # calling it a failure blames the API for the environment.
             # Remembered so the remaining checks on this host return at
             # once instead of each paying the same timeout.
+            # The bracketed token is what the summary counts on. Matching the
+            # English sentence would break the first time someone reworded it.
             reason = (
                 f"host {_host_key(request.url)} is unreachable "
                 f"({type(error).__name__}); "
-                f"every check on it is untested, not failed"
+                f"every check on it is untested, not failed "
+                f"[host=unreachable]"
             )
             _UNREACHABLE_HOSTS[_host_key(request.url)] = reason
             pytest.skip(reason)

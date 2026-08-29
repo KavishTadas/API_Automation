@@ -321,11 +321,26 @@ def clean_blockers(counts: dict[str, int]) -> list[str]:
     return [state.name for state in CLEAN_BLOCKING_STATES if counts.get(state.name, 0)]
 
 
+#: Written into the reason of any result abandoned because its host could not
+#: be reached. A token rather than a phrase, so rewording the sentence around it
+#: cannot silently stop the summary noticing.
+HOST_UNREACHABLE_MARKER = "[host=unreachable]"
+
+
+def unreachable_count(records: list[ResultRecord]) -> int:
+    """How many results were abandoned because their host never answered."""
+    return sum(
+        1 for record in records
+        if HOST_UNREACHABLE_MARKER in (getattr(record, "reason", "") or "")
+    )
+
+
 def _summary(records: list[ResultRecord]) -> dict[str, Any]:
     countable = _countable(records)
     counts = _counts(countable)
     rate = pass_rate(counts)
     blockers = clean_blockers(counts)
+    unreachable = unreachable_count(countable)
     return {
         "total": len(countable),
         "referencedHostResults": len(records) - len(countable),
@@ -333,9 +348,18 @@ def _summary(records: list[ResultRecord]) -> dict[str, Any]:
         "passRate": rate,
         "passRateApplicable": rate is not None,
         "passRateBasis": "PASS / (PASS + FAIL)",
+        # How many results were abandoned because the host never answered.
+        # Carried explicitly so a consumer can say why the run is not clean
+        # instead of parsing prose out of a reason string.
+        "unreachableResults": unreachable,
         # A batch is only clean if nothing needs a human to look at it. One WARN
-        # or one SKIPPED_NO_TOKEN is not a clean pass.
-        "clean": not blockers and rate is not None,
+        # or one SKIPPED_NO_TOKEN is not a clean pass -- and neither is a run
+        # that never reached the server. A handful of metadata-only checks
+        # (test_transport_is_https issues no request) can otherwise be the whole
+        # denominator, and the batch reports 100% clean having tested nothing.
+        # D7 forbids an unasserted request rendering as a pass; the same has to
+        # hold for the batch, not only for the individual result.
+        "clean": not blockers and rate is not None and not unreachable,
         # Why it is not clean, named. Derived from the same counts, so it can
         # never disagree with the flag it explains.
         "cleanBlockers": blockers,
