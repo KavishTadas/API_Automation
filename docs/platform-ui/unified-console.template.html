@@ -1232,20 +1232,23 @@ html[data-fx="on"] #qabot{display:block}
 #qabot:not(.is-tracking) .bot-3d{animation:botHover 3.8s ease-in-out infinite, botOrbit 9s ease-in-out infinite}
 
 /* -- the wave ------------------------------------------------------------- */
+/* The whole swing stays outboard of the helmet. At its furthest inward point
+   the hand reaches x 82 against a helmet edge of 84, so it never disappears
+   behind the face and the z-order between arm and head stops mattering. */
 @keyframes botWave{
-  0%,100%{transform:rotate(14deg)}
-  15%{transform:rotate(-20deg)}
-  30%{transform:rotate(16deg)}
-  45%{transform:rotate(-20deg)}
-  60%{transform:rotate(14deg)}
-  75%{transform:rotate(-16deg)}
-  90%{transform:rotate(10deg)}
+  0%,100%{transform:rotate(10deg)}
+  15%{transform:rotate(-3deg)}
+  30%{transform:rotate(24deg)}
+  45%{transform:rotate(-3deg)}
+  60%{transform:rotate(22deg)}
+  75%{transform:rotate(-2deg)}
+  90%{transform:rotate(16deg)}
 }
-.bot-arm-r{transform-origin:84px 90px;transform:rotate(14deg)}
+.bot-arm-r{transform-origin:75px 84px;transform:rotate(10deg)}
 /* Idle: an occasional small wave. */
 @keyframes botWaveIdle{
-  0%,86%,100%{transform:rotate(14deg)}
-  90%{transform:rotate(-8deg)}
+  0%,86%,100%{transform:rotate(10deg)}
+  90%{transform:rotate(22deg)}
   94%{transform:rotate(12deg)}
 }
 #qabot .bot-arm-r{animation:botWaveIdle 6s ease-in-out infinite}
@@ -1257,7 +1260,7 @@ html[data-fx="on"] #qabot{display:block}
 .bot-arm-l{transform-origin:35px 88px;animation:botSway 3.8s ease-in-out infinite}
 @keyframes botSway{0%,100%{transform:rotate(0)}50%{transform:rotate(-6deg)}}
 
-.bot-head{transform-origin:60px 60px;animation:botNod 5.4s ease-in-out infinite}
+.bot-head{transform-origin:60px 52px;animation:botNod 5.4s ease-in-out infinite}
 @keyframes botNod{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
 
 .bot-eyes{animation:botSlit 4.8s ease-in-out infinite}
@@ -1286,9 +1289,9 @@ html[data-fx="on"] #qabot{display:block}
 
 /* happy: slits arch up, everything runs brighter and quicker */
 #qabot.mood-ok{--bot-core:#2dd4bf; --bot-eye:#e8ffff}
-#qabot.mood-ok .bot-eye-l{transform:rotate(-9deg);transform-origin:51px 42px}
-#qabot.mood-ok .bot-eye-r{transform:rotate(9deg);transform-origin:69px 42px}
-#qabot.mood-ok .bot-mouth{transform:translateY(1px) scaleX(1.1);transform-origin:60px 61px}
+#qabot.mood-ok .bot-eye-l{transform:rotate(-9deg);transform-origin:52.5px 41px}
+#qabot.mood-ok .bot-eye-r{transform:rotate(9deg);transform-origin:67.5px 41px}
+#qabot.mood-ok .bot-mouth{transform:translateY(1px) scaleX(1.1);transform-origin:60px 55px}
 #qabot.mood-ok .bot-3d{animation-duration:3s, 9s}
 #qabot.mood-ok .bot-core-lamp{animation-duration:2.1s}
 
@@ -1298,11 +1301,11 @@ html[data-fx="on"] #qabot{display:block}
 
 /* failing: the wave stops, the head hangs, the thrusters gutter */
 #qabot.mood-sad{--bot-core:#f43f5e; --bot-eye:#ffdbe2}
-#qabot.mood-sad .bot-arm-r{animation:none;transform:rotate(3deg)}
-#qabot.mood-sad .bot-eye-l{transform:rotate(15deg);transform-origin:51px 42px}
-#qabot.mood-sad .bot-eye-r{transform:rotate(-15deg);transform-origin:69px 42px}
+#qabot.mood-sad .bot-arm-r{animation:none;transform:rotate(-4deg)}
+#qabot.mood-sad .bot-eye-l{transform:rotate(15deg);transform-origin:52.5px 41px}
+#qabot.mood-sad .bot-eye-r{transform:rotate(-15deg);transform-origin:67.5px 41px}
 #qabot.mood-sad .bot-eyes{animation:none;opacity:.75}
-#qabot.mood-sad .bot-mouth{transform:translateY(4px) scaleY(-1);transform-origin:60px 62px}
+#qabot.mood-sad .bot-mouth{transform:translateY(4px) scaleY(-1);transform-origin:60px 55px}
 #qabot.mood-sad .bot-head{animation:none;transform:rotate(0) translateY(5px)}
 #qabot.mood-sad .bot-jets{animation-duration:.22s;opacity:.45;transform:scaleY(.5)}
 #qabot.mood-sad .bot-core-lamp{animation-duration:1s}
@@ -5086,36 +5089,39 @@ function buildLayer(){
 
     /* the waving arm, in front so it crosses the chest as it swings */
     [30,  '<g class="bot-arm-r">' +
-            '<rect x="77" y="60" width="14" height="32" rx="7" fill="url(#botRed)"/>' +
-            '<circle cx="84" cy="56" r="9" fill="url(#botGold)"/>' +
-            '<circle cx="81.5" cy="53" r="2.8" fill="#fff" opacity=".55"/>' +
-            '<circle class="bot-palm" cx="84" cy="56" r="3.4" fill="var(--bot-core,#7ff3ea)"' +
+            /* Drawn shoulder -> elbow -> wrist as one stroked limb, so the arm
+               reads as raised rather than as a block stuck to the head. */
+            '<path d="M75 84 L88 62 L92 50" fill="none" stroke="url(#botRed)"' +
+              ' stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>' +
+            '<circle cx="94" cy="46" r="8" fill="url(#botGold)"/>' +
+            '<circle cx="91.6" cy="43.4" r="2.5" fill="#fff" opacity=".55"/>' +
+            '<circle class="bot-palm" cx="94" cy="46" r="3.2" fill="var(--bot-core,#7ff3ea)"' +
               ' opacity=".9"/>' +
           '</g>'],
 
     /* helmet shell */
     [34,  '<g class="bot-head">' +
-            '<path d="M60 7 c20 0 34 15 34 35 c0 21 -13 36 -34 36 c-21 0 -34 -15 -34 -36' +
-              ' c0 -20 14 -35 34 -35 z" fill="url(#botRed)"/>' +
-            '<path d="M26 35 c-5 1 -6 9 -1 12 l6 2 z" fill="url(#botRedD)"/>' +
-            '<path d="M94 35 c5 1 6 9 1 12 l-6 2 z" fill="url(#botRedD)"/>' +
-            '<path d="M60 7 c20 0 34 15 34 35 l-7 0 c0 -17 -11 -29 -27 -29 z"' +
+            '<path d="M60 13 c14 0 24 11 24 25 c0 16 -9 27 -24 27 c-15 0 -24 -11 -24 -27' +
+              ' c0 -14 10 -25 24 -25 z" fill="url(#botRed)"/>' +
+            '<path d="M36 36 c-4 1 -5 7 -1 10 l5 1 z" fill="url(#botRedD)"/>' +
+            '<path d="M84 36 c4 1 5 7 1 10 l-5 1 z" fill="url(#botRedD)"/>' +
+            '<path d="M60 13 c14 0 24 11 24 25 l-6 0 c0 -12 -8 -21 -18 -21 z"' +
               ' fill="url(#botRim)"/>' +
           '</g>'],
 
     /* faceplate and eyes, furthest forward */
     [46,  '<g class="bot-face">' +
-            '<path d="M60 21 c13 0 21 9 21 20 c0 16 -9 30 -21 30 c-12 0 -21 -14 -21 -30' +
-              ' c0 -11 8 -20 21 -20 z" fill="url(#botGold)"/>' +
-            '<path d="M40 38 q20 -8 40 0 l-2 -6 q-18 -6 -36 0 z" fill="url(#botRedD)"' +
-              ' opacity=".5"/>' +
+            '<path d="M60 24 c10 0 16 7 16 15 c0 12 -7 22 -16 22 c-9 0 -16 -10 -16 -22' +
+              ' c0 -8 6 -15 16 -15 z" fill="url(#botGold)"/>' +
+            '<path d="M45 38 q15 -6 30 0 l-1.5 -4.5 q-13.5 -4.5 -27 0 z"' +
+              ' fill="url(#botRedD)" opacity=".5"/>' +
             '<g class="bot-eyes" filter="url(#botGlow)">' +
-              '<path class="bot-eye bot-eye-l" d="M45 40 L56 37.4 L56 45.4 L45 47 Z"' +
+              '<path class="bot-eye bot-eye-l" d="M48 39 L57 37 L57 43.4 L48 44.8 Z"' +
                 ' fill="var(--bot-eye,#dffcff)"/>' +
-              '<path class="bot-eye bot-eye-r" d="M75 40 L64 37.4 L64 45.4 L75 47 Z"' +
+              '<path class="bot-eye bot-eye-r" d="M72 39 L63 37 L63 43.4 L72 44.8 Z"' +
                 ' fill="var(--bot-eye,#dffcff)"/>' +
             '</g>' +
-            '<path class="bot-mouth" d="M50 59 q10 5 20 0 l-1.5 4.5 q-8.5 3.5 -17 0 z"' +
+            '<path class="bot-mouth" d="M53 53 q7 4 14 0 l-1 3.5 q-6 2.5 -12 0 z"' +
               ' fill="#6d4a0c" opacity=".8"/>' +
           '</g>']
   ];
