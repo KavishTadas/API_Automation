@@ -552,6 +552,9 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 
 /* ---- module bars ---- */
 .sbars{display:flex;flex-direction:column;gap:7px;width:100%;min-width:0}
+.sbar-dot{display:inline-block;width:9px;height:9px;border-radius:50%;
+  margin-right:7px;vertical-align:middle;flex:none;
+  box-shadow:0 0 0 1px rgba(0,0,0,.16) inset}
 .sbar{display:grid;grid-template-columns:minmax(120px,190px) minmax(0,1fr) auto;
   align-items:center;gap:var(--gap-md);min-width:0}
 .sbar-l{font:600 12px var(--sans);color:var(--s200);min-width:0;overflow:hidden;
@@ -3514,6 +3517,111 @@ function kpiRow(R){
   </section>`;
 }
 
+/* A stable colour per suite.
+
+   Derived from the name, not from position in the list: a suite must keep its
+   colour between runs, or a suite dropping out would reshuffle every other
+   colour and two reports could not be compared. Saturation and lightness are
+   fixed so no suite can shout louder than another, and both are chosen to stay
+   legible on either theme. */
+function moduleHash(name){
+  const t = String(name || '—');
+  let h = 2166136261;
+  for(let i = 0; i < t.length; i++){
+    h ^= t.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h;
+}
+/* Hue comes from the suite's position in the full catalogue, not from a hash
+   of its name. Hashing cannot guarantee separation -- stepping the hash by the
+   golden angle still left two suites three degrees apart, which on screen is
+   the same colour. Indexing the sorted catalogue and stepping *that* by the
+   golden angle spreads every suite as far from its neighbours as the wheel
+   allows.
+
+   The catalogue is the whole 45-endpoint set rather than whatever this run
+   touched, so a suite keeps its colour between runs even when other suites are
+   absent. Deriving it from the run's own list would reshuffle the chart
+   whenever a suite dropped out, and two reports could not be compared. */
+var MODULE_ORDER = null;
+function moduleIndex(name){
+  if(MODULE_ORDER === null){
+    var seen = {}, list = [];
+    try{
+      allApis().forEach(function(a){
+        var m = a.module || '—';
+        if(!seen[m]){ seen[m] = 1; list.push(m); }
+      });
+    }catch(e){}
+    list.sort();
+    MODULE_ORDER = {};
+    for(var i = 0; i < list.length; i++) MODULE_ORDER[list[i]] = i;
+  }
+  var key = String(name || '—');
+  return (key in MODULE_ORDER) ? MODULE_ORDER[key]
+                               : Object.keys(MODULE_ORDER).length + (moduleHash(key) % 7);
+}
+function moduleHue(name){
+  return (moduleIndex(name) * 137.508) % 360;
+}
+function moduleColor(name, alpha){
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const step = moduleIndex(name) % 3;
+  const l = (dark ? 64 : 45) + step * 5;
+  const sat = (dark ? 60 : 58) + (step === 1 ? 8 : 0);
+  return `hsla(${moduleHue(name).toFixed(1)},${sat}%,${l}%,${alpha === undefined ? 1 : alpha})`;
+}
+
+/* The same donut, counted per suite instead of per state. Used when the state
+   split has collapsed to a single band and can say nothing. */
+function donutByModule(perMod){
+  const items = [...perMod.entries()]
+    .map(e => ({m: e[0], n: e[1].length}))
+    .filter(x => x.n > 0)
+    .sort((a, b) => b.n - a.n);
+  const total = items.reduce((n, x) => n + x.n, 0);
+  if(!total) return '<div class="faint">Nothing to chart.</div>';
+  const R = 62, C = 2 * Math.PI * R;
+  let off = 0;
+  const grads = items.map((x, i) => {
+    const col = moduleColor(x.m);
+    return `<linearGradient id="mg${i}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0"   stop-color="${col}" stop-opacity="1"/>
+      <stop offset=".45" stop-color="${col}" stop-opacity=".92"/>
+      <stop offset="1"   stop-color="${col}" stop-opacity=".55"/>
+    </linearGradient>`;
+  }).join('');
+  const rings = items.map((x, i) => {
+    const len = x.n / total * C;
+    const el = `<circle cx="72" cy="72" r="${R}" fill="none" stroke="url(#mg${i})"
+      stroke-width="20" stroke-dasharray="${len} ${C - len}" stroke-dashoffset="${-off}"
+      transform="rotate(-90 72 72)"><title>${esc(x.m)}: ${x.n}</title></circle>`;
+    off += len; return el;
+  }).join('');
+  return `<div class="chart-wrap">
+    <svg width="144" height="144" viewBox="0 0 144 144" class="spark">
+      <defs>${grads}
+        <linearGradient id="mgSheen" x1="0" y1="0" x2=".7" y2="1">
+          <stop offset="0"   stop-color="#fff" stop-opacity=".38"/>
+          <stop offset=".38" stop-color="#fff" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      ${rings}
+      <circle cx="72" cy="72" r="${R}" fill="none" stroke="url(#mgSheen)"
+        stroke-width="20" pointer-events="none"/>
+      <text x="72" y="68" text-anchor="middle" font-size="24" font-weight="700"
+        fill="${cssv('--text')}">${total}</text>
+      <text x="72" y="86" text-anchor="middle" font-size="10"
+        fill="${cssv('--text-dim')}">results</text>
+    </svg>
+    <div class="legend">${items.map(x => `<div class="li">
+      <span class="sw" style="background:${moduleColor(x.m)}"></span>
+      <span class="ln">${esc(x.m)}</span><span class="lv">${x.n}</span>
+      <span class="faint">${((x.n / total) * 100).toFixed(0)}%</span></div>`).join('')}</div>
+  </div>`;
+}
+
 /* Horizontal stacked bars with an axis, one row per module. */
 /* One row per module: full name, a stacked bar of its result states, and the
    counts. HTML rather than SVG so the label is real text at a real font size
@@ -3531,7 +3639,8 @@ function suiteBars(perMod){
   return `<div class="sbars">${rows.map(r=>{
     const denom=(r.s.counts.PASS||0)+(r.s.counts.FAIL||0);
     return `<div class="sbar">
-      <div class="sbar-l" title="${esc(r.m)}">${esc(r.m)}</div>
+      <div class="sbar-l" title="${esc(r.m)}"><span class="sbar-dot"
+        style="background:${moduleColor(r.m)}"></span>${esc(r.m)}</div>
       <div class="sbar-t" style="width:${(r.s.total/max*100).toFixed(2)}%">
         ${seq.map(st=>{
           const n=r.s.counts[st]||0; if(!n) return '';
@@ -3588,6 +3697,9 @@ function tabOverview(R){
     perMod.get(m).push(...a.results);
   });
   const c=R.summary.counts;
+  /* One state means the state donut is a single band. The suite split of the
+     same results still has variety in it, so show that instead. */
+  const oneState = Object.keys(c).filter(k => c[k] > 0).length < 2;
   const best=[...perMod.entries()].map(x=>({m:x[0],s:summarise(x[1])}))
     .filter(x=>x.s.passRate!=null).sort((a,b)=>b.s.passRate-a.s.passRate)[0];
   const worst=[...perMod.entries()].map(x=>({m:x[0],s:summarise(x[1])}))
@@ -3596,10 +3708,14 @@ function tabOverview(R){
   <div class="egrid3" style="margin-top:20px">
     <div class="ecard" style="display:flex;flex-direction:column">
       <div class="ecard-h">
-        <div><h3>Test Status Distribution</h3><p>All seven contract states</p></div>
+        <div><h3>${oneState ? 'Test Cases by Suite' : 'Test Status Distribution'}</h3>
+          <p>${oneState
+            ? `Every result is ${esc(Object.keys(c).filter(k => c[k])[0] || '—')}, so the state
+               split says nothing — this is the same results counted per suite`
+            : 'All seven contract states'}</p></div>
         <span class="epill em">${pct(R.summary.passRate)} Pass</span>
       </div>
-      <div class="donut-wrap">${donut(R.summary.counts)}</div>
+      <div class="donut-wrap">${oneState ? donutByModule(perMod) : donut(R.summary.counts)}</div>
       <div class="ecard-f">
         <span>${R.summary.total} result${R.summary.total===1?'':'s'} &middot;
           ${(c.PASS||0)+(c.FAIL||0)} in the denominator</span>
