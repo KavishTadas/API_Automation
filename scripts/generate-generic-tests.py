@@ -328,6 +328,22 @@ def perform_api_request(api: dict[str, str], config: dict[str, str]) -> httpx.Re
     if _has_unresolved_template(base_url) or _has_unresolved_template(endpoint):
         pytest.skip(f"Unresolved URL template in {base_url}{endpoint}")
 
+    # Only now: the inner half of an unresolved `{{name}}` is itself a valid
+    # single-brace match, so substituting before the guard above could rewrite
+    # `{{baseURL}}` into `{value}` and slip a mangled URL past the very check
+    # meant to catch it.
+    endpoint = _resolve_path_parameters(endpoint, context)
+
+    # A path parameter left unresolved would be percent-encoded onto the wire,
+    # and the container rejects it with 400 before routing. Every assertion
+    # downstream would then be judging a malformed request, not the API.
+    unresolved_path_parameters = _unresolved_path_parameters(endpoint)
+    if unresolved_path_parameters:
+        pytest.skip(
+            "No value supplied for path parameter(s) "
+            + ", ".join(unresolved_path_parameters)
+        )
+
     url = f"{base_url}/{endpoint.lstrip('/')}"
     headers = _build_headers(api, request_parameters, context)
     params = {
@@ -540,6 +556,39 @@ def _resolve_templates(value: str, context: dict[str, str]) -> str:
 
 def _has_unresolved_template(value: str) -> bool:
     return "{{" in value and "}}" in value
+
+
+#: An OpenAPI-style path parameter: a single-brace token that is not part of a
+#: Postman `{{variable}}`. Matched after `_resolve_templates` has run, so any
+#: surviving double-brace pair is a separate problem already reported above.
+_PATH_PARAMETER_RE = re.compile(r"\{([^{}]+)\}")
+
+
+def _resolve_path_parameters(endpoint: str, context: dict[str, str]) -> str:
+    """Fill `/orders/{orderId}` from the same context `{{orderId}}` would use.
+
+    Left alone by `_resolve_templates`, which only understands double braces.
+    Unresolved names are returned untouched so the caller can skip on them
+    rather than sending a URL the container will reject.
+    """
+
+    def replace(match: re.Match[str]) -> str:
+        key = match.group(1).strip()
+        for candidate in (_canonical_env_key(key), key, key.upper()):
+            resolved = os.getenv(candidate) or context.get(candidate)
+            if resolved:
+                return str(resolved)
+        return match.group(0)
+
+    return _PATH_PARAMETER_RE.sub(replace, "" if endpoint is None else str(endpoint))
+
+
+def _unresolved_path_parameters(endpoint: str) -> list[str]:
+    """Path parameter names still present after substitution, in order."""
+    return [
+        match.group(1).strip()
+        for match in _PATH_PARAMETER_RE.finditer(endpoint or "")
+    ]
 
 
 def _is_json_request(headers: dict[str, str], body_text: str) -> bool:

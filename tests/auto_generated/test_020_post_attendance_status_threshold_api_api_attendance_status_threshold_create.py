@@ -34,7 +34,7 @@ API = json.loads(r"""{
   "Response (example/200)": "",
   "Example Response Payload": "",
   "Dependent APIs / Services": "",
-  "Owner / Developer": "",
+  "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold",
   "Comments": "Source: collections/Attendance_Threshold_API.json; No saved response example in source file"
 }""")
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (200)")
 @allure.label("sourceModule", "Attendance Status Threshold API")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold", name="API Identifier")
 def test_attendance_status_threshold_api_api_attendance_status_threshold_create_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
@@ -67,7 +67,7 @@ def test_attendance_status_threshold_api_api_attendance_status_threshold_create_
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Attendance Status Threshold API")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold", name="API Identifier")
 def test_attendance_status_threshold_api_api_attendance_status_threshold_create_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")

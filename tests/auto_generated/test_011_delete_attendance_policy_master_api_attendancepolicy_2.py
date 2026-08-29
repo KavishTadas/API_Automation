@@ -34,7 +34,7 @@ API = json.loads(r"""{
   "Response (example/200)": "",
   "Example Response Payload": "",
   "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
-  "Owner / Developer": "",
+  "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "delete|/api/attendancepolicy/2|attendance policy master|delete policy by id",
   "Comments": "Source: collections/Attendance_Management_API.json; No saved response example in source file"
 }""")
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (200)")
 @allure.label("sourceModule", "Attendance Policy Master")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("delete|/api/attendancepolicy/2|attendance policy master|delete policy by id", name="API Identifier")
 def test_attendance_policy_master_api_attendancepolicy_2_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "DELETE")
@@ -67,7 +67,7 @@ def test_attendance_policy_master_api_attendancepolicy_2_status_code(api_runtime
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Attendance Policy Master")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("delete|/api/attendancepolicy/2|attendance policy master|delete policy by id", name="API Identifier")
 def test_attendance_policy_master_api_attendancepolicy_2_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "DELETE")

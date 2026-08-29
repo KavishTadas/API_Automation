@@ -34,7 +34,7 @@ API = json.loads(r"""{
   "Response (example/200)": "Expected status(es): 200\n{\n  \"token\": \"<jwt-token>\"\n}",
   "Example Response Payload": "{\n  \"token\": \"<jwt-token>\"\n}",
   "Dependent APIs / Services": "Produces authToken for downstream APIs",
-  "Owner / Developer": "",
+  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
   "API Identifier": "post|/auth/token|auth|login",
   "Comments": "Source: bruno/auth/login.bru; No saved response example in source file; Parsed from Bruno file"
 }""")
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (200)")
 @allure.label("sourceModule", "auth")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "")
+@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
 @allure.link("post|/auth/token|auth|login", name="API Identifier")
 def test_auth_auth_token_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
@@ -67,7 +67,7 @@ def test_auth_auth_token_status_code(api_runtime_config: dict[str, str]) -> None
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "auth")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "")
+@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
 @allure.link("post|/auth/token|auth|login", name="API Identifier")
 def test_auth_auth_token_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")

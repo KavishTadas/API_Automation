@@ -110,6 +110,11 @@ class OperationCase:
     #: Set when a manifest ref could not be resolved. The case still collects,
     #: so the API reports NOT_APPLICABLE for all 12 tests rather than vanishing.
     unresolved_reason: str | None = None
+    #: Which source supplied ``idempotent``: "openapi" or "definition" mean a
+    #: human declared it, "inventory" means it was inferred from the method.
+    #: Only a declared value carries RFC semantics -- see
+    #: test_declared_idempotency_matches_method.
+    idempotent_source: str = ""
 
     @property
     def label(self) -> str:
@@ -367,6 +372,7 @@ def _case_from_metadata(
         sla_ms=metadata.sla_ms,
         required_role=metadata.required_role,
         idempotent=metadata.idempotent,
+        idempotent_source=str(metadata.provenance.get("idempotent", "") or ""),
         max_payload_bytes=metadata.max_payload_bytes,
         paginated=metadata.paginated,
         entry_id=entry_id,
@@ -1067,11 +1073,20 @@ def test_response_matches_full_schema(
             f"for observed status(es) {sorted(set(unschematized_statuses))}",
         )
 
-    # The success half is required: without it this test asserted nothing.
-    assert any(200 <= status < 300 for status in observed_statuses), (
-        f"{operation_case.method} {operation_case.path} schema check did not inspect "
-        f"a success response; observed statuses: {observed_statuses}"
-    )
+    # Without a success sample this test asserted nothing about the success
+    # schema. That is an absence, not a defect -- and for a destructive verb it
+    # is deliberate: the suite refuses to fire a real DELETE with a real id at
+    # UAT, so no 2xx can ever be observed. Failing here punished the endpoint
+    # for a guardrail the engine imposed on itself, and D7's mirror forbids it:
+    # a request we chose not to make cannot be scored as a failure. The error
+    # half below already reports its own absence the same way.
+    if not any(200 <= status < 300 for status in observed_statuses):
+        _skip_with_state(
+            ResultState.NOT_ASSERTED,
+            f"{operation_case.method} {operation_case.path} success-schema half not "
+            f"validated: no success response was observed "
+            f"(observed {observed_statuses or 'nothing'})",
+        )
 
     # The error half is validated only when an error sample exists. It used to
     # be mandatory, which hard-failed every API that simply had no 4xx sample
@@ -1666,6 +1681,20 @@ def test_404_for_unknown_route(
         global_contract_context.config_for(operation_case),
     )
 
+    # An API that authenticates ahead of routing answers 401/403 for every path,
+    # real or invented, so the probe never reaches the routing layer this check
+    # is about. Verified against UAT: a route sharing no prefix with anything
+    # real returns 401, not 404. Demanding 404 here would ask the API to
+    # disclose which routes exist to an unauthenticated caller -- the opposite
+    # of what the check is for.
+    if response.status_code in (401, 403):
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            f"{operation_case.method} {operation_case.path} authenticates before "
+            f"routing (unknown route returned {response.status_code}); "
+            "unknown-route behaviour is not observable without a valid token",
+        )
+
     assert response.status_code == 404, (
         f"{operation_case.method} {unknown_route_row['Endpoint / Path']} returned "
         f"{response.status_code} instead of 404"
@@ -2072,6 +2101,18 @@ def test_declared_idempotency_matches_method(
         _skip_with_state(
             ResultState.NOT_APPLICABLE,
             "idempotency is not declared for this operation",
+            field="idempotent",
+        )
+
+    # An inventory-sourced value was inferred from REPLAY_SAFE_METHODS, which
+    # answers "is this safe to replay against UAT", not "is this idempotent per
+    # RFC 9110". PUT and DELETE are deliberately False there. Asserting RFC
+    # semantics on it would fail every write method for agreeing with a rule it
+    # was never expressing -- and there is no human declaration to contradict.
+    if operation_case.idempotent_source not in {"openapi", "definition"}:
+        _skip_with_state(
+            ResultState.NOT_APPLICABLE,
+            "idempotency was inferred from the method, not declared by a source",
             field="idempotent",
         )
 

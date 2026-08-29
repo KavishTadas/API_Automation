@@ -34,7 +34,7 @@ API = json.loads(r"""{
   "Response (example/200)": "Expected status(es): 401\n{\n  \"token\": \"<jwt-token>\"\n}",
   "Example Response Payload": "{\n  \"token\": \"<jwt-token>\"\n}",
   "Dependent APIs / Services": "",
-  "Owner / Developer": "",
+  "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status",
   "Comments": "Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response example in source file"
 }""")
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (401)")
 @allure.label("sourceModule", "Leave API")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status", name="API Identifier")
 @pytest.mark.skip(reason="Temporarily disabled per user request due to negative scenario mismatch")
 def test_leave_api_user_leaves_getallleavereports_status_code(api_runtime_config: dict[str, str]) -> None:
@@ -68,7 +68,7 @@ def test_leave_api_user_leaves_getallleavereports_status_code(api_runtime_config
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Leave API")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status", name="API Identifier")
 @pytest.mark.skip(reason="Temporarily disabled per user request due to negative scenario mismatch")
 def test_leave_api_user_leaves_getallleavereports_response_schema(api_runtime_config: dict[str, str]) -> None:

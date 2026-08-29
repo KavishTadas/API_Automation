@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "Create",
   "Access": "private",
   "Functional Purpose": "Create",
-  "Base URL": "http://localhost:9078",
+  "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/attendance/holiday-templates/create",
   "HTTP Method": "POST",
   "Request Parameters": "headers: Authorization=Bearer {{jwtToken}}; Content-Type=application/json",
@@ -34,7 +34,7 @@ API = json.loads(r"""{
   "Response (example/200)": "",
   "Example Response Payload": "",
   "Dependent APIs / Services": "",
-  "Owner / Developer": "",
+  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
   "API Identifier": "post|/api/attendance/holiday-templates/create|holiday template apis copy|create",
   "Comments": "Source: collections/Holiday_Template_API.json; No saved response example in source file"
 }""")
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (200)")
 @allure.label("sourceModule", "Holiday Template APIs Copy")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "")
+@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
 @allure.link("post|/api/attendance/holiday-templates/create|holiday template apis copy|create", name="API Identifier")
 def test_holiday_template_apis_copy_api_attendance_holiday_templates_create_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
@@ -67,7 +67,7 @@ def test_holiday_template_apis_copy_api_attendance_holiday_templates_create_stat
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Holiday Template APIs Copy")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "")
+@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
 @allure.link("post|/api/attendance/holiday-templates/create|holiday template apis copy|create", name="API Identifier")
 def test_holiday_template_apis_copy_api_attendance_holiday_templates_create_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
