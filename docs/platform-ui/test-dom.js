@@ -839,9 +839,12 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
      [...trendCard.querySelectorAll('svg.trend text')].some(t => /%$/.test(t.textContent)));
   ok('the newest point is labelled current',
      [...trendCard.querySelectorAll('svg.trend text')].some(t => t.textContent === 'current'));
-  ok('the point carries a tooltip with its gate',
-     /gate (PASSED|WARNING|FAILED)/.test(trendCard.querySelector('svg.trend title').textContent),
-     trendCard.querySelector('svg.trend title').textContent);
+  // Across all titles, not the first: the chart draws volume columns before
+  // the data points, so depending on draw order made this assert the wrong mark.
+  ok('a trend mark carries a tooltip with its gate',
+     [...trendCard.querySelectorAll('svg.trend title')]
+       .some(n => /gate (PASSED|WARNING|FAILED)/.test(n.textContent)),
+     [...trendCard.querySelectorAll('svg.trend title')].map(n => n.textContent).join(' | '));
   ok('an Add sample runs button is offered', !!$('#anBody [data-hist="seed"]'));
 
   // seed samples
