@@ -68,7 +68,7 @@
       "WARN"
     ],
     "passRateFormula": "PASS / (PASS + FAIL)",
-    "passRateNote": "Undefined when PASS + FAIL is zero \u2014 report 'not applicable', never 100%. A batch of entirely NOT_ASSERTED APIs has no pass rate.",
+    "passRateNote": "Undefined when PASS + FAIL is zero — report 'not applicable', never 100%. A batch of entirely NOT_ASSERTED APIs has no pass rate.",
     "executedStates": [
       "FAIL",
       "INFORMATIONAL",
@@ -78,13 +78,13 @@
   },
   "apis": [
     {
-      "ref": "delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete",
+      "ref": "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete",
       "displayId": null,
       "name": "Delete",
       "module": "Holiday Template APIs Copy",
       "subModule": "Delete",
       "method": "DELETE",
-      "path": "/api/attendance/holiday-templates/delete/%7BholidayTemplateId%7D",
+      "path": "/api/attendance/holiday-templates/delete/{holidayTemplateId}",
       "owner": null,
       "sourceType": "newman",
       "sourceCollection": "collections/Holiday_Template_API.json",
@@ -585,13 +585,13 @@
       "assertionState": "asserted"
     },
     {
-      "ref": "put|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update",
+      "ref": "put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update",
       "displayId": null,
       "name": "Update",
       "module": "Holiday Template APIs Copy",
       "subModule": "Update",
       "method": "PUT",
-      "path": "/api/attendance/holiday-templates/update/%7BholidayTemplateId%7D",
+      "path": "/api/attendance/holiday-templates/update/{holidayTemplateId}",
       "owner": null,
       "sourceType": "newman",
       "sourceCollection": "collections/Holiday_Template_API.json",
@@ -845,7 +845,7 @@
     "apiSpecific": [
       {
         "id": "generated::delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete::response_schema",
-        "title": "Delete \u2014 response matches the documented schema",
+        "title": "Delete — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -853,7 +853,7 @@
       },
       {
         "id": "generated::delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete::status_code",
-        "title": "Delete \u2014 returns the documented HTTP status",
+        "title": "Delete — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -861,7 +861,7 @@
       },
       {
         "id": "generated::delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold::response_schema",
-        "title": "Delete Threshold \u2014 response matches the documented schema",
+        "title": "Delete Threshold — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -869,7 +869,7 @@
       },
       {
         "id": "generated::delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold::status_code",
-        "title": "Delete Threshold \u2014 returns the documented HTTP status",
+        "title": "Delete Threshold — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -877,7 +877,7 @@
       },
       {
         "id": "generated::delete|/api/attendancepolicy/2|attendance policy master|delete policy by id::response_schema",
-        "title": "Delete Policy By Id \u2014 response matches the documented schema",
+        "title": "Delete Policy By Id — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -885,7 +885,7 @@
       },
       {
         "id": "generated::delete|/api/attendancepolicy/2|attendance policy master|delete policy by id::status_code",
-        "title": "Delete Policy By Id \u2014 returns the documented HTTP status",
+        "title": "Delete Policy By Id — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -893,7 +893,7 @@
       },
       {
         "id": "generated::delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift::response_schema",
-        "title": "Delete Shift \u2014 response matches the documented schema",
+        "title": "Delete Shift — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -901,7 +901,7 @@
       },
       {
         "id": "generated::delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift::status_code",
-        "title": "Delete Shift \u2014 returns the documented HTTP status",
+        "title": "Delete Shift — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -909,7 +909,7 @@
       },
       {
         "id": "generated::get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all::response_schema",
-        "title": "Get All \u2014 response matches the documented schema",
+        "title": "Get All — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -917,7 +917,7 @@
       },
       {
         "id": "generated::get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all::status_code",
-        "title": "Get All \u2014 returns the documented HTTP status",
+        "title": "Get All — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -925,7 +925,7 @@
       },
       {
         "id": "generated::get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id::response_schema",
-        "title": "Get By Id \u2014 response matches the documented schema",
+        "title": "Get By Id — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -933,7 +933,7 @@
       },
       {
         "id": "generated::get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id::status_code",
-        "title": "Get By Id \u2014 returns the documented HTTP status",
+        "title": "Get By Id — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -941,7 +941,7 @@
       },
       {
         "id": "generated::get|/api/attendance/late-early-policies/getall|latearly-policy|getall::response_schema",
-        "title": "getAll \u2014 response matches the documented schema",
+        "title": "getAll — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -949,7 +949,7 @@
       },
       {
         "id": "generated::get|/api/attendance/late-early-policies/getall|latearly-policy|getall::status_code",
-        "title": "getAll \u2014 returns the documented HTTP status",
+        "title": "getAll — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -957,7 +957,7 @@
       },
       {
         "id": "generated::get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1::response_schema",
-        "title": "getById/1 \u2014 response matches the documented schema",
+        "title": "getById/1 — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -965,7 +965,7 @@
       },
       {
         "id": "generated::get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1::status_code",
-        "title": "getById/1 \u2014 returns the documented HTTP status",
+        "title": "getById/1 — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -973,7 +973,7 @@
       },
       {
         "id": "generated::get|/api/attendance/status-threshold/getall|attendance status threshold api|get all::response_schema",
-        "title": "Get All \u2014 response matches the documented schema",
+        "title": "Get All — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -981,7 +981,7 @@
       },
       {
         "id": "generated::get|/api/attendance/status-threshold/getall|attendance status threshold api|get all::status_code",
-        "title": "Get All \u2014 returns the documented HTTP status",
+        "title": "Get All — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -989,7 +989,7 @@
       },
       {
         "id": "generated::get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id::response_schema",
-        "title": "Get By Id \u2014 response matches the documented schema",
+        "title": "Get By Id — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -997,7 +997,7 @@
       },
       {
         "id": "generated::get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id::status_code",
-        "title": "Get By Id \u2014 returns the documented HTTP status",
+        "title": "Get By Id — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1005,7 +1005,7 @@
       },
       {
         "id": "generated::get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall::response_schema",
-        "title": "WeekOffGetAll \u2014 response matches the documented schema",
+        "title": "WeekOffGetAll — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1013,7 +1013,7 @@
       },
       {
         "id": "generated::get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall::status_code",
-        "title": "WeekOffGetAll \u2014 returns the documented HTTP status",
+        "title": "WeekOffGetAll — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1021,7 +1021,7 @@
       },
       {
         "id": "generated::get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid::response_schema",
-        "title": "WeekOffGetById \u2014 response matches the documented schema",
+        "title": "WeekOffGetById — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1029,7 +1029,7 @@
       },
       {
         "id": "generated::get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid::status_code",
-        "title": "WeekOffGetById \u2014 returns the documented HTTP status",
+        "title": "WeekOffGetById — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1037,7 +1037,7 @@
       },
       {
         "id": "generated::get|/api/attendancepolicy/1|attendance policy master|get policy by id::response_schema",
-        "title": "Get Policy By Id \u2014 response matches the documented schema",
+        "title": "Get Policy By Id — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1045,7 +1045,7 @@
       },
       {
         "id": "generated::get|/api/attendancepolicy/1|attendance policy master|get policy by id::status_code",
-        "title": "Get Policy By Id \u2014 returns the documented HTTP status",
+        "title": "Get Policy By Id — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1053,7 +1053,7 @@
       },
       {
         "id": "generated::get|/api/attendancepolicy|attendance policy master|get all policies::response_schema",
-        "title": "Get All Policies \u2014 response matches the documented schema",
+        "title": "Get All Policies — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1061,7 +1061,7 @@
       },
       {
         "id": "generated::get|/api/attendancepolicy|attendance policy master|get all policies::status_code",
-        "title": "Get All Policies \u2014 returns the documented HTTP status",
+        "title": "Get All Policies — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1069,7 +1069,7 @@
       },
       {
         "id": "generated::get|/api/v1/attendance/shift/master/7|attendance shift master|get by id::response_schema",
-        "title": "Get By Id \u2014 response matches the documented schema",
+        "title": "Get By Id — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1077,7 +1077,7 @@
       },
       {
         "id": "generated::get|/api/v1/attendance/shift/master/7|attendance shift master|get by id::status_code",
-        "title": "Get By Id \u2014 returns the documented HTTP status",
+        "title": "Get By Id — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1085,7 +1085,7 @@
       },
       {
         "id": "generated::get|/api/v1/attendance/shift/master|attendance shift master|get all shifts::response_schema",
-        "title": "Get All Shifts \u2014 response matches the documented schema",
+        "title": "Get All Shifts — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1093,7 +1093,7 @@
       },
       {
         "id": "generated::get|/api/v1/attendance/shift/master|attendance shift master|get all shifts::status_code",
-        "title": "Get All Shifts \u2014 returns the documented HTTP status",
+        "title": "Get All Shifts — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1101,7 +1101,7 @@
       },
       {
         "id": "generated::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::response_schema",
-        "title": "TC01/TC03 - Get all leave reports and validate structure \u2014 response matches the documented schema",
+        "title": "TC01/TC03 - Get all leave reports and validate structure — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1109,7 +1109,7 @@
       },
       {
         "id": "generated::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::status_code",
-        "title": "TC01/TC03 - Get all leave reports and validate structure \u2014 returns the documented HTTP status",
+        "title": "TC01/TC03 - Get all leave reports and validate structure — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1117,7 +1117,7 @@
       },
       {
         "id": "generated::get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status::response_schema",
-        "title": "TC02 - Invalid token returns observed authorization status \u2014 response matches the documented schema",
+        "title": "TC02 - Invalid token returns observed authorization status — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1125,7 +1125,7 @@
       },
       {
         "id": "generated::get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status::status_code",
-        "title": "TC02 - Invalid token returns observed authorization status \u2014 returns the documented HTTP status",
+        "title": "TC02 - Invalid token returns observed authorization status — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1133,7 +1133,7 @@
       },
       {
         "id": "generated::get|/users/me|users|get profile::response_schema",
-        "title": "Get profile \u2014 response matches the documented schema",
+        "title": "Get profile — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1141,7 +1141,7 @@
       },
       {
         "id": "generated::get|/users/me|users|get profile::status_code",
-        "title": "Get profile \u2014 returns the documented HTTP status",
+        "title": "Get profile — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1149,7 +1149,7 @@
       },
       {
         "id": "generated::patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status::response_schema",
-        "title": "Change Status \u2014 response matches the documented schema",
+        "title": "Change Status — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1157,7 +1157,7 @@
       },
       {
         "id": "generated::patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status::status_code",
-        "title": "Change Status \u2014 returns the documented HTTP status",
+        "title": "Change Status — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1165,7 +1165,7 @@
       },
       {
         "id": "generated::patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus::response_schema",
-        "title": "ChangeStatus \u2014 response matches the documented schema",
+        "title": "ChangeStatus — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1173,7 +1173,7 @@
       },
       {
         "id": "generated::patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus::status_code",
-        "title": "ChangeStatus \u2014 returns the documented HTTP status",
+        "title": "ChangeStatus — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1181,7 +1181,7 @@
       },
       {
         "id": "generated::patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status::response_schema",
-        "title": "Change Status \u2014 response matches the documented schema",
+        "title": "Change Status — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1189,7 +1189,7 @@
       },
       {
         "id": "generated::patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status::status_code",
-        "title": "Change Status \u2014 returns the documented HTTP status",
+        "title": "Change Status — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1197,7 +1197,7 @@
       },
       {
         "id": "generated::patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus::response_schema",
-        "title": "week-off-assignment/changeStatus \u2014 response matches the documented schema",
+        "title": "week-off-assignment/changeStatus — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1205,7 +1205,7 @@
       },
       {
         "id": "generated::patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus::status_code",
-        "title": "week-off-assignment/changeStatus \u2014 returns the documented HTTP status",
+        "title": "week-off-assignment/changeStatus — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1213,7 +1213,7 @@
       },
       {
         "id": "generated::patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact::response_schema",
-        "title": "WeekOffActDeact \u2014 response matches the documented schema",
+        "title": "WeekOffActDeact — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1221,7 +1221,7 @@
       },
       {
         "id": "generated::patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact::status_code",
-        "title": "WeekOffActDeact \u2014 returns the documented HTTP status",
+        "title": "WeekOffActDeact — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1229,7 +1229,7 @@
       },
       {
         "id": "generated::patch|/api/attendancepolicy/4/status|attendance policy master|activate deactivate::response_schema",
-        "title": "Activate Deactivate \u2014 response matches the documented schema",
+        "title": "Activate Deactivate — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1237,7 +1237,7 @@
       },
       {
         "id": "generated::patch|/api/attendancepolicy/4/status|attendance policy master|activate deactivate::status_code",
-        "title": "Activate Deactivate \u2014 returns the documented HTTP status",
+        "title": "Activate Deactivate — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1245,7 +1245,7 @@
       },
       {
         "id": "generated::patch|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete::response_schema",
-        "title": "Toggle Delete \u2014 response matches the documented schema",
+        "title": "Toggle Delete — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1253,7 +1253,7 @@
       },
       {
         "id": "generated::patch|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete::status_code",
-        "title": "Toggle Delete \u2014 returns the documented HTTP status",
+        "title": "Toggle Delete — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1261,7 +1261,7 @@
       },
       {
         "id": "generated::post|/api/attendance/holiday-templates/create|holiday template apis copy|create::response_schema",
-        "title": "Create \u2014 response matches the documented schema",
+        "title": "Create — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1269,7 +1269,7 @@
       },
       {
         "id": "generated::post|/api/attendance/holiday-templates/create|holiday template apis copy|create::status_code",
-        "title": "Create \u2014 returns the documented HTTP status",
+        "title": "Create — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1277,7 +1277,7 @@
       },
       {
         "id": "generated::post|/api/attendance/late-early-policies/create|latearly-policy|create::response_schema",
-        "title": "create \u2014 response matches the documented schema",
+        "title": "create — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1285,7 +1285,7 @@
       },
       {
         "id": "generated::post|/api/attendance/late-early-policies/create|latearly-policy|create::status_code",
-        "title": "create \u2014 returns the documented HTTP status",
+        "title": "create — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1293,7 +1293,7 @@
       },
       {
         "id": "generated::post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold::response_schema",
-        "title": "Create Threshold \u2014 response matches the documented schema",
+        "title": "Create Threshold — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1301,7 +1301,7 @@
       },
       {
         "id": "generated::post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold::status_code",
-        "title": "Create Threshold \u2014 returns the documented HTTP status",
+        "title": "Create Threshold — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1309,7 +1309,7 @@
       },
       {
         "id": "generated::post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid::response_schema",
-        "title": "week-off-assignment/getByWeekOffId \u2014 response matches the documented schema",
+        "title": "week-off-assignment/getByWeekOffId — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1317,7 +1317,7 @@
       },
       {
         "id": "generated::post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid::status_code",
-        "title": "week-off-assignment/getByWeekOffId \u2014 returns the documented HTTP status",
+        "title": "week-off-assignment/getByWeekOffId — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1325,7 +1325,7 @@
       },
       {
         "id": "generated::post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate::response_schema",
-        "title": "WeekOffMasterCreate \u2014 response matches the documented schema",
+        "title": "WeekOffMasterCreate — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1333,7 +1333,7 @@
       },
       {
         "id": "generated::post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate::status_code",
-        "title": "WeekOffMasterCreate \u2014 returns the documented HTTP status",
+        "title": "WeekOffMasterCreate — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1341,7 +1341,7 @@
       },
       {
         "id": "generated::post|/api/attendancepolicy|attendance policy master|create new policy::response_schema",
-        "title": "Create New Policy \u2014 response matches the documented schema",
+        "title": "Create New Policy — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1349,7 +1349,7 @@
       },
       {
         "id": "generated::post|/api/attendancepolicy|attendance policy master|create new policy::status_code",
-        "title": "Create New Policy \u2014 returns the documented HTTP status",
+        "title": "Create New Policy — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1357,7 +1357,7 @@
       },
       {
         "id": "generated::post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)::response_schema",
-        "title": "Create CUSTOM Shift (FIXED Type) \u2014 response matches the documented schema",
+        "title": "Create CUSTOM Shift (FIXED Type) — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1365,7 +1365,7 @@
       },
       {
         "id": "generated::post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)::status_code",
-        "title": "Create CUSTOM Shift (FIXED Type) \u2014 returns the documented HTTP status",
+        "title": "Create CUSTOM Shift (FIXED Type) — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1373,7 +1373,7 @@
       },
       {
         "id": "generated::post|/api/v1/attendance/shift/master|attendance shift master|create new shift::response_schema",
-        "title": "Create New Shift \u2014 response matches the documented schema",
+        "title": "Create New Shift — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1381,7 +1381,7 @@
       },
       {
         "id": "generated::post|/api/v1/attendance/shift/master|attendance shift master|create new shift::status_code",
-        "title": "Create New Shift \u2014 returns the documented HTTP status",
+        "title": "Create New Shift — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1389,7 +1389,7 @@
       },
       {
         "id": "generated::post|/auth/token|auth|login::response_schema",
-        "title": "Login \u2014 response matches the documented schema",
+        "title": "Login — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1397,7 +1397,7 @@
       },
       {
         "id": "generated::post|/auth/token|auth|login::status_code",
-        "title": "Login \u2014 returns the documented HTTP status",
+        "title": "Login — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1405,7 +1405,7 @@
       },
       {
         "id": "generated::post|/auth/token|employee auth api|tc01 - valid credentials return jwt token::response_schema",
-        "title": "TC01 - Valid credentials return JWT token \u2014 response matches the documented schema",
+        "title": "TC01 - Valid credentials return JWT token — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1413,7 +1413,7 @@
       },
       {
         "id": "generated::post|/auth/token|employee auth api|tc01 - valid credentials return jwt token::status_code",
-        "title": "TC01 - Valid credentials return JWT token \u2014 returns the documented HTTP status",
+        "title": "TC01 - Valid credentials return JWT token — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1421,7 +1421,7 @@
       },
       {
         "id": "generated::post|/auth/token|employee auth api|tc02 - invalid empcode returns 400::response_schema",
-        "title": "TC02 - Invalid empCode returns 400 \u2014 response matches the documented schema",
+        "title": "TC02 - Invalid empCode returns 400 — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1429,7 +1429,7 @@
       },
       {
         "id": "generated::post|/auth/token|employee auth api|tc02 - invalid empcode returns 400::status_code",
-        "title": "TC02 - Invalid empCode returns 400 \u2014 returns the documented HTTP status",
+        "title": "TC02 - Invalid empCode returns 400 — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1437,7 +1437,7 @@
       },
       {
         "id": "generated::post|/auth/token|employee auth api|tc03 - missing password returns 400::response_schema",
-        "title": "TC03 - Missing password returns 400 \u2014 response matches the documented schema",
+        "title": "TC03 - Missing password returns 400 — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1445,7 +1445,7 @@
       },
       {
         "id": "generated::post|/auth/token|employee auth api|tc03 - missing password returns 400::status_code",
-        "title": "TC03 - Missing password returns 400 \u2014 returns the documented HTTP status",
+        "title": "TC03 - Missing password returns 400 — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1453,7 +1453,7 @@
       },
       {
         "id": "generated::post|/auth/token|login auth uat api|tc01 - valid credentials return token::response_schema",
-        "title": "TC01 - Valid credentials return token \u2014 response matches the documented schema",
+        "title": "TC01 - Valid credentials return token — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1461,7 +1461,7 @@
       },
       {
         "id": "generated::post|/auth/token|login auth uat api|tc01 - valid credentials return token::status_code",
-        "title": "TC01 - Valid credentials return token \u2014 returns the documented HTTP status",
+        "title": "TC01 - Valid credentials return token — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1469,7 +1469,7 @@
       },
       {
         "id": "generated::put|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update::response_schema",
-        "title": "Update \u2014 response matches the documented schema",
+        "title": "Update — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1477,7 +1477,7 @@
       },
       {
         "id": "generated::put|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update::status_code",
-        "title": "Update \u2014 returns the documented HTTP status",
+        "title": "Update — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1485,7 +1485,7 @@
       },
       {
         "id": "generated::put|/api/attendance/late-early-policies/update/2|latearly-policy|update::response_schema",
-        "title": "update \u2014 response matches the documented schema",
+        "title": "update — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1493,7 +1493,7 @@
       },
       {
         "id": "generated::put|/api/attendance/late-early-policies/update/2|latearly-policy|update::status_code",
-        "title": "update \u2014 returns the documented HTTP status",
+        "title": "update — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1501,7 +1501,7 @@
       },
       {
         "id": "generated::put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold::response_schema",
-        "title": "Update Threshold \u2014 response matches the documented schema",
+        "title": "Update Threshold — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1509,7 +1509,7 @@
       },
       {
         "id": "generated::put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold::status_code",
-        "title": "Update Threshold \u2014 returns the documented HTTP status",
+        "title": "Update Threshold — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1517,7 +1517,7 @@
       },
       {
         "id": "generated::put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate::response_schema",
-        "title": "WeekOffUpdate \u2014 response matches the documented schema",
+        "title": "WeekOffUpdate — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1525,7 +1525,7 @@
       },
       {
         "id": "generated::put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate::status_code",
-        "title": "WeekOffUpdate \u2014 returns the documented HTTP status",
+        "title": "WeekOffUpdate — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1533,7 +1533,7 @@
       },
       {
         "id": "generated::put|/api/attendancepolicy/2|attendance policy master|update policy by id::response_schema",
-        "title": "Update Policy By Id \u2014 response matches the documented schema",
+        "title": "Update Policy By Id — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1541,7 +1541,7 @@
       },
       {
         "id": "generated::put|/api/attendancepolicy/2|attendance policy master|update policy by id::status_code",
-        "title": "Update Policy By Id \u2014 returns the documented HTTP status",
+        "title": "Update Policy By Id — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
@@ -1549,7 +1549,7 @@
       },
       {
         "id": "generated::put|/api/v1/attendance/shift/master/2|attendance shift master|update shift::response_schema",
-        "title": "Update Shift \u2014 response matches the documented schema",
+        "title": "Update Shift — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
@@ -1557,7 +1557,7 @@
       },
       {
         "id": "generated::put|/api/v1/attendance/shift/master/2|attendance shift master|update shift::status_code",
-        "title": "Update Shift \u2014 returns the documented HTTP status",
+        "title": "Update Shift — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",

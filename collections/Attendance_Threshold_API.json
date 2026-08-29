@@ -253,7 +253,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "https://uat_mcdp_hcm.omfysgroup.com"
+      "value": "https://uatmcdphcmplatform.omfysgroup.com"
     },
     {
       "key": "token",

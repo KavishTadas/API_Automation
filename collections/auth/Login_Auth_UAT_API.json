@@ -88,5 +88,12 @@
         }
       }
     }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://uat-mcdp-be.omfysgroup.com",
+      "type": "string"
+    }
   ]
 }

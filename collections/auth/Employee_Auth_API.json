@@ -8,193 +8,236 @@
   "item": [
     {
       "name": "TC01 - Valid credentials return JWT token",
-      "event": [{
-        "listen": "test",
-        "script": {
-          "type": "text/javascript",
-          "exec": [
-            "const responseContentType = (pm.response.headers.get('Content-Type') || '').trim();",
-            "const responseIsJson = /^(?:application\\/json|application\\/[^;\\s]+\\+json)(?:\\s*;|$)/i.test(responseContentType);",
-            "const contentTypeDescription = responseContentType || 'no content-type header';",
-            "const contentTypeFailureMessage = 'Expected application/json response but received ' + contentTypeDescription;",
-            "if (!responseIsJson) {",
-            "  pm.test(contentTypeFailureMessage, function () {",
-            "    pm.expect(responseIsJson, contentTypeFailureMessage).to.equal(true);",
-            "  });",
-            "} else {",
-            "const json = pm.response.json();",
-            "function assertOpenApiSchema(schemaName, payload, context) {",
-            "  const rawBundle = pm.environment.get('openapiSchemaBundle');",
-            "  pm.expect(rawBundle, 'OpenAPI schema bundle must be injected by scripts/run-newman.js').to.be.a('string');",
-            "  const schemaBundle = JSON.parse(rawBundle);",
-            "  const Ajv = require('ajv');",
-            "  const ajv = new Ajv({ allErrors: true, jsonPointers: true, schemaId: 'auto', unknownFormats: 'ignore' });",
-            "  ajv.addSchema(schemaBundle);",
-            "  const validate = ajv.getSchema(schemaBundle.$id + '#/components/schemas/' + schemaName);",
-            "  pm.expect(validate, 'Compiled OpenAPI schema ' + schemaName + ' must exist').to.be.a('function');",
-            "  const valid = validate(payload);",
-            "  const errors = validate.errors || [];",
-            "  const details = errors.slice(0, 5).map(function (error) {",
-            "    return (error.dataPath || '/') + ' ' + error.message + ' (' + error.schemaPath + ')';",
-            "  }).join('; ') + (errors.length > 5 ? '; ... ' + (errors.length - 5) + ' additional violation(s)' : '');",
-            "  pm.expect(valid, (context || schemaName) + ' failed OpenAPI schema validation: ' + details).to.equal(true);",
-            "}",
-            "pm.test('TC01 - Status is 200', function() {",
-            "  pm.response.to.have.status(200);",
-            "});",
-            "pm.test('TC01 - Full response matches OpenAPI LoginResponse', function() {",
-            "  assertOpenApiSchema('LoginResponse', json, 'Login response');",
-            "});",
-            "pm.test('TC01 - Token is three-part JWT', function() {",
-            "  pm.expect(json.token).to.be.a('string');",
-            "  pm.expect(json.token.split('.').length).to.equal(3);",
-            "});",
-            "pm.test('TC01 - empCode and username returned', function() {",
-            "  pm.expect(json.empCode).to.be.a('string');",
-            "  pm.expect(json.username).to.be.a('string');",
-            "});",
-            "pm.test('TC01 - roles is non-empty array', function() {",
-            "  pm.expect(json.roles).to.be.an('array').with.length.above(0);",
-            "});",
-            "if (json.token) { pm.environment.set('authToken', json.token); console.log('authToken stored'); }",
-            "}"
-          ]
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const responseContentType = (pm.response.headers.get('Content-Type') || '').trim();",
+              "const responseIsJson = /^(?:application\\/json|application\\/[^;\\s]+\\+json)(?:\\s*;|$)/i.test(responseContentType);",
+              "const contentTypeDescription = responseContentType || 'no content-type header';",
+              "const contentTypeFailureMessage = 'Expected application/json response but received ' + contentTypeDescription;",
+              "if (!responseIsJson) {",
+              "  pm.test(contentTypeFailureMessage, function () {",
+              "    pm.expect(responseIsJson, contentTypeFailureMessage).to.equal(true);",
+              "  });",
+              "} else {",
+              "const json = pm.response.json();",
+              "function assertOpenApiSchema(schemaName, payload, context) {",
+              "  const rawBundle = pm.environment.get('openapiSchemaBundle');",
+              "  pm.expect(rawBundle, 'OpenAPI schema bundle must be injected by scripts/run-newman.js').to.be.a('string');",
+              "  const schemaBundle = JSON.parse(rawBundle);",
+              "  const Ajv = require('ajv');",
+              "  const ajv = new Ajv({ allErrors: true, jsonPointers: true, schemaId: 'auto', unknownFormats: 'ignore' });",
+              "  ajv.addSchema(schemaBundle);",
+              "  const validate = ajv.getSchema(schemaBundle.$id + '#/components/schemas/' + schemaName);",
+              "  pm.expect(validate, 'Compiled OpenAPI schema ' + schemaName + ' must exist').to.be.a('function');",
+              "  const valid = validate(payload);",
+              "  const errors = validate.errors || [];",
+              "  const details = errors.slice(0, 5).map(function (error) {",
+              "    return (error.dataPath || '/') + ' ' + error.message + ' (' + error.schemaPath + ')';",
+              "  }).join('; ') + (errors.length > 5 ? '; ... ' + (errors.length - 5) + ' additional violation(s)' : '');",
+              "  pm.expect(valid, (context || schemaName) + ' failed OpenAPI schema validation: ' + details).to.equal(true);",
+              "}",
+              "pm.test('TC01 - Status is 200', function() {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "pm.test('TC01 - Full response matches OpenAPI LoginResponse', function() {",
+              "  assertOpenApiSchema('LoginResponse', json, 'Login response');",
+              "});",
+              "pm.test('TC01 - Token is three-part JWT', function() {",
+              "  pm.expect(json.token).to.be.a('string');",
+              "  pm.expect(json.token.split('.').length).to.equal(3);",
+              "});",
+              "pm.test('TC01 - empCode and username returned', function() {",
+              "  pm.expect(json.empCode).to.be.a('string');",
+              "  pm.expect(json.username).to.be.a('string');",
+              "});",
+              "pm.test('TC01 - roles is non-empty array', function() {",
+              "  pm.expect(json.roles).to.be.an('array').with.length.above(0);",
+              "});",
+              "if (json.token) { pm.environment.set('authToken', json.token); console.log('authToken stored'); }",
+              "}"
+            ]
+          }
         }
-      }],
+      ],
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\"empCode\": \"{{empCode}}\", \"password\": \"{{empPassword}}\"}"
         },
         "url": {
           "raw": "{{authBaseUrl}}/auth/token",
-          "host": ["{{authBaseUrl}}"],
-          "path": ["auth", "token"]
+          "host": [
+            "{{authBaseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "token"
+          ]
         }
       }
     },
     {
       "name": "TC02 - Invalid empCode returns 400",
-      "event": [{
-        "listen": "test",
-        "script": {
-          "type": "text/javascript",
-          "exec": [
-            "const responseContentType = (pm.response.headers.get('Content-Type') || '').trim();",
-            "const responseIsJson = /^(?:application\\/json|application\\/[^;\\s]+\\+json)(?:\\s*;|$)/i.test(responseContentType);",
-            "const contentTypeDescription = responseContentType || 'no content-type header';",
-            "const contentTypeFailureMessage = 'Expected application/json response but received ' + contentTypeDescription;",
-            "if (!responseIsJson) {",
-            "  pm.test(contentTypeFailureMessage, function () {",
-            "    pm.expect(responseIsJson, contentTypeFailureMessage).to.equal(true);",
-            "  });",
-            "} else {",
-            "const json = pm.response.json();",
-            "function assertOpenApiSchema(schemaName, payload, context) {",
-            "  const rawBundle = pm.environment.get('openapiSchemaBundle');",
-            "  pm.expect(rawBundle, 'OpenAPI schema bundle must be injected by scripts/run-newman.js').to.be.a('string');",
-            "  const schemaBundle = JSON.parse(rawBundle);",
-            "  const Ajv = require('ajv');",
-            "  const ajv = new Ajv({ allErrors: true, jsonPointers: true, schemaId: 'auto', unknownFormats: 'ignore' });",
-            "  ajv.addSchema(schemaBundle);",
-            "  const validate = ajv.getSchema(schemaBundle.$id + '#/components/schemas/' + schemaName);",
-            "  pm.expect(validate, 'Compiled OpenAPI schema ' + schemaName + ' must exist').to.be.a('function');",
-            "  const valid = validate(payload);",
-            "  const errors = validate.errors || [];",
-            "  const details = errors.slice(0, 5).map(function (error) {",
-            "    return (error.dataPath || '/') + ' ' + error.message + ' (' + error.schemaPath + ')';",
-            "  }).join('; ') + (errors.length > 5 ? '; ... ' + (errors.length - 5) + ' additional violation(s)' : '');",
-            "  pm.expect(valid, (context || schemaName) + ' failed OpenAPI schema validation: ' + details).to.equal(true);",
-            "}",
-            "pm.test('TC02 - Status is 400 for bad empCode', function() {",
-            "  pm.response.to.have.status(400);",
-            "});",
-            "pm.test('TC02 - Full response matches OpenAPI ErrorResponse', function() {",
-            "  assertOpenApiSchema('ErrorResponse', json, 'Invalid-empCode error response');",
-            "});",
-            "pm.test('TC02 - Error message returned', function() {",
-            "  pm.expect(json).to.have.property('message');",
-            "  pm.expect(json.message).to.be.a('string');",
-            "});",
-            "}"
-          ]
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const responseContentType = (pm.response.headers.get('Content-Type') || '').trim();",
+              "const responseIsJson = /^(?:application\\/json|application\\/[^;\\s]+\\+json)(?:\\s*;|$)/i.test(responseContentType);",
+              "const contentTypeDescription = responseContentType || 'no content-type header';",
+              "const contentTypeFailureMessage = 'Expected application/json response but received ' + contentTypeDescription;",
+              "if (!responseIsJson) {",
+              "  pm.test(contentTypeFailureMessage, function () {",
+              "    pm.expect(responseIsJson, contentTypeFailureMessage).to.equal(true);",
+              "  });",
+              "} else {",
+              "const json = pm.response.json();",
+              "function assertOpenApiSchema(schemaName, payload, context) {",
+              "  const rawBundle = pm.environment.get('openapiSchemaBundle');",
+              "  pm.expect(rawBundle, 'OpenAPI schema bundle must be injected by scripts/run-newman.js').to.be.a('string');",
+              "  const schemaBundle = JSON.parse(rawBundle);",
+              "  const Ajv = require('ajv');",
+              "  const ajv = new Ajv({ allErrors: true, jsonPointers: true, schemaId: 'auto', unknownFormats: 'ignore' });",
+              "  ajv.addSchema(schemaBundle);",
+              "  const validate = ajv.getSchema(schemaBundle.$id + '#/components/schemas/' + schemaName);",
+              "  pm.expect(validate, 'Compiled OpenAPI schema ' + schemaName + ' must exist').to.be.a('function');",
+              "  const valid = validate(payload);",
+              "  const errors = validate.errors || [];",
+              "  const details = errors.slice(0, 5).map(function (error) {",
+              "    return (error.dataPath || '/') + ' ' + error.message + ' (' + error.schemaPath + ')';",
+              "  }).join('; ') + (errors.length > 5 ? '; ... ' + (errors.length - 5) + ' additional violation(s)' : '');",
+              "  pm.expect(valid, (context || schemaName) + ' failed OpenAPI schema validation: ' + details).to.equal(true);",
+              "}",
+              "pm.test('TC02 - Status is 400 for bad empCode', function() {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "pm.test('TC02 - Full response matches OpenAPI ErrorResponse', function() {",
+              "  assertOpenApiSchema('ErrorResponse', json, 'Invalid-empCode error response');",
+              "});",
+              "pm.test('TC02 - Error message returned', function() {",
+              "  pm.expect(json).to.have.property('message');",
+              "  pm.expect(json.message).to.be.a('string');",
+              "});",
+              "}"
+            ]
+          }
         }
-      }],
+      ],
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\"empCode\": \"INVALID-999\", \"password\": \"wrongpassword\"}"
         },
         "url": {
           "raw": "{{authBaseUrl}}/auth/token",
-          "host": ["{{authBaseUrl}}"],
-          "path": ["auth", "token"]
+          "host": [
+            "{{authBaseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "token"
+          ]
         }
       }
     },
     {
       "name": "TC03 - Missing password returns 400",
-      "event": [{
-        "listen": "test",
-        "script": {
-          "type": "text/javascript",
-          "exec": [
-            "const responseContentType = (pm.response.headers.get('Content-Type') || '').trim();",
-            "const responseIsJson = /^(?:application\\/json|application\\/[^;\\s]+\\+json)(?:\\s*;|$)/i.test(responseContentType);",
-            "const contentTypeDescription = responseContentType || 'no content-type header';",
-            "const contentTypeFailureMessage = 'Expected application/json response but received ' + contentTypeDescription;",
-            "if (!responseIsJson) {",
-            "  pm.test(contentTypeFailureMessage, function () {",
-            "    pm.expect(responseIsJson, contentTypeFailureMessage).to.equal(true);",
-            "  });",
-            "} else {",
-            "const json = pm.response.json();",
-            "function assertOpenApiSchema(schemaName, payload, context) {",
-            "  const rawBundle = pm.environment.get('openapiSchemaBundle');",
-            "  pm.expect(rawBundle, 'OpenAPI schema bundle must be injected by scripts/run-newman.js').to.be.a('string');",
-            "  const schemaBundle = JSON.parse(rawBundle);",
-            "  const Ajv = require('ajv');",
-            "  const ajv = new Ajv({ allErrors: true, jsonPointers: true, schemaId: 'auto', unknownFormats: 'ignore' });",
-            "  ajv.addSchema(schemaBundle);",
-            "  const validate = ajv.getSchema(schemaBundle.$id + '#/components/schemas/' + schemaName);",
-            "  pm.expect(validate, 'Compiled OpenAPI schema ' + schemaName + ' must exist').to.be.a('function');",
-            "  const valid = validate(payload);",
-            "  const errors = validate.errors || [];",
-            "  const details = errors.slice(0, 5).map(function (error) {",
-            "    return (error.dataPath || '/') + ' ' + error.message + ' (' + error.schemaPath + ')';",
-            "  }).join('; ') + (errors.length > 5 ? '; ... ' + (errors.length - 5) + ' additional violation(s)' : '');",
-            "  pm.expect(valid, (context || schemaName) + ' failed OpenAPI schema validation: ' + details).to.equal(true);",
-            "}",
-            "pm.test('TC03 - Status is 400 for missing password', function() {",
-            "  pm.response.to.have.status(400);",
-            "});",
-            "pm.test('TC03 - Full response matches OpenAPI ErrorResponse', function() {",
-            "  assertOpenApiSchema('ErrorResponse', json, 'Missing-password error response');",
-            "});",
-            "pm.test('TC03 - Validation message returned', function() {",
-            "  pm.expect(json).to.have.property('message');",
-            "});",
-            "}"
-          ]
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const responseContentType = (pm.response.headers.get('Content-Type') || '').trim();",
+              "const responseIsJson = /^(?:application\\/json|application\\/[^;\\s]+\\+json)(?:\\s*;|$)/i.test(responseContentType);",
+              "const contentTypeDescription = responseContentType || 'no content-type header';",
+              "const contentTypeFailureMessage = 'Expected application/json response but received ' + contentTypeDescription;",
+              "if (!responseIsJson) {",
+              "  pm.test(contentTypeFailureMessage, function () {",
+              "    pm.expect(responseIsJson, contentTypeFailureMessage).to.equal(true);",
+              "  });",
+              "} else {",
+              "const json = pm.response.json();",
+              "function assertOpenApiSchema(schemaName, payload, context) {",
+              "  const rawBundle = pm.environment.get('openapiSchemaBundle');",
+              "  pm.expect(rawBundle, 'OpenAPI schema bundle must be injected by scripts/run-newman.js').to.be.a('string');",
+              "  const schemaBundle = JSON.parse(rawBundle);",
+              "  const Ajv = require('ajv');",
+              "  const ajv = new Ajv({ allErrors: true, jsonPointers: true, schemaId: 'auto', unknownFormats: 'ignore' });",
+              "  ajv.addSchema(schemaBundle);",
+              "  const validate = ajv.getSchema(schemaBundle.$id + '#/components/schemas/' + schemaName);",
+              "  pm.expect(validate, 'Compiled OpenAPI schema ' + schemaName + ' must exist').to.be.a('function');",
+              "  const valid = validate(payload);",
+              "  const errors = validate.errors || [];",
+              "  const details = errors.slice(0, 5).map(function (error) {",
+              "    return (error.dataPath || '/') + ' ' + error.message + ' (' + error.schemaPath + ')';",
+              "  }).join('; ') + (errors.length > 5 ? '; ... ' + (errors.length - 5) + ' additional violation(s)' : '');",
+              "  pm.expect(valid, (context || schemaName) + ' failed OpenAPI schema validation: ' + details).to.equal(true);",
+              "}",
+              "pm.test('TC03 - Status is 400 for missing password', function() {",
+              "  pm.response.to.have.status(400);",
+              "});",
+              "pm.test('TC03 - Full response matches OpenAPI ErrorResponse', function() {",
+              "  assertOpenApiSchema('ErrorResponse', json, 'Missing-password error response');",
+              "});",
+              "pm.test('TC03 - Validation message returned', function() {",
+              "  pm.expect(json).to.have.property('message');",
+              "});",
+              "}"
+            ]
+          }
         }
-      }],
+      ],
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\"empCode\": \"{{empCode}}\"}"
         },
         "url": {
           "raw": "{{authBaseUrl}}/auth/token",
-          "host": ["{{authBaseUrl}}"],
-          "path": ["auth", "token"]
+          "host": [
+            "{{authBaseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "token"
+          ]
         }
       }
+    }
+  ],
+  "variable": [
+    {
+      "key": "authBaseUrl",
+      "value": "https://uat-mcdp-be.omfysgroup.com",
+      "type": "string"
     }
   ]
 }

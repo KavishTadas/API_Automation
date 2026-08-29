@@ -147,11 +147,23 @@
         },
         "url": {
           "raw": "{{leaveBaseUrl}}/user/leaves/getAllLeaveReports?month={{month}}&year={{year}}",
-          "host": ["{{leaveBaseUrl}}"],
-          "path": ["user", "leaves", "getAllLeaveReports"],
+          "host": [
+            "{{leaveBaseUrl}}"
+          ],
+          "path": [
+            "user",
+            "leaves",
+            "getAllLeaveReports"
+          ],
           "query": [
-            { "key": "month", "value": "{{month}}" },
-            { "key": "year", "value": "{{year}}" }
+            {
+              "key": "month",
+              "value": "{{month}}"
+            },
+            {
+              "key": "year",
+              "value": "{{year}}"
+            }
           ]
         }
       }
@@ -221,14 +233,33 @@
         },
         "url": {
           "raw": "{{leaveBaseUrl}}/user/leaves/getAllLeaveReports?month=4&year=2026",
-          "host": ["{{leaveBaseUrl}}"],
-          "path": ["user", "leaves", "getAllLeaveReports"],
+          "host": [
+            "{{leaveBaseUrl}}"
+          ],
+          "path": [
+            "user",
+            "leaves",
+            "getAllLeaveReports"
+          ],
           "query": [
-            { "key": "month", "value": "4" },
-            { "key": "year", "value": "2026" }
+            {
+              "key": "month",
+              "value": "4"
+            },
+            {
+              "key": "year",
+              "value": "2026"
+            }
           ]
         }
       }
+    }
+  ],
+  "variable": [
+    {
+      "key": "leaveBaseUrl",
+      "value": "https://devmcdphcmplatform.omfysgroup.com",
+      "type": "string"
     }
   ]
 }

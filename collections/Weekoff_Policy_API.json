@@ -349,5 +349,12 @@
       },
       "response": []
     }
+  ],
+  "variable": [
+    {
+      "key": "baseURL",
+      "value": "https://uatmcdphcmplatform.omfysgroup.com",
+      "type": "string"
+    }
   ]
 }

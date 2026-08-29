@@ -238,7 +238,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "https://uat_mcdp_hcm.omfysgroup.com"
+      "value": "https://uatmcdphcmplatform.omfysgroup.com"
     },
     {
       "key": "jwtToken",
@@ -247,6 +247,11 @@
     {
       "key": "holidayTemplateId",
       "value": "1"
+    },
+    {
+      "key": "baseURL",
+      "value": "https://uatmcdphcmplatform.omfysgroup.com",
+      "type": "string"
     }
   ]
 }
