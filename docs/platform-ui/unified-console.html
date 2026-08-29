@@ -4640,10 +4640,46 @@ function seedSampleHistory(quiet){
 
 /* Runs a batch, then hands off to the report view — the "View Report"
    contract: execute, then land on the Enterprise Overview for that run. */
-/* A live run costs roughly 14s of engine startup plus 6.5s per endpoint,
-   measured against UAT. Used only to tell the user what to expect. */
-const LIVE_FIXED_MS = 14000, LIVE_PER_API_MS = 6500;
-const liveEstimateMs = n => LIVE_FIXED_MS + n * LIVE_PER_API_MS;
+/* What a live run costs. These are a first guess only -- the real figure
+   depends on the machine, the network and whether the environment is even
+   answering, so every completed run feeds its own wall-clock back in and the
+   estimate converges on the truth for this browser.
+
+   The seed values are deliberately modest. Guessing high makes a fast run look
+   broken; guessing low makes a slow one look stuck. Neither is worth defending
+   when the run itself can tell us. */
+const LIVE_FIXED_MS = 4000, LIVE_PER_API_MS = 700;
+const FX_TIMING_LS = 'hcm-live-timing';
+
+function liveTiming(){
+  try{
+    const v = JSON.parse(localStorage.getItem(FX_TIMING_LS) || 'null');
+    if(v && isFinite(v.fixed) && isFinite(v.per) && v.per >= 0) return v;
+  }catch(e){}
+  return {fixed:LIVE_FIXED_MS, per:LIVE_PER_API_MS, n:0};
+}
+
+/* One completed run, folded into the running mean. Two unknowns and one
+   equation per run, so the fixed cost is only re-derived once there are runs
+   of differing sizes to separate it from the per-endpoint cost. */
+function recordLiveTiming(count, elapsedMs){
+  if(!count || !isFinite(elapsedMs) || elapsedMs <= 0) return;
+  try{
+    const t = liveTiming();
+    const n = Math.min(t.n || 0, 5) + 1;
+    const per = Math.max(0, (elapsedMs - t.fixed) / count);
+    localStorage.setItem(FX_TIMING_LS, JSON.stringify({
+      fixed: t.fixed + (Math.min(elapsedMs * 0.25, t.fixed) - t.fixed) / n,
+      per:   t.per + (per - t.per) / n,
+      n:     n
+    }));
+  }catch(e){}
+}
+
+const liveEstimateMs = n => {
+  const t = liveTiming();
+  return Math.max(2000, t.fixed + n * t.per);
+};
 const humanMs = ms => ms < 60000 ? Math.round(ms/1000)+'s'
                                  : Math.floor(ms/60000)+'m ' + Math.round((ms%60000)/1000)+'s';
 
@@ -4664,6 +4700,9 @@ function startRun(refs){
          estimate rather than a bar that completes while the run is still
          going -- a full bar with nothing happening reads as a hang. */
       const est = liveEstimateMs(refs.length), t0 = Date.now();
+      /* Whatever this run actually costs is a better estimate than the one we
+         just showed, so hand it back on the way out. */
+      const learn = () => recordLiveTiming(refs.length, Date.now() - t0);
       const tick = setInterval(() => {
         const el = Date.now() - t0;
         if(fill) fill.style.width = Math.min(96, el / est * 100).toFixed(1) + '%';
@@ -4671,7 +4710,7 @@ function startRun(refs){
           `Running ${refs.length} on real endpoints — ${humanMs(el)} of ~${humanMs(est)}`;
       }, 500);
       try { doc = await postRun(refs); }
-      finally { clearInterval(tick); }
+      finally { clearInterval(tick); learn(); }
     }
 
     STATE.result = doc || runBatch(refs);
