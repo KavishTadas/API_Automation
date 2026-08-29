@@ -3658,15 +3658,18 @@ function modulePastel(name){
      the brightest thing on the page, and eleven of them crowd into the top of
      the lightness range where they stop being distinguishable -- so dark drops
      to mid lightness and pushes saturation instead. */
-  const l = (dark ? 56 : 70) + step * 3;
-  const sat = (dark ? 74 : 74) + (step === 1 ? 6 : 0);
+  /* Saturation is what separates a jewel tone from a highlighter, and it is
+     the thing to cut in dark rather than lightness -- dropping lightness alone
+     just makes eleven dark neons. Light keeps its pastel. */
+  const l = (dark ? 54 : 70) + step * 2;
+  const sat = (dark ? 46 : 74) + (step === 1 ? 6 : 0);
   return `hsl(${moduleHue(name)},${sat}%,${l}%)`;
 }
 function moduleGlow(name){
   const dark = document.documentElement.getAttribute('data-theme') === 'dark';
   /* The glow stays a little lighter than the fill in both themes, so it reads
      as light coming off the bar rather than as a thicker bar. */
-  return `hsla(${moduleHue(name)},88%,${dark ? 62 : 58}%,${dark ? .5 : .42})`;
+  return `hsla(${moduleHue(name)},${dark ? 55 : 88}%,${dark ? 58 : 58}%,${dark ? .3 : .42})`;
 }
 
 function moduleColor(name, alpha){
@@ -3674,8 +3677,8 @@ function moduleColor(name, alpha){
   const step = moduleIndex(name) % 3;
   /* Same reasoning as modulePastel: mid lightness and more saturation in dark,
      so the ring reads as coloured rather than as pale. */
-  const l = (dark ? 58 : 45) + step * 5;
-  const sat = (dark ? 72 : 58) + (step === 1 ? 8 : 0);
+  const l = (dark ? 58 : 45) + step * 4;
+  const sat = (dark ? 48 : 58) + (step === 1 ? 8 : 0);
   return `hsla(${moduleHue(name)},${sat}%,${l}%,${alpha === undefined ? 1 : alpha})`;
 }
 
