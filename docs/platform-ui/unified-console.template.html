@@ -1878,6 +1878,39 @@ html[data-fx="off"] .tg-pulse{animation:none;opacity:.5}
 .tg-foot .d.vol{background:linear-gradient(180deg,#4facfe,rgba(79,172,254,.15))}
 .tg-foot .d.sample{background:transparent;border:1.6px solid #4facfe;opacity:.55}
 
+
+/* ==========================================================================
+   THE CHART SUITE
+
+   One card, three sections, divided by rules rather than separated by
+   gutters. Nothing here can leave a hollow column, because there are no
+   columns left to hollow: the only split is internal and both sides always
+   render.
+   ========================================================================== */
+.chart-suite{padding:0;overflow:hidden}
+.cs-top{
+  display:grid;
+  grid-template-columns:minmax(240px,1fr) minmax(0,2.15fr);
+}
+.cs-pane{padding:var(--pad-card);min-width:0;display:flex;flex-direction:column}
+/* A hairline between the panes instead of a gutter. */
+.cs-top > .cs-pane + .cs-pane{border-left:1px solid var(--s800)}
+.cs-rule{height:1px;background:var(--s800);width:100%}
+[data-theme="light"] .cs-top > .cs-pane + .cs-pane{border-left-color:#e4ebf2}
+[data-theme="light"] .cs-rule{background:#e4ebf2}
+
+/* The trend gets the whole width, which is what six runs across a third of a
+   page was always short of. */
+.cs-pane.cs-full{padding-top:calc(var(--pad-card) - 2px)}
+.cs-pane.cs-full .trend{max-height:300px}
+
+/* Below ~900px the split stacks, and the hairline has to move with it. */
+@media (max-width:900px){
+  .cs-top{grid-template-columns:1fr}
+  .cs-top > .cs-pane + .cs-pane{border-left:0;border-top:1px solid var(--s800)}
+  [data-theme="light"] .cs-top > .cs-pane + .cs-pane{border-top-color:#e4ebf2}
+}
+
 </style>
 </head>
 <body>
@@ -4074,8 +4107,9 @@ function tabOverview(R){
   const worst=[...perMod.entries()].map(x=>({m:x[0],s:summarise(x[1])}))
     .filter(x=>x.s.counts.FAIL>0).sort((a,b)=>b.s.counts.FAIL-a.s.counts.FAIL)[0];
   return kpiRow(R) + `
-  <div class="egrid3" style="margin-top:20px">
-    <div class="ecard" style="display:flex;flex-direction:column">
+  <div class="ecard chart-suite" style="margin-top:20px">
+   <div class="cs-top">
+    <div class="cs-pane">
       <div class="ecard-h">
         <div><h3>${oneState ? 'Test Cases by Suite' : 'Test Status Distribution'}</h3>
           <p>${oneState
@@ -4092,7 +4126,7 @@ function tabOverview(R){
       </div>
     </div>
 
-    <div class="ecard span2" style="display:flex;flex-direction:column">
+    <div class="cs-pane">
       <div class="ecard-h">
         <div><h3>Suite Execution &amp; Defect Density</h3>
           <p>${oneState ? 'Test cases per suite — no result entered a state worth splitting'
@@ -4118,10 +4152,14 @@ function tabOverview(R){
           : 'No failures in this run'}</span>
       </div>
     </div>
-  </div>
+   </div>
 
-  <div class="egrid3" style="margin-top:20px">
-    <div class="ecard span2" data-persona-for="exec,qa,devops">
+   <!-- Gated with the pane it introduces. A divider is punctuation for the
+        thing after it; left on its own it is a line ruled under nothing, which
+        is what Dev saw. -->
+   <div class="cs-rule" data-persona-for="exec,qa,devops"></div>
+
+   <div class="cs-pane cs-full" data-persona-for="exec,qa,devops">
       <div class="ecard-h">
         <div><h3>Historical Build Trend (Last ${HISTORY_MAX} Runs)</h3>
           <p>${STATE.shared ? 'Pass rate across the runs held when this report was shared'
@@ -4140,9 +4178,13 @@ function tabOverview(R){
         </div>
       </div>
       <div style="min-height:180px">${trendChart()}</div>
-    </div>
-    <div data-persona-for="exec,qa">${signOff(R)}</div>
+   </div>
   </div>
+
+  <!-- Its own row. The panel is persona-gated, so anything laid out beside it
+       inherits its absence and holds a column open for a card that is not
+       there -- which is exactly the gap this replaced. -->
+  <div data-persona-for="exec,qa" style="margin-top:20px">${signOff(R)}</div>
 
   ${R.statusReason?`<div class="ecard rose" style="margin-top:20px">
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
