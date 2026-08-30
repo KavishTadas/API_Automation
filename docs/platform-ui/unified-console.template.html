@@ -1762,6 +1762,122 @@ html[data-fx="on"] .estat-bar i{
   html[data-fx="on"] .sbar-t::after{opacity:0}
 }
 
+
+/* ==========================================================================
+   HISTORICAL BUILD TREND
+   ========================================================================== */
+:root{
+  --trend-grid:rgba(15,23,42,.10);
+  --trend-dash:rgba(71,85,105,.55);
+}
+[data-theme="dark"]{
+  --trend-grid:rgba(148,163,184,.10);
+  --trend-dash:rgba(148,163,184,.5);
+}
+
+.tg-wrap{position:relative;width:100%}
+.trend{max-height:260px}
+.tg-hit{cursor:crosshair}
+
+/* The current run keeps a ring breathing on it, so the newest point is found
+   without reading the axis. */
+@keyframes tgPulse{
+  0%  {r:7;  opacity:.85; stroke-width:2}
+  100%{r:15; opacity:0;   stroke-width:.4}
+}
+.tg-pulse{animation:tgPulse 2.1s ease-out infinite}
+html[data-fx="off"] .tg-pulse{animation:none;opacity:.5}
+
+.tg-node{transition:r .16s ease}
+.tg-hit:hover ~ .tg-node{r:5}
+
+/* -- header chips --------------------------------------------------------- */
+.tg-chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.tg-chip{
+  font:600 10.5px var(--mono);letter-spacing:.02em;
+  padding:3px 9px;border-radius:99px;white-space:nowrap;
+  background:rgba(148,163,184,.12);
+  border:1px solid rgba(148,163,184,.22);
+  color:var(--text-dim);
+}
+.tg-chip.good{
+  color:#34d399;background:rgba(16,185,129,.13);border-color:rgba(16,185,129,.34);
+  box-shadow:0 0 12px -4px rgba(16,185,129,.6);
+}
+.tg-chip.up{color:#2dd4bf;background:rgba(45,212,191,.12);border-color:rgba(45,212,191,.32)}
+.tg-chip.down{color:#fb7185;background:rgba(244,63,94,.12);border-color:rgba(244,63,94,.32)}
+.tg-chip.flat,.tg-chip.muted{opacity:.85}
+[data-theme="light"] .tg-chip{background:rgba(15,23,42,.05);border-color:rgba(15,23,42,.12);color:#2c4459}
+[data-theme="light"] .tg-chip.good{color:#046c4e;background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.4)}
+[data-theme="light"] .tg-chip.up{color:#0f766e;background:rgba(13,148,136,.12);border-color:rgba(13,148,136,.4)}
+[data-theme="light"] .tg-chip.down{color:#b3123c;background:rgba(244,63,94,.10);border-color:rgba(244,63,94,.38)}
+
+/* -- glass action pills --------------------------------------------------- */
+.ecard [data-hist]{
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.14);
+  color:var(--text-dim);
+  border-radius:99px;padding:5px 13px;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  transition:color .18s ease, border-color .18s ease, box-shadow .18s ease,
+             background .18s ease;
+}
+.ecard [data-hist]:hover{
+  color:var(--text);
+  background:rgba(255,255,255,.10);
+  border-color:rgba(79,172,254,.5);
+  box-shadow:0 0 14px -3px rgba(79,172,254,.55);
+}
+[data-theme="light"] .ecard [data-hist]{
+  background:rgba(15,23,42,.04);border-color:rgba(15,23,42,.12);color:#2c4459;
+}
+[data-theme="light"] .ecard [data-hist]:hover{
+  background:#fff;border-color:rgba(37,99,235,.45);color:#0d1f33;
+  box-shadow:0 2px 10px -2px rgba(37,99,235,.35);
+}
+
+/* -- the rich tooltip ----------------------------------------------------- */
+.tg-tip{
+  position:absolute;z-index:6;pointer-events:none;
+  min-width:172px;max-width:250px;
+  padding:10px 12px;border-radius:12px;
+  background:rgba(11,18,32,.92);
+  border:1px solid rgba(255,255,255,.14);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  box-shadow:0 18px 40px -12px rgba(0,0,0,.7);
+  transform:translate(-50%,-114%);
+  transition:opacity .13s ease;
+}
+[data-theme="light"] .tg-tip{
+  background:rgba(255,255,255,.96);border-color:rgba(15,23,42,.14);
+  box-shadow:0 18px 40px -12px rgba(20,45,80,.3);
+}
+.tg-tip[hidden]{display:none}
+.tg-tip .r{font:600 10px var(--mono);letter-spacing:.09em;text-transform:uppercase;
+  color:var(--text-dim);display:flex;justify-content:space-between;gap:10px}
+.tg-tip .big{font:800 24px var(--mono);letter-spacing:-.02em;margin:3px 0 1px;
+  background:linear-gradient(90deg,#00f2fe,#4facfe);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.tg-tip .big.na{background:none;color:var(--text-dim);font-size:17px}
+.tg-tip .pills{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.tg-tip .p{font:600 10px var(--mono);padding:2px 7px;border-radius:5px;
+  background:rgba(148,163,184,.14);color:var(--text-dim)}
+.tg-tip .p.ok{background:rgba(16,185,129,.16);color:#34d399}
+.tg-tip .p.no{background:rgba(244,63,94,.16);color:#fb7185}
+[data-theme="light"] .tg-tip .p.ok{color:#046c4e}
+[data-theme="light"] .tg-tip .p.no{color:#b3123c}
+
+/* -- footnote ------------------------------------------------------------- */
+.tg-foot{display:flex;gap:14px;flex-wrap:wrap;margin-top:9px;
+  font:500 10.5px var(--mono);color:var(--text-dim);opacity:.85}
+.tg-foot span{display:inline-flex;align-items:center;gap:5px}
+.tg-foot .d{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+.tg-foot .d.hollow{background:transparent;border:1.6px solid var(--trend-dash)}
+.tg-foot .d.dashline{width:14px;height:0;border-radius:0;
+  border-top:1.6px dashed var(--trend-dash)}
+.tg-foot .d.vol{background:linear-gradient(180deg,#4facfe,rgba(79,172,254,.15))}
+.tg-foot .d.sample{background:transparent;border:1.6px solid #4facfe;opacity:.55}
+
 </style>
 </head>
 <body>
@@ -3296,14 +3412,18 @@ function stateBar(counts, total){
     `<div class="bar-seg" style="width:${(counts[s]/total*100).toFixed(2)}%;background:${cssv(STATE_VAR[s])}" title="${s}: ${counts[s]}"></div>`).join('')}</div>`;
 }
 
-/* Historical trend across the last runs held in this browser. */
+/* Historical trend across the last runs held in this browser.
+
+   Built in SVG rather than a charting library: the console loads no external
+   script, which is what lets a shared report open offline from a file. */
 function trendChart(){
   const h=STATE.history;
-  const W=560, H=170, PL=38, PR=12, PT=16, PB=30;
+  const W=600, H=214, PL=46, PR=18, PT=28, PB=36;
   if(!h.length) return `<div class="empty" style="min-height:170px">
     <div>No runs yet.</div>
     <div style="margin-top:5px;font-size:12px">Run a batch and its pass rate lands here.</div>
   </div>`;
+
   const vals=h.map(r=>r.passRate==null?null:r.passRate*100);
   const real=vals.filter(v=>v!=null);
   const lo = real.length ? Math.max(0, Math.floor(Math.min(...real)/5)*5-5) : 0;
@@ -3311,51 +3431,51 @@ function trendChart(){
   const span=(hi-lo)||1;
   const x=i=>PL+(W-PL-PR)*(h.length===1?0.5:i/(h.length-1));
   const y=v=>PT+(H-PT-PB)*(1-(v-lo)/span);
+  const naLaneY=H-PB-8;
+
   const pts=vals.map((v,i)=>v==null?null:[x(i),y(v)]).filter(Boolean);
   const line=pts.map((p,k)=>(k?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
   const area=pts.length>1
     ? `${line} L${pts[pts.length-1][0].toFixed(1)} ${H-PB} L${pts[0][0].toFixed(1)} ${H-PB} Z` : '';
   const ticks=[lo, lo+span/2, hi];
   const anySample=h.some(r=>r.sample);
+  const anyNa=vals.some(v=>v==null);
 
-  /* A run with nothing in its denominator has no height on a pass-rate axis,
-     so without these it contributed nothing but the word n/a and the timeline
-     appeared to stop. None of the three invents a rate. */
+  /* Which gradient a run's volume column takes. Read from the run's own
+     outcome so the column carries meaning rather than decoration. */
+  const barKind = r => (r.failed>0 || r.gate==='FAILED') ? 'rose'
+                     : (r.clean && r.passRate===1)       ? 'teal'
+                     : 'blue';
 
-  /* 1. Result volume, so every slot on the timeline is occupied. */
   const maxTotal=Math.max(1,...h.map(r=>r.total||0));
-  const bw=Math.max(7, Math.min(22, (W-PL-PR)/(h.length*1.9)));
+  const bw=Math.max(10, Math.min(30, (W-PL-PR)/(h.length*1.7)));
+  const R=6;
   const volume=h.map((r,i)=>{
     const t=r.total||0; if(!t) return '';
-    const bh=(H-PT-PB)*(t/maxTotal)*0.9;
-    return `<rect x="${(x(i)-bw/2).toFixed(1)}" y="${(H-PB-bh).toFixed(1)}"
-      width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="2"
-      fill="${cssv('--slate')}" opacity=".16"><title>${esc(r.runId)}: ${t} result(s) - gate ${esc(r.gate||'n/a')}</title></rect>`;
+    const bh=Math.max(R+1,(H-PT-PB)*(t/maxTotal)*0.92);
+    const bx=x(i)-bw/2, by=H-PB-bh;
+    /* Rounded top, square foot -- a column standing on the axis. */
+    return `<path d="M${bx.toFixed(1)} ${(H-PB).toFixed(1)}
+      L${bx.toFixed(1)} ${(by+R).toFixed(1)} Q${bx.toFixed(1)} ${by.toFixed(1)} ${(bx+R).toFixed(1)} ${by.toFixed(1)}
+      L${(bx+bw-R).toFixed(1)} ${by.toFixed(1)} Q${(bx+bw).toFixed(1)} ${by.toFixed(1)} ${(bx+bw).toFixed(1)} ${(by+R).toFixed(1)}
+      L${(bx+bw).toFixed(1)} ${(H-PB).toFixed(1)} Z" fill="url(#tgBar-${barKind(r)})"/>`;
   }).join('');
 
-  /* 2. A dashed bridge across the gaps. Muted and visibly a different stroke,
-        because a reader must never mistake a bridge for measured data. */
   const known=vals.map((v,i)=>v==null?null:i).filter(i=>i!==null);
-  const naLaneY=H-PB-7;
   const dash=(x1,y1,x2,y2)=>`<path d="M${x1.toFixed(1)} ${y1.toFixed(1)}
-    L${x2.toFixed(1)} ${y2.toFixed(1)}" fill="none" stroke="${cssv('--s400')}"
-    stroke-width="1.4" stroke-dasharray="4 4" opacity=".7"/>`;
+    L${x2.toFixed(1)} ${y2.toFixed(1)}" fill="none" stroke="var(--trend-dash)"
+    stroke-width="1.5" stroke-dasharray="4 5" opacity=".8"/>`;
   const bridges=(()=>{
     const out=[];
-    /* between two rated runs with rate-less ones in between */
     known.slice(1).forEach((idx,k)=>{
       const prev=known[k];
       if(idx!==prev+1) out.push(dash(x(prev), y(vals[prev]), x(idx), y(vals[idx])));
     });
-    /* and out to the rate-less lane where the rate simply stops or starts --
-       otherwise a run of trailing n/a runs leaves the line ending halfway,
-       with no second point to bridge to. */
     if(known.length){
       const first=known[0], last=known[known.length-1];
       if(last < h.length-1) out.push(dash(x(last), y(vals[last]), x(last+1), naLaneY));
       if(first > 0)         out.push(dash(x(first-1), naLaneY, x(first), y(vals[first])));
     }
-    /* a lane joining consecutive rate-less runs, so they read as a run of them */
     vals.forEach((v,i)=>{
       if(v!=null || i===0 || vals[i-1]!=null) return;
       out.push(dash(x(i-1), naLaneY, x(i), naLaneY));
@@ -3363,48 +3483,115 @@ function trendChart(){
     return out.join('');
   })();
 
-  /* 3. Rate-less runs placed on their own lane rather than annotated beside
-        the chart, so they read as part of the timeline. */
-  const naLane=naLaneY;
   const naMarks=vals.map((v,i)=>v!=null?'':`
-    <line x1="${x(i).toFixed(1)}" y1="${(naLane-5).toFixed(1)}"
-          x2="${x(i).toFixed(1)}" y2="${(naLane+5).toFixed(1)}"
-          stroke="${cssv('--s400')}" stroke-width="1" opacity=".45"/>
-    <circle cx="${x(i).toFixed(1)}" cy="${naLane.toFixed(1)}" r="3.6" fill="none"
-      stroke="${cssv('--s400')}" stroke-width="1.5" opacity=".9"
-      ><title>${esc(h[i].runId)}: ${h[i].total||0} result(s), none in the denominator</title></circle>`
-  ).join('');
-  const anyNa=vals.some(v=>v==null);
-  return `<svg viewBox="0 0 ${W} ${H}" class="trend" role="img"
+    <circle cx="${x(i).toFixed(1)}" cy="${naLaneY.toFixed(1)}" r="4.5" fill="var(--card)"
+      stroke="var(--trend-dash)" stroke-width="1.8"/>`).join('');
+
+  const last=h.length-1;
+  const nodes=vals.map((v,i)=>{
+    if(v==null) return '';
+    const cur=i===last, cx=x(i).toFixed(1), cy=y(v).toFixed(1);
+    const sample=h[i].sample;
+    return `${cur?`<circle class="tg-pulse" cx="${cx}" cy="${cy}" r="7"
+        fill="none" stroke="url(#tgLine)" stroke-width="2"/>`:''}
+      <circle cx="${cx}" cy="${cy}" r="${sample?5:6.5}" fill="none"
+        stroke="url(#tgLine)" stroke-width="2" opacity="${sample?.55:1}"/>
+      <circle class="tg-node" cx="${cx}" cy="${cy}" r="${sample?2.6:3.6}"
+        fill="${sample?'var(--card)':'#fff'}" stroke="url(#tgLine)" stroke-width="1.6"/>`;
+  }).join('');
+
+  /* One transparent column per run drives the tooltip; hovering anywhere in a
+     run's slice is far easier than hitting a 6px node. */
+  /* Each hit column carries a native <title> as well. The HTML panel is an
+     enhancement -- it needs JavaScript and a pointer, and a screen reader has
+     neither -- so the plain tooltip has to stay underneath it. */
+  const hits=h.map((r,i)=>`<rect class="tg-hit" data-trend-hit="${i}"
+    x="${(x(i)-(W-PL-PR)/Math.max(1,h.length)/2).toFixed(1)}" y="${PT-10}"
+    width="${((W-PL-PR)/Math.max(1,h.length)).toFixed(1)}" height="${(H-PT-PB+18).toFixed(1)}"
+    fill="transparent"><title>${esc(r.runId)}${r.sample?' (sample)':''}: ${
+      r.passRate==null ? 'no pass rate' : (r.passRate*100).toFixed(1)+'%'
+    } - gate ${esc(r.gate||'n/a')}</title></rect>`).join('');
+
+  return `<div class="tg-wrap">
+  <svg viewBox="0 0 ${W} ${H}" class="trend" role="img"
        aria-label="Pass rate across the last ${h.length} run${h.length===1?'':'s'}">
+    <defs>
+      <linearGradient id="tgLine" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#00f2fe"/><stop offset="1" stop-color="#4facfe"/>
+      </linearGradient>
+      <linearGradient id="tgArea" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#00f2fe" stop-opacity=".28"/>
+        <stop offset="1" stop-color="#00f2fe" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="tgBar-blue" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#4facfe" stop-opacity=".42"/>
+        <stop offset="1" stop-color="#4facfe" stop-opacity=".05"/>
+      </linearGradient>
+      <linearGradient id="tgBar-teal" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#10b981" stop-opacity=".46"/>
+        <stop offset="1" stop-color="#10b981" stop-opacity=".05"/>
+      </linearGradient>
+      <linearGradient id="tgBar-rose" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#f43f5e" stop-opacity=".46"/>
+        <stop offset="1" stop-color="#f43f5e" stop-opacity=".05"/>
+      </linearGradient>
+      <filter id="tgGlow" x="-30%" y="-60%" width="160%" height="260%">
+        <feGaussianBlur stdDeviation="4" result="b"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
     ${ticks.map(t=>`<line x1="${PL}" y1="${y(t).toFixed(1)}" x2="${W-PR}" y2="${y(t).toFixed(1)}"
-        stroke="${cssv('--s800')}" stroke-width="1"/>
-      <text x="${PL-7}" y="${(y(t)+3.5).toFixed(1)}" text-anchor="end"
-        font-size="9.5" fill="${cssv('--s400')}">${t.toFixed(0)}%</text>`).join('')}
+        stroke="var(--trend-grid)" stroke-width="1" stroke-dasharray="3 5"/>
+      <text x="${PL-9}" y="${(y(t)+3.5).toFixed(1)}" text-anchor="end"
+        font-size="9.5" fill="var(--text-dim)">${t.toFixed(0)}%</text>`).join('')}
+
     ${volume}
     ${naMarks}
     ${bridges}
-    ${area?`<path d="${area}" fill="${cssv('--accent')}" opacity=".10"/>`:''}
-    ${pts.length>1?`<path d="${line}" fill="none" stroke="${cssv('--accent')}" stroke-width="2"
-      stroke-linejoin="round" stroke-linecap="round"/>`:''}
-    ${vals.map((v,i)=>v==null
-      ? ''
-      : `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="${h[i].sample?3.2:4.5}"
-           fill="${h[i].sample?cssv('--s900'):cssv('--accent')}"
-           stroke="${cssv('--accent')}" stroke-width="${h[i].sample?1.6:0}"
-           ><title>${esc(h[i].runId)}${h[i].sample?' (sample)':''}: ${v.toFixed(1)}% - gate ${esc(h[i].gate)}</title></circle>`
-      ).join('')}
-    ${h.map((r,i)=>`<text x="${x(i).toFixed(1)}" y="${H-10}" text-anchor="middle" font-size="9"
-        fill="${cssv(i===h.length-1?'--t300':'--s400')}">${i===h.length-1?'current':'#'+(i+1)}</text>`).join('')}
+    ${area?`<path d="${area}" fill="url(#tgArea)"/>`:''}
+    ${pts.length>1?`<path class="tg-line" d="${line}" fill="none" stroke="url(#tgLine)" stroke-width="2.6"
+      stroke-linejoin="round" stroke-linecap="round" filter="url(#tgGlow)"/>`:''}
+    ${nodes}
+    ${h.map((r,i)=>`<text x="${x(i).toFixed(1)}" y="${H-12}" text-anchor="middle" font-size="9"
+        fill="${i===last?'#4facfe':'var(--text-dim)'}"
+        font-weight="${i===last?'700':'400'}">${i===last?'CURRENT':'#'+(i+1)}</text>`).join('')}
     ${h.length===1?`<text x="${W/2}" y="${PT+2}" text-anchor="middle" font-size="10"
-        fill="${cssv('--s400')}">one run so far - a line appears from the second</text>`:''}
+        fill="var(--text-dim)">one run so far - a line appears from the second</text>`:''}
+    ${hits}
   </svg>
-  ${anyNa?`<div class="faint" style="font-size:11px;margin-top:7px">
-     Hollow rings are runs with nothing in the denominator — they have no pass rate
-     to plot. The dashed segments bridge those gaps; they are not measurements.
-     Shaded columns are result volume.</div>`:''}
-  ${anySample?`<div class="faint" style="font-size:11px;margin-top:7px">
+  <div class="tg-tip" id="tgTip" hidden></div>
+  </div>
+  <div class="tg-foot">
+    ${anyNa?`<span><i class="d hollow"></i>hollow = no pass rate to plot</span>
+             <span><i class="d dashline"></i>dashed = bridge, not a measurement</span>`:''}
+    <span><i class="d vol"></i>columns = result volume</span>
+    ${anySample?`<span><i class="d sample"></i>faint = sample run</span>`:''}
+  </div>
+  ${anySample?`<div class="faint" style="font-size:11px;margin-top:6px">
      Hollow points are sample runs, generated to show the shape of the chart.</div>`:''}`;
+}
+
+/* KPI chips for the trend header. Computed only over runs that actually have a
+   pass rate: averaging a null as zero would report a collapse that never
+   happened, and there is no honest number to show when none of them do. */
+function trendKpis(){
+  const h=STATE.history, rated=h.filter(r=>r.passRate!=null);
+  if(!rated.length){
+    return `<span class="tg-chip muted">no rated run yet</span>
+            <span class="tg-chip muted">${h.length} run${h.length===1?'':'s'} tracked</span>`;
+  }
+  const avg=rated.reduce((n,r)=>n+r.passRate,0)/rated.length*100;
+  let delta='';
+  if(rated.length>1){
+    const d=(rated[rated.length-1].passRate-rated[rated.length-2].passRate)*100;
+    const dir=d>0.05?'up':d<-0.05?'down':'flat';
+    delta=`<span class="tg-chip ${dir}">${dir==='up'?'&#9650;':dir==='down'?'&#9660;':'&#9644;'}
+      ${d>0?'+':''}${d.toFixed(1)}% vs prev</span>`;
+  }
+  return `<span class="tg-chip good">&#128200; ${avg.toFixed(1)}% avg</span>
+    ${delta}
+    <span class="tg-chip">${rated.length} of ${h.length} rated</span>`;
 }
 
 /* Lucide glyphs used by the report, inlined (the source pulled these from a CDN). */
@@ -3938,7 +4125,8 @@ function tabOverview(R){
       <div class="ecard-h">
         <div><h3>Historical Build Trend (Last ${HISTORY_MAX} Runs)</h3>
           <p>${STATE.shared ? 'Pass rate across the runs held when this report was shared'
-                            : 'Pass rate retained across runs in this browser'}</p></div>
+                            : 'Pass rate retained across runs in this browser'}</p>
+          <div class="tg-chips" style="margin-top:8px">${trendKpis()}</div></div>
         <div style="display:flex;gap:var(--gap-sm);align-items:center;flex-wrap:wrap">
           ${/* A shared file is a record. Seeding or clearing its trend would
                edit someone else's report in front of the reader. */
@@ -4289,7 +4477,56 @@ function tabJson(R){
 }
 
 /* ---- analytics wiring ---- */
+/* The tooltip is an HTML panel, not an SVG <title>: a native tooltip cannot
+   carry a layout. Driven off a transparent hit column per run, because asking
+   anyone to hover a 6px node is not a design. */
+function wireTrend(){
+  const svg=$('#anBody svg.trend'), tip=$('#tgTip');
+  if(!svg || !tip) return;
+  const wrap=svg.closest('.tg-wrap');
+  const fmtMs=ms=> ms>=1000 ? (ms/1000).toFixed(1)+'s' : Math.round(ms)+'ms';
+  const when=at=>{
+    if(!at) return '';
+    const d=new Date(at); if(isNaN(d)) return '';
+    const mins=Math.round((Date.now()-d.getTime())/60000);
+    if(mins<1) return 'just now';
+    if(mins<60) return mins+'m ago';
+    if(mins<1440) return Math.round(mins/60)+'h ago';
+    return d.toLocaleDateString();
+  };
+
+  svg.querySelectorAll('[data-trend-hit]').forEach(hit=>{
+    hit.addEventListener('pointerenter', ()=>{
+      const r=STATE.history[+hit.dataset.trendHit];
+      if(!r) return;
+      /* Only fields the row actually holds. Rows written before these existed
+         omit the line rather than printing a zero that looks measured. */
+      const pills=[];
+      if(r.passed!=null) pills.push(`<span class="p ok">&#10003; ${r.passed} passed</span>`);
+      if(r.failed!=null) pills.push(`<span class="p ${r.failed?'no':''}">&#10007; ${r.failed} failed</span>`);
+      if(r.durationMs)   pills.push(`<span class="p">&#9201; ${fmtMs(r.durationMs)}</span>`);
+      if(r.total!=null)  pills.push(`<span class="p">${r.total} results</span>`);
+      tip.innerHTML=`
+        <div class="r"><span>${esc(String(r.runId||'run').slice(0,18))}</span>
+          <span>${esc(when(r.at))}</span></div>
+        <div class="big ${r.passRate==null?'na':''}">${
+          r.passRate==null ? 'no pass rate' : (r.passRate*100).toFixed(1)+'%'}</div>
+        <div class="r"><span>${r.passRate==null
+          ? 'nothing entered the denominator'
+          : 'gate '+esc(r.gate||'n/a')}</span></div>
+        ${pills.length?`<div class="pills">${pills.join('')}</div>`:''}
+        ${r.sample?`<div class="r" style="margin-top:6px">sample run &mdash; not a real execution</div>`:''}`;
+      const box=hit.getBoundingClientRect(), wb=wrap.getBoundingClientRect();
+      tip.style.left=(box.left-wb.left+box.width/2)+'px';
+      tip.style.top =(box.top -wb.top +box.height*0.42)+'px';
+      tip.hidden=false;
+    });
+    hit.addEventListener('pointerleave', ()=>{ tip.hidden=true; });
+  });
+}
+
 function wireAnalytics(R){
+  wireTrend();
   const fails = R.apis.flatMap(a=>a.results.filter(r=>r.state==='FAIL').map(r=>({r, api:apiByRef(a.apiRef)})));
   $$('[data-jira]').forEach(b=> b.onclick=()=>jiraModal(fails[+b.dataset.jira], R));
   $$('[data-curl-ref]').forEach(b=> b.onclick=()=>{
@@ -5453,12 +5690,19 @@ function startRun(refs){
     STATE.live = !!doc;
     STATE.viewing = null;              // a new run supersedes any snapshot being viewed
       saveSnapshot(STATE.result);
+      /* passed / failed / durationMs are for the trend tooltip. Rows written
+         before these existed simply lack them, and the tooltip shows what is
+         present rather than inventing the rest. */
       STATE.history.push({
         runId:STATE.result.runId, at:STATE.result.startedAt,
         passRate:STATE.result.summary.passRate,
         clean:STATE.result.summary.clean,
         gate:qualityGate(STATE.result).level,
-        total:STATE.result.summary.total
+        total:STATE.result.summary.total,
+        passed:STATE.result.summary.counts.PASS||0,
+        failed:STATE.result.summary.counts.FAIL||0,
+        durationMs:STATE.result.apis.reduce((n,a)=>
+          n + a.results.reduce((m,r)=>m+(r.durationMs||0),0), 0)
       });
       if(STATE.history.length>HISTORY_MAX) STATE.history=STATE.history.slice(-HISTORY_MAX);
       STATE.running=false; if(prog) prog.style.display='none';

@@ -828,17 +828,21 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   ok('the trend card is on Overview', !!trendCard);
   ok('it draws an svg after one run', !!trendCard.querySelector('svg.trend'),
      trendCard.textContent.slice(0, 60));
+  // Counts the node marks, not every circle: a point is now drawn as a node
+  // plus a ring plus, on the current run, a pulse.
   ok('one run plots one point',
-     trendCard.querySelectorAll('svg.trend circle').length === 1,
-     trendCard.querySelectorAll('svg.trend circle').length + ' points');
+     trendCard.querySelectorAll('svg.trend .tg-node').length === 1,
+     trendCard.querySelectorAll('svg.trend .tg-node').length + ' points');
   ok('it says a line needs a second run',
      /a line appears from the second/i.test(trendCard.textContent));
+  // Targets the trendline specifically: the volume columns are paths too.
   ok('no line path is drawn for a single point',
-     trendCard.querySelectorAll('svg.trend path').length === 0);
+     trendCard.querySelectorAll('svg.trend .tg-line').length === 0);
   ok('the y axis is labelled in percent',
      [...trendCard.querySelectorAll('svg.trend text')].some(t => /%$/.test(t.textContent)));
   ok('the newest point is labelled current',
-     [...trendCard.querySelectorAll('svg.trend text')].some(t => t.textContent === 'current'));
+     [...trendCard.querySelectorAll('svg.trend text')]
+       .some(t => /^current$/i.test(t.textContent.trim())));
   // Across all titles, not the first: the chart draws volume columns before
   // the data points, so depending on draw order made this assert the wrong mark.
   ok('a trend mark carries a tooltip with its gate',
@@ -896,10 +900,10 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   $$('#anTabs .nitem').find(t => t.dataset.tab === 'overview').click();
   await wait(90);
   const t3 = $$('#anBody .ecard').find(c => /Historical Build Trend/.test(c.textContent));
-  ok('two real runs draw a line', t3.querySelectorAll('svg.trend path').length >= 1);
+  ok('two real runs draw a line', t3.querySelectorAll('svg.trend .tg-line').length >= 1);
   ok('two real runs plot two points',
-     t3.querySelectorAll('svg.trend circle').length === 2,
-     t3.querySelectorAll('svg.trend circle').length + '');
+     t3.querySelectorAll('svg.trend .tg-node').length === 2,
+     t3.querySelectorAll('svg.trend .tg-node').length + '');
 
   console.log('\nfirst-view seeding:');
   const css5 = [...doc.querySelectorAll('style')].map(s => s.textContent).join('\n');
