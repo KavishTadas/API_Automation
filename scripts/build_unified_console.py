@@ -116,7 +116,7 @@ def load_inventory() -> dict:
     the inventory's ``API Identifier``, which is the same ref the catalogue
     uses. A miss is worth knowing about rather than silently blanking a panel.
     """
-    path = ROOT / "api-docs" / "API_File.json"
+    path = ROOT / "build" / "API_File.json"
     if not path.exists():
         sys.exit(f"missing inventory: {path}")
     rows = json.loads(path.read_text(encoding="utf-8"))

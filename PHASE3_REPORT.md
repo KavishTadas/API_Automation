@@ -1,9 +1,17 @@
-# PHASE3_REPORT — structural move done, authority flip BLOCKED
+# PHASE3_REPORT — complete, authority flipped
 
 **Branch:** `refactor/authoring-surface`
 
-Phase 3 has two halves. The structural half is complete and verified. **The authority
-flip is blocked** on a data gap in the Phase 2 YAML, and was not attempted.
+Phase 3 has two halves. Both are now complete.
+
+The structural half landed first (`f714bd7`). The authority flip was **blocked** at
+that point on a data gap in the Phase 2 YAML, and was unblocked by reshaping the
+authoring surface to carry all 18 inventory columns per case. `api-endpoints/*.yaml`
+is now the source of truth; `build/API_File.json` is derived from it.
+
+**Superseded below:** the "BLOCKED" section records why the flip could not proceed on
+the original YAML shape. It is kept because the reasoning is the reason the reshape
+took the form it did, not because the block still stands.
 
 ## Verification summary
 
@@ -17,7 +25,7 @@ flip is blocked** on a data gap in the Phase 2 YAML, and was not attempted.
 | UI 3 — per-entry `authProviderApiId` round-trips | **PASS** |
 | Unit tests | 10 passed |
 
-## BLOCKED: the authority flip cannot proceed on the current YAML
+## RESOLVED (was blocking): the flip could not proceed on the original YAML
 
 `api-endpoints/*.yaml` captures **15 of the inventory's 18 columns**. The three it
 drops are all read by the contract tier:
@@ -148,3 +156,97 @@ three module-scoped endpoints collapse to one `method+path`, which accounts for 
 entries lost between 41 and 39. It is also why keying on `method+path` alone was the
 wrong option: it would have merged the Employee Auth and Login Auth UAT providers,
 which are precisely the two the harness dropdown must keep apart.
+
+---
+
+# Addendum — the flip, and what unblocked it
+
+## The reshape
+
+`api-endpoints/*.yaml` now carries `cases[]`: **41 files, 45 cases**, one case per
+inventory row. Content that can differ between cases lives per case; only
+`module`, `method` and `endpointPath` stay at endpoint level, because a difference in
+those would make it a different endpoint by definition (the slug is derived from
+exactly those three).
+
+The column mapping is **bijective** — 13 scalar fields, 3 `samplePayloads[]` entries
+keyed by `payloadType`, 2 `rules[]` entries keyed by `category`, totalling 18 — so
+`case_to_row` is a true inverse of `row_to_case`. No dedup, no merging, no column
+written by two rules.
+
+## Losslessness is tested, not asserted
+
+`tests/unit/test_endpoint_yaml_roundtrip.py` compares every one of the 45 rows
+**column by column** against `api-docs/API_File.json`. It also pins the two failures
+the first shape had:
+
+- `test_mapping_covers_exactly_eighteen_columns` — catches a dropped column
+- `test_multi_case_endpoints_keep_their_differences` — catches per-case content being
+  folded up to the endpoint
+
+Round-trip verification: `build/API_File.json` vs `api-docs/API_File.json` —
+**45 refs identical, 0 column mismatches, row order identical**, and the parsed
+structures compare equal including types.
+
+## Readers repointed to the derived artifact
+
+| Reader | Now reads |
+|---|---|
+| `tests/global_contract/metadata_resolver.py:72` | `build/API_File.json` |
+| generated `conftest.py` (runtime) | `build/API_File.json` |
+| `scripts/build_unified_console.py` | `build/API_File.json` |
+
+Without these, editing a YAML file would not have reached the resolver until the Node
+generator rewrote `api-docs/`, which would have made the flip cosmetic.
+
+## `build/` is tracked
+
+The gitignore added in `f714bd7` was withdrawn. `build/` is committed, so a fresh
+clone can run the suite with no generation step — which matters because
+`tests/global_contract/auth_bootstrap.py` imports the runtime at module level.
+
+## caseRef
+
+Endpoint directories can hold cases for several refs. A case file scopes itself by
+declaring `caseRef = "<canonicalRef>"` at module level; it must be byte-identical to a
+known ref, and `scripts/generate-endpoint-yaml.py` **exits 3** if it is not. Omitting
+it is permitted where the endpoint has a single case. All 41 case READMEs document it
+with that endpoint's real refs. Three unit tests cover accept / reject / omit.
+
+## Verification against the Phase 4 gate
+
+| State | Baseline | Now | Delta | Gate |
+|---|---:|---:|---:|---|
+| FAIL | 122 | 122 | 0 | hard |
+| SKIPPED_NO_TOKEN | 0 | 0 | 0 | hard |
+| NOT_APPLICABLE | 381 | 381 | 0 | hard |
+| NOT_ASSERTED | 36 | 36 | 0 | hard |
+| INFORMATIONAL | 6 | 6 | 0 | hard |
+| total | 953 | 953 | 0 | hard |
+| PASS | 408 | 408 | 0 | soft |
+| WARN | 0 | 0 | 0 | soft |
+
+**Hard gate: PASS. No PASS/WARN movement, so no SLA justification needed.**
+Observed latency WARNs on the final run: **0**. Unit tests: 21 passed.
+All three UI checks re-run against the flipped code: `sourceCollection` prefix intact
+(4 entries), dropdown resolves 2 providers on :8765, per-entry `authProviderApiId`
+round-trips with `SKIPPED_NO_TOKEN: 0`.
+
+## The 291-PASS scare
+
+One run during the flip showed `PASS 408 -> 291`, `NOT_APPLICABLE +122`, `FAIL -5` —
+a hard-gate failure. It was **not** the flip. The result document named the cause:
+
+| Count | Reason |
+|---:|---|
+| 64 | `host https://uat-mcdp-be.omfysgroup.com is unreachable (ConnectTimeout)` |
+| 52 | `host https://uatmcdphcmplatform.omfysgroup.com is unreachable (ConnectTimeout)` |
+| 12 | `socket.gaierror: getaddrinfo failed` |
+
+A transient network outage. Four subsequent runs — two with the resolver on
+`api-docs/`, two on `build/` — all returned exactly `408/122/381/36/6`, and the two
+inventory files parse to equal structures.
+
+Worth keeping: the seven-state model turned an outage into `NOT_APPLICABLE` with a
+named reason rather than a false pass. That is `60cd25f` doing its job, and it is what
+made the anomaly diagnosable in one pass instead of a bisect.

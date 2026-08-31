@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import importlib.util
 import json
 import re
 from pathlib import Path
@@ -14,14 +15,14 @@ from typing import Any
 ROOT_DIR = Path(__file__).resolve().parents[1]
 API_DOCS_DIR = ROOT_DIR / "api-docs"
 
-#: Phase 3 moved the OUTPUT to build/. The INPUT deliberately still reads the
-#: 18-column inventory: api-endpoints/*.yaml captures only 15 of those columns,
-#: and the three it drops -- Request Parameters, Request Body Schema and
-#: Response (example/200) -- are read by metadata_resolver, curl_adapter and the
-#: anonymous-access check. Flipping authority to a lossy source would silently
-#: change results. See PHASE3_REPORT.md; the flip is blocked, not forgotten.
+#: Authority flipped. api-endpoints/*.yaml is the source of truth: hand-authored,
+#: 41 files, 45 cases, carrying all 18 inventory columns losslessly (proved
+#: column-by-column in tests/unit/test_endpoint_yaml_roundtrip.py -- the flip was
+#: blocked until that held). API_File.json is now a DERIVED artifact emitted into
+#: build/, never an input. CSV_INPUT remains only as the legacy fallback.
+ENDPOINT_DIR = ROOT_DIR / "api-endpoints"
 BUILD_DIR = ROOT_DIR / "build"
-JSON_INPUT = API_DOCS_DIR / "API_File.json"
+JSON_OUTPUT = BUILD_DIR / "API_File.json"
 CSV_INPUT = API_DOCS_DIR / "API_File.csv"
 OUTPUT_DIR = BUILD_DIR / "auto_generated"
 
@@ -67,7 +68,7 @@ class _RuntimeConfig(dict[str, str]):
 @pytest.fixture(scope="session")
 def api_runtime_config() -> dict[str, str]:
     config = _RuntimeConfig(load_runtime_config())
-    with (ROOT_DIR / "api-docs" / "API_File.json").open(encoding="utf-8-sig") as handle:
+    with (ROOT_DIR / "build" / "API_File.json").open(encoding="utf-8-sig") as handle:
         api_rows = json.load(handle)
 
     auth_row = next(
@@ -112,18 +113,36 @@ INIT_CONTENT = '''"""Generated API tests package."""
 
 
 def read_api_rows() -> list[dict[str, str]]:
-    if JSON_INPUT.exists():
-        with JSON_INPUT.open(encoding="utf-8-sig") as handle:
-            rows = json.load(handle)
-        return [normalize_row(row) for row in rows]
+    """Rows from the authoring surface, one per case, in stable apiId order.
+
+    The reconstruction lives in scripts/generate-endpoint-yaml.py rather than here,
+    so the mapping and its inverse sit in one module and cannot drift apart.
+    """
+    if ENDPOINT_DIR.exists() and any(
+        p.name != "module-aliases.yaml" for p in ENDPOINT_DIR.glob("*.yaml")
+    ):
+        spec = importlib.util.spec_from_file_location(
+            "generate_endpoint_yaml", ROOT_DIR / "scripts" / "generate-endpoint-yaml.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return [normalize_row(row) for row in module.rows_from_endpoints()]
 
     if CSV_INPUT.exists():
         with CSV_INPUT.open(newline="", encoding="utf-8-sig") as handle:
             return [normalize_row(row) for row in csv.DictReader(handle)]
 
     raise FileNotFoundError(
-        f"Could not find {JSON_INPUT.relative_to(ROOT_DIR)} or "
-        f"{CSV_INPUT.relative_to(ROOT_DIR)}"
+        f"Could not find endpoint definitions in {ENDPOINT_DIR.relative_to(ROOT_DIR)} "
+        f"or {CSV_INPUT.relative_to(ROOT_DIR)}"
+    )
+
+
+def write_derived_inventory(rows: list[dict[str, str]]) -> None:
+    """Emit build/API_File.json. Derived output now, never an input."""
+    BUILD_DIR.mkdir(parents=True, exist_ok=True)
+    JSON_OUTPUT.write_text(
+        json.dumps(rows, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
 
 
@@ -329,7 +348,7 @@ def write_generated_tests(rows: list[dict[str, str]]) -> list[Path]:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Generate pytest API tests from api-docs/API_File.json or CSV."
+        description="Generate pytest API tests from api-endpoints/*.yaml."
     )
     parser.add_argument(
         "--list-only",
@@ -347,11 +366,15 @@ def main() -> None:
         print(f"Loaded {len(rows)} API row(s).")
         return
 
+    write_derived_inventory(rows)
     written = write_generated_tests(rows)
     print(f"Generated {len(written)} pytest file(s) in {OUTPUT_DIR.relative_to(ROOT_DIR)}.")
-    print("Shared helpers:")
-    print(f"  {(OUTPUT_DIR / '_api_test_helpers.py').relative_to(ROOT_DIR)}")
+    print(f"Derived inventory: {JSON_OUTPUT.relative_to(ROOT_DIR)}")
+    print("Emitted alongside the tests:")
     print(f"  {(OUTPUT_DIR / 'conftest.py').relative_to(ROOT_DIR)}")
+    print(f"  {(OUTPUT_DIR / '__init__.py').relative_to(ROOT_DIR)}")
+    print("Shared runtime (authored, not generated):")
+    print("  tests/api_runtime/_api_test_helpers.py")
 
 
 if __name__ == "__main__":

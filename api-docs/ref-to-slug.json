@@ -2,6 +2,7 @@
   "generatedBy": "scripts/generate-endpoint-yaml.py",
   "refCount": 45,
   "endpointCount": 41,
+  "caseCount": 45,
   "refToSlug": {
     "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete": "holiday_template_delete_api_attendance_holiday_templates_delete_by_holidaytemplateid",
     "delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold": "attendance_threshold_delete_api_attendance_status_thresholds_delete_1",
