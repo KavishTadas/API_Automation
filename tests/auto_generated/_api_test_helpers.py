@@ -548,7 +548,13 @@ def _build_headers(
         if key
     }
 
-    if _requires_auth_token(api, request_parameters):
+    suppress = bool(context.get("__suppress_auth__"))
+    if suppress:
+        # Drop anything already carrying a credential, so a row that hardcodes
+        # an Authorization header cannot smuggle one past the suppression.
+        headers = {k: v for k, v in headers.items() if k.lower() != "authorization"}
+
+    if _requires_auth_token(api, request_parameters, context):
         token = _auth_token(context)
         assert token, (
             "Missing required auth credential: API requires authToken; "
@@ -558,7 +564,7 @@ def _build_headers(
 
     for key, value in list(headers.items()):
         if _has_unresolved_template(value):
-            if "authtoken" in value.lower():
+            if "authtoken" in value.lower() and not suppress:
                 token = _auth_token(context)
                 assert token, (
                     f"Missing required auth credential: Header {key} "
@@ -571,7 +577,18 @@ def _build_headers(
     return headers
 
 
-def _requires_auth_token(api: dict[str, str], request_parameters: dict[str, Any]) -> bool:
+def _requires_auth_token(
+    api: dict[str, str],
+    request_parameters: dict[str, Any],
+    context: dict[str, str] | None = None,
+) -> bool:
+    # The anonymous-access check needs a request that carries no credential at
+    # all. Clearing the header columns is not enough on its own, because this
+    # predicate also reads the dependency column, which that check leaves
+    # intact -- so without this the "anonymous" request went out authenticated
+    # and its result described nothing.
+    if context and context.get("__suppress_auth__"):
+        return False
     dependency_text = api.get("Dependent APIs / Services", "")
     parameter_text = api.get("Request Parameters", "")
     return (
