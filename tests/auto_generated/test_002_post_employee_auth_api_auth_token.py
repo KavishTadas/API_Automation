@@ -34,7 +34,7 @@ API = json.loads(r"""{
   "Response (example/200)": "Expected status(es): 200\n{\n  \"empCode\": \"<empCode>\",\n  \"roles\": [\n    \"<role>\"\n  ],\n  \"token\": \"<jwt-token>\",\n  \"username\": \"<username>\"\n}",
   "Example Response Payload": "{\n  \"empCode\": \"<empCode>\",\n  \"roles\": [\n    \"<role>\"\n  ],\n  \"token\": \"<jwt-token>\",\n  \"username\": \"<username>\"\n}",
   "Dependent APIs / Services": "Produces authToken for downstream APIs",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
   "Comments": "Source: collections/auth/Employee_Auth_API.json; No saved response example in source file"
 }""")
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (200)")
 @allure.label("sourceModule", "Employee Auth API")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("post|/auth/token|employee auth api|tc01 - valid credentials return jwt token", name="API Identifier")
 def test_employee_auth_api_auth_token_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
@@ -67,7 +67,7 @@ def test_employee_auth_api_auth_token_status_code(api_runtime_config: dict[str, 
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Employee Auth API")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("post|/auth/token|employee auth api|tc01 - valid credentials return jwt token", name="API Identifier")
 def test_employee_auth_api_auth_token_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")

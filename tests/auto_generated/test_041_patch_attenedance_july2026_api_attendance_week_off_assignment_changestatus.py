@@ -34,7 +34,7 @@ API = json.loads(r"""{
   "Response (example/200)": "",
   "Example Response Payload": "",
   "Dependent APIs / Services": "",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus",
   "Comments": "Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
 }""")
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (200)")
 @allure.label("sourceModule", "Attenedance-july2026")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus", name="API Identifier")
 def test_attenedance_july2026_api_attendance_week_off_assignment_changestatus_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PATCH")
@@ -67,7 +67,7 @@ def test_attenedance_july2026_api_attendance_week_off_assignment_changestatus_st
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Attenedance-july2026")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus", name="API Identifier")
 def test_attenedance_july2026_api_attendance_week_off_assignment_changestatus_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PATCH")

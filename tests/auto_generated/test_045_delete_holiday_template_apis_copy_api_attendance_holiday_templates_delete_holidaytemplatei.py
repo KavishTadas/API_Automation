@@ -27,14 +27,14 @@ API = json.loads(r"""{
   "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/attendance/holiday-templates/delete/{holidayTemplateId}",
   "HTTP Method": "DELETE",
-  "Request Parameters": "path variables: holidayTemplateId | headers: Authorization=Bearer {{jwtToken}}",
+  "Request Parameters": "path variables: holidayTemplateId=999999 | headers: Authorization=Bearer {{jwtToken}}",
   "Request Body": "",
   "Example Request Payload": "",
   "Request Body Schema": "",
   "Response (example/200)": "",
   "Example Response Payload": "",
   "Dependent APIs / Services": "",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete",
   "Comments": "Source: collections/Holiday_Template_API.json; No saved response example in source file"
 }""")
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (200)")
 @allure.label("sourceModule", "Holiday Template APIs Copy")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete", name="API Identifier")
 def test_holiday_template_apis_copy_api_attendance_holiday_templates_delete_holidaytemplateid_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "DELETE")
@@ -67,7 +67,7 @@ def test_holiday_template_apis_copy_api_attendance_holiday_templates_delete_holi
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Holiday Template APIs Copy")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete", name="API Identifier")
 def test_holiday_template_apis_copy_api_attendance_holiday_templates_delete_holidaytemplateid_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "DELETE")

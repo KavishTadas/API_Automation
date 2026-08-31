@@ -453,11 +453,57 @@ function getPostmanPathVariables(url, endpointPath) {
   return unique(variables);
 }
 
+/* Sample values for path parameters, loaded once.
+
+   An endpoint like /holiday-templates/delete/{holidayTemplateId} cannot be
+   exercised without one: the literal placeholder is percent-encoded onto the
+   wire and rejected before routing, so every check on it judges a malformed
+   request rather than the API.
+
+   The values live in api-docs/path-variable-defaults.json, not here, so QA can
+   add one without editing this file -- and so the warning about why each must
+   name a NON-EXISTENT record sits with the values it governs. */
+let PATH_VARIABLE_DEFAULTS = null;
+function pathVariableDefaults() {
+  if (PATH_VARIABLE_DEFAULTS === null) {
+    try {
+      const raw = fs.readFileSync(
+        path.join(__dirname, '..', 'api-docs', 'path-variable-defaults.json'), 'utf8');
+      PATH_VARIABLE_DEFAULTS = JSON.parse(raw);
+    } catch (error) {
+      PATH_VARIABLE_DEFAULTS = {};
+    }
+  }
+  return PATH_VARIABLE_DEFAULTS;
+}
+
+/* Case-insensitive: a collection may spell it holidayTemplateId while the URL
+   carries holidaytemplateid, and a miss here is a silently unexercised
+   endpoint rather than an error anyone would notice. */
+function defaultForPathVariable(name) {
+  const defaults = pathVariableDefaults();
+  if (Object.prototype.hasOwnProperty.call(defaults, name)) return defaults[name];
+  const wanted = String(name).toLowerCase();
+  for (const key of Object.keys(defaults)) {
+    if (key.startsWith('_')) continue;
+    if (key.toLowerCase() === wanted) return defaults[key];
+  }
+  return null;
+}
+
+function withPathVariableValues(names) {
+  return names.map((name) => {
+    if (name.includes('=')) return name;          // already carries a value
+    const value = defaultForPathVariable(name);
+    return value ? `${name}=${value}` : name;
+  });
+}
+
 function buildRequestParameters({ queryParams, pathVariables, headers }) {
   const sections = [];
 
   if (pathVariables.length > 0) {
-    sections.push(`path variables: ${pathVariables.join('; ')}`);
+    sections.push(`path variables: ${withPathVariableValues(pathVariables).join('; ')}`);
   }
 
   if (queryParams.length > 0) {
@@ -1189,7 +1235,7 @@ function bruFileToRow(sourcePath) {
   const params = [];
 
   if (pathVariables.length > 0) {
-    params.push(`path variables: ${pathVariables.join('; ')}`);
+    params.push(`path variables: ${withPathVariableValues(pathVariables).join('; ')}`);
   }
 
   if (authToken) {

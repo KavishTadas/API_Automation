@@ -1,0 +1,28 @@
+{
+  "_comment": [
+    "Sample values for path parameters, so an endpoint like",
+    "/holiday-templates/delete/{holidayTemplateId} can actually be exercised.",
+    "",
+    "Without a value the request goes out with the literal placeholder, which the",
+    "container rejects with 400 before routing -- so every check on that endpoint",
+    "judges a malformed request rather than the API, and the engine now skips them",
+    "instead. One value here unlocks roughly twenty assertions per endpoint.",
+    "",
+    "EVERY VALUE MUST NAME A RECORD THAT DOES NOT EXIST.",
+    "The same request helper issues DELETEs against UAT on every run. An id that",
+    "happens to exist would destroy real data, and the checks that need these are",
+    "auth and error-shape checks -- they are satisfied by any well-formed id,",
+    "because authentication is evaluated before the id is ever looked up.",
+    "Verified against UAT: /delete/1 and /delete/abc both return 401 unauthenticated.",
+    "",
+    "999999 is taken from the manual attendance_apis suite, which uses it as its",
+    "deliberate not-found probe."
+  ],
+  "holidayTemplateId": "999999",
+  "id": "999999",
+  "policyId": "999999",
+  "shiftId": "999999",
+  "thresholdId": "999999",
+  "weekOffId": "999999",
+  "lateEarlyPolicyId": "999999"
+}
