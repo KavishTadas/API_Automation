@@ -93,9 +93,37 @@ baseline; the 45-ref one is kept only as the pre-removal record.
 Observed while re-cutting it: a manifest naming a ref the catalogue no longer knows is
 **not rejected**. The run completed and produced NOT_APPLICABLE results for the unknown
 ref, inflating `total` to 955. That is arguably the right graceful behaviour, but it
-means a stale manifest fails quietly rather than loudly. Worth a decision.
+means a stale manifest fails quietly rather than loudly.
 
-## 7. `bruno/auth/login.bru` still exists
+### Proposed: `unknownRefs[]` in `schema-result.json` (NOT actioned)
+
+Add a top-level `unknownRefs[]` to the result document listing every manifest ref the
+catalogue does not know. Semantics:
+
+- Unknown refs are **excluded from `total` and from all seven state counts.** They
+  produced no measurement, so counting them restates the failure the seven-state model
+  exists to prevent -- a result that reads as measured when nothing was.
+- The **exit code is unaffected.** A stale ref is a caller-side mistake, not a contract
+  failure of the APIs under test, and failing the run would make every endpoint
+  removal look like a regression.
+- The list makes the condition legible without parsing prose out of a reason string,
+  which is the same argument that gave `unreachableResults` its own field in `60cd25f`.
+
+Contract-visible, so it needs the platform team's agreement before implementation.
+
+## 7. Follow-up decision list: things retained without a live consumer
+
+Grouped because they want one decision, not four:
+
+| Item | State |
+|---|---|
+| `scripts/postman-cli-run.sh` | never invoked; its CI key injection was removed in Phase 1 |
+| `bruno/` | not run by CI or any npm script; `bruno/auth/login.bru` is the source of the endpoint removed as a duplicate, and `bruno/unverified-endpoints/` is deliberately quarantined |
+
+Both are "retained artifacts with no live consumer". Retiring either is a product call,
+not a redundancy cleanup, and neither is blocking.
+
+### `bruno/auth/login.bru` specifically
 
 The endpoint was removed from the authoring surface, not from Bruno. Nothing runs
 Bruno in CI or npm scripts, and `scripts/generate-api-file.js` would still list it in
@@ -104,7 +132,16 @@ call; the KT report claims it is intentionally retained, though that document is
 commits stale and its `BASE_URL` rationale survives regardless, since the quarantined
 profile-investigation request also uses `{{baseUrl}}`.
 
-## 8. Smaller items
+## 8. `ALLOWED_ORIGINS` is pinned to port 8765
+
+`harness/service.py:59` builds `ALLOWED_ORIGINS` from the module-level `PORT`, but
+`harness/serve.py` accepts `--port`. Start the harness anywhere else and its CORS
+allowlist no longer matches its own address, so a browser-served console on that port
+would have its fetches blocked. Server-to-server checks are unaffected, which is why
+`scripts/verify-harness-ui.py` runs green on an ephemeral port. Found during Phase 4;
+recorded, not fixed.
+
+## 9. Smaller items
 
 - `.env` still carries `USERNAME` and `PASSWORD` with no consumer in current code.
   Untracked, so out of scope for a tracked-file cleanup.

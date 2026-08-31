@@ -68,7 +68,10 @@ __all__ = [
 
 
 COLLECTIONS_DIR = ROOT_DIR / "collections"
-GLOBAL_TIER_SOURCE = Path(__file__).with_name("test_global_api_contract.py")
+#: Phase 4 split the tier into one file per check. The parser reads the whole
+#: directory rather than a single module, so a check cannot exist without being
+#: discovered -- adding a file is enough, there is no list to also update.
+GLOBAL_TIER_DIR = ROOT_DIR / "test-cases" / "global"
 GENERATED_TESTS_DIR = ROOT_DIR / "build" / "auto_generated"
 
 CATALOGUE_VERSION = "1.2"
@@ -218,12 +221,17 @@ def global_tests() -> tuple[GlobalTest, ...]:
     Parsed statically out of the tier's source rather than imported, so building
     a catalogue cannot trigger collection, fixtures, or any other side effect.
     """
-    tree = ast.parse(GLOBAL_TIER_SOURCE.read_text(encoding="utf-8"))
     found: list[GlobalTest] = []
+    nodes: list[ast.FunctionDef] = []
+    for source in sorted(GLOBAL_TIER_DIR.glob("[0-9][0-9]_*.py")):
+        tree = ast.parse(source.read_text(encoding="utf-8"))
+        nodes += [
+            n
+            for n in tree.body
+            if isinstance(n, ast.FunctionDef) and n.name.startswith("test_")
+        ]
 
-    for node in tree.body:
-        if not isinstance(node, ast.FunctionDef) or not node.name.startswith("test_"):
-            continue
+    for node in nodes:
 
         title = ""
         for decorator in node.decorator_list:

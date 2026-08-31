@@ -1,48 +1,76 @@
-"""Global contract checks for active HCM endpoints.
+"""Shared surface for the global-contract checks. NO ASSERTIONS LIVE HERE.
 
-These checks are metadata-driven, not endpoint-coupled: every operation the
-:mod:`~tests.global_contract.metadata_resolver` knows about is parameterized
-through the same twelve tests. Metadata comes from ``openapi/openapi.yaml``
-first, then a supplied API definition, then the generated inventory — see the
-resolver for the full precedence chain.
+Split out of ``test_global_api_contract.py`` in Phase 4, verbatim: helpers,
+constants, the two case classes and the session fixture, moved by AST line range
+so no assertion could be altered in transit.
 
-Result states
--------------
-Pytest reports pass/fail/skip; the QA platform needs the seven states in
-:mod:`~tests.global_contract.result_states`. States that are neither PASS nor
-FAIL travel as a structured prefix on the skip reason
-(``"NOT_APPLICABLE: no inventory row"``), which keeps them machine-readable
-downstream and keeps them out of the pass-rate denominator. In particular a
-check that could not apply, or that only observed and recorded, must never
-render as a pass.
+Why a star import in every check
+--------------------------------
+``conftest._measured_by`` resolves ``host_measured_by`` off ``item.module`` --
+the check's own module -- rather than by name in ``sys.modules``, because there
+is no ``__init__.py`` here and pytest's prepend import mode registers each check
+under its bare filename. Every check module therefore has to carry the shared
+names itself, which is what ``from _support import *`` provides. Import only a
+subset and ``measuredBy`` silently comes out null on every result, which no
+state count would catch.
+
+``__all__`` deliberately includes the underscore-prefixed helpers; a star import
+would otherwise skip exactly the names the checks rely on most.
 """
 
 from __future__ import annotations
 
+
 import json
+
+
 import os
+
+
 import re
+
+
 import time
+
+
 from dataclasses import dataclass, field
+
+
 from functools import lru_cache
+
+
 from typing import Any
+
+
 from urllib.parse import urlsplit
 
+
 import allure
+
+
 import httpx
+
+
 import pytest
+
+
 from jsonschema import Draft202012Validator
+
 
 from tests.api_runtime._api_test_helpers import (
     _resolve_templates,
     load_runtime_config,
     perform_api_request,
 )
+
+
 from tests.global_contract.auth_bootstrap import (
     TOKEN_RUNTIME_KEYS,
     AuthBootstrap,
     BootstrapResult,
 )
+
+
 from tests.global_contract.metadata_resolver import (
     ContractSources,
     MetadataResolver,
@@ -51,8 +79,14 @@ from tests.global_contract.metadata_resolver import (
     get_resolver,
     load_contract_sources,
 )
+
+
 from tests.global_contract.result_emitter import classify_gateway_failure
+
+
 from tests.global_contract.result_states import ResultState, format_reason
+
+
 from tests.global_contract.run_manifest import (
     ManifestValidationError,
     load_manifest_from_env,
@@ -60,29 +94,18 @@ from tests.global_contract.run_manifest import (
 )
 
 
-#: T7 — CORS preflight is opt-in. These are internal server-to-server APIs
-#: behind a WAF; requiring Access-Control-* headers they were never meant to
-#: emit would go red across the board and mean nothing. Sprint 2's run manifest
-#: can set this alongside the environment variable.
 CORS_PREFLIGHT_FLAG = "GLOBAL_CONTRACT_ENABLE_CORS_PREFLIGHT"
 
-#: Names the target environment for base-URL resolution (T8).
+
 ENVIRONMENT_FLAG = "API_TEST_ENV"
 
-#: Substituted into string fields of an API's own request-body sample by
-#: test_special_characters_in_input.
+
 SPECIAL_CHARACTER_SAMPLE = "ÉMP-测试-😀-🔒"
 
-#: The tier this module implements. A manifest must request it by name.
+
 GLOBAL_CONTRACT_TIER = "global_contract"
 
-#: The operation the session bootstraps a bearer token from.
-#:
-#: This is the one place the tier is still deliberately endpoint-coupled. The
-#: template has no `Auth Provider API ID` column, so nothing yet says which API
-#: mints a token for which other API — Sprint 2's run manifest supplies that
-#: per-API, and MetadataResolver exposes `auth_provider_api_id` as the seam it
-#: lands on. Until then the suite's single known token provider stands in.
+
 BOOTSTRAP_AUTH_OPERATION = ("POST", "/auth/token")
 
 
@@ -983,481 +1006,7 @@ def _register_gateway_classifications(
         )
 
 
-@allure.title("Response status matches the OpenAPI contract — {param_id}")
-@pytest.mark.parametrize("operation_case", build_contract_params())
-def test_status_code_matches_spec(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    # Checked before the status metadata: an entry that never resolved has no
-    # statuses *because* it never resolved, and "expected status not declared"
-    # would name the symptom instead of the cause.
-    api_row = _require_runnable(operation_case, global_contract_context)
-
-    if not operation_case.documented_status_codes:
-        # Never default to 200. tests/auto_generated/ hard-codes
-        # `status_code == 200` regardless of method, so a DELETE returning 204
-        # fails there on a contract nobody wrote. An undeclared status is
-        # missing metadata, not a passing or failing assertion.
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            "expected status not declared",
-            field="documented_status_codes",
-        )
-    response = global_contract_context.bootstrap_responses.get(
-        (operation_case.method, operation_case.path)
-    )
-    if response is None:
-        response = perform_api_request(
-            api_row,
-            global_contract_context.config_for(operation_case),
-        )
-
-    assert response.status_code in operation_case.documented_status_codes, (
-        f"{operation_case.method} {operation_case.path} returned "
-        f"{response.status_code}; documented statuses are "
-        f"{sorted(operation_case.documented_status_codes)}"
-    )
-
-
-@allure.title("Response body matches the full OpenAPI schema — {param_id}")
-@pytest.mark.parametrize("operation_case", build_contract_params())
-def test_response_matches_full_schema(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    responses = global_contract_context.response_samples.get(
-        (operation_case.method, operation_case.path),
-        (),
-    )
-    if not responses:
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            "no response sample available to validate",
-        )
-
-    observed_statuses: list[int] = []
-    unschematized_statuses: list[int] = []
-
-    for response in responses:
-        observed_statuses.append(response.status_code)
-        schema_document = _response_schema_document(
-            operation_case,
-            response.status_code,
-        )
-        if schema_document is None:
-            # No source describes this status. test_status_code_matches_spec
-            # already fails an undocumented status, so reporting it here too
-            # would double-count one defect.
-            unschematized_statuses.append(response.status_code)
-            continue
-
-        payload = _response_json(operation_case, response)
-        errors = sorted(
-            Draft202012Validator(schema_document).iter_errors(payload),
-            key=lambda error: [str(part) for part in error.absolute_path],
-        )
-
-        assert not errors, (
-            f"{operation_case.method} {operation_case.path} HTTP "
-            f"{response.status_code} failed its complete response schema: "
-            + "; ".join(_format_schema_error(error) for error in errors)
-        )
-
-    if unschematized_statuses:
-        _record_state(
-            ResultState.NOT_APPLICABLE,
-            f"{operation_case.method} {operation_case.path} has no response schema "
-            f"for observed status(es) {sorted(set(unschematized_statuses))}",
-        )
-
-    # Without a success sample this test asserted nothing about the success
-    # schema. That is an absence, not a defect -- and for a destructive verb it
-    # is deliberate: the suite refuses to fire a real DELETE with a real id at
-    # UAT, so no 2xx can ever be observed. Failing here punished the endpoint
-    # for a guardrail the engine imposed on itself, and D7's mirror forbids it:
-    # a request we chose not to make cannot be scored as a failure. The error
-    # half below already reports its own absence the same way.
-    if not any(200 <= status < 300 for status in observed_statuses):
-        _skip_with_state(
-            ResultState.NOT_ASSERTED,
-            f"{operation_case.method} {operation_case.path} success-schema half not "
-            f"validated: no success response was observed "
-            f"(observed {observed_statuses or 'nothing'})",
-        )
-
-    # The error half is validated only when an error sample exists. It used to
-    # be mandatory, which hard-failed every API that simply had no 4xx sample
-    # row — a failure on absence rather than on merit.
-    if not any(status >= 400 for status in observed_statuses):
-        _record_state(
-            ResultState.NOT_APPLICABLE,
-            f"{operation_case.method} {operation_case.path} error-schema half not "
-            f"validated: no error sample available (observed {observed_statuses})",
-        )
-
-
-@allure.title("Response exposes no credentials or tokens — {param_id}")
-@pytest.mark.parametrize("operation_case", build_contract_params())
-def test_no_credential_leakage_in_response(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    responses = global_contract_context.response_samples.get(
-        (operation_case.method, operation_case.path),
-        (),
-    )
-    if not responses:
-        # Nothing was executed, so nothing was inspected. Falling through the
-        # loop would report a pass for a check that never ran — exactly the
-        # accounting this tier must not produce.
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            f"no response sample to inspect for {operation_case.method} "
-            f"{operation_case.path}",
-        )
-
-    for sample_index, response in enumerate(responses):
-        payload = _response_json(operation_case, response)
-        fields = _field_paths(payload)
-        credential_paths = [
-            path
-            for field_name, path in fields
-            if re.search(r"password|secret", field_name, re.IGNORECASE)
-        ]
-        assert not credential_paths, (
-            f"{operation_case.method} {operation_case.path} HTTP "
-            f"{response.status_code} exposed credential field(s): "
-            f"{credential_paths}"
-        )
-
-        token_paths = [
-            path
-            for field_name, path in fields
-            if re.sub(r"[^a-z0-9]", "", field_name.lower())
-            in {"token", "authtoken"}
-        ]
-        is_expected_auth_success = (
-            sample_index == 0
-            and operation_case.method == "POST"
-            and operation_case.path == "/auth/token"
-            and response.status_code == 200
-        )
-        if is_expected_auth_success:
-            assert token_paths == ["$.token"], (
-                "POST /auth/token HTTP 200 must contain exactly one root token field; "
-                f"observed token field paths: {token_paths}"
-            )
-        else:
-            assert not token_paths, (
-                f"{operation_case.method} {operation_case.path} HTTP "
-                f"{response.status_code} unexpectedly exposed token field(s): "
-                f"{token_paths}"
-            )
-
-
-@allure.title("Response completes within the documented SLA — {param_id}")
-@pytest.mark.parametrize("operation_case", build_contract_params())
-def test_response_time_within_sla(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    # Advisory, not blocking: exceeding the target emits WARN and leaves the
-    # run's exit code alone. The old 20% buffer existed to prevent false
-    # failures; with no failure to prevent it only delayed the signal, so the
-    # flag fires at the target itself.
-    threshold_ms = operation_case.sla_ms
-    if threshold_ms is None:
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE, "no SLA target resolved", field="sla_ms"
-        )
-
-    operation_key = (operation_case.method, operation_case.path)
-    elapsed_ms = global_contract_context.bootstrap_durations_ms.get(operation_key)
-    if elapsed_ms is None:
-        # Measured during session bootstrap; this test issues no request of its
-        # own. Advisory timing does not justify doubling SLA traffic across a
-        # batch of APIs.
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            f"no bootstrap timing recorded for {operation_case.method} "
-            f"{operation_case.path}",
-        )
-
-    measurement = (
-        f"observed={elapsed_ms:.1f}ms threshold={threshold_ms}ms "
-        f"operation={operation_case.method} {operation_case.path}"
-    )
-    print(f"SLA measurement {measurement}")
-
-    if elapsed_ms > threshold_ms:
-        _skip_with_state(
-            ResultState.WARN,
-            f"response time exceeded its advisory target: {measurement} "
-            f"(over by {elapsed_ms - threshold_ms:.1f}ms)",
-        )
-
-
-@allure.title("Repeated GET requests return a stable result — {param_id}")
-@pytest.mark.parametrize("operation_case", build_contract_params())
-def test_idempotent_get_returns_stable_result(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    api_row = _require_runnable(operation_case, global_contract_context)
-    # Filtered here rather than in the parametrize expression: a case filtered
-    # out at collection produces no result at all, so the platform sees 11 tests
-    # for one API and 12 for another with nothing explaining the difference.
-    if operation_case.idempotent is not True:
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            f"{operation_case.label} is not declared idempotent, so a repeated "
-            "request is not safe to send",
-            field="idempotent",
-        )
-    first_response = perform_api_request(
-        api_row,
-        global_contract_context.config_for(operation_case),
-    )
-    second_response = perform_api_request(
-        api_row,
-        global_contract_context.config_for(operation_case),
-    )
-
-    assert first_response.status_code == second_response.status_code, (
-        f"{operation_case.method} {operation_case.path} returned different statuses "
-        f"for identical consecutive requests: first={first_response.status_code}, "
-        f"second={second_response.status_code}"
-    )
-
-    first_payload = _response_json(operation_case, first_response)
-    second_payload = _response_json(operation_case, second_response)
-    assert isinstance(first_payload, dict) and isinstance(second_payload, dict), (
-        f"{operation_case.method} {operation_case.path} must return JSON objects "
-        "for structural idempotency comparison"
-    )
-
-    first_top_level_fields = frozenset(first_payload)
-    second_top_level_fields = frozenset(second_payload)
-    assert first_top_level_fields == second_top_level_fields, (
-        f"{operation_case.method} {operation_case.path} returned different top-level "
-        "fields for identical consecutive requests: "
-        f"first={sorted(first_top_level_fields)}, "
-        f"second={sorted(second_top_level_fields)}"
-    )
-
-    first_data = first_payload.get("data")
-    second_data = second_payload.get("data")
-    first_data_fields = (
-        frozenset(first_data) if isinstance(first_data, dict) else frozenset()
-    )
-    second_data_fields = (
-        frozenset(second_data) if isinstance(second_data, dict) else frozenset()
-    )
-    assert first_data_fields == second_data_fields, (
-        f"{operation_case.method} {operation_case.path} returned different data "
-        "structures for identical consecutive requests: "
-        f"first={sorted(first_data_fields)}, second={sorted(second_data_fields)}"
-    )
-
-    first_records = (
-        first_data.get("leaveReport") if isinstance(first_data, dict) else None
-    )
-    second_records = (
-        second_data.get("leaveReport") if isinstance(second_data, dict) else None
-    )
-    first_record_count = len(first_records) if isinstance(first_records, list) else None
-    second_record_count = len(second_records) if isinstance(second_records, list) else None
-    assert first_record_count == second_record_count, (
-        f"{operation_case.method} {operation_case.path} returned a different record "
-        "count for identical consecutive requests: "
-        f"first={first_record_count}, second={second_record_count}"
-    )
-
-    print(
-        f"Idempotency observation {operation_case.method} {operation_case.path}: "
-        f"status={first_response.status_code} both times; "
-        f"record_count={first_record_count} both times; "
-        f"top_level_fields={sorted(first_top_level_fields)}"
-    )
-
-
-#: Deliberate limit on infrastructure this project does not own. Ten sequential
-#: requests establish only that a burst this small is not rejected; they do not
-#: establish the actual rate-limit threshold. Do not raise this.
 BURST_REQUEST_COUNT = 10
-
-
-@allure.title("A small valid request burst is not immediately blocked — {param_id}")
-@pytest.mark.parametrize("operation_case", build_contract_params())
-def test_small_burst_does_not_trigger_immediate_blocking(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    api_row = _require_runnable(operation_case, global_contract_context)
-    _require_host_representative(operation_case)
-    burst_row = api_row
-
-    if operation_case.requires_bearer_auth:
-        token = global_contract_context.config_for(operation_case).get("AUTH_TOKEN")
-        if not token:
-            _skip_with_state(
-                ResultState.SKIPPED_NO_TOKEN,
-                f"{operation_case.method} {operation_case.path} requires a bearer "
-                "token and the session bootstrap did not provide one",
-            )
-        burst_row = _api_row_with_authorization(api_row, f"Bearer {token}")
-
-    observed_statuses: list[int] = []
-
-    for request_number in range(1, BURST_REQUEST_COUNT + 1):
-        response = perform_api_request(
-            burst_row,
-            global_contract_context.config_for(operation_case),
-        )
-        observed_statuses.append(response.status_code)
-        # The known WAF fingerprint: HTTP 403 with a completely empty body.
-        # An application-level 403 carries a body; this one does not.
-        has_waf_fingerprint = (
-            response.status_code == 403 and not response.content.strip()
-        )
-        assert not has_waf_fingerprint, (
-            "Small sequential burst was blocked with the known WAF fingerprint "
-            f"(HTTP 403 with an empty body) at request {request_number} of "
-            f"{operation_case.method} {operation_case.path}; "
-            f"statuses observed before stopping: {observed_statuses}"
-        )
-
-    print(
-        f"Small-burst observation {operation_case.method} {operation_case.path}: "
-        f"statuses={observed_statuses}"
-    )
-
-
-@allure.title("Oversized payload exercises the documented size limit — {param_id}")
-@pytest.mark.parametrize("operation_case", build_contract_params())
-def test_request_payload_size_enforcement(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    api_row = _require_runnable(operation_case, global_contract_context)
-    _require_host_representative(operation_case)
-
-    if operation_case.max_payload_bytes is None:
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            f"{operation_case.label} has no payload ceiling to exercise",
-            field="max_payload_bytes",
-        )
-    # Routed through the resolver, never a direct dict index. The old expression
-    # subscripted the raw OpenAPI paths/method dicts inside the parametrize list
-    # comprehension, which KeyErrors at *collection* time for any API absent
-    # from the spec — i.e. every uploaded API.
-    if not _resolver().has_request_body(operation_case.method, operation_case.path):
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            f"{operation_case.label} takes no request body, so there is no "
-            "payload to oversize",
-            field="request_body_sample",
-        )
-
-    oversized_body = _oversized_request_body(
-        operation_case,
-        operation_case.max_payload_bytes,
-    )
-    if oversized_body is None:
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            f"{operation_case.method} {operation_case.path} has no request body "
-            "sample to build an oversized payload from",
-        )
-
-    oversized_row = {**api_row, "Request Body": oversized_body}
-    response = perform_api_request(
-        oversized_row,
-        global_contract_context.config_for(operation_case),
-    )
-    actual_request_bytes = len(response.request.content)
-    assert actual_request_bytes > operation_case.max_payload_bytes, (
-        f"Oversized request construction failed: expected more than "
-        f"{operation_case.max_payload_bytes} bytes, got {actual_request_bytes}"
-    )
-
-    response_body = response.text
-    configured_emp_code = (
-        global_contract_context.runtime_config.get("EMP_CODE")
-        or global_contract_context.runtime_config.get("empCode")
-        or ""
-    )
-    if configured_emp_code:
-        response_body = response_body.replace(configured_emp_code, "<redacted-emp-code>")
-
-    try:
-        response_payload = response.json()
-    except ValueError:
-        response_payload = None
-    if response_payload is not None:
-        sensitive_response_paths = [
-            path
-            for field_name, path in _field_paths(response_payload)
-            if re.search(
-                r"password|secret|token|emp[_-]?code",
-                field_name,
-                re.IGNORECASE,
-            )
-        ]
-        if sensitive_response_paths:
-            response_body = (
-                "<response body withheld because it contained sensitive field(s): "
-                f"{sensitive_response_paths}>"
-            )
-
-    observation = (
-        f"{operation_case.method} {operation_case.path}: "
-        f"request_bytes={actual_request_bytes}; "
-        f"documented_limit={operation_case.max_payload_bytes}; "
-        f"status={response.status_code}; response_body={response_body}"
-    )
-    print(f"Oversized payload observation {observation}")
-
-    # This check asserts only that the *constructed request* exceeded the limit.
-    # It never asserts anything about the response, so it must not render as a
-    # pass — an observation that proved nothing about the API would otherwise
-    # inflate the platform's headline number.
-    _skip_with_state(
-        ResultState.INFORMATIONAL,
-        f"oversized payload observed, response not asserted — {observation}",
-    )
-
-
-@allure.title("Missing or invalid Bearer token returns HTTP 401 — {param_id}")
-@pytest.mark.parametrize(
-    ("operation_case", "authorization"),
-    build_bearer_auth_negative_params(),
-)
-def test_401_without_valid_token(
-    operation_case: OperationCase,
-    authorization: str | None,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    api_row = _require_runnable(operation_case, global_contract_context)
-    if not operation_case.requires_bearer_auth:
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            f"operation is not secured, so {operation_case.label} has no token "
-            "state to reject",
-            field="requires_bearer_auth",
-        )
-    response = perform_api_request(
-        _api_row_with_authorization(api_row, authorization),
-        global_contract_context.config_for(operation_case),
-    )
-
-    assert response.status_code == 401, (
-        f"{operation_case.method} {operation_case.path} returned "
-        f"{response.status_code} with "
-        f"{'no Authorization header' if authorization is None else 'an invalid token'}"
-    )
 
 
 def _api_row_with_additional_headers(
@@ -1646,224 +1195,9 @@ def build_special_character_params() -> list[Any]:
     ]
 
 
-@allure.title("Unknown route returns HTTP 404 — {param_id}")
-@pytest.mark.parametrize(
-    "operation_case",
-    build_contract_params(xfail_auth_waf=True),
-)
-def test_404_for_unknown_route(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    api_row = _require_runnable(operation_case, global_contract_context)
-
-    # This check probes for an unknown route by appending a segment. Where the
-    # endpoint routes a path variable beneath it, the appended segment is a
-    # *valid route carrying a malformed id* — 400 is the correct answer, and the
-    # mutation cannot tell that apart from a genuinely unknown route. Asserting
-    # 404 there manufactures a failure that is neither an API defect nor a tier
-    # defect, and it would recur across most Attendance write endpoints.
-    if _resolver().declares_path_variables(operation_case.method, operation_case.path):
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            "endpoint accepts path variables; unknown-route mutation is ambiguous",
-            field="path_variables",
-        )
-
-    unknown_route_row = {
-        **api_row,
-        "Endpoint / Path": f"{operation_case.path.rstrip('/')}/nonexistent-xyz",
-    }
-    response = perform_api_request(
-        unknown_route_row,
-        global_contract_context.config_for(operation_case),
-    )
-
-    # An API that authenticates ahead of routing answers 401/403 for every path,
-    # real or invented, so the probe never reaches the routing layer this check
-    # is about. Verified against UAT: a route sharing no prefix with anything
-    # real returns 401, not 404. Demanding 404 here would ask the API to
-    # disclose which routes exist to an unauthenticated caller -- the opposite
-    # of what the check is for.
-    if response.status_code in (401, 403):
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            f"{operation_case.method} {operation_case.path} authenticates before "
-            f"routing (unknown route returned {response.status_code}); "
-            "unknown-route behaviour is not observable without a valid token",
-        )
-
-    assert response.status_code == 404, (
-        f"{operation_case.method} {unknown_route_row['Endpoint / Path']} returned "
-        f"{response.status_code} instead of 404"
-    )
-
-
-@allure.title("Response honors documented content negotiation — {param_id}")
-@pytest.mark.parametrize(
-    "operation_case",
-    build_contract_params(xfail_auth_waf=True),
-)
-def test_content_type_negotiation(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    api_row = _require_runnable(operation_case, global_contract_context)
-    response = global_contract_context.bootstrap_responses.get(
-        (operation_case.method, operation_case.path)
-    )
-    if response is None:
-        response = perform_api_request(
-            api_row,
-            global_contract_context.config_for(operation_case),
-        )
-
-    xml_response = perform_api_request(
-        _api_row_with_additional_headers(
-            api_row,
-            {"Accept": "application/xml"},
-        ),
-        global_contract_context.config_for(operation_case),
-    )
-
-    expected_content_types = operation_case.documented_content_types.get(
-        response.status_code,
-        frozenset(),
-    )
-    if not expected_content_types:
-        # No source declares a content type for the status this API actually
-        # returned. That is missing metadata, and test_status_code_matches_spec
-        # already fails an undocumented status — reporting it here too would
-        # count one defect twice.
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            f"no content type declared for {operation_case.method} "
-            f"{operation_case.path} HTTP {response.status_code}",
-            field="documented_content_types",
-        )
-
-    actual_content_type = _response_media_type(response)
-    xml_content_type = _response_media_type(xml_response)
-    errors: list[str] = []
-
-    if actual_content_type not in expected_content_types:
-        errors.append(
-            f"normal request returned status {response.status_code} with "
-            f"Content-Type {actual_content_type or '<missing>'}; documented types are "
-            f"{sorted(expected_content_types)}"
-        )
-    if xml_response.status_code != 406 and xml_content_type != "application/json":
-        errors.append(
-            f"Accept: application/xml returned status {xml_response.status_code} with "
-            f"Content-Type {xml_content_type or '<missing>'}; expected 406 or ignored "
-            "negotiation with application/json"
-        )
-
-    assert not errors, f"{operation_case.method} {operation_case.path}: {'; '.join(errors)}"
-
-
-@allure.title("CORS preflight permits the documented method — {param_id}")
-@pytest.mark.skipif(
-    not _cors_preflight_enabled(),
-    reason=format_reason(
-        ResultState.NOT_APPLICABLE,
-        f"CORS preflight is opt-in; set {CORS_PREFLIGHT_FLAG}=1 to enable it. "
-        "These are internal server-to-server APIs behind a WAF and are not "
-        "expected to emit Access-Control-* headers",
-    ),
-)
-@pytest.mark.parametrize("operation_case", build_contract_params())
-def test_cors_preflight(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    api_row = _require_runnable(operation_case, global_contract_context)
-    preflight_row = {
-        **api_row,
-        "HTTP Method": "OPTIONS",
-        "Request Body": "",
-        "Request Parameters": (
-            "headers: Origin=https://global-contract.example; "
-            f"Access-Control-Request-Method={operation_case.method}; "
-            "Access-Control-Request-Headers=authorization,content-type"
-        ),
-        "Dependent APIs / Services": "",
-    }
-    response = perform_api_request(
-        preflight_row,
-        global_contract_context.config_for(operation_case),
-    )
-
-    allow_origin = response.headers.get("access-control-allow-origin")
-    allow_methods = response.headers.get("access-control-allow-methods")
-    allowed_methods = {
-        method.strip().upper()
-        for method in (allow_methods or "").split(",")
-        if method.strip()
-    }
-
-    assert allow_origin and allow_methods and operation_case.method in allowed_methods, (
-        f"OPTIONS {operation_case.path} returned {response.status_code}; "
-        f"Access-Control-Allow-Origin={allow_origin!r}, "
-        f"Access-Control-Allow-Methods={allow_methods!r}"
-    )
-
-
-@allure.title("Unicode input is handled without a server error — {param_id}")
-@pytest.mark.parametrize("operation_case", build_special_character_params())
-def test_special_characters_in_input(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    api_row = _require_runnable(operation_case, global_contract_context)
-    special_body = _special_character_body(operation_case)
-    if special_body is None:
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            f"{operation_case.method} {operation_case.path} has no request body "
-            "to substitute Unicode into",
-            field="request_body_sample",
-        )
-
-    response = perform_api_request(
-        {**api_row, "Request Body": special_body},
-        global_contract_context.config_for(operation_case),
-    )
-
-    print(
-        f"Unicode input observation {operation_case.method} {operation_case.path}: "
-        f"status={response.status_code}"
-    )
-
-    # Asserting `== 400` is right for auth and wrong everywhere else: an API
-    # that legitimately accepts Unicode in its fields would fail on a contract
-    # nobody wrote. What every API owes is to not fall over — a 5xx means the
-    # input reached something that could not cope with it.
-    assert response.status_code < 500, (
-        f"{operation_case.method} {operation_case.path} returned "
-        f"{response.status_code} for Unicode input; a server error means the "
-        "input was not handled"
-    )
-
-
-# ===========================================================================
-# Additional cross-cutting checks.
-#
-# Every one is gated on metadata this repo actually holds — the declared
-# method, the inventory's Access column, its Request Parameters, its Request
-# Body Schema, or the resolved host. Nothing here assumes a field the
-# inventory does not carry: where the data is absent the check reports
-# NOT_APPLICABLE naming the field, the same as the original twelve.
-#
-# None of these sends a method the endpoint did not declare. TRACE is the one
-# exception and is safe by construction: it echoes, it mutates nothing, and
-# the check exists precisely because it should be refused.
-# ===========================================================================
-
-#: Header values that disclose a product version, e.g. "nginx/1.24.0".
 _VERSION_IN_HEADER = re.compile(r"\d+\.\d+")
 
-#: Markers of an internal failure leaking into a response body.
+
 _INTERNAL_LEAK_MARKERS = (
     "traceback (most recent call last)",
     "at java.",
@@ -1908,343 +1242,90 @@ def _bootstrap_or_request(
     return response
 
 
-@allure.title("Transport is HTTPS — {param_id}")
-@pytest.mark.parametrize("operation_case", build_contract_params())
-def test_transport_is_https(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    """The resolved host must be TLS. Metadata only — issues no request."""
-    api_row = _require_runnable(operation_case, global_contract_context)
-
-    resolved = _resolve_templates(
-        api_row.get("Base URL", ""), global_contract_context.config_for(operation_case)
-    ).strip()
-    if not resolved or "{{" in resolved:
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            "base URL did not resolve, so its scheme cannot be checked",
-            field="Base URL",
-        )
-
-    scheme = urlsplit(resolved).scheme.lower()
-    assert scheme == "https", (
-        f"{operation_case.method} {operation_case.path} resolves to {scheme}://; "
-        "credentials and tokens must never cross a plaintext transport"
-    )
-
-
-@allure.title("Private endpoint refuses an anonymous caller — {param_id}")
-@pytest.mark.parametrize("operation_case", build_contract_params())
-def test_private_endpoint_rejects_anonymous_access(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    """A private endpoint called with no Authorization header must refuse.
-
-    Distinct from ``test_401_without_valid_token``, which sends a *malformed*
-    token. This sends none at all, which is the shape an unauthenticated
-    caller actually takes.
-    """
-    api_row = _require_runnable(operation_case, global_contract_context)
-
-    access = str(api_row.get("Access", "")).strip().lower()
-    if access != "private":
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            f"endpoint is declared '{access or 'undeclared'}', not private",
-            field="Access",
-        )
-
-    anonymous = {**api_row, "Request Parameters": "", "Auth Type": ""}
-    response = perform_api_request(
-        anonymous, {"__suppress_auth__": "1", **global_contract_context.config_for(operation_case)}
-    )
-
-    assert response.status_code in (401, 403), (
-        f"{operation_case.method} {operation_case.path} is declared private but "
-        f"returned {response.status_code} to a caller sending no credential; "
-        "expected 401 or 403"
-    )
-
-
-@allure.title("Error responses are machine readable — {param_id}")
-@pytest.mark.parametrize("operation_case", build_contract_params())
-def test_error_response_is_machine_readable(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    """A 4xx must answer in JSON, not an HTML error page.
-
-    Uses the same unknown-route mutation as the 404 check, and inherits its
-    guard: where the endpoint routes a path variable the mutation is ambiguous.
-    """
-    api_row = _require_runnable(operation_case, global_contract_context)
-
-    if _resolver().declares_path_variables(operation_case.method, operation_case.path):
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            "endpoint accepts path variables; unknown-route mutation is ambiguous",
-            field="path_variables",
-        )
-
-    response = perform_api_request(
-        {**api_row, "Endpoint / Path": f"{operation_case.path.rstrip('/')}/nonexistent-xyz"},
-        global_contract_context.config_for(operation_case),
-    )
-
-    if response.status_code < 400:
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            f"unknown route returned {response.status_code}; no error body to inspect",
-            field="error_response",
-        )
-
-    content_type = response.headers.get("content-type", "").lower()
-    assert "json" in content_type, (
-        f"{operation_case.method} {operation_case.path} answered its "
-        f"{response.status_code} with content-type '{content_type or 'none'}'; "
-        "an API client cannot parse an HTML error page"
-    )
-
-
-@allure.title("Error responses hide internal detail — {param_id}")
-@pytest.mark.parametrize("operation_case", build_contract_params())
-def test_error_response_hides_internals(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    """An error body must not carry a stack trace, class path or SQL fragment."""
-    api_row = _require_runnable(operation_case, global_contract_context)
-
-    if _resolver().declares_path_variables(operation_case.method, operation_case.path):
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            "endpoint accepts path variables; unknown-route mutation is ambiguous",
-            field="path_variables",
-        )
-
-    response = perform_api_request(
-        {**api_row, "Endpoint / Path": f"{operation_case.path.rstrip('/')}/nonexistent-xyz"},
-        global_contract_context.config_for(operation_case),
-    )
-
-    if response.status_code < 400:
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            f"unknown route returned {response.status_code}; no error body to inspect",
-            field="error_response",
-        )
-
-    body = (response.text or "").lower()
-    leaked = [marker for marker in _INTERNAL_LEAK_MARKERS if marker in body]
-    assert not leaked, (
-        f"{operation_case.method} {operation_case.path} leaked internal detail in "
-        f"its {response.status_code} body: {leaked}"
-    )
-
-
-@allure.title("Write endpoints refuse an unsupported media type — {param_id}")
-@pytest.mark.parametrize("operation_case", build_contract_params())
-def test_unsupported_media_type_rejected(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    """A JSON endpoint sent text/plain must refuse it rather than parse it.
-
-    Gated on a documented request body: an endpoint the inventory records no
-    body for has no media type to get wrong.
-    """
-    api_row = _require_runnable(operation_case, global_contract_context)
-
-    if operation_case.method not in {"POST", "PUT", "PATCH"}:
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            f"{operation_case.method} carries no request body",
-            field="HTTP Method",
-        )
-    if not str(api_row.get("Request Body", "")).strip():
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            "inventory records no request body for this endpoint",
-            field="Request Body",
-        )
-
-    response = perform_api_request(
-        _headers_with(api_row, "Content-Type=text/plain"),
-        global_contract_context.config_for(operation_case),
-    )
-
-    assert response.status_code >= 400, (
-        f"{operation_case.method} {operation_case.path} accepted a text/plain body "
-        f"with {response.status_code}; a JSON endpoint should answer 415"
-    )
-
-
-@allure.title("Declared idempotency matches the method — {param_id}")
-@pytest.mark.parametrize("operation_case", build_contract_params())
-def test_declared_idempotency_matches_method(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    """PUT and DELETE are idempotent by RFC 9110; GET and HEAD are safe.
-
-    Metadata only. Verifying idempotency by repeating a write would mutate a
-    real environment twice, so this checks the *declaration* instead — a PUT
-    documented as non-idempotent is a contract error worth surfacing.
-    """
-    _require_runnable(operation_case, global_contract_context)
-
-    if operation_case.idempotent is None:
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            "idempotency is not declared for this operation",
-            field="idempotent",
-        )
-
-    # An inventory-sourced value was inferred from REPLAY_SAFE_METHODS, which
-    # answers "is this safe to replay against UAT", not "is this idempotent per
-    # RFC 9110". PUT and DELETE are deliberately False there. Asserting RFC
-    # semantics on it would fail every write method for agreeing with a rule it
-    # was never expressing -- and there is no human declaration to contradict.
-    if operation_case.idempotent_source not in {"openapi", "definition"}:
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            "idempotency was inferred from the method, not declared by a source",
-            field="idempotent",
-        )
-
-    expected = operation_case.method in {"GET", "HEAD", "PUT", "DELETE", "OPTIONS"}
-    assert operation_case.idempotent == expected, (
-        f"{operation_case.method} {operation_case.path} declares "
-        f"idempotent={operation_case.idempotent}; RFC 9110 makes "
-        f"{operation_case.method} {'idempotent' if expected else 'non-idempotent'}"
-    )
-
-
-@allure.title("Paginated list declares its page metadata — {param_id}")
-@pytest.mark.parametrize("operation_case", build_contract_params())
-def test_paginated_list_declares_page_metadata(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    """A list documented as paginated must return page metadata with the page."""
-    api_row = _require_runnable(operation_case, global_contract_context)
-
-    if not operation_case.paginated:
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            "operation is not declared paginated",
-            field="paginated",
-        )
-
-    response = _bootstrap_or_request(operation_case, global_contract_context, api_row)
-    if response.status_code >= 400:
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            f"list returned {response.status_code}; no page to inspect",
-            field="response",
-        )
-
-    try:
-        payload = response.json()
-    except ValueError:
-        _skip_with_state(
-            ResultState.NOT_APPLICABLE,
-            "response is not JSON; page metadata cannot be located",
-            field="response",
-        )
-
-    candidates = {"page", "pagenumber", "pagesize", "total", "totalelements",
-                  "totalpages", "count", "offset", "limit", "hasnext", "next"}
-    seen: set[str] = set()
-    if isinstance(payload, dict):
-        seen = {str(key).lower().replace("_", "") for key in payload}
-        for wrapper in ("data", "result", "payload", "meta", "pageable"):
-            inner = payload.get(wrapper)
-            if isinstance(inner, dict):
-                seen |= {str(key).lower().replace("_", "") for key in inner}
-
-    assert seen & candidates, (
-        f"{operation_case.method} {operation_case.path} is documented as paginated "
-        f"but its response carries no page metadata; saw keys {sorted(seen) or 'none'}"
-    )
-
-
-@allure.title("Host sets the baseline security response headers")
-@pytest.mark.parametrize("operation_case", build_contract_params())
-def test_security_headers_present(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    """X-Content-Type-Options, and a framing policy.
-
-    Host-level: these are set by the gateway, not by an endpoint, so this is
-    measured once per host and referenced from the other APIs on it.
-    """
-    api_row = _require_runnable(operation_case, global_contract_context)
-    response = _bootstrap_or_request(operation_case, global_contract_context, api_row)
-
-    headers = {key.lower(): value for key, value in response.headers.items()}
-    missing = []
-    if headers.get("x-content-type-options", "").strip().lower() != "nosniff":
-        missing.append("X-Content-Type-Options: nosniff")
-    framing = headers.get("x-frame-options", "") or headers.get("content-security-policy", "")
-    if "frame" not in framing.lower() and "deny" not in framing.lower() \
-            and "sameorigin" not in framing.lower():
-        missing.append("X-Frame-Options or a CSP frame-ancestors directive")
-
-    assert not missing, (
-        f"{urlsplit(str(response.url)).netloc} does not set: {'; '.join(missing)}"
-    )
-
-
-@allure.title("Host discloses no product version in its headers")
-@pytest.mark.parametrize("operation_case", build_contract_params())
-def test_no_server_version_disclosure(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    """Server and X-Powered-By must not carry a version number.
-
-    Host-level. A banner naming the exact build hands an attacker the CVE list
-    for free; the header may stay, the version must not.
-    """
-    api_row = _require_runnable(operation_case, global_contract_context)
-    response = _bootstrap_or_request(operation_case, global_contract_context, api_row)
-
-    disclosed = {
-        name: value
-        for name, value in response.headers.items()
-        if name.lower() in {"server", "x-powered-by", "x-aspnet-version"}
-        and _VERSION_IN_HEADER.search(value or "")
-    }
-
-    assert not disclosed, (
-        f"{urlsplit(str(response.url)).netloc} discloses a product version: {disclosed}"
-    )
-
-
-@allure.title("Host refuses the TRACE method")
-@pytest.mark.parametrize("operation_case", build_contract_params())
-def test_trace_method_is_disabled(
-    operation_case: OperationCase,
-    global_contract_context: GlobalContractContext,
-) -> None:
-    """TRACE echoes the request back and must be off.
-
-    Host-level, and the one check here that sends a method the endpoint did
-    not declare. It is safe by construction: TRACE mutates nothing, and the
-    check exists precisely because it should be refused.
-    """
-    api_row = _require_runnable(operation_case, global_contract_context)
-
-    response = perform_api_request(
-        {**api_row, "HTTP Method": "TRACE", "Request Body": ""},
-        global_contract_context.config_for(operation_case),
-    )
-
-    assert response.status_code >= 400, (
-        f"{urlsplit(str(response.url)).netloc} answered TRACE with "
-        f"{response.status_code}; TRACE echoes the request and must be disabled"
-    )
+__all__ = [
+    "json",
+    "os",
+    "re",
+    "time",
+    "dataclass",
+    "field",
+    "lru_cache",
+    "Any",
+    "urlsplit",
+    "allure",
+    "httpx",
+    "pytest",
+    "Draft202012Validator",
+    "_resolve_templates",
+    "load_runtime_config",
+    "perform_api_request",
+    "TOKEN_RUNTIME_KEYS",
+    "AuthBootstrap",
+    "BootstrapResult",
+    "ContractSources",
+    "MetadataResolver",
+    "definition_to_inventory_row",
+    "error_trigger_rows",
+    "get_resolver",
+    "load_contract_sources",
+    "classify_gateway_failure",
+    "ResultState",
+    "format_reason",
+    "ManifestValidationError",
+    "load_manifest_from_env",
+    "registered_environments_from",
+    "CORS_PREFLIGHT_FLAG",
+    "ENVIRONMENT_FLAG",
+    "SPECIAL_CHARACTER_SAMPLE",
+    "GLOBAL_CONTRACT_TIER",
+    "BOOTSTRAP_AUTH_OPERATION",
+    "OperationCase",
+    "GlobalContractContext",
+    "_resolver",
+    "_target_environment",
+    "_cors_preflight_enabled",
+    "_record_state",
+    "_skip_with_state",
+    "_require_runnable",
+    "_require_api_row",
+    "_load_contract_sources",
+    "_inventory_status_codes",
+    "_load_manifest",
+    "_runtime_config_snapshot",
+    "_derive_host",
+    "_case_from_metadata",
+    "_unresolved_case",
+    "_cases_from_manifest",
+    "_with_registered_base_url",
+    "_definition_source",
+    "_definition_base_url",
+    "_build_operation_cases",
+    "_host_representatives",
+    "_host_representative_cases",
+    "host_measured_by",
+    "_require_host_representative",
+    "build_contract_params",
+    "build_bearer_auth_negative_params",
+    "_api_row_with_authorization",
+    "_is_recoverable",
+    "_timed_request",
+    "global_contract_context",
+    "_register_gateway_classifications",
+    "BURST_REQUEST_COUNT",
+    "_api_row_with_additional_headers",
+    "_response_media_type",
+    "_response_schema_document",
+    "_response_json",
+    "_format_schema_error",
+    "_field_paths",
+    "_string_field_paths",
+    "_set_in",
+    "_special_character_body",
+    "_oversized_request_body",
+    "_parse_body_preserving_templates",
+    "build_special_character_params",
+    "_VERSION_IN_HEADER",
+    "_INTERNAL_LEAK_MARKERS",
+    "_headers_with",
+    "_bootstrap_or_request",
+]
