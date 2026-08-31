@@ -114,27 +114,100 @@ class TestCanonicalRef:
 
 
 class TestCaseRefScoping:
-    """caseRef lets co-located case files be scoped to one ref of a shared endpoint."""
+    """caseRef scopes a case file to one ref of an endpoint that carries several."""
+
+    @staticmethod
+    def _seed(tmp_path, monkeypatch, body: str, login: bool = False):
+        """Create a case file under whichever root is being exercised.
+
+        The two roots sit at different depths -- endpoint/<suite>/<endpoint>/ and
+        the flat login/<endpoint>/ -- so both are patched and both are globbed.
+        """
+        if login:
+            root = tmp_path / "login"
+            case_dir = root / "employee_auth_api_POST_auth_token"
+        else:
+            root = tmp_path / "endpoint"
+            case_dir = root / "some_suite" / "GET_api_thing"
+        case_dir.mkdir(parents=True)
+        (case_dir / "01_x.py").write_text(body, encoding="utf-8")
+        monkeypatch.setattr(gen, "CASES_DIR", tmp_path / "endpoint")
+        monkeypatch.setattr(gen, "CASES_LOGIN_DIR", tmp_path / "login")
 
     def test_valid_ref_accepted(self, tmp_path, monkeypatch, documents):
         ref = documents[0]["cases"][0]["canonicalRef"]
-        case_dir = tmp_path / "some_endpoint"
-        case_dir.mkdir()
-        (case_dir / "01_x.py").write_text(f'caseRef = "{ref}"\n', encoding="utf-8")
-        monkeypatch.setattr(gen, "CASES_DIR", tmp_path)
+        self._seed(tmp_path, monkeypatch, f'caseRef = "{ref}"\n')
         assert gen.validate_case_files({ref}) == []
 
     def test_unknown_ref_is_an_error(self, tmp_path, monkeypatch):
-        case_dir = tmp_path / "some_endpoint"
-        case_dir.mkdir()
-        (case_dir / "01_x.py").write_text('caseRef = "post|/nope|x|y"\n', encoding="utf-8")
-        monkeypatch.setattr(gen, "CASES_DIR", tmp_path)
+        self._seed(tmp_path, monkeypatch, 'caseRef = "post|/nope|x|y"\n')
         problems = gen.validate_case_files({"post|/real|a|b"})
         assert len(problems) == 1 and "unknown caseRef" in problems[0]
 
     def test_omitting_caseRef_is_permitted(self, tmp_path, monkeypatch):
-        case_dir = tmp_path / "some_endpoint"
-        case_dir.mkdir()
-        (case_dir / "01_x.py").write_text('"""No scoping needed."""\n', encoding="utf-8")
-        monkeypatch.setattr(gen, "CASES_DIR", tmp_path)
+        self._seed(tmp_path, monkeypatch, '"""No scoping needed."""\n')
         assert gen.validate_case_files(set()) == []
+
+    def test_login_root_is_also_scanned(self, tmp_path, monkeypatch):
+        """The flat login root is one level shallower; a single glob would miss it."""
+        self._seed(tmp_path, monkeypatch, 'caseRef = "post|/nope|x|y"\n', login=True)
+        problems = gen.validate_case_files({"post|/real|a|b"})
+        assert len(problems) == 1, "login cases must not be invisible to validation"
+
+
+class TestCaseDirectories:
+    """The tree shape: suite level, uppercase method, and the login collision."""
+
+    def test_suite_uses_the_alias_never_the_raw_name(self):
+        aliases = {"attenedance-july2026": "weekoff"}
+        assert gen.suite_name("Attenedance-july2026", aliases) == "weekoff"
+        assert gen.suite_name("Attendance Policy Master", {}) == "attendance_policy_master"
+
+    def test_endpoint_dirname_keeps_method_uppercase(self):
+        assert gen.endpoint_dirname("delete", "/api/x/{holidayTemplateId}") == (
+            "DELETE_api_x_by_holidaytemplateid"
+        )
+
+    def test_login_endpoints_get_a_module_prefix_because_they_collide(self, documents):
+        """Both auth endpoints are POST /auth/token, and the login root is flat."""
+        docs = {d["slug"]: d for d in documents}
+        dirs = gen.case_directories(docs, gen.load_aliases())
+        emp = dirs["employee_auth_api_post_auth_token"]
+        uat = dirs["login_auth_uat_api_post_auth_token"]
+        assert emp != uat, "a flat login root would have collapsed these into one"
+        assert emp.parent == gen.CASES_LOGIN_DIR and uat.parent == gen.CASES_LOGIN_DIR
+        assert emp.name.startswith("employee_auth_api_")
+        assert uat.name.startswith("login_auth_uat_api_")
+
+    def test_the_third_auth_token_endpoint_stays_in_a_suite(self, documents):
+        """module 'auth' shares the path but is not a login module."""
+        docs = {d["slug"]: d for d in documents}
+        dirs = gen.case_directories(docs, gen.load_aliases())
+        assert dirs["auth_post_auth_token"].parent == gen.CASES_DIR / "auth"
+
+    def test_every_endpoint_gets_a_distinct_directory(self, documents):
+        docs = {d["slug"]: d for d in documents}
+        dirs = gen.case_directories(docs, gen.load_aliases())
+        assert len(dirs) == 41
+        assert len(set(dirs.values())) == 41
+
+    def test_paths_stay_under_the_ceiling(self, documents):
+        docs = {d["slug"]: d for d in documents}
+        dirs = gen.case_directories(docs, gen.load_aliases())
+        worst = max(len(str(d)) for d in dirs.values()) + 1 + gen.CASE_FILENAME_BUDGET
+        assert worst <= gen.MAX_PATH_LENGTH
+
+    def test_an_unresolvable_collision_is_a_hard_error(self, monkeypatch):
+        """Same suite, same method+path -- the module prefix cannot separate them."""
+        docs = {
+            "a": {"slug": "a", "module": "m", "method": "GET", "endpointPath": "/x"},
+            "b": {"slug": "b", "module": "m", "method": "GET", "endpointPath": "/x"},
+        }
+        with pytest.raises(gen.CaseDirectoryError, match="share a case directory"):
+            gen.case_directories(docs, {})
+
+    def test_over_long_path_is_a_hard_error(self, monkeypatch):
+        monkeypatch.setattr(gen, "MAX_PATH_LENGTH", 60)
+        docs = {"a": {"slug": "a", "module": "m", "method": "GET", "endpointPath": "/" + "z" * 80}}
+        with pytest.raises(gen.CaseDirectoryError, match="exceed 60 characters"):
+            gen.case_directories(docs, {})

@@ -10,7 +10,7 @@ A catalogue ref is ``method|path|module|sub-module``. The slug deliberately keys
 on the first *three* components only, because the fourth is the **test case**,
 not the endpoint. ``POST /auth/token`` carries three cases (valid credentials,
 invalid empCode, missing password); they are one endpoint with three cases, and
-the case belongs under ``test-cases/endpoint/<slug>/`` rather than as three
+the case belongs under that endpoint's case directory rather than as three
 sibling endpoint definitions. 45 catalogue rows resolve to 41 endpoints.
 
 Failure modes are hard errors, never repairs

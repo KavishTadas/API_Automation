@@ -43,10 +43,19 @@ Two distinct sources of run-to-run movement were observed:
   exactly what `60cd25f` built.
 
 **Consequence for any phase gate:** a single-run comparison can fail for reasons
-unrelated to the change under test. Re-running distinguishes them. The observed
-failure modes are distinguishable by shape — latency touches only
-`test_response_time_within_sla`; unreachability touches whole hosts at once and names
-`ConnectTimeout` in the reason string.
+unrelated to the change under test. The two failure modes are distinguishable by
+shape — latency touches only `test_response_time_within_sla` and moves PASS/WARN;
+unreachability takes whole hosts at once, names `ConnectTimeout` in the reason
+string, and moves `NOT_APPLICABLE` and `FAIL`, which are hard-gate fields.
+
+**Gate rule in force from the tree amendment onward:**
+
+- `unreachableResults > 0` — the run is **void**. Discard it and re-run. Do not
+  compute a delta; a void run says nothing about the change under test.
+- PASS/WARN movement clears only if every moved result is
+  `test_response_time_within_sla`, confirmed by two consecutive matching re-runs.
+- Movement in `FAIL`, `SKIPPED_NO_TOKEN`, `NOT_APPLICABLE`, `NOT_ASSERTED`,
+  `INFORMATIONAL` or `total` on a non-void run is a defect.
 
 ## 3. Two descriptions of the same inventory
 

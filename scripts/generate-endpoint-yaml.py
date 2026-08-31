@@ -47,7 +47,110 @@ API_FILE = ROOT_DIR / "api-docs" / "API_File.json"
 OPENAPI = ROOT_DIR / "openapi" / "openapi.yaml"
 ENDPOINT_DIR = ROOT_DIR / "api-endpoints"
 CASES_DIR = ROOT_DIR / "test-cases" / "endpoint"
+CASES_LOGIN_DIR = ROOT_DIR / "test-cases" / "login"
 REF_MAP = ROOT_DIR / "api-docs" / "ref-to-slug.json"
+
+#: Authentication lives at its own root, flat, with no suite level. Both of these
+#: modules issue tokens against the same POST /auth/token, so a flat root makes
+#: their endpoint directories collide -- see :func:`case_directories`.
+LOGIN_MODULES = frozenset({"employee auth api", "login auth uat api"})
+
+#: Ceiling on the full path from the repo root, including a case filename. Windows
+#: MAX_PATH is 260; 200 leaves room for a long case name and for the repo to sit a
+#: few directories deeper on someone else's machine.
+MAX_PATH_LENGTH = 200
+
+#: Length budgeted for a case filename when checking the ceiling. Longer than any
+#: plausible ``<NN>_<case_title>.py`` so the check fails on the directory, which is
+#: what an author can actually fix.
+CASE_FILENAME_BUDGET = 48
+
+_NOT_PATH_SAFE = __import__("re").compile(r"[^a-z0-9_]")
+_PATH_RUNS = __import__("re").compile(r"_+")
+_PATH_PARAM = __import__("re").compile(r"\{([^}]+)\}")
+
+
+class CaseDirectoryError(Exception):
+    """A case directory collided, or a full path exceeded MAX_PATH_LENGTH."""
+
+
+def _norm(value: str) -> str:
+    return _PATH_RUNS.sub("_", _NOT_PATH_SAFE.sub("_", value.lower())).strip("_")
+
+
+def suite_name(module: str, aliases: dict[str, str]) -> str:
+    """The suite directory: the aliased module, never the raw Postman name.
+
+    Aliases exist because four collections carry an internal ``info.name`` that
+    disagrees with their filename -- one misspelled and date-stamped
+    (``Attenedance-july2026``), one carrying a Postman "Copy" suffix. Those names
+    must not become directory names people navigate by.
+    """
+    return _norm(aliases.get(module.strip().lower(), module))
+
+
+def endpoint_dirname(method: str, path: str) -> str:
+    """``<METHOD>_<path-slug>`` -- uppercase method, the existing path transforms."""
+    expanded = _PATH_PARAM.sub(lambda m: f"by_{m.group(1).lower()}", path)
+    return f"{method.upper()}_{_norm(expanded.replace('/', '_'))}"
+
+
+def case_directories(documents: dict[str, Any], aliases: dict[str, str]) -> dict[str, Path]:
+    """Map each endpoint slug to its case directory. Slugs are NOT re-derived.
+
+    The mapping is deliberately one-way: ``ref-to-slug.json`` keeps the frozen slug
+    values, and the directory path is published beside them as a separate map rather
+    than recomputed by any consumer.
+
+    Collisions are resolved by restoring the module prefix, then re-checked. That is
+    not hypothetical: ``POST /auth/token`` is issued by both ``employee auth api``
+    and ``login auth uat api``, and the login root is flat, so without the prefix the
+    two would share a directory and one endpoint's cases would silently land under
+    the other.
+    """
+    preferred: dict[str, tuple[Path, str, str]] = {}
+    for slug, doc in documents.items():
+        module = str(doc["module"]).strip().lower()
+        suite = suite_name(doc["module"], aliases)
+        endpoint = endpoint_dirname(doc["method"], doc["endpointPath"])
+        root = CASES_LOGIN_DIR if module in LOGIN_MODULES else CASES_DIR / suite
+        preferred[slug] = (root / endpoint, suite, endpoint)
+
+    counts: dict[Path, int] = {}
+    for directory, _, _ in preferred.values():
+        counts[directory] = counts.get(directory, 0) + 1
+
+    resolved: dict[str, Path] = {}
+    for slug, (directory, suite, endpoint) in preferred.items():
+        if counts[directory] > 1:
+            directory = directory.parent / f"{suite}_{endpoint}"
+        resolved[slug] = directory
+
+    seen: dict[Path, str] = {}
+    for slug, directory in resolved.items():
+        if directory in seen:
+            raise CaseDirectoryError(
+                f"two endpoints share a case directory even with the module prefix:"
+                f"\n  {directory}\n    {seen[directory]}\n    {slug}"
+            )
+        seen[directory] = slug
+
+    too_long = sorted(
+        (
+            (len(str(d)) + 1 + CASE_FILENAME_BUDGET, d)
+            for d in resolved.values()
+            if len(str(d)) + 1 + CASE_FILENAME_BUDGET > MAX_PATH_LENGTH
+        ),
+        reverse=True,
+    )
+    if too_long:
+        listed = "\n  ".join(f"{n} chars  {d}" for n, d in too_long)
+        raise CaseDirectoryError(
+            f"{len(too_long)} case path(s) exceed {MAX_PATH_LENGTH} characters "
+            f"(including a {CASE_FILENAME_BUDGET}-char case filename):\n  {listed}\n\n"
+            "Shorten the suite with a module alias. Never truncate the endpoint."
+        )
+    return resolved
 
 X_FIELDS = (
     "x-sla-ms",
@@ -272,9 +375,9 @@ HEADER = """# AUTHORED -- this file is the source of truth for this endpoint.
 # spelling -- the harness, run manifest and result document all key on it.
 """
 
-CASE_README = """# {slug}
+CASE_README = """# {method} {path}
 
-`{method} {path}`
+Suite: `{suite}` · endpoint slug: `{slug}`
 
 Endpoint-specific test cases go here: **one Python file per case**, named
 `<NN>_<case_title>.py`. Hand-authored, never written by a tool.
@@ -305,7 +408,7 @@ endpoint on every run -- add a case here only for behaviour specific to this end
 """
 
 
-def render_case_readme(doc: dict[str, Any]) -> str:
+def render_case_readme(doc: dict[str, Any], suite: str) -> str:
     lines = []
     for case in doc["cases"]:
         source = case.get("sourceCollection") or case.get("sourceType") or "unknown"
@@ -316,6 +419,7 @@ def render_case_readme(doc: dict[str, Any]) -> str:
         )
     return CASE_README.format(
         slug=doc["slug"],
+        suite=suite,
         method=doc["method"],
         path=doc["endpointPath"],
         n_cases=len(doc["cases"]),
@@ -329,6 +433,19 @@ CASE_REF_PATTERN = __import__("re").compile(
 )
 
 
+def case_files() -> list[Path]:
+    """Every authored case file, across BOTH roots.
+
+    Two roots, two depths: ``endpoint/<suite>/<endpoint>/`` is nested one level
+    deeper than the flat ``login/<endpoint>/``. Anything enumerating cases has to
+    read both, or authored login cases become invisible to it.
+    """
+    return [
+        *CASES_DIR.glob("*/*/*.py"),
+        *CASES_LOGIN_DIR.glob("*/*.py"),
+    ]
+
+
 def validate_case_files(known_refs: set[str]) -> list[str]:
     """Every declared ``caseRef`` must name a real ref, byte-identical.
 
@@ -338,7 +455,7 @@ def validate_case_files(known_refs: set[str]) -> list[str]:
     case would look like it ran, so this is an error rather than a warning.
     """
     problems: list[str] = []
-    for path in sorted(CASES_DIR.glob("*/*.py")):
+    for path in sorted(case_files()):
         match = CASE_REF_PATTERN.search(path.read_text(encoding="utf-8"))
         if match is None:
             continue  # permitted: single-case endpoints need no scoping
@@ -361,6 +478,8 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         documents, ref_to_slug = build_documents()
+        aliases = load_aliases()
+        directories = case_directories(documents, aliases)
     except Exception as error:
         print(f"GENERATION FAILED: {type(error).__name__}", file=sys.stderr)
         print(str(error), file=sys.stderr)
@@ -378,20 +497,28 @@ def main(argv: list[str] | None = None) -> int:
     if args.check:
         print(f"{len(ref_to_slug)} refs -> {len(documents)} endpoints, {n_cases} cases")
         print(f"longest slug: {max(map(len, documents))} chars")
-        print(f"case files with a valid caseRef: {len(list(CASES_DIR.glob('*/*.py')))}")
+        print(f"authored case files across both roots: {len(case_files())}")
+        longest = max(directories.values(), key=lambda d: len(str(d)))
+        print(
+            f"longest case path: {len(str(longest)) + 1 + CASE_FILENAME_BUDGET} chars "
+            f"(dir {len(str(longest))} + {CASE_FILENAME_BUDGET} filename budget, "
+            f"ceiling {MAX_PATH_LENGTH})"
+        )
+        print(f"  {longest}")
         return 0
 
     ENDPOINT_DIR.mkdir(parents=True, exist_ok=True)
-    CASES_DIR.mkdir(parents=True, exist_ok=True)
 
     for slug, doc in sorted(documents.items()):
         (ENDPOINT_DIR / f"{slug}.yaml").write_text(
             HEADER + yaml.dump(doc, sort_keys=False, allow_unicode=True, width=100),
             encoding="utf-8",
         )
-        case_dir = CASES_DIR / slug
+        case_dir = directories[slug]
         case_dir.mkdir(parents=True, exist_ok=True)
-        (case_dir / "README.md").write_text(render_case_readme(doc), encoding="utf-8")
+        (case_dir / "README.md").write_text(
+            render_case_readme(doc, suite_name(doc["module"], aliases)), encoding="utf-8"
+        )
 
     REF_MAP.write_text(
         json.dumps(
@@ -400,7 +527,14 @@ def main(argv: list[str] | None = None) -> int:
                 "refCount": len(ref_to_slug),
                 "endpointCount": len(documents),
                 "caseCount": n_cases,
+                # Frozen. Never re-derived, never recomputed by a consumer.
                 "refToSlug": OrderedDict(sorted(ref_to_slug.items())),
+                # Published beside the slug rather than derived from it, so the
+                # tree can be reshaped without touching a single slug value.
+                "slugToDirectory": OrderedDict(
+                    (slug, str(directories[slug].relative_to(ROOT_DIR)).replace("\\", "/"))
+                    for slug in sorted(directories)
+                ),
             },
             indent=2,
             ensure_ascii=False,
