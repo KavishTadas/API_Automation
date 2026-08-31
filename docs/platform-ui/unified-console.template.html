@@ -2288,8 +2288,12 @@ function restore(){
   try{ s = JSON.parse(localStorage.getItem(LS)||'null'); }catch(e){}
   if(!s) return;
   if(s.theme) document.documentElement.setAttribute('data-theme', s.theme);
-  STATE.view=s.view||'home'; STATE.tab=s.tab||'overview';
-  if(STATE.view==='console') STATE.view='home';   // migrate pre-rework state
+  /* Opening the console always lands on the suites, whatever view was last
+     open. A report is the outcome of a run, not a home page: restoring it
+     dropped a returning reader into last time's results with no sense of what
+     they were looking at or how current it was. The result is still loaded --
+     View Report is one click away and the report itself is unchanged. */
+  STATE.view='home'; STATE.tab=s.tab||'overview';
   STATE.persona=s.persona||'qa'; STATE.env=s.env||STATE.env; STATE.alias=s.alias||STATE.alias;
   STATE.selected=new Set(s.selected||[]); STATE.focus=s.focus||null;
   STATE.imported=s.imported||[]; STATE.result=s.result||null;
@@ -2299,7 +2303,8 @@ function restore(){
   STATE.closedSuites=s.closedSuites||[];
   STATE.seededTrend=!!s.seededTrend; STATE.viewing=s.viewing||null;
   STATE.openCase=s.openCase||null;
-  if(STATE.view==='detail' && !STATE.focus) STATE.view='home';
+  /* The detail guard that lived here is gone with the restore above: the view
+     is now always 'home' by this point, so it could never fire. */
 }
 
 /* cross-tab bridge: console in one tab, report in another */
