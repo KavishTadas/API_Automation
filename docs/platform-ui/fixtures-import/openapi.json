@@ -1,0 +1,1 @@
+{"openapi": "3.0.0", "info": {"title": "HCM"}, "servers": [{"url": "https://uatmcdphcmplatform.omfysgroup.com"}], "paths": {"/api/attendance/week-offs/getall": {"get": {"summary": "All week-offs"}}, "/api/attendance/week-offs/{id}": {"delete": {"summary": "Delete week-off"}}}}

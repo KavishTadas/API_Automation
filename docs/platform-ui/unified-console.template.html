@@ -1911,6 +1911,41 @@ html[data-fx="off"] .tg-pulse{animation:none;opacity:.5}
   [data-theme="light"] .cs-top > .cs-pane + .cs-pane{border-top-color:#e4ebf2}
 }
 
+
+/* -- file import ---------------------------------------------------------- */
+.up-drop{
+  border:1.5px dashed var(--s700); border-radius:12px;
+  padding:20px 16px; text-align:center; cursor:pointer;
+  transition:border-color .18s ease, background .18s ease;
+  background:rgba(148,163,184,.05);
+}
+.up-drop:hover,.up-drop.over{
+  border-color:var(--accent); background:var(--accent-bg);
+}
+[data-theme="light"] .up-drop{border-color:#c8d6e4;background:rgba(15,23,42,.02)}
+[data-theme="light"] .up-drop.over,[data-theme="light"] .up-drop:hover{
+  border-color:var(--t700);background:rgba(15,118,110,.06)}
+.up-drop b{color:var(--text)}
+.up-drop .up-hint{display:block;margin-top:5px;font-size:11px;color:var(--text-dim)}
+.up-list{max-height:230px;overflow:auto;margin-top:12px;
+  border:1px solid var(--s800);border-radius:10px}
+[data-theme="light"] .up-list{border-color:#e4ebf2}
+.up-row{display:grid;grid-template-columns:auto 62px 1fr auto;gap:9px;
+  align-items:center;padding:7px 11px;border-bottom:1px solid var(--s800);
+  font-size:12px}
+[data-theme="light"] .up-row{border-bottom-color:#eef2f6}
+.up-row:last-child{border-bottom:0}
+.up-row .m{font:700 9.5px var(--mono);padding:2px 6px;border-radius:4px;
+  text-align:center;background:var(--slate-bg);color:var(--text-dim)}
+.up-row .p{font-family:var(--mono);font-size:11px;color:var(--text-dim);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.up-row .src{font-size:10px;color:var(--text-dim);opacity:.8}
+.up-sum{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px;font-size:11.5px}
+.up-sum span{padding:3px 9px;border-radius:99px;background:var(--slate-bg);
+  color:var(--text-dim)}
+.up-sum span.good{background:var(--accent-bg);color:var(--accent)}
+.up-sum span.warn{background:rgba(180,83,9,.14);color:var(--amber)}
+
 </style>
 </head>
 <body>
@@ -1973,6 +2008,7 @@ html[data-fx="off"] .tg-pulse{animation:none;opacity:.5}
   <section class="view scroll active" id="view-home">
     <div class="quick-actions">
       <button class="btn btn-sm" id="btnCurl">+ Add cURL</button>
+      <button class="btn btn-sm" id="btnUpload">&#8593; Upload file</button>
       <button class="btn btn-sm" id="btnSelGaps">Only assertion gaps</button>
       <span class="sp"></span>
       <button class="btn btn-sm" id="btnOpenNav">☰ Navigator <span class="pill" id="navBadge">0</span></button>
@@ -5442,10 +5478,21 @@ function curlModal(){
        The definition travels <b>by value</b> with the run and is never written to the repo (DR-2).
        Any <code>Authorization</code> header is stripped on import — send the credential alias instead.
      </div>
+     <div class="up-drop" id="curlDrop" style="margin-top:14px">
+       <b>&#8593; Or upload a file</b>
+       <span class="up-hint">Postman &middot; Bruno (.bru or .zip) &middot; OpenAPI &middot; .har
+         &middot; .docx &middot; .txt of cURL commands &middot; .json</span>
+     </div>
+     <div id="curlUpOut"></div>
      <div id="curlErr" style="color:var(--rose);font-size:11.5px;margin-top:8px"></div>`,
     `<button class="btn" data-close>Cancel</button>
      <button class="btn btn-primary" id="btnCurlSave">Add endpoint</button>`);
+  wireDrop($('#curlDrop'), $('#curlUpOut'));
   $('#btnCurlSave').onclick=()=>{
+    /* The card has two inputs. If a file was reviewed, that is what the button
+       commits -- otherwise a reader who uploaded and then pressed the only
+       obvious button would get "no URL in that command". */
+    if(PENDING_IMPORT.length){ commitImport(); return; }
     const parsed=parseCurl($('#curlIn').value);
     if(!parsed){ $('#curlErr').textContent='Could not find a URL in that command.'; return; }
     STATE.imported.push(parsed); STATE.selected.add(parsed.ref);
@@ -5454,6 +5501,417 @@ function curlModal(){
     toast('Endpoint added — credentials stripped');
   };
 }
+
+/* ==========================================================================
+   FILE IMPORT
+
+   Reads a dropped or chosen file and pulls endpoint definitions out of it.
+   No library: a .docx and a Bruno .zip are both ZIP containers, and the
+   browser can inflate their members itself.
+
+   Everything imported travels by value with the run and is never written to
+   the repo (DR-2). Authorization headers are stripped on the way in, because
+   an export taken from a working session is exactly the file most likely to
+   carry a live token.
+   ========================================================================== */
+
+const UPLOAD_ACCEPT =
+  '.json,.txt,.md,.curl,.http,.bru,.yaml,.yml,.csv,.har,.zip,.docx,.xlsx,.postman_collection';
+
+/* -- ZIP ------------------------------------------------------------------
+   Enough of the format to walk the central directory and inflate members.
+   Only stored (0) and deflate (8) appear in a .docx or a Bruno export. */
+async function unzip(buf){
+  const dv = new DataView(buf), u8 = new Uint8Array(buf);
+  /* The end-of-central-directory record is last, after a comment of unknown
+     length, so it has to be found by scanning backwards for its signature. */
+  let eocd = -1;
+  for(let i = u8.length - 22; i >= 0 && i > u8.length - 66000; i--){
+    if(dv.getUint32(i, true) === 0x06054b50){ eocd = i; break; }
+  }
+  if(eocd < 0) throw new Error('not a zip file');
+  const count = dv.getUint16(eocd + 10, true);
+  let p = dv.getUint32(eocd + 16, true);
+
+  const out = [];
+  for(let i = 0; i < count; i++){
+    if(dv.getUint32(p, true) !== 0x02014b50) break;
+    const method  = dv.getUint16(p + 10, true);
+    const csize   = dv.getUint32(p + 20, true);
+    const nameLen = dv.getUint16(p + 28, true);
+    const extLen  = dv.getUint16(p + 30, true);
+    const cmtLen  = dv.getUint16(p + 32, true);
+    const lho     = dv.getUint32(p + 42, true);
+    const name    = new TextDecoder().decode(u8.subarray(p + 46, p + 46 + nameLen));
+    p += 46 + nameLen + extLen + cmtLen;
+
+    if(name.endsWith('/')) continue;                 // directory entry
+    /* The local header repeats the name and extra fields at its own lengths,
+       which are not always the central directory's. */
+    const lnameLen = dv.getUint16(lho + 26, true);
+    const lextLen  = dv.getUint16(lho + 28, true);
+    const start = lho + 30 + lnameLen + lextLen;
+    const raw = u8.subarray(start, start + csize);
+    out.push({name, method, raw});
+  }
+  return out;
+}
+
+async function inflateEntry(entry){
+  if(entry.method === 0) return new TextDecoder().decode(entry.raw);
+  if(typeof DecompressionStream !== 'function'){
+    throw new Error('this browser cannot inflate zip members');
+  }
+  const ds = new DecompressionStream('deflate-raw');
+  const stream = new Blob([entry.raw]).stream().pipeThrough(ds);
+  return new TextDecoder().decode(await new Response(stream).arrayBuffer());
+}
+
+/* -- extractors -----------------------------------------------------------
+   Each knows one shape. Tried in order of how confidently a file can be
+   identified, so a Postman collection is never guessed at as loose JSON. */
+
+function fromPostman(doc, label){
+  if(!doc || !Array.isArray(doc.item)) return [];
+  const out = [];
+  const walk = (items, trail) => items.forEach(it => {
+    if(Array.isArray(it.item)) return walk(it.item, trail.concat(it.name || ''));
+    const r = it.request; if(!r) return;
+    const rawUrl = typeof r.url === 'string' ? r.url : (r.url && r.url.raw) || '';
+    if(!rawUrl) return;
+    const headers = {};
+    (r.header || []).forEach(h => { if(h && h.key) headers[h.key] = h.value; });
+    out.push(makeImported({
+      method: (r.method || 'GET').toUpperCase(),
+      rawUrl,
+      headers,
+      body: (r.body && r.body.raw) || '',
+      name: it.name || '',
+      module: 'Imported · ' + (doc.info && doc.info.name || label),
+      via: 'postman'
+    }));
+  });
+  walk(doc.item, []);
+  return out.filter(Boolean);
+}
+
+function fromOpenApi(doc, label){
+  if(!doc || !doc.paths || !(doc.openapi || doc.swagger)) return [];
+  const base = (doc.servers && doc.servers[0] && doc.servers[0].url) || '';
+  const out = [];
+  Object.keys(doc.paths).forEach(path => {
+    const ops = doc.paths[path] || {};
+    Object.keys(ops).forEach(m => {
+      if(!/^(get|post|put|patch|delete|head|options)$/i.test(m)) return;
+      const op = ops[m] || {};
+      out.push(makeImported({
+        method: m.toUpperCase(),
+        rawUrl: (base || '') + path,
+        headers: {},
+        body: '',
+        name: op.summary || op.operationId || path,
+        module: 'Imported · ' + (doc.info && doc.info.title || label),
+        via: 'openapi'
+      }));
+    });
+  });
+  return out.filter(Boolean);
+}
+
+/* Bruno stores one request per .bru file in a brace-block format. */
+function fromBru(text, label, fileName){
+  const block = n => {
+    const m = text.match(new RegExp(n + '\\s*\\{([\\s\\S]*?)\\n\\}', 'm'));
+    return m ? m[1] : '';
+  };
+  const verbM = text.match(/^\s*(get|post|put|patch|delete|head|options)\s*\{/mi);
+  if(!verbM) return [];
+  const method = verbM[1].toUpperCase();
+  const body = block(method.toLowerCase());
+  const urlM = body.match(/url:\s*(\S+)/);
+  if(!urlM) return [];
+  const headers = {};
+  block('headers').split('\n').forEach(l => {
+    const m = l.match(/^\s*([A-Za-z0-9\-_]+):\s*(.*)$/);
+    if(m) headers[m[1]] = m[2].trim();
+  });
+  const jsonBody = (text.match(/body:json\s*\{([\s\S]*?)\n\}/) || [])[1] || '';
+  const nameM = block('meta').match(/name:\s*(.+)/);
+  return [makeImported({
+    method, rawUrl: urlM[1], headers, body: jsonBody,
+    name: (nameM ? nameM[1] : fileName).trim(),
+    module: 'Imported · ' + label, via: 'bruno'
+  })].filter(Boolean);
+}
+
+/* A .har, or anything else holding a list of request-shaped objects. */
+function fromHar(doc, label){
+  const entries = doc && doc.log && Array.isArray(doc.log.entries) ? doc.log.entries : null;
+  if(!entries) return [];
+  return entries.map(e => {
+    const r = e.request || {};
+    if(!r.url) return null;
+    const headers = {};
+    (r.headers || []).forEach(h => { if(h && h.name) headers[h.name] = h.value; });
+    return makeImported({
+      method: (r.method || 'GET').toUpperCase(), rawUrl: r.url, headers,
+      body: (r.postData && r.postData.text) || '', name: '',
+      module: 'Imported · ' + label, via: 'har'
+    });
+  }).filter(Boolean);
+}
+
+/* Any text that contains curl commands -- a .txt, a .md, the text of a .docx. */
+function fromCurlText(text, label){
+  const out = [];
+  /* Split on each curl invocation so a file of many commands yields many
+     endpoints rather than one mangled first match. */
+  const parts = text.split(/(?=\bcurl\s)/g);
+  parts.forEach(part => {
+    if(!/\bcurl\s/.test(part)) return;
+    const p = parseCurl(part);
+    if(p){ p.module = 'Imported · ' + label; out.push(p); }
+  });
+  return out;
+}
+
+/* Loose JSON: an array of objects that name a method and a url/path. */
+function fromLooseJson(doc, label){
+  const arr = Array.isArray(doc) ? doc
+            : Array.isArray(doc && doc.apis) ? doc.apis
+            : Array.isArray(doc && doc.endpoints) ? doc.endpoints : null;
+  if(!arr) return [];
+  return arr.map(o => {
+    const url = o.url || o.rawUrl || o.endpoint || o['Endpoint / Path'] || o.path;
+    if(!url) return null;
+    const base = o.baseUrl || o['Base URL'] || '';
+    return makeImported({
+      method: String(o.method || o['HTTP Method'] || 'GET').toUpperCase(),
+      rawUrl: /^https?:/i.test(url) ? url : (base + url),
+      headers: o.headers || {},
+      body: typeof o.body === 'string' ? o.body
+          : o.body ? JSON.stringify(o.body)
+          : (o['Request Body'] || ''),
+      name: o.name || o['API Name'] || '',
+      module: 'Imported · ' + label, via: 'json'
+    });
+  }).filter(Boolean);
+}
+
+/* -- one endpoint, normalised --------------------------------------------- */
+function makeImported({method, rawUrl, headers, body, name, module, via}){
+  /* A url can still carry {{variables}} from the tool it was exported from.
+     Keep the path, drop the unresolvable origin rather than failing. */
+  let url = null;
+  try{ url = new URL(rawUrl); }catch(e){}
+  let path, baseUrl = null;
+  if(url){
+    /* URL percent-encodes a path parameter's braces, so /orders/{id} arrives
+       as /orders/%7Bid%7D. That spelling has already cost this project a
+       phantom endpoint once -- it stops matching the inventory, and every
+       check against it reports "matched no inventory row". Decode it back. */
+    path = decodeURIComponent(url.pathname) + (url.search || '');
+    baseUrl = url.origin;
+  }
+  else {
+    const m = String(rawUrl).match(/(\/[^\s'"]*)$/);
+    if(!m) return null;
+    path = m[1];
+  }
+  /* Credentials never travel. An export from a working session is the file
+     most likely to hold a live token, which is exactly why this is not
+     optional. */
+  const safe = {};
+  let stripped = 0;
+  Object.keys(headers || {}).forEach(k => {
+    if(/^(authorization|cookie|x-api-key|x-auth-token|proxy-authorization)$/i.test(k)){
+      stripped++; return;
+    }
+    safe[k] = headers[k];
+  });
+  let payload = {};
+  if(body){ try{ payload = JSON.parse(body); }catch(e){ payload = {raw: String(body).slice(0, 4000)}; } }
+  return {
+    ref: `${method.toLowerCase()}|${path.toLowerCase()}|imported|${Math.random().toString(36).slice(2, 8)}`,
+    name: name || path.split('/').filter(Boolean).pop() || path,
+    module: module || 'Imported', subModule: null,
+    method, path, baseUrl, owner: null,
+    sourceType: via || 'upload', sourceCollection: null,
+    assertionState: 'global-only', samplePayload: payload,
+    importedHeaders: safe, strippedHeaders: stripped
+  };
+}
+
+/* -- the dispatcher -------------------------------------------------------- */
+async function extractFromFile(file){
+  const name = file.name || 'file';
+  const lower = name.toLowerCase();
+  const label = name.replace(/\.[^.]+$/, '');
+  const isZip = /\.(zip|docx|xlsx|pptx)$/.test(lower);
+
+  if(isZip){
+    const entries = await unzip(await file.arrayBuffer());
+    const found = [];
+    const notes = [];
+    for(const e of entries){
+      const en = e.name.toLowerCase();
+      /* A .docx keeps its text in one part; the rest is styling. */
+      const interesting = /\.(json|bru|txt|md|http|curl|yaml|yml|har)$/.test(en)
+                        || en === 'word/document.xml';
+      if(!interesting) continue;
+      let text;
+      try{ text = await inflateEntry(e); }
+      catch(err){ notes.push(`${e.name}: ${err.message}`); continue; }
+      if(en === 'word/document.xml'){
+        /* Paragraph breaks matter: without them every command in the document
+           runs into the next and none of them parse. */
+        text = text.replace(/<\/w:p>/g, '\n').replace(/<[^>]+>/g, '');
+        found.push(...fromCurlText(text, label));
+      }else{
+        found.push(...extractFromText(text, label, e.name));
+      }
+    }
+    return {found, notes, kind: 'archive', entries: entries.length};
+  }
+
+  const text = await file.text();
+  return {found: extractFromText(text, label, name), notes: [], kind: 'file'};
+}
+
+function extractFromText(text, label, fileName){
+  /* Normalise line endings first. A Bruno export written on Windows uses
+     CRLF, and the block parsers below anchor on a newline -- against CRLF
+     they silently found zero headers, so an endpoint imported looking fine
+     while quietly losing its content type and under-reporting the
+     credential it had just stripped. */
+  text = String(text || '').split('\r\n').join('\n').split('\r').join('\n');
+  const fn = (fileName || '').toLowerCase();
+  if(fn.endsWith('.bru')) return fromBru(text, label, fileName);
+  let doc = null;
+  try{ doc = JSON.parse(text); }catch(e){}
+  if(doc){
+    /* Most confidently identifiable first: a collection guessed at as loose
+       JSON yields nothing useful, and there is no way back from that. */
+    const byShape = fromPostman(doc, label);
+    if(byShape.length) return byShape;
+    const oa = fromOpenApi(doc, label);
+    if(oa.length) return oa;
+    const har = fromHar(doc, label);
+    if(har.length) return har;
+    const loose = fromLooseJson(doc, label);
+    if(loose.length) return loose;
+    return [];
+  }
+  return fromCurlText(text, label);
+}
+
+/* What the last read produced, awaiting confirmation. Nothing reaches STATE
+   until the reader presses the button. */
+let PENDING_IMPORT = [];
+
+function uploadModal(){
+  if(STATE.shared){ toast('This is a shared report — it cannot add endpoints'); return; }
+  PENDING_IMPORT = [];
+  openModal('Upload API definitions',
+    `<div class="up-drop" id="upDrop">
+       <b>&#8593; Choose a file, or drop one here</b>
+       <span class="up-hint">Postman collection &middot; Bruno .bru or .zip export &middot;
+         OpenAPI &middot; .har &middot; .docx &middot; .xlsx &middot; a .txt of cURL commands
+         &middot; any .json list of requests</span>
+     </div>
+     <div id="upOut"></div>
+     <div class="faint" style="font-size:11.5px;margin-top:10px">
+       Whatever is found travels <b>by value</b> with the run and is never written to
+       the repo (DR-2). <code>Authorization</code>, <code>Cookie</code> and API-key
+       headers are stripped as the file is read.
+     </div>`,
+    `<button class="btn" data-close>Cancel</button>
+     <button class="btn btn-primary" id="btnUpSave">Add endpoints</button>`);
+  wireDrop($('#upDrop'), $('#upOut'));
+  $('#btnUpSave').onclick = commitImport;
+}
+
+/* One drop zone, used by both routes. */
+function wireDrop(zone, out){
+  if(!zone) return;
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = UPLOAD_ACCEPT;
+  input.multiple = true;
+  input.style.display = 'none';
+  zone.appendChild(input);
+
+  zone.onclick = e => { if(e.target !== input) input.click(); };
+  input.onchange = () => read([...input.files], out);
+  ['dragenter','dragover'].forEach(t => zone.addEventListener(t, e => {
+    e.preventDefault(); zone.classList.add('over');
+  }));
+  ['dragleave','drop'].forEach(t => zone.addEventListener(t, e => {
+    e.preventDefault(); zone.classList.remove('over');
+  }));
+  zone.addEventListener('drop', e => {
+    const fs = e.dataTransfer && e.dataTransfer.files;
+    if(fs && fs.length) read([...fs], out);
+  });
+}
+
+async function read(files, out){
+  PENDING_IMPORT = [];
+  out.innerHTML = `<div class="faint" style="margin-top:12px;font-size:12px">Reading ${files.length} file(s)…</div>`;
+  const notes = [], failed = [];
+  let stripped = 0;
+  for(const f of files){
+    try{
+      const r = await extractFromFile(f);
+      PENDING_IMPORT.push(...r.found);
+      notes.push(...r.notes.map(n => `${f.name}: ${n}`));
+      if(!r.found.length) failed.push(`${f.name} — nothing recognisable in it`);
+    }catch(err){
+      failed.push(`${f.name} — ${err.message}`);
+    }
+  }
+  PENDING_IMPORT.forEach(p => { stripped += p.strippedHeaders || 0; });
+  renderImportReview(out, {stripped, notes, failed});
+}
+
+function renderImportReview(out, info){
+  if(!PENDING_IMPORT.length){
+    out.innerHTML = `<div class="up-sum" style="margin-top:12px">
+      <span class="warn">Nothing found</span></div>
+      ${info.failed.map(f => `<div class="faint" style="font-size:11.5px;margin-top:6px">${esc(f)}</div>`).join('')}`;
+    return;
+  }
+  const byVia = {};
+  PENDING_IMPORT.forEach(p => { byVia[p.sourceType] = (byVia[p.sourceType]||0)+1; });
+  out.innerHTML = `
+    <div class="up-sum">
+      <span class="good">${PENDING_IMPORT.length} endpoint${PENDING_IMPORT.length===1?'':'s'} found</span>
+      ${Object.keys(byVia).map(k => `<span>${byVia[k]} from ${esc(k)}</span>`).join('')}
+      ${info.stripped ? `<span class="warn">${info.stripped} credential header${info.stripped===1?'':'s'} stripped</span>` : ''}
+    </div>
+    <div class="up-list">${PENDING_IMPORT.map(p => `
+      <div class="up-row">
+        <span class="m">${esc(p.method)}</span>
+        <span class="src">${esc(p.sourceType)}</span>
+        <span class="p" title="${esc((p.baseUrl||'')+p.path)}">${esc(p.path)}</span>
+        <span class="src">${p.baseUrl ? esc(new URL(p.baseUrl).host) : 'no host'}</span>
+      </div>`).join('')}</div>
+    ${info.failed.map(f => `<div class="faint" style="font-size:11.5px;margin-top:6px">${esc(f)}</div>`).join('')}
+    ${info.notes.map(n => `<div class="faint" style="font-size:11.5px;margin-top:4px">${esc(n)}</div>`).join('')}`;
+}
+
+function commitImport(){
+  if(!PENDING_IMPORT.length){ toast('Nothing to add — upload a file first'); return; }
+  const n = PENDING_IMPORT.length;
+  const stripped = PENDING_IMPORT.reduce((t,p) => t + (p.strippedHeaders||0), 0);
+  PENDING_IMPORT.forEach(p => { STATE.imported.push(p); STATE.selected.add(p.ref); });
+  PENDING_IMPORT = [];
+  DISPLAY_ID = null;
+  persist(); renderTopbar(); renderHome(); closeModal();
+  toast(`${n} endpoint${n===1?'':'s'} added` +
+        (stripped ? ` — ${stripped} credential header${stripped===1?'':'s'} stripped` : ''));
+}
+
 function parseCurl(txt){
   if(!txt || !txt.trim()) return null;
   const urlM = txt.match(/(?:--url\s+)?['"]?(https?:\/\/[^\s'"]+)['"]?/);
@@ -5463,14 +5921,25 @@ function parseCurl(txt){
   const dM = txt.match(/(?:-d|--data(?:-raw)?)\s+'([\s\S]*?)'/) || txt.match(/(?:-d|--data(?:-raw)?)\s+"([\s\S]*?)"/);
   const method = (mM ? mM[1] : (dM ? 'POST' : 'GET')).toUpperCase();
   let payload={}; if(dM){ try{ payload=JSON.parse(dM[1]); }catch(e){ payload={raw:dM[1]}; } }
-  const path = url.pathname + (url.search||'');
-  return {
-    ref:`${method.toLowerCase()}|${path.toLowerCase()}|imported|${Date.now().toString(36)}`,
-    name:path.split('/').filter(Boolean).pop() || path,
-    module:'Imported (cURL)', subModule:null, method, path,
-    baseUrl:url.origin, owner:null, sourceType:'curl', sourceCollection:null,
-    assertionState:'global-only', samplePayload:payload
-  };
+  /* -H headers were being dropped on the floor, so a curl import arrived with
+     no content type and reported nothing stripped even when the command
+     carried a bearer token. Collected here and handed to makeImported, which
+     owns the stripping, so both routes cannot disagree about what is a
+     credential. */
+  const headers = {};
+  const hre = /(?:-H|--header)\s+(?:'([^']+)'|"([^"]+)"|(\S+))/g;
+  let hm;
+  while((hm = hre.exec(txt)) !== null){
+    const raw = hm[1] || hm[2] || hm[3] || '';
+    const i = raw.indexOf(':');
+    if(i > 0) headers[raw.slice(0, i).trim()] = raw.slice(i + 1).trim();
+  }
+  const built = makeImported({
+    method, rawUrl: urlM[1], headers,
+    body: dM ? dM[1] : '', name: '',
+    module: 'Imported (cURL)', via: 'curl'
+  });
+  return built;
 }
 
 /* ---------------------------------------------------------------- events -- */
@@ -5659,6 +6128,7 @@ $('#btnTheme').onkeydown = e => {
   if(e.key===' '||e.key==='Enter'){ e.preventDefault(); toggleTheme(); }
 };
 $('#btnExport').onclick = exportModal;
+const _up = $('#btnUpload'); if(_up) _up.onclick = uploadModal;
 $$('#personaSeg button').forEach(b=> b.onclick=()=>{
   STATE.persona=b.dataset.persona; persist(); syncPersona();
 });
