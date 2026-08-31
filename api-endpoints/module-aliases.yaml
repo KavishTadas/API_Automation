@@ -1,0 +1,31 @@
+# Module aliases — applied to SLUG DERIVATION ONLY.
+#
+# These never touch canonicalRef. A ref stays byte-identical to catalogue
+# output, misspellings included, because it is contract-visible: the harness,
+# the run manifest and the result document all key on it. Reminting refs is a
+# separate decision, recorded as open in PHASE2_REPORT.md.
+#
+# Why each entry exists: every one of these module names comes from a Postman
+# collection's internal `info.name`, which disagrees with its own filename.
+# Renaming inside the collections would fix today and regress on the next
+# export, since whoever exports has no reason to know this repo reads that
+# field. Aliasing here keeps the fix on our side of the boundary.
+#
+# Add an entry when a slug exceeds MAX_SLUG_LENGTH (85) in
+# tests/global_contract/endpoint_slug.py. Never truncate, never hash.
+
+aliases:
+  # File is Holiday_Template_API.json; "Copy" is a Postman export artifact.
+  "holiday template apis copy": holiday-template
+
+  # File is Weekoff_Policy_API.json. The internal name is both misspelled
+  # ("Attenedance") and date-stamped. Verified: all 7 requests in that
+  # collection are /api/attendance/week-offs/* or /week-off-assignment/*,
+  # so the filename is accurate and this name is simply wrong.
+  "attenedance-july2026": weekoff
+
+  # File is Late_Early_Policy_API.json; the internal name lost the word break.
+  "latearly-policy": late-early
+
+  # File is Attendance_Threshold_API.json; drops the redundant "API" suffix.
+  "attendance status threshold api": attendance-threshold
