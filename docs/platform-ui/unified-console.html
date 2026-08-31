@@ -5703,6 +5703,14 @@ function fromLooseJson(doc, label){
    parsed: a YAML parser to read four keys is a lot of surface for no gain, and
    both exports express a request the same way. */
 function fromYamlRequest(text, label, fileName){
+  /* Bruno writes its brace syntax into files named .yml as often as .bru, and
+     that syntax carries the verb as the block name -- `post { url: ... }` --
+     with no `method:` line at all. Dispatching on the extension imported every
+     one of those as a GET: present, wrong, and undetectable downstream. Shape
+     decides, not the filename. */
+  if(/^\s*(get|post|put|patch|delete|head|options)\s*\{/mi.test(text)){
+    return fromBru(text, label, fileName);
+  }
   const mUrl = text.match(/^\s*url:\s*(\S+)/m);
   const mMethod = text.match(/^\s*method:\s*([A-Za-z]+)/m);
   if(!mUrl) return [];
@@ -5712,13 +5720,27 @@ function fromYamlRequest(text, label, fileName){
   let hm;
   while((hm = hre.exec(text)) !== null) headers[hm[1]] = (hm[2] || '').trim();
 
-  /* A body block is indented under `body:`; keep it only if it looks like JSON,
-     since the same key is used for form and text bodies too. */
+  /* OpenCollection nests the payload two levels down --
+         body:
+           type: json
+           data: |
+             { ... }
+     -- so a match on `body:` followed directly by JSON finds nothing, which is
+     why 0 of 207 bodies came out. Read the block scalar instead. */
   let body = '';
-  const bm = text.match(/^\s*body:\s*\n((?:[ \t]+.*\n)+)/m);
+  const bm = text.match(/^\s*(?:data|json|text):\s*\|\s*\n((?:[ \t]+.*\n?)+)/m);
   if(bm){
-    const dedented = bm[1].replace(/^[ \t]{0,8}/gm, '').trim();
-    if(dedented.startsWith('{')) body = dedented;
+    const dedented = bm[1].replace(/^[ \t]{0,10}/gm, '').trim();
+    if(dedented.startsWith('{') || dedented.startsWith('[')) body = dedented;
+  }
+  if(!body){
+    /* Fall back to a payload sitting directly under body:, which some exports
+       do produce. */
+    const flat = text.match(/^\s*body:\s*\n((?:[ \t]+.*\n)+)/m);
+    if(flat){
+      const d = flat[1].replace(/^[ \t]{0,8}/gm, '').trim();
+      if(d.startsWith('{')) body = d;
+    }
   }
   return [makeImported({
     method: (mMethod ? mMethod[1] : 'GET').toUpperCase(),

@@ -61,6 +61,10 @@ function fileOf(name) {
     ['sample-request.yml',             1, 'yaml',    1],
     ['inventory.csv',                  2, 'csv',     0],
     ['spec.xlsx',                      5, 'xlsx',    0],
+    // Bruno's brace syntax saved with a .yml extension -- 162 of the real
+    // export look like this. Dispatching on the extension imported every
+    // one as GET.
+    ['bruno-braces.yml',               1, 'bruno',   0],
   ];
 
   console.log('every format yields endpoints:');
@@ -117,6 +121,16 @@ function fileOf(name) {
   ok('formatted-but-empty rows are not imported as endpoints',
      wb.found.every(e => e.path && e.path !== '/'),
      'an empty row produced an endpoint');
+
+  console.log('\nthe verb comes from the file, never a default:');
+  w.__f = fileOf('bruno-braces.yml');
+  const br = await w.eval('extractFromFile(__f)');
+  ok('a POST written in brace syntax imports as POST, not GET',
+     br.found.length === 1 && br.found[0].method === 'POST',
+     br.found.map(e => e.method).join(','));
+  ok('and it carries the body from its body:json block',
+     br.found.length === 1 && Object.keys(br.found[0].samplePayload || {}).length > 0,
+     JSON.stringify(br.found[0] && br.found[0].samplePayload).slice(0, 70));
 
   console.log('\nit fails honestly:');
   w.__f = { name: 'junk.bin', text: async () => 'not a request in sight',
