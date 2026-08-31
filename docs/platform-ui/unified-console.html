@@ -5772,8 +5772,37 @@ function fromYamlRequest(text, label, fileName){
 
 /* CSV, mapped onto the same field names the JSON path accepts, so an exported
    inventory needs no second code path. */
+/* Column names this reader understands. Also used to find the header row,
+   since a spreadsheet anyone maintains tends to open with a title. */
+const IMPORT_COLUMNS = {
+  path:  ['Endpoint / Path','Endpoint Path','path','endpoint','url'],
+  method:['HTTP Method','method','verb'],
+  base:  ['Base URL','baseUrl','base'],
+  body:  ['Request Body','body','payload'],
+  name:  ['API Name','API / Feature Name','name'],
+  module:['Module','module','suite'],
+  id:    ['API ID','apiId','id'],
+};
+
+/* The console's own report export puts a title on row 0 and a blank on row 1,
+   so the header is on row 2. Taking row 0 on faith meant a report exported
+   from this console could not be read back into it, and said nothing about
+   why. */
+function headerRowIndex(rows){
+  const wanted = IMPORT_COLUMNS.path.map(x => x.toLowerCase());
+  const limit = Math.min(rows.length, 12);
+  for(let i = 0; i < limit; i++){
+    const cells = rows[i].map(c => String(c || '').trim().toLowerCase());
+    if(cells.some(c => wanted.includes(c))) return i;
+  }
+  return -1;   // nothing recognisable: return nothing rather than guess at 0
+}
+
 function fromCsv(text, label){
-  const rows = parseCsv(text);
+  const all = parseCsv(text);
+  const h0 = headerRowIndex(all);
+  if(h0 < 0) return [];
+  const rows = all.slice(h0);
   if(rows.length < 2) return [];
   const head = rows[0].map(h => String(h || '').trim());
   const idx = names => {
@@ -5783,13 +5812,13 @@ function fromCsv(text, label){
     }
     return -1;
   };
-  const iM = idx(['HTTP Method','method','verb']);
-  const iP = idx(['Endpoint / Path','Endpoint Path','path','endpoint','url']);
-  const iB = idx(['Base URL','baseUrl','base']);
-  const iBody = idx(['Request Body','body','payload']);
-  const iName = idx(['API Name','API / Feature Name','name']);
-  const iId = idx(['API ID','apiId','id']);
-  const iMod = idx(['Module','module','suite']);
+  const iM = idx(IMPORT_COLUMNS.method);
+  const iP = idx(IMPORT_COLUMNS.path);
+  const iB = idx(IMPORT_COLUMNS.base);
+  const iBody = idx(IMPORT_COLUMNS.body);
+  const iName = idx(IMPORT_COLUMNS.name);
+  const iId = idx(IMPORT_COLUMNS.id);
+  const iMod = idx(IMPORT_COLUMNS.module);
   if(iP < 0) return [];
   const out = [];
   for(let r = 1; r < rows.length; r++){
@@ -5906,7 +5935,15 @@ function fromXlsx(sheets, strings, label){
 
   /* Payloads first, so they are in hand when the endpoint sheet is read. */
   const payloads = {};
-  parsed.forEach(rows => {
+  parsed.forEach(all => {
+    /* Find this sheet's own header before looking for its columns: a payload
+       sheet can carry a title row exactly like an overview sheet. */
+    let start = 0;
+    for(let i = 0; i < Math.min(all.length, 12); i++){
+      const c = all[i].map(x => String(x || '').trim().toLowerCase());
+      if(c.includes('payload type')){ start = i; break; }
+    }
+    const rows = all.slice(start);
     const iId = findCol(rows, ['API ID']);
     const iType = findCol(rows, ['Payload Type']);
     const iJson = findCol(rows, ['Sample JSON','payload','body']);
@@ -5921,7 +5958,7 @@ function fromXlsx(sheets, strings, label){
 
   const out = [];
   parsed.forEach(rows => {
-    if(findCol(rows, ['Endpoint / Path','Endpoint Path','path','endpoint','url']) < 0) return;
+    if(headerRowIndex(rows) < 0) return;
     const csv = rows.map(r =>
       r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
     fromCsv(csv, label).forEach(e => {
@@ -5983,6 +6020,35 @@ function makeImported({method, rawUrl, headers, body, name, module, via}){
   };
 }
 
+/* One endpoint per method+path. A suite tests an endpoint many ways and a
+   report lists one row per result, so the same endpoint arrives dozens of
+   times -- 1059 result rows became 1059 endpoints before this. The console
+   selects an endpoint once and runs the tier's checks against it, so the
+   repetition is noise that buries everything else in the picker.
+
+   Merged, not dropped: a later duplicate contributes its body or headers when
+   the first had none, because losing a payload for being on the second row is
+   a worse bug than the duplication. */
+function dedupeEndpoints(list){
+  const byKey = new Map();
+  for(const e of list){
+    const key = e.method + ' ' + e.path.split('?')[0].toLowerCase();
+    const kept = byKey.get(key);
+    if(!kept){ byKey.set(key, e); continue; }
+    if((!kept.samplePayload || !Object.keys(kept.samplePayload).length) &&
+       e.samplePayload && Object.keys(e.samplePayload).length){
+      kept.samplePayload = e.samplePayload;
+    }
+    if(!Object.keys(kept.importedHeaders || {}).length && e.importedHeaders){
+      kept.importedHeaders = e.importedHeaders;
+    }
+    kept.strippedHeaders = (kept.strippedHeaders || 0) + (e.strippedHeaders || 0);
+    if(!kept.baseUrl && e.baseUrl) kept.baseUrl = e.baseUrl;
+    if(!kept.name && e.name) kept.name = e.name;
+  }
+  return [...byKey.values()];
+}
+
 /* -- the dispatcher -------------------------------------------------------- */
 async function extractFromFile(file){
   const name = file.name || 'file';
@@ -6024,11 +6090,13 @@ async function extractFromFile(file){
       }
     }
     if(sheetXml.length) found.push(...fromXlsx(sheetXml, sharedStrings, label));
-    return {found, notes, kind: 'archive', entries: entries.length};
+    return {found: dedupeEndpoints(found), notes, kind: 'archive',
+            entries: entries.length};
   }
 
   const text = await file.text();
-  return {found: extractFromText(text, label, name), notes: [], kind: 'file'};
+  return {found: dedupeEndpoints(extractFromText(text, label, name)),
+          notes: [], kind: 'file'};
 }
 
 function extractFromText(text, label, fileName){

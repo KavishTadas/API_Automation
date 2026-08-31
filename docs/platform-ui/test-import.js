@@ -132,6 +132,20 @@ function fileOf(name) {
      br.found.length === 1 && Object.keys(br.found[0].samplePayload || {}).length > 0,
      JSON.stringify(br.found[0] && br.found[0].samplePayload).slice(0, 70));
 
+  console.log('\na report exported from this console reads back into it:');
+  w.__f = fileOf('report-export.xlsx');
+  const rt = await w.eval('extractFromFile(__f)');
+  // The header sits on row 2, under a title and a blank row. Taking row 0 on
+  // faith found no endpoint column and returned nothing, without saying why.
+  ok('the header is found below a title row',
+     rt.found.length > 0, 'nothing extracted');
+  // Test_Results carries the same endpoint columns with one row per result,
+  // so 1059 rows became 1059 endpoints before duplicates were merged.
+  ok('one endpoint per method+path, not one per test result',
+     rt.found.length === 39, rt.found.length + ' endpoints');
+  ok('every one carries a method and an absolute path',
+     rt.found.every(e => /^[A-Z]+$/.test(e.method) && e.path.startsWith('/')));
+
   console.log('\nit fails honestly:');
   w.__f = { name: 'junk.bin', text: async () => 'not a request in sight',
             arrayBuffer: async () => new Uint8Array([1, 2, 3]).buffer };
