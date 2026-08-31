@@ -5698,6 +5698,205 @@ function fromLooseJson(doc, label){
   }).filter(Boolean);
 }
 
+
+/* An OpenCollection / Bruno-style YAML request. Matched by shape rather than
+   parsed: a YAML parser to read four keys is a lot of surface for no gain, and
+   both exports express a request the same way. */
+function fromYamlRequest(text, label, fileName){
+  const mUrl = text.match(/^\s*url:\s*(\S+)/m);
+  const mMethod = text.match(/^\s*method:\s*([A-Za-z]+)/m);
+  if(!mUrl) return [];
+  const headers = {};
+  /* Header lists appear as `- name: X` / `value: Y` pairs. */
+  const hre = /-\s*name:\s*(\S+)\s*\n\s*value:\s*(.*)/g;
+  let hm;
+  while((hm = hre.exec(text)) !== null) headers[hm[1]] = (hm[2] || '').trim();
+
+  /* A body block is indented under `body:`; keep it only if it looks like JSON,
+     since the same key is used for form and text bodies too. */
+  let body = '';
+  const bm = text.match(/^\s*body:\s*\n((?:[ \t]+.*\n)+)/m);
+  if(bm){
+    const dedented = bm[1].replace(/^[ \t]{0,8}/gm, '').trim();
+    if(dedented.startsWith('{')) body = dedented;
+  }
+  return [makeImported({
+    method: (mMethod ? mMethod[1] : 'GET').toUpperCase(),
+    rawUrl: mUrl[1], headers, body,
+    name: ((text.match(/^\s*name:\s*(.+)/m) || [])[1] || fileName || '').trim(),
+    module: 'Imported · ' + label, via: 'yaml'
+  })].filter(Boolean);
+}
+
+/* CSV, mapped onto the same field names the JSON path accepts, so an exported
+   inventory needs no second code path. */
+function fromCsv(text, label){
+  const rows = parseCsv(text);
+  if(rows.length < 2) return [];
+  const head = rows[0].map(h => String(h || '').trim());
+  const idx = names => {
+    for(const n of names){
+      const i = head.findIndex(h => h.toLowerCase() === n.toLowerCase());
+      if(i >= 0) return i;
+    }
+    return -1;
+  };
+  const iM = idx(['HTTP Method','method','verb']);
+  const iP = idx(['Endpoint / Path','Endpoint Path','path','endpoint','url']);
+  const iB = idx(['Base URL','baseUrl','base']);
+  const iBody = idx(['Request Body','body','payload']);
+  const iName = idx(['API Name','API / Feature Name','name']);
+  const iId = idx(['API ID','apiId','id']);
+  const iMod = idx(['Module','module','suite']);
+  if(iP < 0) return [];
+  const out = [];
+  for(let r = 1; r < rows.length; r++){
+    const row = rows[r];
+    const p = String(row[iP] || '').trim();
+    if(!p) continue;
+    const base = iB >= 0 ? String(row[iB] || '').trim() : '';
+    const built = makeImported({
+      method: String((iM >= 0 ? row[iM] : '') || 'GET').toUpperCase(),
+      rawUrl: /^https?:/i.test(p) ? p : (base + p),
+      headers: {},
+      body: iBody >= 0 ? String(row[iBody] || '') : '',
+      name: iName >= 0 ? String(row[iName] || '') : '',
+      module: (iMod >= 0 && row[iMod]) ? 'Imported · ' + row[iMod] : 'Imported · ' + label,
+      via: 'csv'
+    });
+    if(built){
+      if(iId >= 0) built.apiId = String(row[iId] || '').trim();
+      out.push(built);
+    }
+  }
+  return out.filter(Boolean);
+}
+
+/* Quoted fields may contain commas and escaped quotes, so this cannot be a
+   split on ','. */
+function parseCsv(text){
+  const rows = [];
+  let row = [], cell = '', quoted = false;
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    if(quoted){
+      if(c === '"'){
+        if(text[i + 1] === '"'){ cell += '"'; i++; }
+        else quoted = false;
+      } else cell += c;
+    } else if(c === '"'){ quoted = true; }
+    else if(c === ','){ row.push(cell); cell = ''; }
+    else if(c === '\n'){ row.push(cell); rows.push(row); row = []; cell = ''; }
+    else if(c !== '\r'){ cell += c; }
+  }
+  if(cell || row.length){ row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(c => String(c).trim()));
+}
+
+/* -- xlsx ------------------------------------------------------------------
+   A workbook keeps its text in a shared string table and its sheets reference
+   it by index, so reading a sheet alone returns integers where the words
+   should be. Both parts are needed. */
+function xlsxStrings(xml){
+  const out = [];
+  const re = /<si\b[^>]*>([\s\S]*?)<\/si>/g;
+  let m;
+  while((m = re.exec(xml)) !== null){
+    /* An <si> may hold one <t> or several, when the cell has mixed formatting. */
+    out.push((m[1].match(/<t[^>]*>([\s\S]*?)<\/t>/g) || [])
+      .map(t => t.replace(/<[^>]+>/g, ''))
+      .join('')
+      .replace(/&amp;/g, '&').replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'"));
+  }
+  return out;
+}
+
+function xlsxRows(sheetXml, strings){
+  const rows = [];
+  const rowRe = /<row\b[^>]*>([\s\S]*?)<\/row>/g;
+  let rm;
+  while((rm = rowRe.exec(sheetXml)) !== null){
+    const cells = [];
+    const cRe = /<c\b([^>]*)>([\s\S]*?)<\/c>/g;
+    let cm;
+    while((cm = cRe.exec(rm[1])) !== null){
+      const attrs = cm[1], inner = cm[2];
+      /* Column letter decides position: an empty cell emits no <c> at all, so
+         counting would shift every value after a gap. */
+      const ref = (attrs.match(/r="([A-Z]+)\d+"/) || [])[1] || '';
+      let col = 0;
+      for(let i = 0; i < ref.length; i++) col = col * 26 + (ref.charCodeAt(i) - 64);
+      col = Math.max(0, col - 1);
+      const v = (inner.match(/<v[^>]*>([\s\S]*?)<\/v>/) || [])[1];
+      const isInline = /t="inlineStr"/.test(attrs);
+      let val = '';
+      if(isInline){
+        val = (inner.match(/<t[^>]*>([\s\S]*?)<\/t>/) || [])[1] || '';
+      } else if(v !== undefined){
+        val = /t="s"/.test(attrs) ? (strings[parseInt(v, 10)] || '') : v;
+      }
+      cells[col] = String(val)
+        .replace(/&amp;/g, '&').replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+    }
+    for(let i = 0; i < cells.length; i++) if(cells[i] === undefined) cells[i] = '';
+    rows.push(cells);
+  }
+  /* A workbook counts formatted-but-empty rows, so drop them rather than
+     reporting a spec with two hundred blank endpoints. */
+  return rows.filter(r => r.some(c => String(c).trim()));
+}
+
+/* A spec workbook is relational: the endpoint is on one sheet and its payload
+   on another, keyed by API ID. Reading each sheet in isolation recovers
+   neither -- the overview yields endpoints with no body, and the payload sheet
+   has no endpoint column at all. Sheets are identified by their headers and
+   joined, which is the whole reason a workbook is worth uploading. */
+function fromXlsx(sheets, strings, label){
+  const parsed = sheets.map(xml => xlsxRows(xml, strings)).filter(r => r.length >= 2);
+  const head = rows => rows[0].map(h => String(h || '').trim().toLowerCase());
+  const findCol = (rows, names) => {
+    const h = head(rows);
+    for(const n of names){ const i = h.indexOf(n.toLowerCase()); if(i >= 0) return i; }
+    return -1;
+  };
+
+  /* Payloads first, so they are in hand when the endpoint sheet is read. */
+  const payloads = {};
+  parsed.forEach(rows => {
+    const iId = findCol(rows, ['API ID']);
+    const iType = findCol(rows, ['Payload Type']);
+    const iJson = findCol(rows, ['Sample JSON','payload','body']);
+    if(iId < 0 || iType < 0 || iJson < 0) return;
+    for(let r = 1; r < rows.length; r++){
+      const id = String(rows[r][iId] || '').trim();
+      const type = String(rows[r][iType] || '').trim().toLowerCase();
+      if(!id || type.indexOf('request') < 0) continue;   // only the request body
+      payloads[id] = String(rows[r][iJson] || '');
+    }
+  });
+
+  const out = [];
+  parsed.forEach(rows => {
+    if(findCol(rows, ['Endpoint / Path','Endpoint Path','path','endpoint','url']) < 0) return;
+    const csv = rows.map(r =>
+      r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
+    fromCsv(csv, label).forEach(e => {
+      e.sourceType = 'xlsx';
+      if(!e.samplePayload || !Object.keys(e.samplePayload).length){
+        const raw = payloads[e.apiId];
+        if(raw){
+          try{ e.samplePayload = JSON.parse(raw); }
+          catch(err){ e.samplePayload = {raw: raw.slice(0, 4000)}; }
+        }
+      }
+      out.push(e);
+    });
+  });
+  return out;
+}
+
 /* -- one endpoint, normalised --------------------------------------------- */
 function makeImported({method, rawUrl, headers, body, name, module, via}){
   /* A url can still carry {{variables}} from the tool it was exported from.
@@ -5753,9 +5952,20 @@ async function extractFromFile(file){
     const entries = await unzip(await file.arrayBuffer());
     const found = [];
     const notes = [];
+    let sharedStrings = [], sheetXml = [];
     for(const e of entries){
       const en = e.name.toLowerCase();
       /* A .docx keeps its text in one part; the rest is styling. */
+      /* A workbook is handled after the loop: its sheets are meaningless
+         without the shared string table, so both parts must be in hand. */
+      if(en === 'xl/sharedstrings.xml' || /^xl\/worksheets\/sheet\d*\.xml$/.test(en)){
+        try{
+          const x = await inflateEntry(e);
+          if(en === 'xl/sharedstrings.xml') sharedStrings = xlsxStrings(x);
+          else sheetXml.push(x);
+        }catch(err){ notes.push(`${e.name}: ${err.message}`); }
+        continue;
+      }
       const interesting = /\.(json|bru|txt|md|http|curl|yaml|yml|har)$/.test(en)
                         || en === 'word/document.xml';
       if(!interesting) continue;
@@ -5771,6 +5981,7 @@ async function extractFromFile(file){
         found.push(...extractFromText(text, label, e.name));
       }
     }
+    if(sheetXml.length) found.push(...fromXlsx(sheetXml, sharedStrings, label));
     return {found, notes, kind: 'archive', entries: entries.length};
   }
 
@@ -5787,6 +5998,8 @@ function extractFromText(text, label, fileName){
   text = String(text || '').split('\r\n').join('\n').split('\r').join('\n');
   const fn = (fileName || '').toLowerCase();
   if(fn.endsWith('.bru')) return fromBru(text, label, fileName);
+  if(/\.(ya?ml)$/.test(fn)) return fromYamlRequest(text, label, fileName);
+  if(fn.endsWith('.csv'))  return fromCsv(text, label);
   let doc = null;
   try{ doc = JSON.parse(text); }catch(e){}
   if(doc){

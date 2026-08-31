@@ -47,6 +47,10 @@ function fileOf(name) {
   const w = boot(fs.readFileSync(F, 'utf8'));
   await wait(320);
 
+  // Deliberately the dialog's accept list. The suite previously covered six of
+  // nine advertised formats, and that gap is exactly how three shipped
+  // offered-but-unreadable -- a reader whose file yields nothing concludes the
+  // file is empty, not that the tool cannot read it.
   const cases = [
     ['sample.postman_collection.json', 2, 'postman', 2],
     ['openapi.json',                   2, 'openapi', 0],
@@ -54,6 +58,9 @@ function fileOf(name) {
     ['get-thresholds.bru',             1, 'bruno',   1],
     ['bruno-export.zip',               2, 'bruno',   2],
     ['notes.docx',                     1, 'curl',    0],
+    ['sample-request.yml',             1, 'yaml',    1],
+    ['inventory.csv',                  2, 'csv',     0],
+    ['spec.xlsx',                      5, 'xlsx',    0],
   ];
 
   console.log('every format yields endpoints:');
@@ -95,6 +102,21 @@ function fileOf(name) {
   ok('every ref is unique', new Set(all.map(p => p.ref)).size === all.length);
   ok('nothing is marked as carrying assertions',
      all.every(p => p.assertionState === 'global-only'));
+
+  console.log('\na workbook is joined across its sheets:');
+  w.__f = fileOf('spec.xlsx');
+  const wb = await w.eval('extractFromFile(__f)');
+  ok('the endpoint sheet is found by its own column name',
+     wb.found.length === 5, wb.found.length + ' rows');
+  // The payload lives on a second sheet keyed by API ID. Reading sheets in
+  // isolation recovers neither side, which is why this is asserted separately
+  // from the row count.
+  ok('request bodies are joined from Sample_Payloads on API ID',
+     wb.found.filter(e => Object.keys(e.samplePayload || {}).length).length === 3,
+     wb.found.map(e => Object.keys(e.samplePayload || {}).length).join(','));
+  ok('formatted-but-empty rows are not imported as endpoints',
+     wb.found.every(e => e.path && e.path !== '/'),
+     'an empty row produced an endpoint');
 
   console.log('\nit fails honestly:');
   w.__f = { name: 'junk.bin', text: async () => 'not a request in sight',

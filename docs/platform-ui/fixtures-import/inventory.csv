@@ -1,0 +1,3 @@
+API Name,HTTP Method,Base URL,Endpoint / Path,Request Body
+Get all policies,GET,https://uatmcdphcmplatform.omfysgroup.com,/api/attendancepolicy,
+Create policy,POST,https://uatmcdphcmplatform.omfysgroup.com,/api/attendancepolicy,"{""policyName"":""X, with comma""}"
