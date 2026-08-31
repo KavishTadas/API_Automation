@@ -1966,6 +1966,128 @@ html[data-fx="off"] .tg-pulse{animation:none;opacity:.5}
 .up-sum span.good{background:var(--accent-bg);color:var(--accent)}
 .up-sum span.warn{background:rgba(180,83,9,.14);color:var(--amber)}
 
+
+/* ==========================================================================
+   QUICK ACTIONS
+
+   Four identical grey outlines said nothing about what any of them did. The
+   colours below encode the job, they are not decoration:
+
+     Add cURL / Upload   bring endpoints in -- one family, teal to indigo
+     Only assertion gaps a filter, in the amber its own chip already uses
+     Navigator           opens a panel; not an action on the data, so neutral
+
+   Every one keeps its border and focus ring, so the set still reads without
+   relying on hue alone.
+   ========================================================================== */
+.quick-actions .btn{
+  border-width:1.5px;
+  border-radius:9px;
+  padding:7px 14px;
+  font-weight:700;
+  letter-spacing:.01em;
+  transition:transform .16s cubic-bezier(.22,.61,.36,1),
+             box-shadow .16s ease, background .16s ease, border-color .16s ease;
+}
+.quick-actions .btn:hover:not(:disabled){transform:translateY(-1px)}
+.quick-actions .btn:active:not(:disabled){transform:translateY(0)}
+
+/* -- bring endpoints in --------------------------------------------------- */
+#btnCurl{
+  background:linear-gradient(180deg, rgba(45,212,191,.20), rgba(45,212,191,.08));
+  border-color:rgba(45,212,191,.55);
+  color:#5eead4;
+}
+#btnCurl:hover:not(:disabled){
+  background:linear-gradient(180deg, rgba(45,212,191,.30), rgba(45,212,191,.14));
+  border-color:#2dd4bf;
+  box-shadow:0 4px 14px -4px rgba(45,212,191,.55);
+}
+#btnUpload{
+  background:linear-gradient(180deg, rgba(96,165,250,.20), rgba(96,165,250,.08));
+  border-color:rgba(96,165,250,.55);
+  color:#93c5fd;
+}
+#btnUpload:hover:not(:disabled){
+  background:linear-gradient(180deg, rgba(96,165,250,.30), rgba(96,165,250,.14));
+  border-color:#60a5fa;
+  box-shadow:0 4px 14px -4px rgba(96,165,250,.55);
+}
+
+/* -- a filter, in the colour its own chip already uses -------------------- */
+#btnSelGaps{
+  background:linear-gradient(180deg, rgba(251,191,36,.18), rgba(251,191,36,.07));
+  border-color:rgba(251,191,36,.5);
+  color:#fcd34d;
+}
+#btnSelGaps:hover:not(:disabled){
+  background:linear-gradient(180deg, rgba(251,191,36,.28), rgba(251,191,36,.12));
+  border-color:#fbbf24;
+  box-shadow:0 4px 14px -4px rgba(251,191,36,.5);
+}
+
+/* -- opens a panel; not an action on the data ----------------------------- */
+#btnOpenNav{
+  background:linear-gradient(180deg, rgba(167,139,250,.16), rgba(167,139,250,.06));
+  border-color:rgba(167,139,250,.45);
+  color:#c4b5fd;
+}
+#btnOpenNav:hover:not(:disabled){
+  background:linear-gradient(180deg, rgba(167,139,250,.26), rgba(167,139,250,.10));
+  border-color:#a78bfa;
+  box-shadow:0 4px 14px -4px rgba(167,139,250,.5);
+}
+#btnOpenNav .pill{
+  background:rgba(167,139,250,.22);
+  color:#ddd6fe;
+  border-color:rgba(167,139,250,.4);
+}
+
+/* -- light needs its own values ------------------------------------------
+   The dark fills are translucent tints over a dark ground; the same alphas on
+   white read as washed-out pastels with unreadable text, so light takes solid
+   ink on a pale wash instead. */
+[data-theme="light"] .quick-actions #btnCurl{
+  background:linear-gradient(180deg,#e6fbf7,#d3f5ef);
+  border-color:#5eccbb; color:#0b6f68;
+}
+[data-theme="light"] .quick-actions #btnCurl:hover:not(:disabled){
+  background:linear-gradient(180deg,#d3f5ef,#bfeee5);
+  border-color:#0f8a80; box-shadow:0 4px 12px -3px rgba(15,138,128,.4);
+}
+[data-theme="light"] .quick-actions #btnUpload{
+  background:linear-gradient(180deg,#e8f1fe,#d6e6fd);
+  border-color:#7aaef5; color:#1d4ed8;
+}
+[data-theme="light"] .quick-actions #btnUpload:hover:not(:disabled){
+  background:linear-gradient(180deg,#d6e6fd,#c3d9fb);
+  border-color:#2563eb; box-shadow:0 4px 12px -3px rgba(37,99,235,.38);
+}
+[data-theme="light"] .quick-actions #btnSelGaps{
+  background:linear-gradient(180deg,#fdf3dd,#fbe9c2);
+  border-color:#e0ab3c; color:#8a5a06;
+}
+[data-theme="light"] .quick-actions #btnSelGaps:hover:not(:disabled){
+  background:linear-gradient(180deg,#fbe9c2,#f8dda3);
+  border-color:#b45309; box-shadow:0 4px 12px -3px rgba(180,83,9,.35);
+}
+[data-theme="light"] .quick-actions #btnOpenNav{
+  background:linear-gradient(180deg,#f0ecfe,#e4dcfd);
+  border-color:#a78bfa; color:#5b21b6;
+}
+[data-theme="light"] .quick-actions #btnOpenNav:hover:not(:disabled){
+  background:linear-gradient(180deg,#e4dcfd,#d6c9fb);
+  border-color:#7c3aed; box-shadow:0 4px 12px -3px rgba(124,58,237,.35);
+}
+[data-theme="light"] .quick-actions #btnOpenNav .pill{
+  background:#e4dcfd; color:#5b21b6; border-color:#a78bfa;
+}
+
+@media(prefers-reduced-motion:reduce){
+  .quick-actions .btn{transition:none}
+  .quick-actions .btn:hover:not(:disabled){transform:none}
+}
+
 </style>
 </head>
 <body>
