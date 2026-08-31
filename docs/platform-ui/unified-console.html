@@ -3849,6 +3849,18 @@ function ranEndpoints(R){
    then declined -- no path-parameter value, no declared sample -- is not
    coverage, and counting it as such is how 23 checks on an endpoint asserting
    4 of them reads as a tested endpoint. */
+/* How many distinct contract checks the run exercised. Not the same as the
+   number of result rows: one check can run more than one variant per endpoint
+   (the 401 check sends a missing token and an invalid one), and host-level
+   probes are attributed to one endpoint and referenced by the others. Stating
+   all three separately is the only way the totals stop looking arbitrary. */
+function distinctChecks(R){
+  const names = new Set();
+  R.apis.forEach(a => a.results.forEach(r =>
+    names.add(String(r.testId||'').split('::').pop().split('[')[0])));
+  return names.size;
+}
+
 function assertedChecks(R){
   const asserting = {PASS:1, FAIL:1, WARN:1};
   return R.apis.reduce((n,a) =>
@@ -3885,8 +3897,10 @@ function kpiRow(R){
       <div class="estat-h"><span>Executed This Run</span><span class="estat-ic ic-blue">${svg(ICO.check2)}</span></div>
       <div class="estat-v"><span class="estat-n">${ranEndpoints(R)}</span>
         <span class="estat-sub">of ${allApis().length} endpoints &middot; ${mods.size} suite${mods.size===1?'':'s'}</span></div>
-      <div class="estat-f"><span><b>${assertedChecks(R)}</b> of ${R.summary.total} checks asserted</span>
-        <span class="t">${(R.summary.total-assertedChecks(R))} not asserted</span></div>
+      <div class="estat-f"><span><b>${distinctChecks(R)}</b> contract checks per endpoint</span>
+        <span class="t">${R.summary.total} result rows</span></div>
+      <div class="estat-f" style="margin-top:4px"><span><b>${assertedChecks(R)}</b> asserted</span>
+        <span class="t">${(R.summary.total-assertedChecks(R))} skipped &mdash; not applicable</span></div>
       ${ranEndpoints(R) < allApis().length ? `<div class="estat-sub amber" style="margin-top:8px;line-height:1.45">
         ${allApis().length - ranEndpoints(R)} endpoint${allApis().length-ranEndpoints(R)===1?'':'s'}
         in the catalogue were not part of this run
