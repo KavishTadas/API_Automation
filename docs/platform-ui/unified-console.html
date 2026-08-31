@@ -826,8 +826,28 @@ table.pl tr:last-child td{border-bottom:0}
 .sect-head .sub b{color:var(--accent);font-weight:650}
 .sect-head .searchwrap{display:block;width:100%;margin-top:var(--gap-md)}
 
-.suites-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(420px,100%),1fr));
-  gap:var(--gap-md);min-width:0;align-items:start}
+/* A column flow, not a grid. Grid rows align to their tallest cell, so a
+   six-endpoint suite beside a seven-endpoint one left a visible band of empty
+   card beneath it and a ragged edge all the way down. Columns let each card
+   fall where there is room, closing the gap without inflating anything.
+
+   Reading order becomes down-then-across; for a filtered, browsed list of
+   suites that costs nothing. */
+.suites-grid{
+  column-width:420px;
+  column-gap:var(--gap-md);
+  min-width:0;
+}
+.suites-grid > *{
+  /* A card must not be split across a column break, and the bottom margin is
+     what column-gap cannot supply vertically. */
+  break-inside:avoid;
+  -webkit-column-break-inside:avoid;
+  page-break-inside:avoid;
+  margin-bottom:var(--gap-md);
+  width:100%;
+}
+.suites-grid > .empty{column-span:all}
 .suite-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
   box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;
   min-width:0;width:100%;position:relative}
@@ -968,7 +988,7 @@ table.pl tr:last-child td{border-bottom:0}
 
 @media(max-width:1080px){
   .detail-grid{grid-template-columns:1fr}
-  .suites-grid{grid-template-columns:1fr}
+  .suites-grid{column-width:auto;column-count:1}
 }
 .grid{display:grid;gap:14px}
 .kpis{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-bottom:14px}
@@ -2857,7 +2877,7 @@ function renderSuitesGrid(){
 
   const grid=$('#suitesGrid');
   if(!m.size){
-    grid.innerHTML=`<div class="empty" style="grid-column:1/-1">
+    grid.innerHTML=`<div class="empty" style="column-span:all">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.65" y2="16.65"/></svg>
       <div>Nothing matches “${esc(q)}”.</div>
       <div style="margin-top:5px;font-size:12px">Filters match name, method, path, module and display id.</div>

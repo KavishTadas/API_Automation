@@ -261,6 +261,15 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
      $$('#suitesGrid .suite-card').length + ' cards');
   ok('all 45 endpoint rows render', $$('#suitesGrid .sc-row').length === 45,
      $$('#suitesGrid .sc-row').length + ' rows');
+  // Cards of differing height are packed into columns rather than laid on grid
+  // rows, because a grid row is as tall as its tallest cell and left a band of
+  // empty card under every shorter suite.
+  const cssSuites = [...doc.querySelectorAll('style')].map(s => s.textContent).join('\n');
+  ok('suite cards pack into columns rather than align to rows',
+     /\.suites-grid\{[^}]*column-width/.test(cssSuites) &&
+     !/\.suites-grid\{[^}]*grid-template-columns/.test(cssSuites));
+  ok('a card is never split across a column break',
+     /\.suites-grid > \*\{[^}]*break-inside:avoid/.test(cssSuites));
   ok('every row has method, id, name and path',
      $$('#suitesGrid .sc-row').every(r =>
        r.querySelector('.m') && r.querySelector('.id') &&
