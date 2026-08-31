@@ -164,7 +164,18 @@ async function boot(){
     `<option value="${esc(a.alias)}"${a.registered?"":" disabled"}>${esc(a.alias)}${a.registered?"":" — not registered"}</option>`
   ).join("") || `<option value="">none</option>`;
 
-  const providers = (CATALOGUE.apis || []).filter(a => /auth/i.test(a.ref));
+  // /auth/i over the whole ref also matched any test case whose NAME mentioned
+  // authorization -- the leave-report negative case "tc02 - invalid token returns
+  // observed authorization status" sorted first and became the DEFAULT, so a run
+  // launched without touching this dropdown always died on a 401 with every check
+  // SKIPPED_NO_TOKEN. Match the source collection instead of the ref text, and drop
+  // the negative cases: TC02/TC03 assert 4xx by design and can never yield a token.
+  const AUTH_COLLECTION = /^collections\/auth\//i;
+  const NEGATIVE_CASE = /\b(invalid|missing|expired|malformed|unauthori[sz]ed|returns\s+4\d\d)\b/i;
+  const providers = (CATALOGUE.apis || []).filter(a =>
+    a.method === "POST"
+    && AUTH_COLLECTION.test(a.sourceCollection || "")
+    && !NEGATIVE_CASE.test(a.ref));
   $("provider").innerHTML = providers.map(p =>
     `<option value="${esc(p.ref)}">${esc(p.module)} — ${esc(p.name || p.path)}</option>`).join("");
 
