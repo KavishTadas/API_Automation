@@ -1,8 +1,8 @@
 {
   "generatedBy": "scripts/generate-endpoint-yaml.py",
-  "refCount": 45,
-  "endpointCount": 41,
-  "caseCount": 45,
+  "refCount": 44,
+  "endpointCount": 40,
+  "caseCount": 44,
   "refToSlug": {
     "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete": "holiday_template_delete_api_attendance_holiday_templates_delete_by_holidaytemplateid",
     "delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold": "attendance_threshold_delete_api_attendance_status_thresholds_delete_1",
@@ -38,7 +38,6 @@
     "post|/api/attendancepolicy|attendance policy master|create new policy": "attendance_policy_master_post_api_attendancepolicy",
     "post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)": "attendance_shift_master_post_api_v1_attendance_shift_master",
     "post|/api/v1/attendance/shift/master|attendance shift master|create new shift": "attendance_shift_master_post_api_v1_attendance_shift_master",
-    "post|/auth/token|auth|login": "auth_post_auth_token",
     "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token": "employee_auth_api_post_auth_token",
     "post|/auth/token|employee auth api|tc02 - invalid empcode returns 400": "employee_auth_api_post_auth_token",
     "post|/auth/token|employee auth api|tc03 - missing password returns 400": "employee_auth_api_post_auth_token",
@@ -69,7 +68,6 @@
     "attendance_threshold_patch_api_attendance_status_threshold_1_status": "test-cases/endpoint/attendance_threshold/PATCH_api_attendance_status_threshold_1_status",
     "attendance_threshold_post_api_attendance_status_threshold_create": "test-cases/endpoint/attendance_threshold/POST_api_attendance_status_threshold_create",
     "attendance_threshold_put_api_attendance_status_threshold_update_1": "test-cases/endpoint/attendance_threshold/PUT_api_attendance_status_threshold_update_1",
-    "auth_post_auth_token": "test-cases/endpoint/auth/POST_auth_token",
     "employee_auth_api_post_auth_token": "test-cases/login/employee_auth_api_POST_auth_token",
     "holiday_template_delete_api_attendance_holiday_templates_delete_by_holidaytemplateid": "test-cases/endpoint/holiday_template/DELETE_api_attendance_holiday_templates_delete_by_holidaytemplateid",
     "holiday_template_get_api_attendance_holiday_templates_getall": "test-cases/endpoint/holiday_template/GET_api_attendance_holiday_templates_getall",

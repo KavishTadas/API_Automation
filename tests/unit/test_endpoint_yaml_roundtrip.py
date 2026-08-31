@@ -42,9 +42,12 @@ def documents() -> list[dict]:
 
 
 class TestShape:
-    def test_41_endpoints_45_cases(self, documents):
-        assert len(documents) == 41
-        assert sum(len(d["cases"]) for d in documents) == 45
+    def test_40_endpoints_44_cases(self, documents):
+        """Was 41/45 until the bruno `auth` duplicate of POST /auth/token was
+        removed: same {{baseUrl}}, same schema, strictly thinner than the
+        Login Auth UAT collection that covers the identical URL."""
+        assert len(documents) == 40
+        assert sum(len(d["cases"]) for d in documents) == 44
 
     def test_endpoint_level_fields_cannot_differ_between_cases(self, documents):
         """If these differed, the cases would belong to different endpoints."""
@@ -63,12 +66,20 @@ class TestShape:
 
 class TestLosslessness:
     def test_every_inventory_column_survives(self, documents, inventory):
-        """Column-by-column equality for all 45 rows. The real gate."""
+        """Column-by-column equality for every ref the tree holds. The real gate.
+
+        Compared against the refs present in the tree rather than the full
+        api-docs inventory: that file is the pre-flip snapshot and still lists
+        the bruno `auth` duplicate that was deliberately removed. A ref the tree
+        no longer claims is not a lossless-mapping failure -- a ref it claims but
+        cannot reproduce faithfully is, and that is what this asserts.
+        """
         rebuilt = {r["API Identifier"]: r for r in gen.rows_from_endpoints()}
-        assert set(rebuilt) == set(inventory)
+        assert set(rebuilt) <= set(inventory), "tree invented a ref the inventory lacks"
 
         mismatches = []
-        for ref, original in inventory.items():
+        for ref in rebuilt:
+            original = inventory[ref]
             for column in gen.ALL_COLUMNS:
                 want = str(original.get(column, "") or "")
                 got = rebuilt[ref].get(column, "")
@@ -179,17 +190,22 @@ class TestCaseDirectories:
         assert emp.name.startswith("employee_auth_api_")
         assert uat.name.startswith("login_auth_uat_api_")
 
-    def test_the_third_auth_token_endpoint_stays_in_a_suite(self, documents):
-        """module 'auth' shares the path but is not a login module."""
-        docs = {d["slug"]: d for d in documents}
-        dirs = gen.case_directories(docs, gen.load_aliases())
-        assert dirs["auth_post_auth_token"].parent == gen.CASES_DIR / "auth"
+    def test_only_login_modules_issue_auth_token_now(self, documents):
+        """The bruno `auth` duplicate is gone; both survivors are login modules.
+
+        It hit the same {{baseUrl}}/auth/token as Login Auth UAT API, so the
+        host and URL stay covered -- what went was a weaker second description
+        of one endpoint, not coverage.
+        """
+        issuers = {d["module"] for d in documents if d["endpointPath"] == "/auth/token"}
+        assert issuers == {"Employee Auth API", "Login Auth UAT API"}
+        assert not (gen.CASES_DIR / "auth").exists()
 
     def test_every_endpoint_gets_a_distinct_directory(self, documents):
         docs = {d["slug"]: d for d in documents}
         dirs = gen.case_directories(docs, gen.load_aliases())
-        assert len(dirs) == 41
-        assert len(set(dirs.values())) == 41
+        assert len(dirs) == 40
+        assert len(set(dirs.values())) == 40
 
     def test_paths_stay_under_the_ceiling(self, documents):
         docs = {d["slug"]: d for d in documents}

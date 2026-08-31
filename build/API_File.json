@@ -1,25 +1,5 @@
 [
   {
-    "Sr. No": "1",
-    "Module Name": "auth",
-    "Sub-Module Name": "Login",
-    "Access": "public",
-    "Functional Purpose": "Status is 200; Token exists; empCode matches",
-    "Base URL": "{{baseUrl}}",
-    "Endpoint / Path": "/auth/token",
-    "HTTP Method": "POST",
-    "Request Parameters": "",
-    "Request Body Schema": "{\"empCode\":\"string\",\"password\":\"string\"}",
-    "Response (example/200)": "Expected status(es): 200\n{\n  \"token\": \"<jwt-token>\"\n}",
-    "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
-    "API Identifier": "post|/auth/token|auth|login",
-    "Request Body": "{\n    \"empCode\": \"{{empCode}}\",\n    \"password\": \"{{empPassword}}\"\n  }",
-    "Example Request Payload": "{\n  \"empCode\": \"<empCode>\",\n  \"password\": \"<empPassword>\"\n}",
-    "Example Response Payload": "{\n  \"token\": \"<jwt-token>\"\n}",
-    "Dependent APIs / Services": "Produces authToken for downstream APIs",
-    "Comments": "Source: bruno/auth/login.bru; No saved response example in source file; Parsed from Bruno file"
-  },
-  {
     "Sr. No": "2",
     "Module Name": "Employee Auth API",
     "Sub-Module Name": "TC01 - Valid credentials return JWT token",

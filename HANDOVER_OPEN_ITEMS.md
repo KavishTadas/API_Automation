@@ -84,7 +84,27 @@ key on. Recorded as open, unactioned.
 - `KT_Report_and_Current_status.txt` is 72+ commits stale and has already produced
   several false "open item" claims. Work order section 8 says regenerate, not patch.
 
-## 6. Smaller items
+## 6. Baseline superseded, and a manifest that does not reject unknown refs
+
+`baseline/33ecada-run.json` (45 refs) is superseded by `baseline/44-endpoint-run.json`
+after the bruno `auth` duplicate was removed. Diff future phases against the 44-ref
+baseline; the 45-ref one is kept only as the pre-removal record.
+
+Observed while re-cutting it: a manifest naming a ref the catalogue no longer knows is
+**not rejected**. The run completed and produced NOT_APPLICABLE results for the unknown
+ref, inflating `total` to 955. That is arguably the right graceful behaviour, but it
+means a stale manifest fails quietly rather than loudly. Worth a decision.
+
+## 7. `bruno/auth/login.bru` still exists
+
+The endpoint was removed from the authoring surface, not from Bruno. Nothing runs
+Bruno in CI or npm scripts, and `scripts/generate-api-file.js` would still list it in
+the now non-authoritative `api-docs/API_File.json`. Deleting the `.bru` is a separate
+call; the KT report claims it is intentionally retained, though that document is 70+
+commits stale and its `BASE_URL` rationale survives regardless, since the quarantined
+profile-investigation request also uses `{{baseUrl}}`.
+
+## 8. Smaller items
 
 - `.env` still carries `USERNAME` and `PASSWORD` with no consumer in current code.
   Untracked, so out of scope for a tracked-file cleanup.
