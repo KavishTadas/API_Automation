@@ -30,7 +30,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from tests.auto_generated._api_test_helpers import perform_api_request
+from tests.api_runtime._api_test_helpers import perform_api_request
 from tests.global_contract.credentials import (
     CredentialResolutionError,
     resolve_credential,

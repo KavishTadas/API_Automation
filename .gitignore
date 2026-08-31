@@ -35,3 +35,9 @@ group.com*
 
 # export test output
 .export-test/
+
+# Phase 3: generated test tier and derived inventory. Regenerate with
+#   python scripts/generate-generic-tests.py
+# The shared runtime it used to sit beside is NOT here -- it is authored code at
+# tests/api_runtime/, because the global-contract tier imports it at module level.
+build/

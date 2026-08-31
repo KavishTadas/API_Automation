@@ -99,7 +99,7 @@ def assert_loopback(host: str) -> None:
 def _runtime_config() -> dict[str, str]:
     import os
 
-    from tests.auto_generated._api_test_helpers import load_runtime_config
+    from tests.api_runtime._api_test_helpers import load_runtime_config
 
     try:
         config = load_runtime_config()

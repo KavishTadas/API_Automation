@@ -94,7 +94,7 @@ def _aborted_document(
 
 
 def _config() -> dict[str, str]:
-    from tests.auto_generated._api_test_helpers import load_runtime_config
+    from tests.api_runtime._api_test_helpers import load_runtime_config
 
     try:
         config = load_runtime_config()

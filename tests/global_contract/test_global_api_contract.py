@@ -33,7 +33,7 @@ import httpx
 import pytest
 from jsonschema import Draft202012Validator
 
-from tests.auto_generated._api_test_helpers import (
+from tests.api_runtime._api_test_helpers import (
     _resolve_templates,
     load_runtime_config,
     perform_api_request,

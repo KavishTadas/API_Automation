@@ -69,7 +69,7 @@ __all__ = [
 
 COLLECTIONS_DIR = ROOT_DIR / "collections"
 GLOBAL_TIER_SOURCE = Path(__file__).with_name("test_global_api_contract.py")
-GENERATED_TESTS_DIR = ROOT_DIR / "tests" / "auto_generated"
+GENERATED_TESTS_DIR = ROOT_DIR / "build" / "auto_generated"
 
 CATALOGUE_VERSION = "1.2"
 
@@ -709,7 +709,7 @@ def build_catalogue(
 def _catalogue_config() -> dict[str, str]:
     import os
 
-    from tests.auto_generated._api_test_helpers import load_runtime_config
+    from tests.api_runtime._api_test_helpers import load_runtime_config
 
     try:
         config = load_runtime_config()
@@ -721,7 +721,7 @@ def _catalogue_config() -> dict[str, str]:
 def _row_host(api_row: dict[str, Any], config: dict[str, str]) -> str:
     from urllib.parse import urlsplit
 
-    from tests.auto_generated._api_test_helpers import _resolve_templates
+    from tests.api_runtime._api_test_helpers import _resolve_templates
 
     raw = str(api_row.get("Base URL", "") or "")
     if not raw:

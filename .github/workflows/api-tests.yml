@@ -76,7 +76,7 @@ jobs:
         continue-on-error: true
         run: |
           mkdir -p reports/html reports/allure-results/generated-tests
-          python -m pytest tests/auto_generated \
+          python -m pytest build/auto_generated \
             --html=reports/html/auto-generated-pytest-report.html \
             --self-contained-html \
             --alluredir=reports/allure-results/generated-tests
@@ -171,7 +171,7 @@ jobs:
         continue-on-error: true
         run: |
           mkdir -p reports/html reports/allure-results/generated-tests
-          python -m pytest tests/auto_generated \
+          python -m pytest build/auto_generated \
             --html=reports/html/auto-generated-pytest-report.html \
             --self-contained-html \
             --alluredir=reports/allure-results/generated-tests
