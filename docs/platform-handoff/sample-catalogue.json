@@ -844,20 +844,20 @@
     ],
     "apiSpecific": [
       {
-        "id": "generated::delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete::response_schema",
+        "id": "generated::delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete::response_schema",
         "title": "Delete — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete"
+        "apiRef": "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete"
       },
       {
-        "id": "generated::delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete::status_code",
+        "id": "generated::delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete::status_code",
         "title": "Delete — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete"
+        "apiRef": "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete"
       },
       {
         "id": "generated::delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold::response_schema",
@@ -1468,20 +1468,20 @@
         "apiRef": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
       },
       {
-        "id": "generated::put|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update::response_schema",
+        "id": "generated::put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update::response_schema",
         "title": "Update — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "put|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update"
+        "apiRef": "put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update"
       },
       {
-        "id": "generated::put|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update::status_code",
+        "id": "generated::put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update::status_code",
         "title": "Update — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "put|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update"
+        "apiRef": "put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update"
       },
       {
         "id": "generated::put|/api/attendance/late-early-policies/update/2|latearly-policy|update::response_schema",
@@ -1564,12 +1564,12 @@
         "apiRef": "put|/api/v1/attendance/shift/master/2|attendance shift master|update shift"
       },
       {
-        "id": "newman::delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete::<no-assertions>",
+        "id": "newman::delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete::<no-assertions>",
         "title": "No assertions defined for this request",
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "coverage-gap",
-        "apiRef": "delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete",
+        "apiRef": "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete",
         "assertionGap": true,
         "expectedState": "NOT_ASSERTED"
       },
@@ -2066,12 +2066,12 @@
         "apiRef": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
       },
       {
-        "id": "newman::put|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update::<no-assertions>",
+        "id": "newman::put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update::<no-assertions>",
         "title": "No assertions defined for this request",
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "coverage-gap",
-        "apiRef": "put|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update",
+        "apiRef": "put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update",
         "assertionGap": true,
         "expectedState": "NOT_ASSERTED"
       },
@@ -2128,7 +2128,7 @@
     ]
   },
   "applicability": {
-    "delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete": {
+    "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete": {
       "global_contract::test_401_without_valid_token": {
         "state": "PLANNED",
         "reason": ""
@@ -4078,7 +4078,7 @@
         "reason": ""
       }
     },
-    "put|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update": {
+    "put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update": {
       "global_contract::test_401_without_valid_token": {
         "state": "PLANNED",
         "reason": ""
