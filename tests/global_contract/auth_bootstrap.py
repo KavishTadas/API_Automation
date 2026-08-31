@@ -48,7 +48,23 @@ __all__ = [
 #: and a value present here deliberately WINS over any ambient environment
 #: variable — a stale CI secret previously defeated the bootstrap and surfaced
 #: as unexplained 401s.
-TOKEN_RUNTIME_KEYS = ("AUTH_TOKEN", "API_AUTH_TOKEN", "authToken")
+#: Collections spell the same token several ways -- {{authToken}}, {{token}}
+#: and {{jwtToken}} all appear in the current inventory -- and whoever exports
+#: from Postman has no reason to know which spelling this engine reads.
+#: Publishing under every reasonable name fixes it once, here, instead of in
+#: every collection, and stops the next export reintroducing it. Same failure
+#: and same remedy as the {{baseURL}} / {{baseUrl}} case.
+TOKEN_RUNTIME_KEYS = (
+    "AUTH_TOKEN",
+    "API_AUTH_TOKEN",
+    "authToken",
+    "token",
+    "jwtToken",
+    "bearerToken",
+    "accessToken",
+    "access_token",
+    "JWT_TOKEN",
+)
 
 _TOKEN_FIELDS = ("token", "access_token", "authToken")
 

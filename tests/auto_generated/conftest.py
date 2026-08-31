@@ -57,11 +57,12 @@ def api_runtime_config() -> dict[str, str]:
             token = payload["data"].get("token") or payload["data"].get("access_token") or payload["data"].get("authToken")
             
     assert token, "Employee Auth bootstrap response did not contain a token"
-    config.update(
-        {
-            "AUTH_TOKEN": token,
-            "API_AUTH_TOKEN": token,
-            "authToken": token,
-        }
-    )
+    # The inventory spells this token {{authToken}}, {{token}} and {{jwtToken}}
+    # in different collections, and an export has no reason to know which one
+    # this tier reads. Publishing every spelling is what stops a rename in
+    # Postman silently un-authenticating a third of the suite.
+    for key in ("AUTH_TOKEN", "API_AUTH_TOKEN", "authToken", "token",
+                "jwtToken", "bearerToken", "accessToken", "access_token",
+                "JWT_TOKEN"):
+        config[key] = token
     return config

@@ -839,12 +839,10 @@ def global_contract_context(request: pytest.FixtureRequest) -> GlobalContractCon
             if auth_response.is_success:
                 token = auth_response.json().get("token")
                 if token:
+                    # Driven off the one list, so this site cannot drift from
+                    # the names auth_bootstrap declares.
                     runtime_config.update(
-                        {
-                            "AUTH_TOKEN": token,
-                            "API_AUTH_TOKEN": token,
-                            "authToken": token,
-                        }
+                        {key: token for key in TOKEN_RUNTIME_KEYS}
                     )
 
     for operation_case in operation_cases:
