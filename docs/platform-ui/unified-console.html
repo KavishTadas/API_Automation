@@ -3673,7 +3673,7 @@ const svg=(d,cls)=>`<svg class="rico${cls?' '+cls:''}" viewBox="0 0 24 24" fill=
 const TABS=[
   {k:'overview',   t:'Overview',              i:'dash',     c:''},
   {k:'defects',    t:'Categories',            i:'tags',     c:'var(--am400)', badge:R=>R.summary.counts.FAIL||0},
-  {k:'suites',     t:'Suites',                i:'layers',   c:'var(--bl400)', suffix:R=>` (${R.apis.length}/${allApis().length})`},
+  {k:'suites',     t:'Suites',                i:'layers',   c:'var(--bl400)', suffix:R=>` (${ranEndpoints(R)}/${allApis().length})`},
   {k:'behaviors',  t:'Behaviors (BDD)',       i:'branch',   c:'var(--pu400)', p:'qa,dev'},
   {k:'timeline',   t:'Timeline',              i:'gantt',    c:'var(--em400)', p:'qa,dev,devops'},
   {k:'payloads',   t:'API Infra & Payloads',  i:'cpu',      c:'var(--cy400)', p:'qa,dev'},
@@ -3715,7 +3715,10 @@ function masthead(R){
           <span class="tag-std">Contract v${esc(R.catalogueVersion)}</span>
           ${STATE.live
             ? '<span class="tag-std" style="color:var(--em300);border-color:rgba(16,185,129,.45)">Live run &middot; real endpoints</span>'
-            : (R.simulated?'<span class="tag-std" style="color:var(--am300);border-color:rgba(181,118,42,.45)">Simulated run</span>':'')}
+            : (R.simulated
+              ? '<span class="tag-std" style="color:#fff;background:var(--ro500);'
+                + 'border-color:var(--ro500);font-weight:700">&#9888; SIMULATED &mdash; no endpoint was called</span>'
+              : '')}
         </div>
         <h1>HCM Platform APIs
           <span class="qg-pill qg-${g.level}">Quality Gate: ${g.level}${
@@ -3835,6 +3838,23 @@ function gateBanner(R){
 function okCount(rules){ return rules.filter(r=>r.ok).length; }
 
 /* The four executive metrics. */
+/* Endpoints in a run document, excluding the synthetic host-level entry the
+   engine adds for probes that belong to a host rather than to any one
+   endpoint. Counting it is why the Suites tab could read 46 of 45. */
+function ranEndpoints(R){
+  return R.apis.filter(a => !!apiByRef(a.apiRef)).length;
+}
+
+/* Checks that actually asserted something. A check that reached the server and
+   then declined -- no path-parameter value, no declared sample -- is not
+   coverage, and counting it as such is how 23 checks on an endpoint asserting
+   4 of them reads as a tested endpoint. */
+function assertedChecks(R){
+  const asserting = {PASS:1, FAIL:1, WARN:1};
+  return R.apis.reduce((n,a) =>
+    n + a.results.filter(r => asserting[r.state]).length, 0);
+}
+
 function kpiRow(R){
   const c=R.summary.counts, all=R.apis.flatMap(a=>a.results);
   const mods=new Set(R.apis.map(a=>{const x=apiByRef(a.apiRef);return x?x.module:'—';}));
@@ -3862,11 +3882,15 @@ function kpiRow(R){
       </div>`:''}
     </div>
     <div class="estat">
-      <div class="estat-h"><span>Total Test Cases</span><span class="estat-ic ic-blue">${svg(ICO.check2)}</span></div>
-      <div class="estat-v"><span class="estat-n">${R.summary.total}</span>
-        <span class="estat-sub">across ${mods.size} suite${mods.size===1?'':'s'}</span></div>
-      <div class="estat-f"><span>${c.NOT_APPLICABLE||0} Not Applicable</span>
-        <span class="t">${R.summary.referencedHostResults||0} Host-Referenced</span></div>
+      <div class="estat-h"><span>Executed This Run</span><span class="estat-ic ic-blue">${svg(ICO.check2)}</span></div>
+      <div class="estat-v"><span class="estat-n">${ranEndpoints(R)}</span>
+        <span class="estat-sub">of ${allApis().length} endpoints &middot; ${mods.size} suite${mods.size===1?'':'s'}</span></div>
+      <div class="estat-f"><span><b>${assertedChecks(R)}</b> of ${R.summary.total} checks asserted</span>
+        <span class="t">${(R.summary.total-assertedChecks(R))} not asserted</span></div>
+      ${ranEndpoints(R) < allApis().length ? `<div class="estat-sub amber" style="margin-top:8px;line-height:1.45">
+        ${allApis().length - ranEndpoints(R)} endpoint${allApis().length-ranEndpoints(R)===1?'':'s'}
+        in the catalogue were not part of this run
+      </div>` : ''}
     </div>
     <div class="estat${c.FAIL?' rose':''}">
       <div class="estat-h"><span>Defect Classification</span><span class="estat-ic ic-rose">${svg(ICO.octagon)}</span></div>
@@ -5733,6 +5757,21 @@ function startRun(refs){
       finally { clearInterval(tick); learn(); }
     }
 
+    /* The engine is attached and the run did not come back. Say so and stop:
+       substituting a simulation here is how invented numbers reach a report
+       that is indistinguishable from a real one -- and get written into the
+       history the trend is drawn from. */
+    if(LIVE.available && !doc){
+      STATE.running=false; syncSel();
+      if(prog) prog.style.display='none';
+      if(label) label.textContent = `Run Selected Batch (${STATE.selected.size})`;
+      toast('Live run failed — nothing was changed. The engine is attached, so ' +
+            'no simulated result was substituted.');
+      return;
+    }
+
+    /* No engine attached: a standalone file has nothing else to show. The
+       result carries simulated:true and the report labels it. */
     STATE.result = doc || runBatch(refs);
     STATE.live = !!doc;
     STATE.viewing = null;              // a new run supersedes any snapshot being viewed
