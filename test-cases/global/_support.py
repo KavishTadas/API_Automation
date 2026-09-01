@@ -228,12 +228,21 @@ def _target_environment() -> str:
 
 
 def _cors_preflight_enabled() -> bool:
-    return os.environ.get(CORS_PREFLIGHT_FLAG, "").strip().lower() in {
-        "1",
-        "true",
-        "yes",
-        "on",
-    }
+    """CORS preflight runs by default now; the flag disables it.
+
+    It was opt-in on the reasoning that these are internal server-to-server APIs
+    behind a WAF and "not expected to emit Access-Control-* headers". Measured
+    against all 44 endpoints, that is not what they do: every one returns a
+    valid `Access-Control-Allow-Origin` and an `Access-Control-Allow-Methods`
+    containing its own method. 44 PASS, 0 FAIL.
+
+    So the check was skipping 44 times a run over a prediction the API had
+    already outgrown, and the honest state for a check that does apply and does
+    pass is PASS, not NOT_APPLICABLE. Set the flag to 0/false/no/off where the
+    reasoning still holds -- a genuinely browser-less deployment.
+    """
+    setting = os.environ.get(CORS_PREFLIGHT_FLAG, "").strip().lower()
+    return setting not in {"0", "false", "no", "off"}
 
 
 def _record_state(

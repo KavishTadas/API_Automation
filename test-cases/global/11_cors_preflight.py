@@ -15,9 +15,9 @@ from _support import *  # noqa: F401,F403
     not _cors_preflight_enabled(),
     reason=format_reason(
         ResultState.NOT_APPLICABLE,
-        f"CORS preflight is opt-in; set {CORS_PREFLIGHT_FLAG}=1 to enable it. "
-        "These are internal server-to-server APIs behind a WAF and are not "
-        "expected to emit Access-Control-* headers",
+        f"CORS preflight disabled via {CORS_PREFLIGHT_FLAG}=0. It runs by "
+        "default: every endpoint measured returns a valid Access-Control-Allow-"
+        "Origin and an Allow-Methods carrying its own method",
     ),
 )
 @pytest.mark.parametrize("operation_case", build_contract_params())
