@@ -1965,6 +1965,18 @@ html[data-fx="off"] .tg-pulse{animation:none;opacity:.5}
   color:var(--text-dim)}
 .up-sum span.good{background:var(--accent-bg);color:var(--accent)}
 .up-sum span.warn{background:rgba(180,83,9,.14);color:var(--amber)}
+.up-diag{margin-top:11px;border:1px solid var(--line);border-radius:9px;padding:10px 12px;
+  background:var(--panel-2)}
+.up-diag .d-h{font:700 10px var(--mono);letter-spacing:.09em;text-transform:uppercase;
+  color:var(--text-dim);margin-bottom:5px}
+.up-diag .d-row{display:grid;grid-template-columns:minmax(120px,auto) 1fr;gap:10px;
+  font-size:11.5px;padding:3px 0;align-items:baseline}
+.up-diag .d-row b{color:var(--text)}
+.up-diag .d-row span{color:var(--text-dim);font-family:var(--mono);font-size:10.5px;
+  overflow-wrap:anywhere}
+/* An inferred verb must never look like a stated one. */
+.up-row .m.guessed{background:rgba(180,83,9,.18);color:var(--amber);
+  border:1px dashed rgba(180,83,9,.5)}
 
 
 /* ==========================================================================
@@ -2341,6 +2353,7 @@ const STATE = {
   focus:null,
   result:null,
   imported:[],          // APIs added via cURL (travel by value, DR-2)
+  importSteps:[],       // undo stack for additions and deletions, newest last
   providers:{},         // apiRef -> authProviderApiId (K1c: travels in the manifest)
   history:[],           // last N run summaries, newest last — drives the trend chart
   pane:'suites',        // which workbench pane the side menu is pointing at
@@ -2362,7 +2375,8 @@ let persist=function persist(){
   try{ localStorage.setItem(LS, JSON.stringify({
     view:STATE.view, tab:STATE.tab, persona:STATE.persona, env:STATE.env,
     alias:STATE.alias, selected:[...STATE.selected], focus:STATE.focus,
-    imported:STATE.imported, result:STATE.result, providers:STATE.providers, live:STATE.live,
+    imported:STATE.imported, importSteps:STATE.importSteps,
+    result:STATE.result, providers:STATE.providers, live:STATE.live,
     history:STATE.history, pane:STATE.pane,
     catFilter:STATE.catFilter, modFilter:STATE.modFilter, closedSuites:STATE.closedSuites,
     seededTrend:STATE.seededTrend, viewing:STATE.viewing, openCase:STATE.openCase,
@@ -2474,7 +2488,8 @@ function restore(){
   STATE.view='home'; STATE.tab=s.tab||'overview';
   STATE.persona=s.persona||'qa'; STATE.env=s.env||STATE.env; STATE.alias=s.alias||STATE.alias;
   STATE.selected=new Set(s.selected||[]); STATE.focus=s.focus||null;
-  STATE.imported=s.imported||[]; STATE.result=s.result||null;
+  STATE.imported=s.imported||[]; STATE.importSteps=s.importSteps||[];
+  STATE.result=s.result||null;
   STATE.providers=s.providers||{}; STATE.history=s.history||[]; STATE.live=!!s.live;
   STATE.pane=s.pane||'suites';
   STATE.catFilter=s.catFilter||'all'; STATE.modFilter=s.modFilter||'all';
@@ -2504,6 +2519,77 @@ function label(a){ return a.method+' '+a.path; }
 function subLabel(a){ return a.module + (a.subModule && a.subModule!==a.module ? ' › '+a.subModule : ''); }
 
 function allApis(){ return SEED.apis.concat(STATE.imported); }
+
+function isImported(ref){ return STATE.imported.some(a => a.ref === ref); }
+
+/* ------------------------------------------------------------------ undo --
+   A stack of deltas, newest last. An 'add' step names the refs it brought in;
+   a 'remove' step carries the endpoint itself, so putting it back is possible.
+
+   Deltas rather than snapshots: a snapshot per step copies the whole endpoint
+   list, payloads included, into the same 5MB the run archive already evicts
+   from. Capped for the same reason. */
+const IMPORT_STEPS_MAX = 20;
+
+function pushImportStep(step){
+  STATE.importSteps.push(Object.assign({at: new Date().toISOString()}, step));
+  if(STATE.importSteps.length > IMPORT_STEPS_MAX){
+    STATE.importSteps = STATE.importSteps.slice(-IMPORT_STEPS_MAX);
+  }
+}
+
+function describeStep(st){
+  if(!st) return '';
+  if(st.kind === 'add'){
+    const n = (st.refs || []).length;
+    return `${n} endpoint${n === 1 ? '' : 's'}${st.from ? ' from ' + st.from : ''} removed again`;
+  }
+  return `${(st.endpoint && (st.endpoint.name || st.endpoint.path)) || 'endpoint'} restored`;
+}
+
+/* Reverses exactly one step and returns it, so the caller can say what moved. */
+function undoImportStep(){
+  const st = STATE.importSteps.pop();
+  if(!st) return null;
+  if(st.kind === 'add'){
+    const drop = new Set(st.refs || []);
+    STATE.imported = STATE.imported.filter(a => !drop.has(a.ref));
+    drop.forEach(r => { STATE.selected.delete(r); delete STATE.providers[r]; });
+  }else if(st.kind === 'remove' && st.endpoint){
+    STATE.imported.push(st.endpoint);
+  }
+  DISPLAY_ID = null;
+  return st;
+}
+
+/* Imported endpoints only. One that came from the repository would return on
+   the next reload, leaving the console disagreeing with CI about what exists. */
+function removeImported(ref){
+  const at = STATE.imported.findIndex(a => a.ref === ref);
+  if(at < 0) return false;
+  const gone = STATE.imported.splice(at, 1)[0];
+  STATE.selected.delete(ref);
+  delete STATE.providers[ref];
+  pushImportStep({kind: 'remove', endpoint: gone});
+  DISPLAY_ID = null;
+  return true;
+}
+
+/* The catalogue changed: save it, then redraw every view that counts endpoints.
+   renderSuitesGrid only exists once the suites view has been built. */
+function afterCatalogueChange(){
+  persist(); renderTopbar(); renderHome(); syncRevert();
+  if(typeof renderSuitesGrid === 'function' && $('#suitesGrid')) renderSuitesGrid();
+}
+
+function syncRevert(){
+  const b = $('#btnRevert'); if(!b) return;
+  const n = STATE.importSteps.length;
+  const badge = $('#revertBadge'); if(badge) badge.textContent = n;
+  b.disabled = !n;
+  b.title = n ? 'Undo the last change to the endpoint list'
+              : 'Nothing to revert — the list matches the repository';
+}
 function apiByRef(ref){ return allApis().find(a=>a.ref===ref) || null; }
 
 function toast(msg){
@@ -2599,15 +2685,45 @@ async function detectHarness(){
   return LIVE.available;
 }
 
+/* An uploaded endpoint is never written to the repository (DR-2), so the
+   engine cannot look one up -- a ref for it resolves against the inventory and
+   misses, and every check reports NOT_APPLICABLE against an endpoint that was
+   never contacted. It has to travel by value instead.
+
+   Only the fields the manifest schema allows; it rejects unknown ones. */
+function definitionFor(api){
+  const id = api.displayId || 'API-IMPORTED';
+  const def = {
+    'API ID': id,
+    'API / Feature Name': api.name || api.path,
+    'Module': api.module || 'Imported',
+    'HTTP Method': String(api.method || 'GET').toUpperCase(),
+    'Endpoint Path': api.path,
+    'Environment(s)': STATE.env
+  };
+  if(api.baseUrl) def['Base URL'] = api.baseUrl;
+  const body = api.samplePayload;
+  if(body && Object.keys(body).length){
+    def.payloads = [{'API ID': id, 'Payload Type': 'Request',
+                     'Sample JSON': JSON.stringify(body)}];
+  }
+  return def;
+}
+
 function manifestFor(refs){
   return {
     runId: 'console-' + Date.now().toString(36),
     environment: STATE.env,
     requestedTiers: ['global_contract'],
     apis: refs.map(ref => {
-      const entry = {ref, credentialAlias: aliasForManifest(STATE.alias)};
+      const entry = {credentialAlias: aliasForManifest(STATE.alias)};
       const prov = STATE.providers[ref];
       if(prov) entry.authProviderApiId = prov;
+      /* Either a ref or a definition, never both -- the manifest rejects an
+         entry carrying the two together. */
+      const imported = STATE.imported.find(a => a.ref === ref);
+      if(imported) entry.definition = definitionFor(imported);
+      else entry.ref = ref;
       return entry;
     })
   };
@@ -5897,13 +6013,16 @@ function fromYamlRequest(text, label, fileName){
 /* Column names this reader understands. Also used to find the header row,
    since a spreadsheet anyone maintains tends to open with a title. */
 const IMPORT_COLUMNS = {
-  path:  ['Endpoint / Path','Endpoint Path','path','endpoint','url'],
-  method:['HTTP Method','method','verb'],
-  base:  ['Base URL','baseUrl','base'],
-  body:  ['Request Body','body','payload'],
-  name:  ['API Name','API / Feature Name','name'],
-  module:['Module','module','suite'],
-  id:    ['API ID','apiId','id'],
+  path:  ['Endpoint / Path','Endpoint Path','path','endpoint','url','uri',
+          'URL Path','route','request url','api endpoint'],
+  method:['HTTP Method','method','verb','type','request method'],
+  base:  ['Base URL','baseUrl','base','host','server','environment url'],
+  body:  ['Request Body','body','payload','Sample JSON','sample payload',
+          'example request payload','request payload'],
+  name:  ['API Name','API / Feature Name','name','title','summary',
+          'sub-module name','feature'],
+  module:['Module','module','suite','Module Name','domain','component'],
+  id:    ['API ID','apiId','id','Endpoint ID','Test Case ID','Sr. No','Sr.No'],
 };
 
 /* The console's own report export puts a title on row 0 and a blank on row 1,
@@ -5920,10 +6039,23 @@ function headerRowIndex(rows){
   return -1;   // nothing recognisable: return nothing rather than guess at 0
 }
 
+/* What the last read looked at. Populated even -- especially -- when nothing
+   was found, because that is when it matters. */
+let LAST_IMPORT_LOOK = [];
+
 function fromCsv(text, label){
   const all = parseCsv(text);
   const h0 = headerRowIndex(all);
-  if(h0 < 0) return [];
+  if(h0 < 0){
+    /* Record the widest row as the likely header so the panel can show what
+       the sheet actually offers instead of just refusing it. */
+    const widest = all.reduce((a, r) => (r.length > (a ? a.length : 0) ? r : a), null);
+    if(widest) LAST_IMPORT_LOOK.push({
+      sheet: label,
+      columns: widest.map(c => String(c || '').trim()).filter(Boolean).slice(0, 14)
+    });
+    return [];
+  }
   const rows = all.slice(h0);
   if(rows.length < 2) return [];
   const head = rows[0].map(h => String(h || '').trim());
@@ -5948,8 +6080,14 @@ function fromCsv(text, label){
     const p = String(row[iP] || '').trim();
     if(!p) continue;
     const base = iB >= 0 ? String(row[iB] || '').trim() : '';
+    const stated = iM >= 0 ? String(row[iM] || '').trim().toUpperCase() : '';
+    /* Only where the file states no method at all. Never overrides one that is
+       given, and what was guessed is recorded so the review can show it -- a
+       wrong verb imports an endpoint that looks right and is not, which is
+       exactly the failure that silently mis-imported 162 endpoints. */
+    const guessed = stated ? '' : inferMethod(p, iBody >= 0 ? row[iBody] : '');
     const built = makeImported({
-      method: String((iM >= 0 ? row[iM] : '') || 'GET').toUpperCase(),
+      method: stated || guessed || 'GET',
       rawUrl: /^https?:/i.test(p) ? p : (base + p),
       headers: {},
       body: iBody >= 0 ? String(row[iBody] || '') : '',
@@ -5959,10 +6097,25 @@ function fromCsv(text, label){
     });
     if(built){
       if(iId >= 0) built.apiId = String(row[iId] || '').trim();
+      if(guessed) built.methodInferred = true;
       out.push(built);
     }
   }
   return out.filter(Boolean);
+}
+
+/* A verb for a row that names none. Conventional rather than certain, so it is
+   used only in that case and always recorded as a guess. */
+function inferMethod(path, body){
+  const p = String(path || '').toLowerCase();
+  if(/\b(delete|remove)\b/.test(p)) return 'DELETE';
+  if(/\b(update|edit|modify)\b/.test(p)) return 'PUT';
+  if(/\b(status|activate|deactivate|toggle|changestatus)\b/.test(p)) return 'PATCH';
+  if(/\b(create|add|new|register|login|token|submit|apply)\b/.test(p)) return 'POST';
+  if(/\b(getall|getbyid|list|search|fetch|view|report)\b/.test(p)) return 'GET';
+  /* A payload implies a write, but not which one, so this stops at POST. */
+  if(String(body || '').trim().startsWith('{')) return 'POST';
+  return '';
 }
 
 /* Quoted fields may contain commas and escaped quotes, so this cannot be a
@@ -5990,6 +6143,35 @@ function parseCsv(text){
    A workbook keeps its text in a shared string table and its sheets reference
    it by index, so reading a sheet alone returns integers where the words
    should be. Both parts are needed. */
+/* name -> r:id. The id is what ties a tab to the part holding it; the position
+   does not, because a chart sheet is listed here and has no worksheet part. */
+function xlsxSheetRels(xml){
+  const out = [];
+  const re = /<sheet\b([^>]*)>/g;
+  let m;
+  while((m = re.exec(xml)) !== null){
+    const attrs = m[1];
+    const name = (attrs.match(/\bname="([^"]*)"/) || [])[1];
+    const rid = (attrs.match(/r:id="([^"]*)"/) || [])[1];
+    if(name && rid) out.push({name, rid});
+  }
+  return out;
+}
+
+/* r:id -> part path, from xl/_rels/workbook.xml.rels. */
+function xlsxRelTargets(xml){
+  const out = {};
+  const re = /<Relationship\b([^>]*)>/g;
+  let m;
+  while((m = re.exec(xml)) !== null){
+    const attrs = m[1];
+    const id = (attrs.match(/\bId="([^"]*)"/) || [])[1];
+    const target = (attrs.match(/\bTarget="([^"]*)"/) || [])[1];
+    if(id && target) out[id] = target.replace(/^\/?xl\//, '').replace(/^\.\//, '');
+  }
+  return out;
+}
+
 function xlsxStrings(xml){
   const out = [];
   const re = /<si\b[^>]*>([\s\S]*?)<\/si>/g;
@@ -6046,8 +6228,9 @@ function xlsxRows(sheetXml, strings){
    neither -- the overview yields endpoints with no body, and the payload sheet
    has no endpoint column at all. Sheets are identified by their headers and
    joined, which is the whole reason a workbook is worth uploading. */
-function fromXlsx(sheets, strings, label){
-  const parsed = sheets.map(xml => xlsxRows(xml, strings)).filter(r => r.length >= 2);
+function fromXlsx(sheets, strings, label, names){
+  const parsedAll = sheets.map(xml => xlsxRows(xml, strings));
+  const parsed = parsedAll.filter(r => r.length >= 2);
   const head = rows => rows[0].map(h => String(h || '').trim().toLowerCase());
   const findCol = (rows, names) => {
     const h = head(rows);
@@ -6079,8 +6262,19 @@ function fromXlsx(sheets, strings, label){
   });
 
   const out = [];
-  parsed.forEach(rows => {
-    if(headerRowIndex(rows) < 0) return;
+  parsedAll.forEach((rows, i) => {
+    const sheetName = (names && names[i]) ? names[i] : `sheet ${i + 1}`;
+    if(rows.length < 2) return;
+    if(headerRowIndex(rows) < 0){
+      /* Skipped here, so the recorder in fromCsv never sees it -- which is
+         precisely the case the explanation exists for. */
+      const widest = rows.reduce((a, r) => (r.length > (a ? a.length : 0) ? r : a), null);
+      if(widest) LAST_IMPORT_LOOK.push({
+        sheet: sheetName,
+        columns: widest.map(c => String(c || '').trim()).filter(Boolean).slice(0, 14)
+      });
+      return;
+    }
     const csv = rows.map(r =>
       r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
     fromCsv(csv, label).forEach(e => {
@@ -6182,17 +6376,31 @@ async function extractFromFile(file){
     const entries = await unzip(await file.arrayBuffer());
     const found = [];
     const notes = [];
-    let sharedStrings = [], sheetXml = [];
+    let sharedStrings = [], sheetXml = [], sheetRels = [], relTargets = {};
     for(const e of entries){
       const en = e.name.toLowerCase();
       /* A .docx keeps its text in one part; the rest is styling. */
       /* A workbook is handled after the loop: its sheets are meaningless
          without the shared string table, so both parts must be in hand. */
-      if(en === 'xl/sharedstrings.xml' || /^xl\/worksheets\/sheet\d*\.xml$/.test(en)){
+      if(en === 'xl/sharedstrings.xml' || en === 'xl/workbook.xml'
+         || en === 'xl/_rels/workbook.xml.rels'
+         || /^xl\/worksheets\/sheet\d*\.xml$/.test(en)){
         try{
           const x = await inflateEntry(e);
           if(en === 'xl/sharedstrings.xml') sharedStrings = xlsxStrings(x);
-          else sheetXml.push(x);
+          /* The workbook part is the only place the sheets are named; the
+             worksheet parts are numbered files. Naming them matters when a
+             workbook has a dozen sheets and one has to be pointed at. */
+          else if(en === 'xl/workbook.xml') sheetRels = xlsxSheetRels(x);
+          else if(en === 'xl/_rels/workbook.xml.rels') relTargets = xlsxRelTargets(x);
+          else {
+            /* Keep the part number: a zip lists worksheets in whatever order
+               the writer emitted them -- sheet3, sheet2, sheet1, sheet12 in
+               this workbook -- while workbook.xml names them in tab order.
+               Pairing by position labels every sheet with a neighbour's name,
+               which sends the reader to check the wrong tab. */
+            sheetXml.push({part: e.name.replace(/^xl\//, ''), xml: x});
+          }
         }catch(err){ notes.push(`${e.name}: ${err.message}`); }
         continue;
       }
@@ -6211,7 +6419,24 @@ async function extractFromFile(file){
         found.push(...extractFromText(text, label, e.name));
       }
     }
-    if(sheetXml.length) found.push(...fromXlsx(sheetXml, sharedStrings, label));
+    if(sheetXml.length){
+      /* Order and name both come from the relationship map: tab order for the
+         reader, and the right name on the right part. A worksheet the map does
+         not mention still gets read, just unnamed. */
+      const byPart = {};
+      sheetXml.forEach(x => { byPart[x.part] = x.xml; });
+      const ordered = [], names = [], claimed = new Set();
+      sheetRels.forEach(({name, rid}) => {
+        const part = relTargets[rid];
+        if(part && byPart[part] !== undefined){
+          ordered.push(byPart[part]); names.push(name); claimed.add(part);
+        }
+      });
+      sheetXml.forEach(x => {
+        if(!claimed.has(x.part)){ ordered.push(x.xml); names.push(x.part); }
+      });
+      found.push(...fromXlsx(ordered, sharedStrings, label, names));
+    }
     return {found: dedupeEndpoints(found), notes, kind: 'archive',
             entries: entries.length};
   }
@@ -6302,6 +6527,7 @@ function wireDrop(zone, out){
 
 async function read(files, out){
   PENDING_IMPORT = [];
+  LAST_IMPORT_LOOK = [];
   out.innerHTML = `<div class="faint" style="margin-top:12px;font-size:12px">Reading ${files.length} file(s)…</div>`;
   const notes = [], failed = [];
   let stripped = 0;
@@ -6321,9 +6547,26 @@ async function read(files, out){
 
 function renderImportReview(out, info){
   if(!PENDING_IMPORT.length){
+    /* "Nothing recognisable" is a correct verdict and a useless one on its
+       own: it cannot distinguish the wrong file from a column named something
+       unexpected. Show what was opened and what is needed. */
+    const looked = LAST_IMPORT_LOOK.filter(l => l.columns.length);
     out.innerHTML = `<div class="up-sum" style="margin-top:12px">
-      <span class="warn">Nothing found</span></div>
-      ${info.failed.map(f => `<div class="faint" style="font-size:11.5px;margin-top:6px">${esc(f)}</div>`).join('')}`;
+      <span class="warn">No endpoints found</span></div>
+      ${info.failed.map(f => `<div class="faint" style="font-size:11.5px;margin-top:6px">${esc(f)}</div>`).join('')}
+      ${looked.length ? `
+        <div class="up-diag">
+          <div class="d-h">What the file contained</div>
+          ${looked.slice(0, 6).map(l => `
+            <div class="d-row"><b>${esc(l.sheet)}</b>
+              <span>${l.columns.map(c => esc(c)).join(' · ')}</span></div>`).join('')}
+          <div class="d-h" style="margin-top:9px">What is needed</div>
+          <div class="d-row"><b>a column naming the endpoint</b>
+            <span>${IMPORT_COLUMNS.path.slice(0, 6).map(esc).join(' · ')} …</span></div>
+          <div class="d-row"><b>helpful but optional</b>
+            <span>HTTP Method · Base URL · Request Body</span></div>
+        </div>` : ''}
+      ${info.notes.map(n => `<div class="faint" style="font-size:11.5px;margin-top:4px">${esc(n)}</div>`).join('')}`;
     return;
   }
   const byVia = {};
@@ -6336,7 +6579,9 @@ function renderImportReview(out, info){
     </div>
     <div class="up-list">${PENDING_IMPORT.map(p => `
       <div class="up-row">
-        <span class="m">${esc(p.method)}</span>
+        <span class="m${p.methodInferred ? ' guessed' : ''}"
+          ${p.methodInferred ? 'title="method inferred from the path — the file did not state one"' : ''}
+          >${esc(p.method)}${p.methodInferred ? '?' : ''}</span>
         <span class="src">${esc(p.sourceType)}</span>
         <span class="p" title="${esc((p.baseUrl||'')+p.path)}">${esc(p.path)}</span>
         <span class="src">${p.baseUrl ? esc(new URL(p.baseUrl).host) : 'no host'}</span>
@@ -6349,10 +6594,12 @@ function commitImport(){
   if(!PENDING_IMPORT.length){ toast('Nothing to add — upload a file first'); return; }
   const n = PENDING_IMPORT.length;
   const stripped = PENDING_IMPORT.reduce((t,p) => t + (p.strippedHeaders||0), 0);
+  pushImportStep({kind: 'add', refs: PENDING_IMPORT.map(p => p.ref),
+                  from: (PENDING_IMPORT[0] || {}).sourceType || ''});
   PENDING_IMPORT.forEach(p => { STATE.imported.push(p); STATE.selected.add(p.ref); });
   PENDING_IMPORT = [];
   DISPLAY_ID = null;
-  persist(); renderTopbar(); renderHome(); closeModal();
+  afterCatalogueChange(); closeModal();
   toast(`${n} endpoint${n===1?'':'s'} added` +
         (stripped ? ` — ${stripped} credential header${stripped===1?'':'s'} stripped` : ''));
 }
