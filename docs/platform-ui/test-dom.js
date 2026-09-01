@@ -34,8 +34,8 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   ok('suite cards rendered', $$('#suitesGrid .suite-card').length > 0,
      $$('#suitesGrid .suite-card').length + ' cards');
   ok('every suite card shows an API count', $$('.sc-h .pill').length === $$('.suite-card').length);
-  ok('endpoint rows rendered', $$('.sc-row').length === 45, $$('.sc-row').length + ' rows');
-  ok('multi-select rendered', $$('#msBox .ms-item').length === 45,
+  ok('endpoint rows rendered', $$('.sc-row').length === 44, $$('.sc-row').length + ' rows');
+  ok('multi-select rendered', $$('#msBox .ms-item').length === 44,
      $$('#msBox .ms-item').length + ' items');
   ok('Run is disabled with nothing selected', $('#btnRun').disabled);
   ok('View Report is disabled before any run', $('#btnViewReportHome').disabled);
@@ -44,7 +44,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   click($('#btnSelAll'));
   await wait(30);
   ok('Select All selects everything', $('#btnRun').disabled === false &&
-     /45 APIs Selected/.test($('#selBadge').textContent), $('#selBadge').textContent);
+     /44 APIs Selected/.test($('#selBadge').textContent), $('#selBadge').textContent);
   click($('#btnSelNone'));
   await wait(30);
   ok('Clear Selection empties it', $('#btnRun').disabled === true);
@@ -251,15 +251,15 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
      $('.sect-head h2').textContent);
   ok('subtitle sits under the heading', $('.sect-head .sub') !== null);
   ok('subtitle counts all suites when unfiltered',
-     /Showing all\s*11\s*suites/.test($('#suiteMatchHint').textContent.replace(/\s+/g, ' ')),
+     /Showing all\s*10\s*suites/.test($('#suiteMatchHint').textContent.replace(/\s+/g, ' ')),
      $('#suiteMatchHint').textContent.trim());
   ok('search sits inside the header, below the heading',
      !!$('.sect-head .searchwrap') &&
      $('.sect-head .searchwrap').compareDocumentPosition($('.sect-head h2')) &
        window.Node.DOCUMENT_POSITION_PRECEDING);
-  ok('all 11 suite cards render', $$('#suitesGrid .suite-card').length === 11,
+  ok('all 10 suite cards render', $$('#suitesGrid .suite-card').length === 10,
      $$('#suitesGrid .suite-card').length + ' cards');
-  ok('all 45 endpoint rows render', $$('#suitesGrid .sc-row').length === 45,
+  ok('all 44 endpoint rows render', $$('#suitesGrid .sc-row').length === 44,
      $$('#suitesGrid .sc-row').length + ' rows');
   ok('every row has method, id, name and path',
      $$('#suitesGrid .sc-row').every(r =>
@@ -275,7 +275,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
      $$('#suitesGrid .sc-row').length + ' rows');
   ok('method matches are highlighted', $$('#suitesGrid mark').length > 0);
   ok('subtitle reports the filtered counts',
-     /of 45 endpoint/.test($('#suiteMatchHint').textContent),
+     /of 44 endpoint/.test($('#suiteMatchHint').textContent),
      $('#suiteMatchHint').textContent.trim());
   ok('clear button appears with a query', !$('#apiSearchClear').hidden);
   ok('the multi-select filters in step',
@@ -327,9 +327,9 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
 
   click($('#apiSearchClear'));
   await wait(60);
-  ok('clear restores every suite', $$('#suitesGrid .suite-card').length === 11,
+  ok('clear restores every suite', $$('#suitesGrid .suite-card').length === 10,
      $$('#suitesGrid .suite-card').length + ' cards');
-  ok('clear restores every row', $$('#suitesGrid .sc-row').length === 45);
+  ok('clear restores every row', $$('#suitesGrid .sc-row').length === 44);
   ok('clear hides its own button', $('#apiSearchClear').hidden);
   ok('clear restores the unfiltered subtitle',
      /Showing all/.test($('#suiteMatchHint').textContent));
@@ -372,7 +372,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
 
   // clickable suite headers
   const cards = $$('#suitesGrid .suite-card');
-  ok('all 11 suites render as cards', cards.length === 11, cards.length + ' cards');
+  ok('all 10 suites render as cards', cards.length === 10, cards.length + ' cards');
   ok('every card header is a button',
      cards.every(c => c.querySelector('.sc-h') &&
                       c.querySelector('.sc-h').tagName === 'BUTTON'));
@@ -481,7 +481,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   ok('no per-section report rows remain', $$('#railMenu [data-menu-tab]').length === 0,
      $$('#railMenu [data-menu-tab]').length + ' rows');
   ok('the row counts suites and endpoints',
-     /11\s*\/\s*45/.test($('#railMenu [data-menu-act="suites"]').textContent),
+     /10\s*\/\s*44/.test($('#railMenu [data-menu-act="suites"]').textContent),
      $('#railMenu [data-menu-act="suites"]').textContent.trim());
 
   goHome();
@@ -980,7 +980,7 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   click($('#btnOpenNav'));
   await wait(60);
   ok('navigator opens', $('#navPanel').classList.contains('on'));
-  ok('navigator lists endpoints', $$('#navBody [data-nav]').length === 45,
+  ok('navigator lists endpoints', $$('#navBody [data-nav]').length === 44,
      $$('#navBody [data-nav]').length + '');
   click($('#btnCloseNav'));
   await wait(40);

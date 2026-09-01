@@ -70,7 +70,7 @@ const click = el => el.dispatchEvent(new window.Event('click', { bubbles: true }
   click($('#railMenu [data-menu-act="cases"]'));
   await wait(110);
   ok('the explorer is its own view', $('#view-cases').classList.contains('active'));
-  ok('it lists every endpoint', $$('#caseBody .case').length === 45,
+  ok('it lists every endpoint', $$('#caseBody .case').length === 44,
      $$('#caseBody .case').length + ' endpoints');
   ok('each row names method, endpoint and module',
      $$('#caseBody .case-h').every(h => h.querySelector('.m') &&
@@ -103,7 +103,7 @@ const click = el => el.dispatchEvent(new window.Event('click', { bubbles: true }
   ok('the explorer filters', $$('#caseBody .case').length < 45 &&
      $$('#caseBody .case').length > 0, $$('#caseBody .case').length + ' shown');
   ok('the hint reports the filtered count',
-     /of 45 endpoints match/.test($('#caseHint').textContent),
+     /of 44 endpoints match/.test($('#caseHint').textContent),
      $('#caseHint').textContent.trim());
   $('#caseSearch').value = 'no-such-thing-xyz';
   $('#caseSearch').dispatchEvent(new window.Event('input', { bubbles: true }));

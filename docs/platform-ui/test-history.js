@@ -54,7 +54,7 @@ function boot(html, opts) {
      typeof s0.durationMs === 'number',
      JSON.stringify({ p: s0.passRate, t: s0.total, d: s0.durationMs }));
   ok('it carries the whole result document, not a summary',
-     !!s0.result && Array.isArray(s0.result.apis) && s0.result.apis.length === 45,
+     !!s0.result && Array.isArray(s0.result.apis) && s0.result.apis.length === 44,
      (s0.result.apis || []).length + ' apis');
   ok('the document holds every endpoint result',
      s0.result.apis.flatMap(x => x.results).length === s0.total + (s0.result.summary.referencedHostResults || 0),

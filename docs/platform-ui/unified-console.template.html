@@ -3272,9 +3272,23 @@ function renderCases(){
   });
 }
 
+/* A negative auth case asserts a 4xx by design and can never mint a token, so
+   offering one as a provider guarantees a failed bootstrap with no visible
+   cause. Same filter harness/ui.html carries (d8045e6); the console never got
+   it, so POST /auth/token showed four options -- TC01, TC02, TC03 and Login
+   Auth UAT -- three of them labelled identically because the label omitted the
+   only field that differs. */
+const AUTH_NEGATIVE_CASE =
+  /\b(invalid|missing|expired|malformed|unauthori[sz]ed|returns\s+4\d\d)\b/i;
+
+function canMintToken(a){
+  return (a.method||'').toUpperCase() === 'POST'
+    && !AUTH_NEGATIVE_CASE.test(a.ref||'');
+}
+
 function authProviders(){
-  const p = allApis().filter(a=>/\/auth\/(token|login)/i.test(a.path||''));
-  return p.length ? p : allApis().filter(a=>/auth/i.test(a.module||'')).slice(0,4);
+  const p = allApis().filter(a=>/\/auth\/(token|login)/i.test(a.path||'') && canMintToken(a));
+  return p.length ? p : allApis().filter(a=>/auth/i.test(a.module||'') && canMintToken(a)).slice(0,4);
 }
 
 function renderDetail(){
@@ -3298,8 +3312,17 @@ function renderDetail(){
 
   const provs=authProviders();
   const chosen = STATE.providers[a.ref] || (provs[0] ? provs[0].ref : '');
+  /* Persist the default we are about to display. Previously `chosen` was
+     computed for rendering only and STATE.providers was written solely by the
+     onchange handler, so a user who accepted the shown default sent a manifest
+     with no authProviderApiId at all -- the engine then had nothing to bootstrap
+     from and every credential-needing check came back SKIPPED_NO_TOKEN with
+     blockedBy:null, while the panel showed a provider selected. */
+  if(chosen && STATE.providers[a.ref] !== chosen){ STATE.providers[a.ref] = chosen; persist(); }
+  /* Label carries subModule: module and path are identical across every case on
+     one endpoint, so without it the options are indistinguishable. */
   $('#dProvider').innerHTML = provs.map(p=>
-    `<option value="${esc(p.ref)}"${p.ref===chosen?' selected':''}>${esc(p.module)} — ${esc(p.path)}</option>`).join('')
+    `<option value="${esc(p.ref)}"${p.ref===chosen?' selected':''}>${esc(p.module)} — ${esc(p.subModule || p.path)}</option>`).join('')
     || `<option value="">— none discovered —</option>`;
   const isAtt=/attendance|holiday|weekoff|late|threshold/i.test(a.module||'');
   $('#dProviderHint').innerHTML = isAtt

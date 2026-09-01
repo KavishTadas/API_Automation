@@ -141,7 +141,55 @@ would have its fetches blocked. Server-to-server checks are unaffected, which is
 `scripts/verify-harness-ui.py` runs green on an ephemeral port. Found during Phase 4;
 recorded, not fixed.
 
-## 9. Smaller items
+## 9. The attendance endpoints are pointed at a WAF-blocked host
+
+**Evidence, unauthenticated GET to `/api/attendance/holiday-templates/getAll`:**
+
+| Host | Response |
+|---|---|
+| `uat-mcdp-be.omfysgroup.com` (**in use**) | `403`, 0 bytes, no content-type - gateway block |
+| `uatmcdphcmplatform.omfysgroup.com` | `401` `application/json` `{"errorCode":"INVALID_TOKEN"}` |
+| `devmcdphcmplatform.omfysgroup.com` | `401` `application/json` - same |
+
+The second and third are the application answering. The first never reaches it.
+
+All 31 attendance cases use `basePath: {{baseURL}}` -> `uat-mcdp-be`. Meanwhile
+`ATTENDANCE_BASE_URL=https://uatmcdphcmplatform.omfysgroup.com` is defined in `.env`,
+in `environments/uat.json`, in CI (line 126, as a *third* spelling
+`uat_mcdp_hcm.omfysgroup.com`), and read by `scripts/run-newman.js:296` - but **no
+endpoint uses it**. `7620b4b` claimed to point every collection at the host that
+serves it; attendance appears to have been missed.
+
+**This plausibly accounts for a large share of the 120 baseline failures**, since 31
+of 44 cases sit on that host. Nearly every failure on them has one root cause rather
+than many: `401_without_valid_token` seeing 403, `no_credential_leakage_in_response`
+and `error_response_is_machine_readable` seeing "non-JSON content for HTTP 403" (the
+empty WAF body), `response_matches_full_schema` NOT_ASSERTED because no success
+response is ever observed, and `small_burst_...` naming the WAF fingerprint outright.
+
+Genuinely independent of it: `no_server_version_disclosure` - `nginx/1.18.0 (Ubuntu)`
+really is advertised, on both hosts.
+
+Changing `basePath` would move the baseline substantially, so it is recorded, not
+actioned. Verify with a tokened request against `uatmcdphcmplatform` first.
+
+## 10. Path parameter values belong in runtime config, never in the YAML
+
+`{holidayTemplateId}` is resolved by `_resolve_path_parameters` from the runtime
+config via `_canonical_env_key` -> `HOLIDAY_TEMPLATE_ID`. Hardcoding the value into
+`endpointPath` in `api-endpoints/*.yaml` instead breaks three things at once:
+
+1. the round-trip test fails - `Endpoint / Path` no longer matches the inventory;
+2. the slug changes (`..._delete_by_holidaytemplateid` -> `..._delete_134`), so the
+   filename and the frozen `refToSlug` value both stop matching;
+3. it is inert until `generate-generic-tests.py` re-runs, because the engine reads
+   `build/API_File.json`, not the YAML.
+
+The manifest cannot carry one either: `_ENTRY_FIELDS` admits only `ref`,
+`definition`, `credentialAlias` and `authProviderApiId`, and unknown fields are
+rejected outright. Runtime config is the only supported channel.
+
+## 11. Smaller items
 
 - `.env` still carries `USERNAME` and `PASSWORD` with no consumer in current code.
   Untracked, so out of scope for a tracked-file cleanup.

@@ -85,7 +85,7 @@
       "subModule": "Delete",
       "method": "DELETE",
       "path": "/api/attendance/holiday-templates/delete/{holidayTemplateId}",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Holiday_Template_API.json",
       "assertionState": "not-asserted"
@@ -98,7 +98,7 @@
       "subModule": "Delete Threshold",
       "method": "DELETE",
       "path": "/api/attendance/status-thresholds/delete/1",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Threshold_API.json",
       "assertionState": "not-asserted"
@@ -111,7 +111,7 @@
       "subModule": "Delete Policy By Id",
       "method": "DELETE",
       "path": "/api/attendancepolicy/2",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
       "assertionState": "not-asserted"
@@ -124,7 +124,7 @@
       "subModule": "Delete Shift",
       "method": "DELETE",
       "path": "/api/v1/attendance/shift/master/6",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
       "assertionState": "not-asserted"
@@ -137,7 +137,7 @@
       "subModule": "Get All",
       "method": "GET",
       "path": "/api/attendance/holiday-templates/getAll",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Holiday_Template_API.json",
       "assertionState": "not-asserted"
@@ -150,7 +150,7 @@
       "subModule": "Get By Id",
       "method": "GET",
       "path": "/api/attendance/holiday-templates/getById/19",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Holiday_Template_API.json",
       "assertionState": "not-asserted"
@@ -163,7 +163,7 @@
       "subModule": "getAll",
       "method": "GET",
       "path": "/api/attendance/late-early-policies/getAll",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Late_Early_Policy_API.json",
       "assertionState": "not-asserted"
@@ -176,7 +176,7 @@
       "subModule": "getById/1",
       "method": "GET",
       "path": "/api/attendance/late-early-policies/getById/5",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Late_Early_Policy_API.json",
       "assertionState": "not-asserted"
@@ -189,7 +189,7 @@
       "subModule": "Get All",
       "method": "GET",
       "path": "/api/attendance/status-threshold/getAll",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Threshold_API.json",
       "assertionState": "not-asserted"
@@ -202,7 +202,7 @@
       "subModule": "Get By Id",
       "method": "GET",
       "path": "/api/attendance/status-threshold/getById/8",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Threshold_API.json",
       "assertionState": "not-asserted"
@@ -215,7 +215,7 @@
       "subModule": "WeekOffGetAll",
       "method": "GET",
       "path": "/api/attendance/week-offs/getAll",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Weekoff_Policy_API.json",
       "assertionState": "not-asserted"
@@ -228,7 +228,7 @@
       "subModule": "WeekOffGetById",
       "method": "GET",
       "path": "/api/attendance/week-offs/getById/1",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Weekoff_Policy_API.json",
       "assertionState": "not-asserted"
@@ -241,7 +241,7 @@
       "subModule": "Get Policy By Id",
       "method": "GET",
       "path": "/api/attendancepolicy/1",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
       "assertionState": "not-asserted"
@@ -254,7 +254,7 @@
       "subModule": "Get All Policies",
       "method": "GET",
       "path": "/api/attendancepolicy",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
       "assertionState": "not-asserted"
@@ -267,7 +267,7 @@
       "subModule": "Get By Id",
       "method": "GET",
       "path": "/api/v1/attendance/shift/master/7",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
       "assertionState": "not-asserted"
@@ -280,7 +280,7 @@
       "subModule": "Get All Shifts",
       "method": "GET",
       "path": "/api/v1/attendance/shift/master",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
       "assertionState": "not-asserted"
@@ -293,7 +293,7 @@
       "subModule": "TC01/TC03 - Get all leave reports and validate structure",
       "method": "GET",
       "path": "/user/leaves/getAllLeaveReports",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Leave_API.json",
       "assertionState": "asserted"
@@ -306,7 +306,7 @@
       "subModule": "TC02 - Invalid token returns observed authorization status",
       "method": "GET",
       "path": "/user/leaves/getAllLeaveReports",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Leave_API.json",
       "assertionState": "asserted"
@@ -319,7 +319,7 @@
       "subModule": "Get profile",
       "method": "GET",
       "path": "/users/me",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "bruno",
       "sourceCollection": "bruno/users/get-profile.bru",
       "assertionState": "asserted-not-executed"
@@ -332,7 +332,7 @@
       "subModule": "Change Status",
       "method": "PATCH",
       "path": "/api/attendance/holiday-templates/19/status",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Holiday_Template_API.json",
       "assertionState": "not-asserted"
@@ -345,7 +345,7 @@
       "subModule": "ChangeStatus",
       "method": "PATCH",
       "path": "/api/attendance/late-early-policies/5/status",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Late_Early_Policy_API.json",
       "assertionState": "not-asserted"
@@ -358,7 +358,7 @@
       "subModule": "Change Status",
       "method": "PATCH",
       "path": "/api/attendance/status-threshold/1/status",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Threshold_API.json",
       "assertionState": "not-asserted"
@@ -371,7 +371,7 @@
       "subModule": "week-off-assignment/changeStatus",
       "method": "PATCH",
       "path": "/api/attendance/week-off-assignment/changeStatus",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Weekoff_Policy_API.json",
       "assertionState": "not-asserted"
@@ -384,7 +384,7 @@
       "subModule": "WeekOffActDeact",
       "method": "PATCH",
       "path": "/api/attendance/week-offs/actDeact/3/status",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Weekoff_Policy_API.json",
       "assertionState": "not-asserted"
@@ -397,7 +397,7 @@
       "subModule": "Activate Deactivate",
       "method": "PATCH",
       "path": "/api/attendancepolicy/4/status",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
       "assertionState": "not-asserted"
@@ -410,7 +410,7 @@
       "subModule": "Toggle Delete",
       "method": "PATCH",
       "path": "/api/v1/attendance/shift/master/status/7",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
       "assertionState": "not-asserted"
@@ -423,7 +423,7 @@
       "subModule": "Create",
       "method": "POST",
       "path": "/api/attendance/holiday-templates/create",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Holiday_Template_API.json",
       "assertionState": "not-asserted"
@@ -436,7 +436,7 @@
       "subModule": "create",
       "method": "POST",
       "path": "/api/attendance/late-early-policies/create",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Late_Early_Policy_API.json",
       "assertionState": "not-asserted"
@@ -449,7 +449,7 @@
       "subModule": "Create Threshold",
       "method": "POST",
       "path": "/api/attendance/status-threshold/create",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Threshold_API.json",
       "assertionState": "not-asserted"
@@ -462,7 +462,7 @@
       "subModule": "week-off-assignment/getByWeekOffId",
       "method": "POST",
       "path": "/api/attendance/week-off-assignment/getByWeekOff",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Weekoff_Policy_API.json",
       "assertionState": "not-asserted"
@@ -475,7 +475,7 @@
       "subModule": "WeekOffMasterCreate",
       "method": "POST",
       "path": "/api/attendance/week-offs/create",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Weekoff_Policy_API.json",
       "assertionState": "not-asserted"
@@ -488,7 +488,7 @@
       "subModule": "Create New Policy",
       "method": "POST",
       "path": "/api/attendancepolicy",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
       "assertionState": "not-asserted"
@@ -501,7 +501,7 @@
       "subModule": "Create CUSTOM Shift (FIXED Type)",
       "method": "POST",
       "path": "/api/v1/attendance/shift/master",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
       "assertionState": "not-asserted"
@@ -514,23 +514,10 @@
       "subModule": "Create New Shift",
       "method": "POST",
       "path": "/api/v1/attendance/shift/master",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
       "assertionState": "not-asserted"
-    },
-    {
-      "ref": "post|/auth/token|auth|login",
-      "displayId": null,
-      "name": "Login",
-      "module": "auth",
-      "subModule": "Login",
-      "method": "POST",
-      "path": "/auth/token",
-      "owner": null,
-      "sourceType": "bruno",
-      "sourceCollection": "bruno/auth/login.bru",
-      "assertionState": "asserted-not-executed"
     },
     {
       "ref": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
@@ -540,7 +527,7 @@
       "subModule": "TC01 - Valid credentials return JWT token",
       "method": "POST",
       "path": "/auth/token",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/auth/Employee_Auth_API.json",
       "assertionState": "asserted"
@@ -553,7 +540,7 @@
       "subModule": "TC02 - Invalid empCode returns 400",
       "method": "POST",
       "path": "/auth/token",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/auth/Employee_Auth_API.json",
       "assertionState": "asserted"
@@ -566,7 +553,7 @@
       "subModule": "TC03 - Missing password returns 400",
       "method": "POST",
       "path": "/auth/token",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/auth/Employee_Auth_API.json",
       "assertionState": "asserted"
@@ -579,7 +566,7 @@
       "subModule": "TC01 - Valid credentials return token",
       "method": "POST",
       "path": "/auth/token",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/auth/Login_Auth_UAT_API.json",
       "assertionState": "asserted"
@@ -592,7 +579,7 @@
       "subModule": "Update",
       "method": "PUT",
       "path": "/api/attendance/holiday-templates/update/{holidayTemplateId}",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Holiday_Template_API.json",
       "assertionState": "not-asserted"
@@ -605,7 +592,7 @@
       "subModule": "update",
       "method": "PUT",
       "path": "/api/attendance/late-early-policies/update/2",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Late_Early_Policy_API.json",
       "assertionState": "not-asserted"
@@ -618,7 +605,7 @@
       "subModule": "Update Threshold",
       "method": "PUT",
       "path": "/api/attendance/status-threshold/update/1",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Threshold_API.json",
       "assertionState": "not-asserted"
@@ -631,7 +618,7 @@
       "subModule": "WeekOffUpdate",
       "method": "PUT",
       "path": "/api/attendance/week-offs/update/1",
-      "owner": null,
+      "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Weekoff_Policy_API.json",
       "assertionState": "not-asserted"
@@ -644,7 +631,7 @@
       "subModule": "Update Policy By Id",
       "method": "PUT",
       "path": "/api/attendancepolicy/2",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
       "assertionState": "not-asserted"
@@ -657,7 +644,7 @@
       "subModule": "Update Shift",
       "method": "PUT",
       "path": "/api/v1/attendance/shift/master/2",
-      "owner": null,
+      "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
       "assertionState": "not-asserted"
@@ -844,20 +831,20 @@
     ],
     "apiSpecific": [
       {
-        "id": "generated::delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete::response_schema",
+        "id": "generated::delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete::response_schema",
         "title": "Delete — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete"
+        "apiRef": "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete"
       },
       {
-        "id": "generated::delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete::status_code",
+        "id": "generated::delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete::status_code",
         "title": "Delete — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete"
+        "apiRef": "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete"
       },
       {
         "id": "generated::delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold::response_schema",
@@ -1388,22 +1375,6 @@
         "apiRef": "post|/api/v1/attendance/shift/master|attendance shift master|create new shift"
       },
       {
-        "id": "generated::post|/auth/token|auth|login::response_schema",
-        "title": "Login — response matches the documented schema",
-        "scope": "API_SPECIFIC",
-        "tier": "generated",
-        "category": "schema",
-        "apiRef": "post|/auth/token|auth|login"
-      },
-      {
-        "id": "generated::post|/auth/token|auth|login::status_code",
-        "title": "Login — returns the documented HTTP status",
-        "scope": "API_SPECIFIC",
-        "tier": "generated",
-        "category": "functional",
-        "apiRef": "post|/auth/token|auth|login"
-      },
-      {
         "id": "generated::post|/auth/token|employee auth api|tc01 - valid credentials return jwt token::response_schema",
         "title": "TC01 - Valid credentials return JWT token — response matches the documented schema",
         "scope": "API_SPECIFIC",
@@ -1468,20 +1439,20 @@
         "apiRef": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
       },
       {
-        "id": "generated::put|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update::response_schema",
+        "id": "generated::put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update::response_schema",
         "title": "Update — response matches the documented schema",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "put|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update"
+        "apiRef": "put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update"
       },
       {
-        "id": "generated::put|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update::status_code",
+        "id": "generated::put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update::status_code",
         "title": "Update — returns the documented HTTP status",
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "put|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update"
+        "apiRef": "put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update"
       },
       {
         "id": "generated::put|/api/attendance/late-early-policies/update/2|latearly-policy|update::response_schema",
@@ -1564,12 +1535,12 @@
         "apiRef": "put|/api/v1/attendance/shift/master/2|attendance shift master|update shift"
       },
       {
-        "id": "newman::delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete::<no-assertions>",
+        "id": "newman::delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete::<no-assertions>",
         "title": "No assertions defined for this request",
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "coverage-gap",
-        "apiRef": "delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete",
+        "apiRef": "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete",
         "assertionGap": true,
         "expectedState": "NOT_ASSERTED"
       },
@@ -2066,12 +2037,12 @@
         "apiRef": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
       },
       {
-        "id": "newman::put|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update::<no-assertions>",
+        "id": "newman::put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update::<no-assertions>",
         "title": "No assertions defined for this request",
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "coverage-gap",
-        "apiRef": "put|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update",
+        "apiRef": "put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update",
         "assertionGap": true,
         "expectedState": "NOT_ASSERTED"
       },
@@ -2128,7 +2099,7 @@
     ]
   },
   "applicability": {
-    "delete|/api/attendance/holiday-templates/delete/%7bholidaytemplateid%7d|holiday template apis copy|delete": {
+    "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete": {
       "global_contract::test_401_without_valid_token": {
         "state": "PLANNED",
         "reason": ""
@@ -2153,6 +2124,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -2165,6 +2140,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -2176,6 +2155,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold": {
@@ -2203,6 +2186,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -2215,6 +2202,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -2226,6 +2217,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "delete|/api/attendancepolicy/2|attendance policy master|delete policy by id": {
@@ -2253,6 +2248,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -2265,6 +2264,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -2276,6 +2279,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift": {
@@ -2303,6 +2310,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -2315,6 +2326,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -2326,6 +2341,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all": {
@@ -2353,6 +2372,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -2365,6 +2388,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -2376,6 +2403,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id": {
@@ -2403,6 +2434,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -2415,6 +2450,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -2426,6 +2465,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "get|/api/attendance/late-early-policies/getall|latearly-policy|getall": {
@@ -2453,6 +2496,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -2465,6 +2512,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -2476,6 +2527,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1": {
@@ -2503,6 +2558,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -2515,6 +2574,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -2526,6 +2589,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "get|/api/attendance/status-threshold/getall|attendance status threshold api|get all": {
@@ -2553,6 +2620,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -2565,6 +2636,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -2576,6 +2651,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id": {
@@ -2603,6 +2682,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -2615,6 +2698,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -2626,6 +2713,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall": {
@@ -2653,6 +2744,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -2665,6 +2760,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -2676,6 +2775,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid": {
@@ -2703,6 +2806,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -2715,6 +2822,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -2726,6 +2837,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "get|/api/attendancepolicy/1|attendance policy master|get policy by id": {
@@ -2753,6 +2868,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -2765,6 +2884,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -2776,6 +2899,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "get|/api/attendancepolicy|attendance policy master|get all policies": {
@@ -2803,6 +2930,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -2815,6 +2946,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -2826,6 +2961,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "get|/api/v1/attendance/shift/master/7|attendance shift master|get by id": {
@@ -2853,6 +2992,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -2865,6 +3008,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -2876,6 +3023,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "get|/api/v1/attendance/shift/master|attendance shift master|get all shifts": {
@@ -2903,6 +3054,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -2915,6 +3070,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -2926,6 +3085,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure": {
@@ -2953,6 +3116,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -2965,6 +3132,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -2976,6 +3147,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "PLANNED",
         "reason": ""
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status": {
@@ -3003,6 +3178,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -3015,6 +3194,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3026,6 +3209,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "PLANNED",
         "reason": ""
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "get|/users/me|users|get profile": {
@@ -3053,6 +3240,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -3065,6 +3256,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3076,6 +3271,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "PLANNED",
         "reason": ""
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status": {
@@ -3103,6 +3302,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3115,6 +3318,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3126,6 +3333,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus": {
@@ -3153,6 +3364,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -3165,6 +3380,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3176,6 +3395,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status": {
@@ -3203,6 +3426,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3215,6 +3442,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3226,6 +3457,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus": {
@@ -3253,6 +3488,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3265,6 +3504,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3276,6 +3519,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact": {
@@ -3303,6 +3550,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3315,6 +3566,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3326,6 +3581,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "patch|/api/attendancepolicy/4/status|attendance policy master|activate deactivate": {
@@ -3353,6 +3612,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -3365,6 +3628,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3376,6 +3643,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "patch|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete": {
@@ -3403,6 +3674,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "NOT_APPLICABLE",
         "reason": "takes no request body to oversize"
@@ -3415,6 +3690,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3426,6 +3705,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "post|/api/attendance/holiday-templates/create|holiday template apis copy|create": {
@@ -3453,6 +3736,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3465,6 +3752,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3476,6 +3767,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "post|/api/attendance/late-early-policies/create|latearly-policy|create": {
@@ -3503,6 +3798,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3515,6 +3814,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3526,6 +3829,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold": {
@@ -3553,6 +3860,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3565,6 +3876,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3576,6 +3891,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid": {
@@ -3603,6 +3922,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3615,6 +3938,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3626,6 +3953,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate": {
@@ -3653,6 +3984,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3665,6 +4000,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3676,6 +4015,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "post|/api/attendancepolicy|attendance policy master|create new policy": {
@@ -3703,6 +4046,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3715,6 +4062,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3726,6 +4077,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)": {
@@ -3753,6 +4108,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3765,6 +4124,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3776,6 +4139,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "post|/api/v1/attendance/shift/master|attendance shift master|create new shift": {
@@ -3803,6 +4170,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3814,6 +4185,10 @@
       "global_contract::test_response_time_within_sla": {
         "state": "PLANNED",
         "reason": ""
+      },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
@@ -3826,56 +4201,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
-      }
-    },
-    "post|/auth/token|auth|login": {
-      "global_contract::test_401_without_valid_token": {
-        "state": "NOT_APPLICABLE",
-        "reason": "operation is not secured, so there is no token state to reject"
       },
-      "global_contract::test_404_for_unknown_route": {
-        "state": "PLANNED",
-        "reason": ""
-      },
-      "global_contract::test_content_type_negotiation": {
-        "state": "PLANNED",
-        "reason": ""
-      },
-      "global_contract::test_cors_preflight": {
-        "state": "NOT_APPLICABLE",
-        "reason": "CORS preflight is opt-in and currently disabled"
-      },
-      "global_contract::test_idempotent_get_returns_stable_result": {
-        "state": "NOT_APPLICABLE",
-        "reason": "not declared idempotent, so a repeat is not safe to send"
-      },
-      "global_contract::test_no_credential_leakage_in_response": {
-        "state": "PLANNED",
-        "reason": ""
-      },
-      "global_contract::test_request_payload_size_enforcement": {
+      "global_contract::test_trace_method_is_disabled": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
-      },
-      "global_contract::test_response_matches_full_schema": {
-        "state": "PLANNED",
-        "reason": ""
-      },
-      "global_contract::test_response_time_within_sla": {
-        "state": "PLANNED",
-        "reason": ""
-      },
-      "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
-        "state": "PLANNED",
-        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
-      },
-      "global_contract::test_special_characters_in_input": {
-        "state": "PLANNED",
-        "reason": ""
-      },
-      "global_contract::test_status_code_matches_spec": {
-        "state": "PLANNED",
-        "reason": ""
       }
     },
     "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token": {
@@ -3903,6 +4232,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3915,6 +4248,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3926,6 +4263,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "PLANNED",
         "reason": ""
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "post|/auth/token|employee auth api|tc02 - invalid empcode returns 400": {
@@ -3953,6 +4294,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3965,6 +4310,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -3976,6 +4325,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "PLANNED",
         "reason": ""
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "post|/auth/token|employee auth api|tc03 - missing password returns 400": {
@@ -4003,6 +4356,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -4015,6 +4372,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -4026,6 +4387,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "PLANNED",
         "reason": ""
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "post|/auth/token|login auth uat api|tc01 - valid credentials return token": {
@@ -4053,6 +4418,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -4065,6 +4434,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -4076,9 +4449,13 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "PLANNED",
         "reason": ""
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
-    "put|/api/attendance/holiday-templates/update/%7bholidaytemplateid%7d|holiday template apis copy|update": {
+    "put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update": {
       "global_contract::test_401_without_valid_token": {
         "state": "PLANNED",
         "reason": ""
@@ -4103,6 +4480,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -4115,6 +4496,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -4126,6 +4511,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "put|/api/attendance/late-early-policies/update/2|latearly-policy|update": {
@@ -4153,6 +4542,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -4165,6 +4558,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -4176,6 +4573,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold": {
@@ -4203,6 +4604,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -4215,6 +4620,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -4226,6 +4635,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate": {
@@ -4253,6 +4666,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -4265,6 +4682,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -4276,6 +4697,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "put|/api/attendancepolicy/2|attendance policy master|update policy by id": {
@@ -4303,6 +4728,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -4315,6 +4744,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -4326,6 +4759,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     },
     "put|/api/v1/attendance/shift/master/2|attendance shift master|update shift": {
@@ -4353,6 +4790,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_no_server_version_disclosure": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_request_payload_size_enforcement": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -4365,6 +4806,10 @@
         "state": "PLANNED",
         "reason": ""
       },
+      "global_contract::test_security_headers_present": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
+      },
       "global_contract::test_small_burst_does_not_trigger_immediate_blocking": {
         "state": "PLANNED",
         "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
@@ -4376,6 +4821,10 @@
       "global_contract::test_status_code_matches_spec": {
         "state": "NOT_APPLICABLE",
         "reason": "expected status not declared"
+      },
+      "global_contract::test_trace_method_is_disabled": {
+        "state": "PLANNED",
+        "reason": "runs once per host: at run time one API on this host carries the measurement and the others reference it"
       }
     }
   },
