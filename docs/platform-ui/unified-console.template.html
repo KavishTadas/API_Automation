@@ -3274,10 +3274,11 @@ function renderCases(){
 
 /* A negative auth case asserts a 4xx by design and can never mint a token, so
    offering one as a provider guarantees a failed bootstrap with no visible
-   cause. Same filter harness/ui.html carries (d8045e6); the console never got
-   it, so POST /auth/token showed four options -- TC01, TC02, TC03 and Login
-   Auth UAT -- three of them labelled identically because the label omitted the
-   only field that differs. */
+   cause. The now-removed harness/ui.html carried this filter (d8045e6) while
+   the console did not, so POST /auth/token showed four options -- TC01, TC02,
+   TC03 and Login Auth UAT -- three labelled identically because the label
+   omitted the only field that differs. Having the same control in two pages
+   with two filters is why there is now one page. */
 const AUTH_NEGATIVE_CASE =
   /\b(invalid|missing|expired|malformed|unauthori[sz]ed|returns\s+4\d\d)\b/i;
 

@@ -25,7 +25,7 @@ The checks
 1. ``sourceCollection`` values still carry the ``collections/auth/`` prefix the
    auth-provider dropdown filters on.
 2. That dropdown resolves exactly the two token-issuing providers -- using the
-   regexes read out of ``harness/ui.html`` itself, so the check cannot pass
+   regexes read out of the console template itself, so the check cannot pass
    against a filter that differs from the shipped one.
 3. A manifest with a **per-entry** ``authProviderApiId`` round-trips, with no
    ``SKIPPED_NO_TOKEN``.
@@ -45,7 +45,7 @@ import urllib.request
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
-UI_HTML = ROOT_DIR / "harness" / "ui.html"
+UI_HTML = ROOT_DIR / "docs" / "platform-ui" / "unified-console.template.html"
 STARTUP_TIMEOUT_S = 40
 EXPECTED_AUTH_ENTRIES = 4
 EXPECTED_PROVIDERS = 2
@@ -110,14 +110,16 @@ def start_harness(port: int) -> subprocess.Popen:
 
 
 def ui_provider_filter() -> tuple[re.Pattern, re.Pattern]:
-    """Read the dropdown's regexes out of ui.html rather than restating them.
+    """Read the dropdown's regexes out of the console source, not restating them.
 
     Restating them means the check can pass against a filter the UI does not
     actually use -- which is the bug the filter itself was written to fix.
     """
     html = UI_HTML.read_text(encoding="utf-8")
-    if "AUTH_COLLECTION" not in html or "NEGATIVE_CASE" not in html:
-        raise CheckAborted("harness/ui.html no longer declares the provider filter")
+    if "AUTH_NEGATIVE_CASE" not in html or "canMintToken" not in html:
+        raise CheckAborted(
+            "unified-console.template.html no longer declares the provider filter"
+        )
     return (
         re.compile(r"^collections/auth/", re.I),
         re.compile(

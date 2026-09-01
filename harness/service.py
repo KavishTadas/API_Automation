@@ -61,8 +61,6 @@ ALLOWED_ORIGINS = [f"http://{HOST}:{PORT}", f"http://localhost:{PORT}"]
 #: Loopback addresses. Binding anywhere else is refused outright.
 LOOPBACK = frozenset({"127.0.0.1", "localhost", "::1"})
 
-UI_PATH = Path(__file__).with_name("ui.html")
-
 #: The unified console, served from this origin so it can call /run without
 #: CORS. Opened from file:// its origin is "null" and every request is refused;
 #: served from here it is same-origin and the allowlist stays as tight as it is.
@@ -274,9 +272,16 @@ def list_runs() -> dict[str, Any]:
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request) -> HTMLResponse:
-    if not UI_PATH.exists():
-        raise HTTPException(status_code=404, detail="ui.html not found")
-    return HTMLResponse(UI_PATH.read_text(encoding="utf-8"))
+    """One UI, served at the root.
+
+    There used to be a second, simpler page here (``harness/ui.html``) beside
+    the console at /console. Two UIs against one engine meant two provider
+    dropdowns with two different filters -- one of them was fixed in d8045e6
+    and the other still shipped the same bug months later, which is exactly the
+    failure a second copy invites. The console is the one wired to the run
+    engine, so it is the only one now, and / and /console are the same page.
+    """
+    return console(request)
 
 
 @app.get("/console", response_class=HTMLResponse)
