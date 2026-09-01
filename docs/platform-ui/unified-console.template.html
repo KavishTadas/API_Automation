@@ -793,6 +793,12 @@ table.pl tr:last-child td{border-bottom:0}
   text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);border-bottom:1px solid var(--line-soft)}
 .ms-gh .sp{flex:1}
 .ms-item{display:flex;gap:10px;align-items:center;padding:7px 6px;border-radius:6px;cursor:pointer}
+.ms-ephead{display:flex;gap:10px;align-items:center;padding:7px 6px;border-radius:6px;
+  cursor:pointer;font-weight:600}
+.ms-ephead:hover{background:var(--panel-2)}
+.ms-ephead input{accent-color:var(--accent);flex-shrink:0;width:15px;height:15px}
+.ms-ephead .nm{font:600 12px var(--mono);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ms-cases{margin-left:22px;padding-left:8px;border-left:1px solid var(--line)}
 .ms-item:hover{background:var(--panel-2)}
 .ms-item input{accent-color:var(--accent);flex-shrink:0;width:15px;height:15px}
 .ms-item .nm{font-size:12.5px;font-weight:600;flex:1;min-width:0;overflow:hidden;
@@ -2765,27 +2771,77 @@ function renderHome(){
   syncSel();
 }
 
+/* Catalogue rows are test CASES, not endpoints: POST /auth/token carries three
+   (TC01/TC02/TC03). Listing them flat made one endpoint look like three separate
+   APIs, which contradicted api-endpoints/ and test-cases/ -- both of which count
+   40 endpoints for these 44 rows. Group by method+path so the picker agrees, and
+   keep every case individually selectable: TC02 is a real case somebody may want
+   to run alone. */
+function endpointGroups(list){
+  const g=new Map();
+  for(const a of list){
+    const key=`${a.method} ${a.path}`;
+    if(!g.has(key)) g.set(key,[]);
+    g.get(key).push(a);
+  }
+  return g;
+}
+
+function msCaseRow(a){
+  return `<label class="ms-item">
+    <input type="checkbox" ${STATE.selected.has(a.ref)?'checked':''} data-chk="${esc(a.ref)}">
+    <span class="m ${esc(a.method)}">${esc(a.method)}</span>
+    <span class="nm">${esc(a.name||a.subModule||a.path)}</span>
+    ${a.assertionState==='not-asserted'?'<span class="pill gap">no assert</span>':''}
+    <span class="id">${esc(displayId(a))}</span>
+  </label>`;
+}
+
 function renderMultiSelect(){
   const m=moduleGroups($('#apiSearch').value);
   const box=$('#msBox');
   if(!m.size){ box.innerHTML=`<div class="empty">No endpoint matches that filter.</div>`; return; }
   box.innerHTML=[...m.entries()].map(([mod,list])=>{
     const sel=list.filter(a=>STATE.selected.has(a.ref)).length;
+    const eps=endpointGroups(list);
+    const body=[...eps.entries()].map(([ep,cases])=>{
+      /* A single-case endpoint gains nothing from a wrapper -- the case row is
+         the endpoint. Only branch where there is genuinely something to nest. */
+      if(cases.length===1) return msCaseRow(cases[0]);
+      const on=cases.filter(c=>STATE.selected.has(c.ref)).length;
+      const refs=cases.map(c=>c.ref).join('\n');
+      return `<div class="ms-ep">
+        <label class="ms-ephead">
+          <input type="checkbox" ${on===cases.length?'checked':''}
+                 data-ep="${esc(refs)}" data-on="${on}" data-all="${cases.length}">
+          <span class="m ${esc(cases[0].method)}">${esc(cases[0].method)}</span>
+          <span class="nm">${esc(cases[0].path)}</span>
+          <span class="pill${on?' ok':''}">${on}/${cases.length} cases</span>
+        </label>
+        <div class="ms-cases">${cases.map(msCaseRow).join('')}</div>
+      </div>`;
+    }).join('');
     return `<div class="ms-group">
       <div class="ms-gh"><span>${esc(mod)}</span><span class="sp"></span>
         <span class="pill${sel?' ok':''}">${sel}/${list.length}</span></div>
-      ${list.map(a=>`<label class="ms-item">
-        <input type="checkbox" ${STATE.selected.has(a.ref)?'checked':''} data-chk="${esc(a.ref)}">
-        <span class="m ${esc(a.method)}">${esc(a.method)}</span>
-        <span class="nm">${esc(a.name||a.subModule||a.path)}</span>
-        ${a.assertionState==='not-asserted'?'<span class="pill gap">no assert</span>':''}
-        <span class="id">${esc(displayId(a))}</span>
-      </label>`).join('')}
+      ${body}
     </div>`;
   }).join('');
+
   box.querySelectorAll('[data-chk]').forEach(cb=> cb.onchange=()=>{
     cb.checked ? STATE.selected.add(cb.dataset.chk) : STATE.selected.delete(cb.dataset.chk);
     persist(); syncSel(); renderMultiSelect();
+  });
+  box.querySelectorAll('[data-ep]').forEach(cb=>{
+    /* Partly-selected endpoints show indeterminate, which no HTML attribute can
+       express -- it is a property, so it has to be set after render. */
+    const on=Number(cb.dataset.on), all=Number(cb.dataset.all);
+    cb.indeterminate = on>0 && on<all;
+    cb.onchange=()=>{
+      const refs=cb.dataset.ep.split('\n').filter(Boolean);
+      refs.forEach(r=> cb.checked ? STATE.selected.add(r) : STATE.selected.delete(r));
+      persist(); syncSel(); renderMultiSelect();
+    };
   });
 }
 
