@@ -45,7 +45,7 @@ class TestSplitShape:
     def test_registry_matches_the_files_on_disk(self):
         on_disk = sorted(p.name for p in GLOBAL_DIR.glob("[0-9][0-9]_*.py"))
         assert [f for _, _, f in registry.GLOBAL_CHECKS] == on_disk
-        assert registry.CHECK_COUNT == 22
+        assert registry.CHECK_COUNT == 28
 
     def test_registry_agrees_with_the_catalogue(self):
         """The registry is the human index; the catalogue parses sources.
@@ -61,7 +61,7 @@ class TestSplitShape:
 
     def test_numbering_preserves_execution_order(self):
         numbers = [n for n, _, _ in registry.GLOBAL_CHECKS]
-        assert numbers == sorted(numbers) == list(range(1, 23))
+        assert numbers == sorted(numbers) == list(range(1, 29))
 
     def test_every_check_carries_the_shared_surface(self):
         """conftest resolves host_measured_by off the check's own module.

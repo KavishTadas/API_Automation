@@ -1242,7 +1242,100 @@ def _bootstrap_or_request(
     return response
 
 
+# ---------------------------------------------------------------------------
+# Probe helpers (TC-GLOB-04/06/07/08/13/14), added from the attendance repo's
+# global matrix. That suite found two HTTP 500s leaking a JPA entity name on an
+# invalid sort column, which nothing in this tier looked for.
+# ---------------------------------------------------------------------------
+
+#: A page index no real dataset reaches. Their matrix probes the same value.
+UNKNOWN_ENTITY_ID = "999999"
+
+#: Trailing path segment that looks like an entity id: all digits, or a
+#: resolved path parameter. A path ending in a verb ("getAll", "create") is not
+#: an id, and substituting into it would probe a route that does not exist --
+#: which test_404_for_unknown_route already covers.
+_ID_SEGMENT = re.compile(r"/(\d+)(?:/[a-z]+)?/?$", re.I)
+
+#: Internal type names leak through a stack trace or a JPA error. Matching on
+#: the shape -- CamelCase ending in a persistence-layer suffix -- rather than a
+#: fixed list, so it catches entities this repo has never seen.
+_INTERNAL_TYPE_LEAK = re.compile(
+    r"\b[A-Z][A-Za-z0-9]*(?:Master|Entity|Repository|DTO|DAO|Exception|Service|Impl)\b"
+)
+
+
+def _with_query(api_row: dict[str, Any], query: str) -> dict[str, Any]:
+    """The same row with a query string appended to its path."""
+    path = str(api_row.get("Endpoint / Path", ""))
+    joined = f"{path}{'&' if '?' in path else '?'}{query}"
+    return {**api_row, "Endpoint / Path": joined}
+
+
+def _id_segment(path: str) -> str:
+    """The trailing entity id in a path, or "" when it does not carry one."""
+    found = _ID_SEGMENT.search(path or "")
+    return found.group(1) if found else ""
+
+
+def _with_unknown_entity_id(api_row: dict[str, Any], path: str) -> dict[str, Any]:
+    """The same row addressed to an id that does not exist."""
+    current = _id_segment(path)
+    resolved = str(api_row.get("Endpoint / Path", ""))
+    return {
+        **api_row,
+        "Endpoint / Path": resolved.replace(f"/{current}", f"/{UNKNOWN_ENTITY_ID}", 1),
+    }
+
+
+def _looks_like_collection(operation_case: "OperationCase") -> bool:
+    """A GET that returns a list, so sort and page parameters mean something."""
+    if operation_case.method.upper() != "GET":
+        return False
+    if _id_segment(operation_case.path):
+        return False
+    return bool(operation_case.paginated) or "getall" in operation_case.path.lower()
+
+
+def _require_reached_the_handler(
+    response: Any, operation_case: "OperationCase", probe: str
+) -> None:
+    """Stop a probe that never got past the gateway from reporting PASS.
+
+    Every probe in this file asserts something weak-but-universal -- "not a
+    5xx", "not a 200" -- because that is what every API owes regardless of its
+    contract. A 401 or 403 satisfies all of those trivially while proving
+    nothing: the request was refused before the sort parameter, the page index
+    or the blank name was ever looked at.
+
+    That is precisely the failure the seven-state model exists to prevent, so it
+    reports NOT_ASSERTED rather than PASS. It surfaced when the attendance
+    endpoints were authenticated with the wrong provider and 30 results came
+    back 401 while the checks read green.
+    """
+    if response.status_code in (401, 403):
+        _skip_with_state(
+            ResultState.NOT_ASSERTED,
+            f"{operation_case.method} {operation_case.path} answered "
+            f"{response.status_code} before reaching the handler, so {probe} "
+            "was never evaluated",
+        )
+
+
+def _leaked_internal_type(text: str) -> str:
+    """The first internal type name in a response body, or ""."""
+    found = _INTERNAL_TYPE_LEAK.search(text or "")
+    return found.group(0) if found else ""
+
+
 __all__ = [
+    "UNKNOWN_ENTITY_ID",
+    "_with_query",
+    "_id_segment",
+    "_with_unknown_entity_id",
+    "_looks_like_collection",
+    "_leaked_internal_type",
+    "_require_reached_the_handler",
     "json",
     "os",
     "re",

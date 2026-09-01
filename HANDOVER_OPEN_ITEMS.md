@@ -189,7 +189,22 @@ The manifest cannot carry one either: `_ENTRY_FIELDS` admits only `ref`,
 `definition`, `credentialAlias` and `authProviderApiId`, and unknown fields are
 rejected outright. Runtime config is the only supported channel.
 
-## 11. Smaller items
+## 11. DEFECT FOUND: policy status toggle returns 500 for a missing entity
+
+`PATCH /api/attendancepolicy/{id}/status` answers **HTTP 500** when the policy
+does not exist. The handler has already detected the absence -- the body reads
+`"Failed to toggle policy status: Attendance policy not found with ID: 999999"`
+-- and then maps it to a server error instead of `404`.
+
+Reproduced directly with a valid Login Auth UAT token, on both a non-existent id
+(999999) and an existing one (4). Any client retry policy that treats 5xx as
+transient will retry this forever.
+
+Found by `test_unknown_entity_mutation_returns_404`, ported from the attendance
+repo's `TC-GLOB-14`. Their matrix records 404 across all six masters for `PUT`;
+this is `PATCH` on the `/status` sub-route, which their suite did not probe.
+
+## 12. Smaller items
 
 - `.env` still carries `USERNAME` and `PASSWORD` with no consumer in current code.
   Untracked, so out of scope for a tracked-file cleanup.

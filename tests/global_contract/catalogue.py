@@ -109,6 +109,13 @@ GLOBAL_TEST_CATEGORIES = {
     "test_security_headers_present": "security",
     "test_no_server_version_disclosure": "security",
     "test_trace_method_is_disabled": "security",
+    # --- ported from the attendance repo's global matrix (TC-GLOB-03/04/06/07/08/13/14) ---
+    "test_invalid_sort_column_is_rejected_cleanly": "resilience",
+    "test_negative_page_parameters_are_rejected_cleanly": "resilience",
+    "test_out_of_bounds_page_returns_an_empty_page": "resilience",
+    "test_unknown_entity_id_returns_404": "functional",
+    "test_unknown_entity_mutation_returns_404": "functional",
+    "test_blank_name_input_is_rejected": "security",
 }
 
 #: Tests that measure a host/gateway property rather than an endpoint property.

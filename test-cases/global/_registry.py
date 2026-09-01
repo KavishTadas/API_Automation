@@ -35,6 +35,12 @@ GLOBAL_CHECKS: tuple[tuple[int, str, str], ...] = (
     (20, "test_security_headers_present", "20_security_headers_present.py"),
     (21, "test_no_server_version_disclosure", "21_no_server_version_disclosure.py"),
     (22, "test_trace_method_is_disabled", "22_trace_method_is_disabled.py"),
+    (23, "test_invalid_sort_column_is_rejected_cleanly", "23_invalid_sort_column_is_rejected_cleanly.py"),
+    (24, "test_negative_page_parameters_are_rejected_cleanly", "24_negative_page_parameters_are_rejected_cleanly.py"),
+    (25, "test_out_of_bounds_page_returns_an_empty_page", "25_out_of_bounds_page_returns_an_empty_page.py"),
+    (26, "test_unknown_entity_id_returns_404", "26_unknown_entity_id_returns_404.py"),
+    (27, "test_unknown_entity_mutation_returns_404", "27_unknown_entity_mutation_returns_404.py"),
+    (28, "test_blank_name_input_is_rejected", "28_blank_name_input_is_rejected.py"),
 )
 
 CHECK_COUNT = len(GLOBAL_CHECKS)
