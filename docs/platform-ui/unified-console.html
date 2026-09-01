@@ -2762,6 +2762,14 @@ function renderStrip(){
     `<span class="chip"><span class="d"></span>Target: ${esc(STATE.env)}</span>`,
     R?`<span class="chip ${R.summary.clean?'ok':'warn'}"><span class="d"></span>Last run: ${pct(R.summary.passRate)} pass</span>`:''
   ].join('');
+
+  /* "Only assertion gaps" is static markup, so unlike the two gap chips beside
+     it -- both already `gaps ? ... : ''` -- it survived the count reaching zero.
+     A control that selects nothing and then reports doing so is worse than no
+     control. Hidden rather than deleted: gaps return the moment an endpoint is
+     added without a case, and the filter is the fastest way to find them. */
+  const gapBtn = $('#btnSelGaps');
+  if(gapBtn) gapBtn.hidden = !gaps;
 }
 
 function renderHome(){
