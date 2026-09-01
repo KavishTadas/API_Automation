@@ -193,6 +193,15 @@ def generated_test_id(api_ref: str, check: str) -> str:
     return f"generated::{api_ref}::{check}"
 
 
+def endpoint_case_id(api_ref: str, function: str) -> str:
+    """ID for a hand-authored endpoint case in ``test-cases/``.
+
+    Function-derived, like the global tier's, so renaming a docstring or an
+    allure title leaves the ID -- and the result history -- alone.
+    """
+    return f"endpoint::{api_ref}::{function}"
+
+
 def newman_test_id(api_ref: str, assertion_name: str, ordinal: int = 0) -> str:
     """ID for one Newman assertion.
 
@@ -577,6 +586,13 @@ def _assertion_state(
     asserted: bool | None,
     source: str,
 ) -> str:
+    # Hand-authored cases in test-cases/ settle this before the source request
+    # is consulted. They are assertions, they are executed, and they are the
+    # tier this repo is moving coverage into -- so an endpoint carrying them is
+    # asserted even when its Postman collection asserts nothing, which is true
+    # of every Attendance request.
+    if authored_endpoint_cases().get(str(api_row.get("API Identifier", ""))):
+        return "asserted"
     if asserted is None:
         return "unknown"
     if not asserted:
@@ -587,6 +603,52 @@ def _assertion_state(
     return "asserted-not-executed"
 
 
+#: Roots holding hand-authored endpoint cases. Two, at different depths:
+#: endpoint/<suite>/<endpoint>/ and the flat login/<endpoint>/.
+AUTHORED_CASE_ROOTS = (
+    ROOT_DIR / "test-cases" / "endpoint",
+    ROOT_DIR / "test-cases" / "login",
+)
+
+
+@lru_cache(maxsize=1)
+def authored_endpoint_cases() -> dict[str, tuple[tuple[str, str], ...]]:
+    """``caseRef`` -> the authored cases scoped to it, parsed not imported.
+
+    Read statically for the same reason ``global_tests()`` is: building a
+    catalogue must not import test modules, trigger collection, or open a
+    socket. A case declares which row it exercises with a module-level
+    ``caseRef``; files without one are skipped rather than guessed at.
+
+    Without this the catalogue could not see the authored tier at all, so 40
+    endpoints carrying real cases still rendered as "no assert" in the console
+    and counted toward the assertion-gap total.
+    """
+    found: dict[str, list[tuple[str, str]]] = {}
+    for root in AUTHORED_CASE_ROOTS:
+        if not root.exists():
+            continue
+        for path in sorted(root.rglob("[0-9][0-9]_*.py")):
+            try:
+                tree = ast.parse(path.read_text(encoding="utf-8"))
+            except SyntaxError:
+                continue
+            ref = ""
+            for node in tree.body:
+                if isinstance(node, ast.Assign) and any(
+                    getattr(t, "id", "") == "caseRef" for t in node.targets
+                ):
+                    if isinstance(node.value, ast.Constant):
+                        ref = str(node.value.value)
+            if not ref:
+                continue
+            relative = path.relative_to(ROOT_DIR).as_posix()
+            for node in tree.body:
+                if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
+                    found.setdefault(ref, []).append((relative, node.name))
+    return {ref: tuple(cases) for ref, cases in found.items()}
+
+
 def _api_specific_tests(api_row: dict[str, Any]) -> list[dict[str, Any]]:
     """Newman and generated-tier cases for one API."""
     ref = str(api_row.get("API Identifier", ""))
@@ -595,7 +657,24 @@ def _api_specific_tests(api_row: dict[str, Any]) -> list[dict[str, Any]]:
     source = _source_collection(api_row)
     asserted = _row_has_assertions(api_row)
 
-    if source.startswith("collections/") and asserted is False:
+    authored = authored_endpoint_cases().get(ref, ())
+    for relative, function in authored:
+        cases.append(
+            {
+                "id": endpoint_case_id(ref, function),
+                "title": function.removeprefix("test_").replace("_", " ").capitalize(),
+                "scope": "API_SPECIFIC",
+                "tier": "endpoint",
+                "category": "business-rule",
+                "apiRef": ref,
+                "source": relative,
+            }
+        )
+
+    # An endpoint with hand-authored cases is not an assertion gap, whatever its
+    # Postman collection does or does not carry. Emitting the gap entry anyway
+    # would report 40 endpoints as unasserted while their cases sit next to them.
+    if source.startswith("collections/") and asserted is False and not authored:
         # The request runs and asserts nothing. Publishing an explicit entry for
         # that gap is the whole point of D7: without one, a not-asserted API
         # contributes zero test cases and the platform has nothing to render the

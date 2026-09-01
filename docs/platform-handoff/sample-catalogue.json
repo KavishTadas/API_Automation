@@ -88,7 +88,7 @@
       "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Holiday_Template_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold",
@@ -101,7 +101,7 @@
       "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Threshold_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "delete|/api/attendancepolicy/2|attendance policy master|delete policy by id",
@@ -114,7 +114,7 @@
       "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift",
@@ -127,7 +127,7 @@
       "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all",
@@ -140,7 +140,7 @@
       "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Holiday_Template_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id",
@@ -153,7 +153,7 @@
       "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Holiday_Template_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "get|/api/attendance/late-early-policies/getall|latearly-policy|getall",
@@ -166,7 +166,7 @@
       "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Late_Early_Policy_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1",
@@ -179,7 +179,7 @@
       "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Late_Early_Policy_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "get|/api/attendance/status-threshold/getall|attendance status threshold api|get all",
@@ -192,7 +192,7 @@
       "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Threshold_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id",
@@ -205,7 +205,7 @@
       "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Threshold_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall",
@@ -218,7 +218,7 @@
       "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Weekoff_Policy_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid",
@@ -231,7 +231,7 @@
       "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Weekoff_Policy_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "get|/api/attendancepolicy/1|attendance policy master|get policy by id",
@@ -244,7 +244,7 @@
       "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "get|/api/attendancepolicy|attendance policy master|get all policies",
@@ -257,7 +257,7 @@
       "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "get|/api/v1/attendance/shift/master/7|attendance shift master|get by id",
@@ -270,7 +270,7 @@
       "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "get|/api/v1/attendance/shift/master|attendance shift master|get all shifts",
@@ -283,7 +283,7 @@
       "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
@@ -322,7 +322,7 @@
       "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "bruno",
       "sourceCollection": "bruno/users/get-profile.bru",
-      "assertionState": "asserted-not-executed"
+      "assertionState": "asserted"
     },
     {
       "ref": "patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status",
@@ -335,7 +335,7 @@
       "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Holiday_Template_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus",
@@ -348,7 +348,7 @@
       "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Late_Early_Policy_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status",
@@ -361,7 +361,7 @@
       "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Threshold_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus",
@@ -374,7 +374,7 @@
       "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Weekoff_Policy_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact",
@@ -387,7 +387,7 @@
       "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Weekoff_Policy_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "patch|/api/attendancepolicy/4/status|attendance policy master|activate deactivate",
@@ -400,7 +400,7 @@
       "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "patch|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete",
@@ -413,7 +413,7 @@
       "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "post|/api/attendance/holiday-templates/create|holiday template apis copy|create",
@@ -426,7 +426,7 @@
       "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Holiday_Template_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
@@ -439,7 +439,7 @@
       "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Late_Early_Policy_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold",
@@ -452,7 +452,7 @@
       "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Threshold_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid",
@@ -465,7 +465,7 @@
       "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Weekoff_Policy_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate",
@@ -478,7 +478,7 @@
       "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Weekoff_Policy_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "post|/api/attendancepolicy|attendance policy master|create new policy",
@@ -491,7 +491,7 @@
       "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)",
@@ -504,7 +504,7 @@
       "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "post|/api/v1/attendance/shift/master|attendance shift master|create new shift",
@@ -517,7 +517,7 @@
       "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
@@ -582,7 +582,7 @@
       "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Holiday_Template_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "put|/api/attendance/late-early-policies/update/2|latearly-policy|update",
@@ -595,7 +595,7 @@
       "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Late_Early_Policy_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold",
@@ -608,7 +608,7 @@
       "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Threshold_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate",
@@ -621,7 +621,7 @@
       "owner": "KavishTadas <kavish.tadas@omfysgroup.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Weekoff_Policy_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "put|/api/attendancepolicy/2|attendance policy master|update policy by id",
@@ -634,7 +634,7 @@
       "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     },
     {
       "ref": "put|/api/v1/attendance/shift/master/2|attendance shift master|update shift",
@@ -647,7 +647,7 @@
       "owner": "Parth Divekar <parthdivekar987@gmail.com>",
       "sourceType": "newman",
       "sourceCollection": "collections/Attendance_Management_API.json",
-      "assertionState": "not-asserted"
+      "assertionState": "asserted"
     }
   ],
   "testCases": {
@@ -666,6 +666,14 @@
         "scope": "GLOBAL",
         "tier": "global_contract",
         "category": "functional",
+        "hostLevel": false
+      },
+      {
+        "id": "global_contract::test_blank_name_input_is_rejected",
+        "title": "Blank name input is rejected",
+        "scope": "GLOBAL",
+        "tier": "global_contract",
+        "category": "security",
         "hostLevel": false
       },
       {
@@ -717,6 +725,22 @@
         "hostLevel": false
       },
       {
+        "id": "global_contract::test_invalid_sort_column_is_rejected_cleanly",
+        "title": "Unknown sort column is rejected cleanly",
+        "scope": "GLOBAL",
+        "tier": "global_contract",
+        "category": "resilience",
+        "hostLevel": false
+      },
+      {
+        "id": "global_contract::test_negative_page_parameters_are_rejected_cleanly",
+        "title": "Negative page parameters are rejected cleanly",
+        "scope": "GLOBAL",
+        "tier": "global_contract",
+        "category": "resilience",
+        "hostLevel": false
+      },
+      {
         "id": "global_contract::test_no_credential_leakage_in_response",
         "title": "Response exposes no credentials or tokens",
         "scope": "GLOBAL",
@@ -731,6 +755,14 @@
         "tier": "global_contract",
         "category": "security",
         "hostLevel": true
+      },
+      {
+        "id": "global_contract::test_out_of_bounds_page_returns_an_empty_page",
+        "title": "Out-of-bounds page returns an empty page",
+        "scope": "GLOBAL",
+        "tier": "global_contract",
+        "category": "resilience",
+        "hostLevel": false
       },
       {
         "id": "global_contract::test_paginated_list_declares_page_metadata",
@@ -821,6 +853,22 @@
         "hostLevel": false
       },
       {
+        "id": "global_contract::test_unknown_entity_id_returns_404",
+        "title": "Unknown entity id returns 404",
+        "scope": "GLOBAL",
+        "tier": "global_contract",
+        "category": "functional",
+        "hostLevel": false
+      },
+      {
+        "id": "global_contract::test_unknown_entity_mutation_returns_404",
+        "title": "Unknown entity mutation returns 404",
+        "scope": "GLOBAL",
+        "tier": "global_contract",
+        "category": "functional",
+        "hostLevel": false
+      },
+      {
         "id": "global_contract::test_unsupported_media_type_rejected",
         "title": "Write endpoints refuse an unsupported media type",
         "scope": "GLOBAL",
@@ -830,6 +878,690 @@
       }
     ],
     "apiSpecific": [
+      {
+        "id": "endpoint::delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete::test_reports_the_outcome_in_the_body",
+        "title": "Reports the outcome in the body",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete",
+        "source": "test-cases/endpoint/holiday_template/DELETE_api_attendance_holiday_templates_delete_by_holidaytemplateid/01_outcome_reported_delete_by_holidaytemplatei.py"
+      },
+      {
+        "id": "endpoint::delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold::test_reports_the_outcome_in_the_body",
+        "title": "Reports the outcome in the body",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold",
+        "source": "test-cases/endpoint/attendance_threshold/DELETE_api_attendance_status_thresholds_delete_1/01_outcome_reported_delete_delete_1.py"
+      },
+      {
+        "id": "endpoint::delete|/api/attendancepolicy/2|attendance policy master|delete policy by id::test_reports_the_outcome_in_the_body",
+        "title": "Reports the outcome in the body",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "delete|/api/attendancepolicy/2|attendance policy master|delete policy by id",
+        "source": "test-cases/endpoint/attendance_policy_master/DELETE_api_attendancepolicy_2/01_outcome_reported_delete_attendancepolicy_2.py"
+      },
+      {
+        "id": "endpoint::delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift::test_reports_the_outcome_in_the_body",
+        "title": "Reports the outcome in the body",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift",
+        "source": "test-cases/endpoint/attendance_shift_master/DELETE_api_v1_attendance_shift_master_6/01_outcome_reported_delete_master_6.py"
+      },
+      {
+        "id": "endpoint::get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all::test_records_share_one_shape",
+        "title": "Records share one shape",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all",
+        "source": "test-cases/endpoint/holiday_template/GET_api_attendance_holiday_templates_getall/01_collection_shape_get_templates_getall.py"
+      },
+      {
+        "id": "endpoint::get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all::test_returns_a_list",
+        "title": "Returns a list",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all",
+        "source": "test-cases/endpoint/holiday_template/GET_api_attendance_holiday_templates_getall/01_collection_shape_get_templates_getall.py"
+      },
+      {
+        "id": "endpoint::get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id::test_returns_the_entity_that_was_asked_for",
+        "title": "Returns the entity that was asked for",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id",
+        "source": "test-cases/endpoint/holiday_template/GET_api_attendance_holiday_templates_getbyid_19/01_entity_identity_get_getbyid_19.py"
+      },
+      {
+        "id": "endpoint::get|/api/attendance/late-early-policies/getall|latearly-policy|getall::test_records_share_one_shape",
+        "title": "Records share one shape",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/api/attendance/late-early-policies/getall|latearly-policy|getall",
+        "source": "test-cases/endpoint/late_early/GET_api_attendance_late_early_policies_getall/01_collection_shape_get_policies_getall.py"
+      },
+      {
+        "id": "endpoint::get|/api/attendance/late-early-policies/getall|latearly-policy|getall::test_returns_a_list",
+        "title": "Returns a list",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/api/attendance/late-early-policies/getall|latearly-policy|getall",
+        "source": "test-cases/endpoint/late_early/GET_api_attendance_late_early_policies_getall/01_collection_shape_get_policies_getall.py"
+      },
+      {
+        "id": "endpoint::get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1::test_returns_the_entity_that_was_asked_for",
+        "title": "Returns the entity that was asked for",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1",
+        "source": "test-cases/endpoint/late_early/GET_api_attendance_late_early_policies_getbyid_5/01_entity_identity_get_getbyid_5.py"
+      },
+      {
+        "id": "endpoint::get|/api/attendance/status-threshold/getall|attendance status threshold api|get all::test_records_share_one_shape",
+        "title": "Records share one shape",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/api/attendance/status-threshold/getall|attendance status threshold api|get all",
+        "source": "test-cases/endpoint/attendance_threshold/GET_api_attendance_status_threshold_getall/01_collection_shape_get_threshold_getall.py"
+      },
+      {
+        "id": "endpoint::get|/api/attendance/status-threshold/getall|attendance status threshold api|get all::test_returns_a_list",
+        "title": "Returns a list",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/api/attendance/status-threshold/getall|attendance status threshold api|get all",
+        "source": "test-cases/endpoint/attendance_threshold/GET_api_attendance_status_threshold_getall/01_collection_shape_get_threshold_getall.py"
+      },
+      {
+        "id": "endpoint::get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id::test_returns_the_entity_that_was_asked_for",
+        "title": "Returns the entity that was asked for",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id",
+        "source": "test-cases/endpoint/attendance_threshold/GET_api_attendance_status_threshold_getbyid_8/01_entity_identity_get_getbyid_8.py"
+      },
+      {
+        "id": "endpoint::get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall::test_records_share_one_shape",
+        "title": "Records share one shape",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall",
+        "source": "test-cases/endpoint/weekoff/GET_api_attendance_week_offs_getall/01_collection_shape_get_offs_getall.py"
+      },
+      {
+        "id": "endpoint::get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall::test_returns_a_list",
+        "title": "Returns a list",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall",
+        "source": "test-cases/endpoint/weekoff/GET_api_attendance_week_offs_getall/01_collection_shape_get_offs_getall.py"
+      },
+      {
+        "id": "endpoint::get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid::test_returns_the_entity_that_was_asked_for",
+        "title": "Returns the entity that was asked for",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid",
+        "source": "test-cases/endpoint/weekoff/GET_api_attendance_week_offs_getbyid_1/01_entity_identity_get_getbyid_1.py"
+      },
+      {
+        "id": "endpoint::get|/api/attendancepolicy/1|attendance policy master|get policy by id::test_returns_the_entity_that_was_asked_for",
+        "title": "Returns the entity that was asked for",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/api/attendancepolicy/1|attendance policy master|get policy by id",
+        "source": "test-cases/endpoint/attendance_policy_master/GET_api_attendancepolicy_1/01_entity_identity_get_attendancepolicy_1.py"
+      },
+      {
+        "id": "endpoint::get|/api/attendancepolicy|attendance policy master|get all policies::test_records_share_one_shape",
+        "title": "Records share one shape",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/api/attendancepolicy|attendance policy master|get all policies",
+        "source": "test-cases/endpoint/attendance_policy_master/GET_api_attendancepolicy/01_collection_shape_get_api_attendancepolicy.py"
+      },
+      {
+        "id": "endpoint::get|/api/attendancepolicy|attendance policy master|get all policies::test_returns_a_list",
+        "title": "Returns a list",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/api/attendancepolicy|attendance policy master|get all policies",
+        "source": "test-cases/endpoint/attendance_policy_master/GET_api_attendancepolicy/01_collection_shape_get_api_attendancepolicy.py"
+      },
+      {
+        "id": "endpoint::get|/api/v1/attendance/shift/master/7|attendance shift master|get by id::test_returns_the_entity_that_was_asked_for",
+        "title": "Returns the entity that was asked for",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/api/v1/attendance/shift/master/7|attendance shift master|get by id",
+        "source": "test-cases/endpoint/attendance_shift_master/GET_api_v1_attendance_shift_master_7/01_entity_identity_get_master_7.py"
+      },
+      {
+        "id": "endpoint::get|/api/v1/attendance/shift/master|attendance shift master|get all shifts::test_records_share_one_shape",
+        "title": "Records share one shape",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/api/v1/attendance/shift/master|attendance shift master|get all shifts",
+        "source": "test-cases/endpoint/attendance_shift_master/GET_api_v1_attendance_shift_master/01_collection_shape_get_shift_master.py"
+      },
+      {
+        "id": "endpoint::get|/api/v1/attendance/shift/master|attendance shift master|get all shifts::test_returns_a_list",
+        "title": "Returns a list",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/api/v1/attendance/shift/master|attendance shift master|get all shifts",
+        "source": "test-cases/endpoint/attendance_shift_master/GET_api_v1_attendance_shift_master/01_collection_shape_get_shift_master.py"
+      },
+      {
+        "id": "endpoint::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::test_count_fields_are_integers",
+        "title": "Count fields are integers",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+        "source": "test-cases/endpoint/leave_api/GET_user_leaves_getallleavereports/01_report_envelope_shape.py"
+      },
+      {
+        "id": "endpoint::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::test_data_carries_count_and_leave_report",
+        "title": "Data carries count and leave report",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+        "source": "test-cases/endpoint/leave_api/GET_user_leaves_getallleavereports/01_report_envelope_shape.py"
+      },
+      {
+        "id": "endpoint::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::test_enough_records_to_spot_check",
+        "title": "Enough records to spot check",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+        "source": "test-cases/endpoint/leave_api/GET_user_leaves_getallleavereports/02_every_record_carries_all_fields.py"
+      },
+      {
+        "id": "endpoint::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::test_envelope_carries_status_and_message",
+        "title": "Envelope carries status and message",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+        "source": "test-cases/endpoint/leave_api/GET_user_leaves_getallleavereports/01_report_envelope_shape.py"
+      },
+      {
+        "id": "endpoint::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::test_every_record_carries_every_field",
+        "title": "Every record carries every field",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+        "source": "test-cases/endpoint/leave_api/GET_user_leaves_getallleavereports/02_every_record_carries_all_fields.py"
+      },
+      {
+        "id": "endpoint::get|/users/me|users|get profile::test_records_share_one_shape",
+        "title": "Records share one shape",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/users/me|users|get profile",
+        "source": "test-cases/endpoint/users/GET_users_me/01_collection_shape_get_users_me.py"
+      },
+      {
+        "id": "endpoint::get|/users/me|users|get profile::test_returns_a_list",
+        "title": "Returns a list",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "get|/users/me|users|get profile",
+        "source": "test-cases/endpoint/users/GET_users_me/01_collection_shape_get_users_me.py"
+      },
+      {
+        "id": "endpoint::patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status::test_reports_the_outcome_in_the_body",
+        "title": "Reports the outcome in the body",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status",
+        "source": "test-cases/endpoint/holiday_template/PATCH_api_attendance_holiday_templates_19_status/01_outcome_reported_patch_19_status.py"
+      },
+      {
+        "id": "endpoint::patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus::test_reports_the_outcome_in_the_body",
+        "title": "Reports the outcome in the body",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus",
+        "source": "test-cases/endpoint/late_early/PATCH_api_attendance_late_early_policies_5_status/01_outcome_reported_patch_5_status.py"
+      },
+      {
+        "id": "endpoint::patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status::test_reports_the_outcome_in_the_body",
+        "title": "Reports the outcome in the body",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status",
+        "source": "test-cases/endpoint/attendance_threshold/PATCH_api_attendance_status_threshold_1_status/01_outcome_reported_patch_1_status.py"
+      },
+      {
+        "id": "endpoint::patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus::test_reports_the_outcome_in_the_body",
+        "title": "Reports the outcome in the body",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus",
+        "source": "test-cases/endpoint/weekoff/PATCH_api_attendance_week_off_assignment_changestatus/01_outcome_reported_patch_assignment_changesta.py"
+      },
+      {
+        "id": "endpoint::patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact::test_reports_the_outcome_in_the_body",
+        "title": "Reports the outcome in the body",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact",
+        "source": "test-cases/endpoint/weekoff/PATCH_api_attendance_week_offs_actdeact_3_status/01_outcome_reported_patch_3_status.py"
+      },
+      {
+        "id": "endpoint::patch|/api/attendancepolicy/4/status|attendance policy master|activate deactivate::test_reports_the_outcome_in_the_body",
+        "title": "Reports the outcome in the body",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "patch|/api/attendancepolicy/4/status|attendance policy master|activate deactivate",
+        "source": "test-cases/endpoint/attendance_policy_master/PATCH_api_attendancepolicy_4_status/01_outcome_reported_patch_4_status.py"
+      },
+      {
+        "id": "endpoint::patch|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete::test_reports_the_outcome_in_the_body",
+        "title": "Reports the outcome in the body",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "patch|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete",
+        "source": "test-cases/endpoint/attendance_shift_master/PATCH_api_v1_attendance_shift_master_status_7/01_outcome_reported_patch_status_7.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendance/holiday-templates/create|holiday template apis copy|create::test_duplicate_templatecode_database_crash_test_1",
+        "title": "Duplicate templatecode database crash test 1",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendance/holiday-templates/create|holiday template apis copy|create",
+        "source": "test-cases/endpoint/holiday_template/POST_api_attendance_holiday_templates_create/01_duplicate_templatecode_database_crash_test_1.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendance/holiday-templates/create|holiday template apis copy|create::test_sql_injection_security_breach_test_copy_2_does_not_crash_the_server",
+        "title": "Sql injection security breach test copy 2 does not crash the server",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendance/holiday-templates/create|holiday template apis copy|create",
+        "source": "test-cases/endpoint/holiday_template/POST_api_attendance_holiday_templates_create/02_sql_injection_security_breach_test_copy_2.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendance/holiday-templates/create|holiday template apis copy|create::test_sql_injection_security_breach_test_copy_2_is_refused",
+        "title": "Sql injection security breach test copy 2 is refused",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendance/holiday-templates/create|holiday template apis copy|create",
+        "source": "test-cases/endpoint/holiday_template/POST_api_attendance_holiday_templates_create/02_sql_injection_security_breach_test_copy_2.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_boundary_leave_deduct_days_does_not_crash_the_server",
+        "title": "Boundary leave deduct days does not crash the server",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/01_boundary_leave_deduct_days.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_boundary_leave_deduct_days_is_refused",
+        "title": "Boundary leave deduct days is refused",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/01_boundary_leave_deduct_days.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_deactivated_leave_type_foreign_key_status_gating_t",
+        "title": "Deactivated leave type foreign key status gating t",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/02_deactivated_leave_type_foreign_key_status_gating_t.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_deactivated_leave_type_injection",
+        "title": "Deactivated leave type injection",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/03_deactivated_leave_type_injection.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_deduction_type_contradiction_test_does_not_crash_the_server",
+        "title": "Deduction type contradiction test does not crash the server",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/04_deduction_type_contradiction_test.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_deduction_type_contradiction_test_is_refused",
+        "title": "Deduction type contradiction test is refused",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/04_deduction_type_contradiction_test.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_duplicate_employee_assignment_collision_does_not_crash_the_server",
+        "title": "Duplicate employee assignment collision does not crash the server",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/05_duplicate_employee_assignment_collision.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_duplicate_employee_assignment_collision_is_refused",
+        "title": "Duplicate employee assignment collision is refused",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/05_duplicate_employee_assignment_collision.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_duplicate_priority_order",
+        "title": "Duplicate priority order",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/06_duplicate_priority_order.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_fuzzing_defecr_policy_name_does_not_crash_the_server",
+        "title": "Fuzzing defecr policy name does not crash the server",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/07_fuzzing_defecr_policy_name.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_fuzzing_defecr_policy_name_is_refused",
+        "title": "Fuzzing defecr policy name is refused",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/07_fuzzing_defecr_policy_name.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold::test_response_echoes_what_was_sent",
+        "title": "Response echoes what was sent",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold",
+        "source": "test-cases/endpoint/attendance_threshold/POST_api_attendance_status_threshold_create/01_write_echo_post_threshold_create.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid::test_response_echoes_what_was_sent",
+        "title": "Response echoes what was sent",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid",
+        "source": "test-cases/endpoint/weekoff/POST_api_attendance_week_off_assignment_getbyweekoff/01_write_echo_post_assignment_getbyweeko.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate::test_response_echoes_what_was_sent",
+        "title": "Response echoes what was sent",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate",
+        "source": "test-cases/endpoint/weekoff/POST_api_attendance_week_offs_create/01_write_echo_post_offs_create.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendancepolicy|attendance policy master|create new policy::test_duplicate_policy_name_collision_defect",
+        "title": "Duplicate policy name collision defect",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendancepolicy|attendance policy master|create new policy",
+        "source": "test-cases/endpoint/attendance_policy_master/POST_api_attendancepolicy/01_duplicate_policy_name_collision_defect.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendancepolicy|attendance policy master|create new policy::test_exceeding_2000_charac_does_not_crash_the_server",
+        "title": "Exceeding 2000 charac does not crash the server",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendancepolicy|attendance policy master|create new policy",
+        "source": "test-cases/endpoint/attendance_policy_master/POST_api_attendancepolicy/02_exceeding_2000_charac.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendancepolicy|attendance policy master|create new policy::test_exceeding_2000_charac_is_refused",
+        "title": "Exceeding 2000 charac is refused",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendancepolicy|attendance policy master|create new policy",
+        "source": "test-cases/endpoint/attendance_policy_master/POST_api_attendancepolicy/02_exceeding_2000_charac.py"
+      },
+      {
+        "id": "endpoint::post|/api/attendancepolicy|attendance policy master|create new policy::test_toctou",
+        "title": "Toctou",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/attendancepolicy|attendance policy master|create new policy",
+        "source": "test-cases/endpoint/attendance_policy_master/POST_api_attendancepolicy/03_toctou.py"
+      },
+      {
+        "id": "endpoint::post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)::test_response_echoes_what_was_sent",
+        "title": "Response echoes what was sent",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)",
+        "source": "test-cases/endpoint/attendance_shift_master/POST_api_v1_attendance_shift_master/01_write_echo_post_shift_master.py"
+      },
+      {
+        "id": "endpoint::post|/api/v1/attendance/shift/master|attendance shift master|create new shift::test_response_echoes_what_was_sent",
+        "title": "Response echoes what was sent",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/api/v1/attendance/shift/master|attendance shift master|create new shift",
+        "source": "test-cases/endpoint/attendance_shift_master/POST_api_v1_attendance_shift_master/02_write_echo_create_new_shift.py"
+      },
+      {
+        "id": "endpoint::post|/auth/token|employee auth api|tc01 - valid credentials return jwt token::test_empcode_and_username_returned",
+        "title": "Empcode and username returned",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
+        "source": "test-cases/login/employee_auth_api_POST_auth_token/02_identity_fields_returned.py"
+      },
+      {
+        "id": "endpoint::post|/auth/token|employee auth api|tc01 - valid credentials return jwt token::test_roles_is_a_non_empty_array",
+        "title": "Roles is a non empty array",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
+        "source": "test-cases/login/employee_auth_api_POST_auth_token/02_identity_fields_returned.py"
+      },
+      {
+        "id": "endpoint::post|/auth/token|employee auth api|tc01 - valid credentials return jwt token::test_token_is_three_part_jwt",
+        "title": "Token is three part jwt",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
+        "source": "test-cases/login/employee_auth_api_POST_auth_token/01_token_is_three_part_jwt.py"
+      },
+      {
+        "id": "endpoint::post|/auth/token|employee auth api|tc02 - invalid empcode returns 400::test_rejection_carries_a_message",
+        "title": "Rejection carries a message",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/auth/token|employee auth api|tc02 - invalid empcode returns 400",
+        "source": "test-cases/login/employee_auth_api_POST_auth_token/03_invalid_empcode_explains_itself.py"
+      },
+      {
+        "id": "endpoint::post|/auth/token|employee auth api|tc02 - invalid empcode returns 400::test_rejection_does_not_leak_a_token",
+        "title": "Rejection does not leak a token",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/auth/token|employee auth api|tc02 - invalid empcode returns 400",
+        "source": "test-cases/login/employee_auth_api_POST_auth_token/03_invalid_empcode_explains_itself.py"
+      },
+      {
+        "id": "endpoint::post|/auth/token|employee auth api|tc03 - missing password returns 400::test_missing_password_carries_a_validation_message",
+        "title": "Missing password carries a validation message",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/auth/token|employee auth api|tc03 - missing password returns 400",
+        "source": "test-cases/login/employee_auth_api_POST_auth_token/04_missing_password_explains_itself.py"
+      },
+      {
+        "id": "endpoint::post|/auth/token|employee auth api|tc03 - missing password returns 400::test_missing_password_does_not_leak_a_token",
+        "title": "Missing password does not leak a token",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/auth/token|employee auth api|tc03 - missing password returns 400",
+        "source": "test-cases/login/employee_auth_api_POST_auth_token/04_missing_password_explains_itself.py"
+      },
+      {
+        "id": "endpoint::post|/auth/token|login auth uat api|tc01 - valid credentials return token::test_returns_a_three_part_token",
+        "title": "Returns a three part token",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/auth/token|login auth uat api|tc01 - valid credentials return token",
+        "source": "test-cases/login/login_auth_uat_api_POST_auth_token/01_uat_login_returns_a_usable_token.py"
+      },
+      {
+        "id": "endpoint::post|/auth/token|login auth uat api|tc01 - valid credentials return token::test_token_is_not_a_placeholder",
+        "title": "Token is not a placeholder",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "post|/auth/token|login auth uat api|tc01 - valid credentials return token",
+        "source": "test-cases/login/login_auth_uat_api_POST_auth_token/01_uat_login_returns_a_usable_token.py"
+      },
+      {
+        "id": "endpoint::put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update::test_response_echoes_what_was_sent",
+        "title": "Response echoes what was sent",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update",
+        "source": "test-cases/endpoint/holiday_template/PUT_api_attendance_holiday_templates_update_by_holidaytemplateid/01_write_echo_put_by_holidaytemplateid.py"
+      },
+      {
+        "id": "endpoint::put|/api/attendance/late-early-policies/update/2|latearly-policy|update::test_bola_id_mismatch_full_child_replacement_integrity__does_not_crash_the_server",
+        "title": "Bola id mismatch full child replacement integrity  does not crash the server",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "put|/api/attendance/late-early-policies/update/2|latearly-policy|update",
+        "source": "test-cases/endpoint/late_early/PUT_api_attendance_late_early_policies_update_2/01_bola_id_mismatch_full_child_replacement_integrity_.py"
+      },
+      {
+        "id": "endpoint::put|/api/attendance/late-early-policies/update/2|latearly-policy|update::test_bola_id_mismatch_full_child_replacement_integrity__is_refused",
+        "title": "Bola id mismatch full child replacement integrity  is refused",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "put|/api/attendance/late-early-policies/update/2|latearly-policy|update",
+        "source": "test-cases/endpoint/late_early/PUT_api_attendance_late_early_policies_update_2/01_bola_id_mismatch_full_child_replacement_integrity_.py"
+      },
+      {
+        "id": "endpoint::put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold::test_bola_id_mistmatch_mutation_does_not_crash_the_server",
+        "title": "Bola id mistmatch mutation does not crash the server",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold",
+        "source": "test-cases/endpoint/attendance_threshold/PUT_api_attendance_status_threshold_update_1/01_bola_id_mistmatch_mutation.py"
+      },
+      {
+        "id": "endpoint::put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold::test_bola_id_mistmatch_mutation_is_refused",
+        "title": "Bola id mistmatch mutation is refused",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold",
+        "source": "test-cases/endpoint/attendance_threshold/PUT_api_attendance_status_threshold_update_1/01_bola_id_mistmatch_mutation.py"
+      },
+      {
+        "id": "endpoint::put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate::test_response_echoes_what_was_sent",
+        "title": "Response echoes what was sent",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate",
+        "source": "test-cases/endpoint/weekoff/PUT_api_attendance_week_offs_update_1/01_write_echo_put_update_1.py"
+      },
+      {
+        "id": "endpoint::put|/api/attendancepolicy/2|attendance policy master|update policy by id::test_response_echoes_what_was_sent",
+        "title": "Response echoes what was sent",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "put|/api/attendancepolicy/2|attendance policy master|update policy by id",
+        "source": "test-cases/endpoint/attendance_policy_master/PUT_api_attendancepolicy_2/01_write_echo_put_attendancepolicy_2.py"
+      },
+      {
+        "id": "endpoint::put|/api/v1/attendance/shift/master/2|attendance shift master|update shift::test_response_echoes_what_was_sent",
+        "title": "Response echoes what was sent",
+        "scope": "API_SPECIFIC",
+        "tier": "endpoint",
+        "category": "business-rule",
+        "apiRef": "put|/api/v1/attendance/shift/master/2|attendance shift master|update shift",
+        "source": "test-cases/endpoint/attendance_shift_master/PUT_api_v1_attendance_shift_master_2/01_write_echo_put_master_2.py"
+      },
       {
         "id": "generated::delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete::response_schema",
         "title": "Delete — response matches the documented schema",
@@ -1535,166 +2267,6 @@
         "apiRef": "put|/api/v1/attendance/shift/master/2|attendance shift master|update shift"
       },
       {
-        "id": "newman::delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::delete|/api/attendancepolicy/2|attendance policy master|delete policy by id::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "delete|/api/attendancepolicy/2|attendance policy master|delete policy by id",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::get|/api/attendance/late-early-policies/getall|latearly-policy|getall::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "get|/api/attendance/late-early-policies/getall|latearly-policy|getall",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::get|/api/attendance/status-threshold/getall|attendance status threshold api|get all::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "get|/api/attendance/status-threshold/getall|attendance status threshold api|get all",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::get|/api/attendancepolicy/1|attendance policy master|get policy by id::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "get|/api/attendancepolicy/1|attendance policy master|get policy by id",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::get|/api/attendancepolicy|attendance policy master|get all policies::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "get|/api/attendancepolicy|attendance policy master|get all policies",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::get|/api/v1/attendance/shift/master/7|attendance shift master|get by id::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "get|/api/v1/attendance/shift/master/7|attendance shift master|get by id",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::get|/api/v1/attendance/shift/master|attendance shift master|get all shifts::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "get|/api/v1/attendance/shift/master|attendance shift master|get all shifts",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
         "id": "newman::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::tc01-count-contains-observed-integer-fields",
         "title": "TC01 - Count contains observed integer fields -",
         "scope": "API_SPECIFIC",
@@ -1791,156 +2363,6 @@
         "apiRef": "get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status"
       },
       {
-        "id": "newman::patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::patch|/api/attendancepolicy/4/status|attendance policy master|activate deactivate::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "patch|/api/attendancepolicy/4/status|attendance policy master|activate deactivate",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::patch|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "patch|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::post|/api/attendance/holiday-templates/create|holiday template apis copy|create::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "post|/api/attendance/holiday-templates/create|holiday template apis copy|create",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::post|/api/attendance/late-early-policies/create|latearly-policy|create::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::post|/api/attendancepolicy|attendance policy master|create new policy::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "post|/api/attendancepolicy|attendance policy master|create new policy",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::post|/api/v1/attendance/shift/master|attendance shift master|create new shift::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "post|/api/v1/attendance/shift/master|attendance shift master|create new shift",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
         "id": "newman::post|/auth/token|employee auth api|tc01 - valid credentials return jwt token::tc01-empcode-and-username-returned",
         "title": "TC01 - empCode and username returned",
         "scope": "API_SPECIFIC",
@@ -2035,66 +2457,6 @@
         "tier": "newman",
         "category": "functional",
         "apiRef": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
-      },
-      {
-        "id": "newman::put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::put|/api/attendance/late-early-policies/update/2|latearly-policy|update::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "put|/api/attendance/late-early-policies/update/2|latearly-policy|update",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::put|/api/attendancepolicy/2|attendance policy master|update policy by id::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "put|/api/attendancepolicy/2|attendance policy master|update policy by id",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
-      },
-      {
-        "id": "newman::put|/api/v1/attendance/shift/master/2|attendance shift master|update shift::<no-assertions>",
-        "title": "No assertions defined for this request",
-        "scope": "API_SPECIFIC",
-        "tier": "newman",
-        "category": "coverage-gap",
-        "apiRef": "put|/api/v1/attendance/shift/master/2|attendance shift master|update shift",
-        "assertionGap": true,
-        "expectedState": "NOT_ASSERTED"
       }
     ]
   },
