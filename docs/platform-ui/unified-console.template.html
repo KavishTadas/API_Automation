@@ -2787,13 +2787,18 @@ function endpointGroups(list){
   return g;
 }
 
-function msCaseRow(a){
+/* `n` is this row's position within its own endpoint, so an endpoint's cases
+   read TC_001, TC_002, TC_003 rather than the API-0NN labels that number every
+   row in the catalogue from one end to the other. The API id is the manifest
+   key and stays reachable on hover -- it is what a run actually sends. */
+function msCaseRow(a, n){
+  const caseId = n ? 'TC_'+String(n).padStart(3,'0') : displayId(a);
   return `<label class="ms-item">
     <input type="checkbox" ${STATE.selected.has(a.ref)?'checked':''} data-chk="${esc(a.ref)}">
     <span class="m ${esc(a.method)}">${esc(a.method)}</span>
     <span class="nm">${esc(a.name||a.subModule||a.path)}</span>
     ${a.assertionState==='not-asserted'?'<span class="pill gap">no assert</span>':''}
-    <span class="id">${esc(displayId(a))}</span>
+    <span class="id" title="${esc(displayId(a))} — the catalogue id a run sends">${esc(caseId)}</span>
   </label>`;
 }
 
@@ -2822,7 +2827,7 @@ function renderMultiSelect(){
           <span class="nm">${esc(cases[0].path)}</span>
           <span class="pill${on?' ok':''}">${on}/${cases.length} cases</span>
         </label>
-        <div class="ms-cases">${cases.map(msCaseRow).join('')}</div>
+        <div class="ms-cases">${cases.map((c,i)=>msCaseRow(c,i+1)).join('')}</div>
       </div>`;
     }).join('');
     return `<div class="ms-group">
