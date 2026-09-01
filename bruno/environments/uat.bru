@@ -1,0 +1,46 @@
+vars {
+  ~authBaseUrl=https://uat-mcdp-be.omfysgroup.com,
+  ~baseUrl=https://uatmcdphcmplatform.omfysgroup.com,
+  ~attendanceBaseUrl=https://uatmcdphcmplatform.omfysgroup.com,
+  ~empCode=,
+  ~authToken=
+}
+
+vars:secret [
+  empPassword
+]
+
+docs {
+  UAT environment.
+
+  Two hosts, and only two. Verified by hand against the live services:
+
+    authBaseUrl  uat-mcdp-be.omfysgroup.com          issues the token
+                                                     POST /auth/token -> 200 + JWT
+    baseUrl      uatmcdphcmplatform.omfysgroup.com   serves the attendance API
+    attendanceBaseUrl  same host as baseUrl          kept because requests
+                                                     reference both names
+
+  Hosts that look plausible and are not:
+
+    uat_mcdp_hcm.omfysgroup.com   accepts TCP, so it looks alive, but serves a
+                                  front-end bundle and its certificate does not
+                                  match the hostname. Underscores are not legal
+                                  in a DNS hostname. Every request to it dies at
+                                  CERTIFICATE_VERIFY_FAILED before any assertion
+                                  can run.
+    dev_mcdp_be.omfysgroup.com    same underscore problem, and it is DEV.
+
+  Both were configured here previously and cost a full suite's worth of
+  assertions, recorded as "untested" rather than failing loudly.
+
+  empCode and empPassword are deliberately empty. empPassword is declared
+  secret so Bruno keeps it out of the file entirely -- fill both in Bruno's own
+  environment editor, never in this file. A working password has already been
+  committed to this repository once; the point of leaving these blank is that
+  it cannot happen by copying this file.
+
+  authToken is written at run time by the auth request:
+    bru.setEnvVar("authToken", res.body.token)
+  Leave it empty. Every other request sends Authorization: Bearer {{authToken}}.
+}
