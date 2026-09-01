@@ -2100,6 +2100,22 @@ html[data-fx="off"] .tg-pulse{animation:none;opacity:.5}
   .quick-actions .btn:hover:not(:disabled){transform:none}
 }
 
+
+/* -- provenance ------------------------------------------------------------
+   Which side of the repository boundary an endpoint sits on. Structural, not
+   decorative: it is the difference between "this is committed" and "this is
+   only in my browser", which is the boundary the Bruno round trip crosses. */
+.src-badge{
+  font:700 8.5px var(--mono);letter-spacing:.07em;text-transform:uppercase;
+  padding:2px 6px;border-radius:3px;white-space:nowrap;flex:none;
+  border:1px solid transparent;
+}
+.src-badge.bruno{background:rgba(31,111,139,.16);color:#4aa8c4;border-color:rgba(31,111,139,.4)}
+.src-badge.newman{background:rgba(100,116,139,.16);color:var(--text-dim);border-color:rgba(100,116,139,.3)}
+.src-badge.local{background:rgba(180,83,9,.16);color:var(--amber);border-color:rgba(180,83,9,.45)}
+[data-theme="light"] .src-badge.bruno{background:rgba(31,111,139,.10);color:#1f6f8b;border-color:rgba(31,111,139,.35)}
+[data-theme="light"] .src-badge.local{background:rgba(180,83,9,.10);color:#8a6014}
+
 </style>
 </head>
 <body>
@@ -2163,6 +2179,7 @@ html[data-fx="off"] .tg-pulse{animation:none;opacity:.5}
     <div class="quick-actions">
       <button class="btn btn-sm" id="btnCurl">+ Add cURL</button>
       <button class="btn btn-sm" id="btnUpload">&#8593; Upload file</button>
+      <button class="btn btn-sm" id="btnBruno">&#8595; Export Bruno</button>
       <button class="btn btn-sm" id="btnSelGaps">Only assertion gaps</button>
       <span class="sp"></span>
       <button class="btn btn-sm" id="btnOpenNav">☰ Navigator <span class="pill" id="navBadge">0</span></button>
@@ -2458,6 +2475,21 @@ function rateIsHollow(R){
   return ((R.summary||{}).unreachableResults||0) > 0;
 }
 
+/* Age in the reader's terms. An ISO timestamp in a status strip is a fact
+   nobody converts in their head. */
+function inventoryAge(){
+  try{
+    const t = new Date(SEED.generatedAt);
+    if(isNaN(t)) return 'built';
+    const mins = Math.round((Date.now() - t.getTime()) / 60000);
+    if(mins < 2) return 'just built';
+    if(mins < 60) return mins + 'm old';
+    const h = Math.round(mins / 60);
+    if(h < 24) return h + 'h old';
+    return Math.round(h / 24) + 'd old';
+  }catch(e){ return 'built'; }
+}
+
 function qualityGate(R){
   const c=R.summary.counts;
   const unreachable=R.summary.unreachableResults||0;
@@ -2521,6 +2553,18 @@ function subLabel(a){ return a.module + (a.subModule && a.subModule!==a.module ?
 function allApis(){ return SEED.apis.concat(STATE.imported); }
 
 function isImported(ref){ return STATE.imported.some(a => a.ref === ref); }
+
+/* An endpoint is in one of three places, and the reader needs to tell them
+   apart: committed under bruno/, committed under collections/, or sitting in
+   this browser only and one refresh from being gone. */
+function sourceBadge(a){
+  if(!a) return '';
+  if(isImported(a.ref)) return '<span class="src-badge local" title="In this browser only — export and commit it to keep it">local</span>';
+  const t = String(a.sourceType || '').toLowerCase();
+  if(t === 'bruno')  return '<span class="src-badge bruno" title="Committed under bruno/">bruno</span>';
+  if(t === 'newman') return '<span class="src-badge newman" title="Committed under collections/">postman</span>';
+  return t ? `<span class="src-badge newman" title="Committed">${esc(t)}</span>` : '';
+}
 
 /* ------------------------------------------------------------------ undo --
    A stack of deltas, newest last. An 'add' step names the refs it brought in;
@@ -3044,6 +3088,12 @@ function renderStrip(){
     LIVE.available
       ? `<span class="chip ok"><span class="d"></span>Live Engine &middot; harness attached</span>`
       : `<span class="chip"><span class="d"></span>Simulated Engine &middot; standalone</span>`,
+    /* When the inventory this console was built from was generated. Without
+       it, "my PR merged an hour ago" and "the console is showing yesterday's
+       inventory" are indistinguishable. */
+    SEED.generatedAt
+      ? `<span class="chip" title="${esc(SEED.generatedAt)}"><span class="d"></span>Inventory ${esc(inventoryAge())}</span>`
+      : '',
     `<span class="chip blue"><span class="d"></span>${mods.size} Suites Active</span>`,
     `<span class="chip ok"><span class="d"></span>${apis.length} APIs Loaded</span>`,
     gaps?`<span class="chip warn"><span class="d"></span>${gaps} Assertion Gaps</span>`:'',
@@ -3072,6 +3122,7 @@ function renderMultiSelect(){
         <input type="checkbox" ${STATE.selected.has(a.ref)?'checked':''} data-chk="${esc(a.ref)}">
         <span class="m ${esc(a.method)}">${esc(a.method)}</span>
         <span class="nm">${esc(a.name||a.subModule||a.path)}</span>
+        ${sourceBadge(a)}
         ${a.assertionState==='not-asserted'?'<span class="pill gap">no assert</span>':''}
         <span class="id">${esc(displayId(a))}</span>
       </label>`).join('')}
@@ -5456,6 +5507,161 @@ const EXPORTERS={xlsx:exportXlsx, docx:exportDocx, html:exportHtml,
 
 /* Exports whichever run it is handed — the one on screen, or any archived
    snapshot straight from the history list. */
+
+/* ==========================================================================
+   BRUNO EXPORT
+
+   The inverse of the importer. Produces a .bru per endpoint, foldered by
+   module, plus the bruno.json that makes the folder openable in Bruno itself.
+
+   Nothing here writes to the repository: it is a download, and a person
+   chooses to commit it. That is what keeps DR-2 intact -- a definition still
+   travels by value, and reaching main stays a decision someone makes.
+   ========================================================================== */
+
+/* Bruno resolves {{var}} the same way the engine does, so a credential can be
+   named rather than dropped. Stripping it outright would hand the next reader
+   a collection that cannot authenticate. */
+const BRU_TOKEN_VAR = '{{authToken}}';
+
+function bruSafeName(t){
+  return String(t || 'request')
+    .trim()
+    .replace(/[^\w\s.-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .toLowerCase()
+    .slice(0, 60) || 'request';
+}
+
+/* Bruno's format is indentation-sensitive: two spaces inside a block, the
+   closing brace in column zero. Building it through one helper keeps every
+   block consistent rather than trusting each call site to remember. */
+function bruBlock(name, lines){
+  const body = lines.filter(Boolean).map(l => '  ' + l).join('\n');
+  return name + ' {\n' + body + '\n}\n';
+}
+
+function toBru(api, seq){
+  const method = String(api.method || 'GET').toLowerCase();
+  const url = (api.baseUrl || '') + (api.path || '');
+
+  const headers = Object.assign({}, api.importedHeaders || {});
+  /* Bruno expresses auth two ways, and only one of them is read back. A
+     hand-written `headers { Authorization: ... }` is valid Bruno but invisible
+     to generate-api-file.js, which looks for the structured `auth:bearer`
+     block -- so an endpoint exported the header way reached the inventory
+     carrying no credential at all, while looking perfectly imported. The
+     structured block is what Bruno itself writes, and what round-trips. */
+  const needsAuth = api.strippedHeaders > 0 ||
+    Object.keys(headers).some(h => /^authorization$/i.test(h));
+  Object.keys(headers).forEach(h => {
+    if(/^authorization$/i.test(h)) delete headers[h];
+  });
+  const hasBody = api.samplePayload && Object.keys(api.samplePayload).length > 0;
+
+  let out = bruBlock('meta', [
+    'name: ' + (api.name || api.path),
+    'type: http',
+    'seq: ' + (seq + 1)
+  ]);
+  out += '\n' + bruBlock(method, [
+    'url: ' + url,
+    'body: ' + (hasBody ? 'json' : 'none'),
+    'auth: ' + (needsAuth ? 'bearer' : 'none')
+  ]);
+  const hk = Object.keys(headers);
+  if(hk.length){
+    out += '\n' + bruBlock('headers', hk.map(k => k + ': ' + headers[k]));
+  }
+  if(needsAuth){
+    out += '\n' + bruBlock('auth:bearer', ['token: ' + BRU_TOKEN_VAR]);
+  }
+  if(hasBody){
+    /* The payload is indented as a block, so it survives the round trip
+       through a parser that strips one level of indentation. */
+    const json = JSON.stringify(api.samplePayload, null, 2)
+      .split('\n').map(l => '  ' + l).join('\n');
+    out += '\nbody:json {\n' + json + '\n}\n';
+  }
+  return out;
+}
+
+/* One file per endpoint, foldered by module, plus the collection manifest. */
+function bruCollection(apis, collectionName){
+  const files = [];
+  const used = {};
+  const byModule = {};
+  apis.forEach(a => {
+    const m = bruSafeName(a.module || 'imported');
+    (byModule[m] = byModule[m] || []).push(a);
+  });
+
+  Object.keys(byModule).forEach(folder => {
+    byModule[folder].forEach((api, i) => {
+      let base = bruSafeName(api.name || api.path);
+      /* Two requests can legitimately share a name -- five POST /auth/token
+         scenarios already do in this inventory -- and a zip with duplicate
+         paths silently keeps only the last. */
+      let key = folder + '/' + base, n = 1;
+      while(used[key]){ key = folder + '/' + base + '-' + (++n); }
+      used[key] = true;
+      files.push({name: key + '.bru', data: toBru(api, i)});
+    });
+  });
+
+  files.push({name: 'bruno.json', data: JSON.stringify({
+    version: '1',
+    name: collectionName || 'HCM imported',
+    type: 'collection',
+    ignore: ['node_modules', '.git']
+  }, null, 2)});
+
+  return files;
+}
+
+function exportBrunoModal(){
+  const apis = STATE.imported || [];
+  if(!apis.length){
+    toast('Nothing to export — upload a file or add a cURL first');
+    return;
+  }
+  const files = bruCollection(apis, 'HCM imported');
+  const modules = [...new Set(apis.map(a => a.module || 'Imported'))];
+  const withAuth = apis.filter(a => a.strippedHeaders > 0).length;
+
+  openModal('Export as Bruno collection',
+    `<div class="up-sum">
+       <span class="good">${apis.length} endpoint${apis.length===1?'':'s'}</span>
+       <span>${modules.length} folder${modules.length===1?'':'s'}</span>
+       <span>${files.length} file${files.length===1?'':'s'}</span>
+       ${withAuth ? `<span>${withAuth} will carry <code>${esc(BRU_TOKEN_VAR)}</code></span>` : ''}
+     </div>
+     <div class="up-list">${files.filter(f => f.name.endsWith('.bru')).map(f => `
+       <div class="up-row">
+         <span class="m">bru</span>
+         <span class="src"></span>
+         <span class="p" title="${esc(f.name)}">${esc(f.name)}</span>
+         <span class="src">${f.data.length} B</span>
+       </div>`).join('')}</div>
+     <div class="faint" style="font-size:11.5px;margin-top:11px">
+       Unzip into <code>bruno/</code>, commit, open a PR. CI regenerates the inventory
+       on push and the endpoints join the suite &mdash; nothing here writes to the
+       repository (DR-2). Credentials are written as
+       <code>${esc(BRU_TOKEN_VAR)}</code>, never as a real token.
+     </div>`,
+    `<button class="btn" data-close>Cancel</button>
+     <button class="btn btn-primary" id="btnBruSave">Download .zip</button>`);
+
+  $('#btnBruSave').onclick = () => {
+    const day = new Date().toISOString().slice(0, 10);
+    download(zipStore(files), `hcm-bruno-${day}.zip`, 'application/zip');
+    closeModal();
+    toast(`${apis.length} endpoint${apis.length===1?'':'s'} exported — unzip into bruno/ and commit`);
+  };
+}
+
 function exportModal(run){
   /* Called two ways: as a click handler, and with a specific run from the
      history list. An Event is truthy, so `run || STATE.result` silently took
@@ -6821,6 +7027,7 @@ $('#btnTheme').onkeydown = e => {
 };
 $('#btnExport').onclick = exportModal;
 const _up = $('#btnUpload'); if(_up) _up.onclick = uploadModal;
+const _br = $('#btnBruno'); if(_br) _br.onclick = exportBrunoModal;
 $$('#personaSeg button').forEach(b=> b.onclick=()=>{
   STATE.persona=b.dataset.persona; persist(); syncPersona();
 });

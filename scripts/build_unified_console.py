@@ -12,6 +12,7 @@ Writes ``docs/platform-ui/unified-console.html`` — self-contained, no CDN.
 
 from __future__ import annotations
 
+import datetime as _dt
 import json
 import re
 import sys
@@ -181,6 +182,9 @@ def main() -> int:
     template = TEMPLATE.read_text(encoding="utf-8")
 
     seed = {
+        # When this console was built. Piece B surfaces it, so "my PR merged but the
+        # console still shows yesterday's inventory" is a visible fact, not a hunch.
+        "generatedAt": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),
         "catalogueVersion": catalogue["catalogueVersion"],
         "resultStates": catalogue["resultStates"],
         "apis": [enrich(a, inv) for a in catalogue["apis"]],
@@ -191,6 +195,29 @@ def main() -> int:
         "hosts": HOSTS,
         "authProviderRef": AUTH_PROVIDER_REF,
     }
+
+    # The console's endpoint list comes from the catalogue, and nothing
+    # regenerates the catalogue -- so an endpoint added to the inventory by CI
+    # is invisible here until someone updates it by hand. That is a hole in the
+    # Bruno round trip and it fails silently: the inventory grew 45 -> 47 while
+    # the console stayed at 45 and said nothing.
+    #
+    # The catalogue carries test cases and applicability the inventory does not,
+    # so it cannot simply be replaced by one. Naming the orphans is the honest
+    # minimum: a build that drops an endpoint should say which one.
+    known = {str(a.get("ref", "")) for a in catalogue["apis"]}
+    orphans = [
+        row for row in inv.values()
+        if str(row.get("API Identifier", "")) not in known
+    ]
+    if orphans:
+        print(f"  {len(orphans)} inventory endpoint(s) are NOT in the catalogue,")
+        print("  so the console will not show them. Add them to")
+        print("  docs/platform-handoff/sample-catalogue.json to close the loop:")
+        for row in orphans[:10]:
+            print(f"    {row.get('HTTP Method','?'):7} {row.get('Endpoint / Path','?')}")
+        if len(orphans) > 10:
+            print(f"    ... and {len(orphans) - 10} more")
 
     blob = json.dumps(seed, separators=(",", ":"), ensure_ascii=False)
 

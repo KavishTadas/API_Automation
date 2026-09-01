@@ -146,6 +146,66 @@ function fileOf(name) {
   ok('every one carries a method and an absolute path',
      rt.found.every(e => /^[A-Z]+$/.test(e.method) && e.path.startsWith('/')));
 
+  console.log('\nit writes a Bruno collection that reads back:');
+  // The round trip is the only assertion that proves the format. Bruno's brace
+  // syntax is whitespace-sensitive in ways that are easy to get subtly wrong
+  // and impossible to eyeball.
+  w.__f = fileOf('sample.postman_collection.json');
+  const src = (await w.eval('extractFromFile(__f)')).found;
+  w.eval('STATE.imported = ' + JSON.stringify(src) + ';');
+  const files = w.eval('bruCollection(STATE.imported, "x")');
+  const brus = files.filter(f => f.name.endsWith('.bru'));
+
+  ok('one .bru per endpoint, plus a bruno.json',
+     brus.length === src.length && files.some(f => f.name === 'bruno.json'),
+     files.map(f => f.name).join(', '));
+  ok('files are foldered by module',
+     brus.every(f => f.name.includes('/')), brus.map(f => f.name).join(', '));
+
+  let mismatched = 0;
+  for (let i = 0; i < brus.length; i++) {
+    w.__t = brus[i].data;
+    const back = w.eval('fromBru(__t,"x","' + brus[i].name + '")')[0];
+    if (!back || back.method !== src[i].method || back.path !== src[i].path) mismatched++;
+    else if (Object.keys(back.samplePayload || {}).length !==
+             Object.keys(src[i].samplePayload || {}).length) mismatched++;
+  }
+  ok('every exported endpoint re-imports identically', mismatched === 0,
+     mismatched + ' of ' + brus.length + ' differed');
+
+  const blobBru = brus.map(f => f.data).join('\n');
+  ok('the credential is written as a variable, not a value',
+     /\{\{authToken\}\}/.test(blobBru) &&
+     !/LIVE\.SECRET\.TOKEN|LIVE\.TOKEN|k-123/.test(blobBru),
+     'a real credential reached the exported collection');
+  // The structured block, not a header. `headers { Authorization: ... }` is
+  // valid Bruno and invisible to generate-api-file.js, which reads auth:bearer
+  // -- an export written the header way reached the inventory with no
+  // credential and no access level, while looking imported correctly.
+  ok('auth is written as the structured block the generator reads',
+     brus.some(f => /auth:bearer\s*\{[^}]*token:\s*\{\{authToken\}\}/.test(f.data)),
+     'no auth:bearer block — the inventory would receive no credential');
+  ok('and the method block declares bearer, not none',
+     brus.some(f => /\n\s*auth:\s*bearer/.test(f.data)),
+     'the method block still says auth: none');
+  ok('the credential is not also left in a header',
+     brus.every(f => !/^\s*Authorization:/mi.test(f.data)),
+     'Authorization duplicated as a header');
+  ok('duplicate request names do not collide into one file',
+     new Set(files.map(f => f.name)).size === files.length);
+
+  console.log('\nprovenance is visible:');
+  ok('an endpoint from bruno/ is badged as bruno',
+     /src-badge bruno/.test(w.eval('sourceBadge({ref:"x",sourceType:"bruno"})')));
+  ok('an endpoint from collections/ is badged as postman',
+     /src-badge newman/.test(w.eval('sourceBadge({ref:"x",sourceType:"newman"})')));
+  ok('an endpoint only in this browser is badged local',
+     /src-badge local/.test(w.eval('sourceBadge(STATE.imported[0])')),
+     'an uploaded endpoint is indistinguishable from a committed one');
+  ok('the console knows when its inventory was built',
+     /\d/.test(String(w.eval('SEED.generatedAt || ""'))),
+     String(w.eval('SEED.generatedAt')));
+
   console.log('\nit fails honestly:');
   w.__f = { name: 'junk.bin', text: async () => 'not a request in sight',
             arrayBuffer: async () => new Uint8Array([1, 2, 3]).buffer };
