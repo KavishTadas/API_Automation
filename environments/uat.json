@@ -4,13 +4,13 @@
   "values": [
     {
       "key": "authBaseUrl",
-      "value": "https://dev_mcdp_be.omfysgroup.com",
+      "value": "https://uat-mcdp-be.omfysgroup.com",
       "enabled": true,
       "description": "Employee auth API; requires the host-scoped pinned TLS agent in scripts/pinned-tls-agent.js"
     },
     {
       "key": "baseUrl",
-      "value": "https://uat_mcdp_hcm.omfysgroup.com",
+      "value": "https://uatmcdphcmplatform.omfysgroup.com",
       "enabled": true,
       "description": "Attendance API base URL"
     },
@@ -22,7 +22,7 @@
     },
     {
       "key": "attendanceBaseUrl",
-      "value": "https://uat_mcdp_hcm.omfysgroup.com",
+      "value": "https://uatmcdphcmplatform.omfysgroup.com",
       "enabled": true,
       "description": "Attendance API base URL"
     },
