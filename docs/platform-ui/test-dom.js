@@ -49,8 +49,11 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   await wait(30);
   ok('Clear Selection empties it', $('#btnRun').disabled === true);
 
-  // select six endpoints via their checkboxes
-  const boxes = $$('#msBox input[type=checkbox]').slice(0, 6);
+  // Select six CASES. Every endpoint now renders a wrapper row with its own
+  // checkbox, so "the first six checkboxes" is no longer six selectable APIs --
+  // it interleaves endpoint headers, and an endpoint header selects all of its
+  // cases at once. [data-chk] names the case checkboxes specifically.
+  const boxes = $$('#msBox input[data-chk]').slice(0, 6);
   boxes.forEach(b => { b.checked = true; b.dispatchEvent(new window.Event('change', { bubbles: true })); });
   await wait(40);
   ok('checkbox selection updates the badge', /6 APIs Selected/.test($('#selBadge').textContent),
@@ -446,12 +449,19 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
      $$('#railMenu .rail-sec .rs-dot').length + ' of ' + $$('#railMenu .rail-sec').length);
   ok('section dots are coloured',
      $$('#railMenu .rs-dot').every(d => /background:#/.test(d.getAttribute('style') || '')));
-  ok('the assertion-gap chip is called out',
-     !!$('#railMenu .rail-gap') &&
-     /\d+ assertion gap/.test($('#railMenu .rail-gap').textContent),
-     ($('#railMenu .rail-gap') || {}).textContent);
-  ok('the gap chip explains itself on hover',
-     /assert nothing/.test(($('#railMenu .rail-gap') || {}).title || ''));
+  // The chip is conditional by design: `gaps ? chip : ''`. Asserting it always
+  // exists was only ever true because 37 Attendance requests asserted nothing.
+  // Now that every endpoint carries authored cases the count is 0 and the chip
+  // correctly does not render -- so the test states the rule, not the old data.
+  const gapChip = $('#railMenu .rail-gap');
+  const gapCount = $$('#msBox .pill.gap').length;  // the per-row "no assert" pills
+  ok('the assertion-gap chip appears exactly when there are gaps',
+     gapCount > 0 ? !!gapChip : !gapChip,
+     gapCount + ' gap(s), chip ' + (gapChip ? 'shown' : 'absent'));
+  ok('the gap chip counts and explains itself when shown',
+     !gapChip || (/\d+ assertion gap/.test(gapChip.textContent) &&
+                  /assert nothing/.test(gapChip.title || '')),
+     gapChip ? gapChip.textContent : 'no chip (no gaps)');
   ok('Open Report badges the failure count once a run exists',
      !$('#railMenu [data-view="analytics"]').disabled
        ? !!$('#railMenu [data-view="analytics"] .ct') : true,

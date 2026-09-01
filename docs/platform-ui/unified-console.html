@@ -2804,10 +2804,14 @@ function renderMultiSelect(){
   box.innerHTML=[...m.entries()].map(([mod,list])=>{
     const sel=list.filter(a=>STATE.selected.has(a.ref)).length;
     const eps=endpointGroups(list);
+    /* Every endpoint gets the same shape, including the 37 that carry a single
+       case. Skipping the wrapper for those looked like a tidy saving and read as
+       a bug: the list showed two row shapes with no visible rule, so /auth/token
+       nested its three cases while WeekOffGetAll sat bare beside it and nothing
+       told the reader why. Uniform beats shorter -- one rule to learn, one code
+       path to maintain, and a single-case endpoint still shows its case rather
+       than hiding it behind a row that merely resembles one. */
     const body=[...eps.entries()].map(([ep,cases])=>{
-      /* A single-case endpoint gains nothing from a wrapper -- the case row is
-         the endpoint. Only branch where there is genuinely something to nest. */
-      if(cases.length===1) return msCaseRow(cases[0]);
       const on=cases.filter(c=>STATE.selected.has(c.ref)).length;
       const refs=cases.map(c=>c.ref).join('\n');
       return `<div class="ms-ep">
