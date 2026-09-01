@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "Update Shift",
   "Access": "private",
   "Functional Purpose": "Update Shift",
-  "Base URL": "{{baseURL}}",
+  "Base URL": "{{attendanceBaseUrl}}",
   "Endpoint / Path": "/api/v1/attendance/shift/master/2",
   "HTTP Method": "PUT",
   "Request Parameters": "headers: Authorization=Bearer {{authToken}}",

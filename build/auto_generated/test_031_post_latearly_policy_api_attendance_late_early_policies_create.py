@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "create",
   "Access": "private",
   "Functional Purpose": "create",
-  "Base URL": "{{baseURL}}",
+  "Base URL": "{{attendanceBaseUrl}}",
   "Endpoint / Path": "/api/attendance/late-early-policies/create",
   "HTTP Method": "POST",
   "Request Parameters": "headers: Authorization=Bearer YOUR_JWT_TOKEN; Content-Type=application/json",

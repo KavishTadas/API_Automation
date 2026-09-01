@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "Create",
   "Access": "private",
   "Functional Purpose": "Create",
-  "Base URL": "{{baseURL}}",
+  "Base URL": "{{attendanceBaseUrl}}",
   "Endpoint / Path": "/api/attendance/holiday-templates/create",
   "HTTP Method": "POST",
   "Request Parameters": "headers: Authorization=Bearer {{jwtToken}}; Content-Type=application/json",

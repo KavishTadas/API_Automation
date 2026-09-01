@@ -22,7 +22,7 @@ cases:
   subModule: Delete Shift
   access: private
   purpose: Delete Shift
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/v1/attendance/shift/master/6
   method: DELETE
   requestParameters: 'headers: Authorization=Bearer {{authToken}}'

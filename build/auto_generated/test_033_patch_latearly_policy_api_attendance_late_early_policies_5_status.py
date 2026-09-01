@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "ChangeStatus",
   "Access": "private",
   "Functional Purpose": "Generated from cURL: curl --location --request PATCH 'http://localhost:9079/api/attendance/late-early-policies/5/status?status=Y' \\\n--header 'Authorization: Bearer <JWT_TOKEN>'",
-  "Base URL": "{{baseURL}}",
+  "Base URL": "{{attendanceBaseUrl}}",
   "Endpoint / Path": "/api/attendance/late-early-policies/5/status",
   "HTTP Method": "PATCH",
   "Request Parameters": "query: status=N | headers: Authorization=Bearer <JWT_TOKEN>",

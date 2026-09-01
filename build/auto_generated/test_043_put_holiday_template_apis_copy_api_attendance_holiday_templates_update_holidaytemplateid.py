@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "Update",
   "Access": "private",
   "Functional Purpose": "Update",
-  "Base URL": "{{baseURL}}",
+  "Base URL": "{{attendanceBaseUrl}}",
   "Endpoint / Path": "/api/attendance/holiday-templates/update/{holidayTemplateId}",
   "HTTP Method": "PUT",
   "Request Parameters": "path variables: holidayTemplateId | headers: Authorization=Bearer {{jwtToken}}; Content-Type=application/json",

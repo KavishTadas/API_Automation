@@ -22,7 +22,7 @@ cases:
   subModule: Change Status
   access: private
   purpose: Change Status
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/holiday-templates/19/status
   method: PATCH
   requestParameters: 'headers: Authorization=Bearer {{jwtToken}}; Content-Type=application/json'

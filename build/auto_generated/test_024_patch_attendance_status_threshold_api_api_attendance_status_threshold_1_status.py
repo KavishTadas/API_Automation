@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "Change Status",
   "Access": "private",
   "Functional Purpose": "Change Status",
-  "Base URL": "{{baseUrl}}",
+  "Base URL": "{{attendanceBaseUrl}}",
   "Endpoint / Path": "/api/attendance/status-threshold/1/status",
   "HTTP Method": "PATCH",
   "Request Parameters": "headers: Authorization=Bearer {{token}}; Content-Type=application/json",

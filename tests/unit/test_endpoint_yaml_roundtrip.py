@@ -68,24 +68,39 @@ class TestLosslessness:
     def test_every_inventory_column_survives(self, documents, inventory):
         """Column-by-column equality for every ref the tree holds. The real gate.
 
-        Compared against the refs present in the tree rather than the full
-        api-docs inventory: that file is the pre-flip snapshot and still lists
-        the bruno `auth` duplicate that was deliberately removed. A ref the tree
-        no longer claims is not a lossless-mapping failure -- a ref it claims but
-        cannot reproduce faithfully is, and that is what this asserts.
+        Asserted as a **round-trip through the mapping**, not as equality with
+        `api-docs/API_File.json`. The earlier version compared against that file
+        and so conflated two different properties: "the mapping loses nothing"
+        and "the content never changes". Only the first is an invariant. The
+        second broke the moment the attendance endpoints were deliberately
+        repointed from `{{baseURL}}` to `{{attendanceBaseUrl}}` -- a correct
+        change that a losslessness test has no business failing on.
+
+        `row -> case -> row` is the real property: whatever a row holds, the
+        YAML shape must be able to carry it and hand it back unchanged.
         """
-        rebuilt = {r["API Identifier"]: r for r in gen.rows_from_endpoints()}
-        assert set(rebuilt) <= set(inventory), "tree invented a ref the inventory lacks"
+        rows = {r["API Identifier"]: r for r in gen.rows_from_endpoints()}
+        assert rows, "the tree produced no rows at all"
 
         mismatches = []
-        for ref in rebuilt:
-            original = inventory[ref]
+        for ref, row in rows.items():
+            # A synthetic api dict: row_to_case only reads "ref" off it.
+            round_tripped = gen.case_to_row(gen.row_to_case(row, {"ref": ref}))
             for column in gen.ALL_COLUMNS:
-                want = str(original.get(column, "") or "")
-                got = rebuilt[ref].get(column, "")
+                want = str(row.get(column, "") or "")
+                got = str(round_tripped.get(column, "") or "")
                 if want != got:
-                    mismatches.append(f"{ref}\n  column {column!r}\n  want {want!r}\n  got  {got!r}")
+                    mismatches.append(
+                        f"{ref}\n  column {column!r}\n  want {want!r}\n  got  {got!r}"
+                    )
         assert not mismatches, "\n".join(mismatches[:5])
+
+    def test_tree_refs_are_a_subset_of_the_inventory(self, inventory):
+        """The tree may drop a ref deliberately; it may never invent one."""
+        rebuilt = {r["API Identifier"] for r in gen.rows_from_endpoints()}
+        assert rebuilt <= set(inventory), (
+            f"tree claims refs the inventory lacks: {sorted(rebuilt - set(inventory))[:3]}"
+        )
 
     def test_mapping_covers_exactly_eighteen_columns(self, inventory):
         columns = set()

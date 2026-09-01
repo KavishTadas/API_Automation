@@ -22,7 +22,7 @@ cases:
   subModule: Update
   access: private
   purpose: Update
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/holiday-templates/update/{holidayTemplateId}
   method: PUT
   requestParameters: 'path variables: holidayTemplateId | headers: Authorization=Bearer {{jwtToken}};

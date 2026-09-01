@@ -22,7 +22,7 @@ cases:
   subModule: Activate Deactivate
   access: private
   purpose: Activate Deactivate
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendancepolicy/4/status
   method: PATCH
   requestParameters: 'query: action=ACTIVATE | headers: Authorization=Bearer {{authToken}}'

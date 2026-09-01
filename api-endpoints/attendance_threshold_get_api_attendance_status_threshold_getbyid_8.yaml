@@ -22,7 +22,7 @@ cases:
   subModule: Get By Id
   access: private
   purpose: Get By Id
-  basePath: '{{baseUrl}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/status-threshold/getById/8
   method: GET
   requestParameters: 'headers: Authorization=Bearer {{token}}'

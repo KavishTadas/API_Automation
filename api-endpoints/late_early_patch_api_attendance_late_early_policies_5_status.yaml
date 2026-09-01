@@ -24,7 +24,7 @@ cases:
   purpose: |-
     Generated from cURL: curl --location --request PATCH 'http://localhost:9079/api/attendance/late-early-policies/5/status?status=Y' \
     --header 'Authorization: Bearer <JWT_TOKEN>'
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/late-early-policies/5/status
   method: PATCH
   requestParameters: 'query: status=N | headers: Authorization=Bearer <JWT_TOKEN>'

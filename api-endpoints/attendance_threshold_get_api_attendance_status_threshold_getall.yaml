@@ -22,7 +22,7 @@ cases:
   subModule: Get All
   access: private
   purpose: Get All
-  basePath: '{{baseUrl}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/status-threshold/getAll
   method: GET
   requestParameters: 'query: page=0; size=10; sort=thresholdName,asc | headers: Authorization=Bearer {{token}}'

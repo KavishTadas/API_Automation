@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "update",
   "Access": "private",
   "Functional Purpose": "Generated from cURL: curl --location --request PUT 'http://localhost:9079/api/attendance/late-early-policies/update/1' \\\n--header 'Authorization: Bearer <JWT_TOKEN>' \\\n--header 'Content-Type: application/json' \\\n--data '{\n    \"policyCode\": \"LEP001\",\n    \"policyName\": \"Updated Late/Early Policy\",\n    \"description\": \"Updated Policy\",\n    \"templateMode\": \"DEFAULT\",\n    \"templateStatus\": \"PUBLISHED\",\n    \"eventCountMinutes\": 20,\n    \"graceMinutes\": 5,\n    \"graceEvent\": 2,\n    \"allowedEvent\": 3,\n    \"deductionType\": \"LEAVE\",\n    \"leaveDeductDays\": 1,\n    \"leaveTypeId\": 1,\n    \"fineAmount\": null,\n    \"effectiveFrom\": \"2026-08-01\",\n    \"effectiveTo\": null,\n    \"isDefault\": \"N\",\n    \"remarks\": \"Updated Policy\",\n    \"deductionPriorities\": [\n        {\n            \"priorityOrder\": 1,\n            \"leaveTypeId\": 1,\n            \"isActive\": \"Y\"\n        }\n    ],\n    \"assignments\": [\n        {\n            \"employeeId\": 1001,\n            \"effectiveFrom\": \"2026-08-01\",\n            \"effectiveTo\": null,\n            \"isActive\": \"Y\"\n        }\n    ]\n}'",
-  "Base URL": "{{baseURL}}",
+  "Base URL": "{{attendanceBaseUrl}}",
   "Endpoint / Path": "/api/attendance/late-early-policies/update/2",
   "HTTP Method": "PUT",
   "Request Parameters": "headers: Authorization=Bearer <JWT_TOKEN>; Content-Type=application/json",

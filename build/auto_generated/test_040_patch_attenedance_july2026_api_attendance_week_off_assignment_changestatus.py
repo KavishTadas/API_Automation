@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "week-off-assignment/changeStatus",
   "Access": "private",
   "Functional Purpose": "Generated from cURL: curl --location --request PATCH 'http://localhost:8080/api/attendance/week-off-assignment/changeStatus' \\\n--header 'Authorization: Bearer <TOKEN>' \\\n--header 'Content-Type: application/json' \\\n--data '{\n    \"assignmentId\": 1,\n    \"status\": \"N\"\n}'",
-  "Base URL": "{{baseURL}}",
+  "Base URL": "{{attendanceBaseUrl}}",
   "Endpoint / Path": "/api/attendance/week-off-assignment/changeStatus",
   "HTTP Method": "PATCH",
   "Request Parameters": "headers: Authorization=Bearer <TOKEN>; Content-Type=application/json",

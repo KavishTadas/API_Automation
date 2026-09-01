@@ -22,7 +22,7 @@ cases:
   subModule: Get By Id
   access: private
   purpose: Get By Id
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/v1/attendance/shift/master/7
   method: GET
   requestParameters: 'headers: Authorization=Bearer {{authToken}}'

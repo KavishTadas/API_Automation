@@ -22,7 +22,7 @@ cases:
   subModule: Get All
   access: private
   purpose: Get All
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/holiday-templates/getAll
   method: GET
   requestParameters: 'query: page=0; size=10 | headers: Authorization=Bearer {{jwtToken}}'

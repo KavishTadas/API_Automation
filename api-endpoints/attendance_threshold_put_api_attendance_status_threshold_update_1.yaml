@@ -22,7 +22,7 @@ cases:
   subModule: Update Threshold
   access: private
   purpose: Update Threshold
-  basePath: '{{baseUrl}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/status-threshold/update/1
   method: PUT
   requestParameters: 'headers: Authorization=Bearer {{token}}; Content-Type=application/json'

@@ -22,7 +22,7 @@ cases:
   subModule: Get All Shifts
   access: private
   purpose: Get All Shifts
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/v1/attendance/shift/master
   method: GET
   requestParameters: 'query: page=0; includeDeleted=true | headers: Authorization=Bearer {{authToken}}'

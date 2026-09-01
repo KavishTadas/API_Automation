@@ -29,7 +29,7 @@ cases:
         "assignmentId": 1,
         "status": "N"
     }'
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/week-off-assignment/changeStatus
   method: PATCH
   requestParameters: 'headers: Authorization=Bearer <TOKEN>; Content-Type=application/json'

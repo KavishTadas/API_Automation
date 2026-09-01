@@ -22,7 +22,7 @@ cases:
   subModule: Delete
   access: private
   purpose: Delete
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/holiday-templates/delete/{holidayTemplateId}
   method: DELETE
   requestParameters: 'path variables: holidayTemplateId | headers: Authorization=Bearer {{jwtToken}}'

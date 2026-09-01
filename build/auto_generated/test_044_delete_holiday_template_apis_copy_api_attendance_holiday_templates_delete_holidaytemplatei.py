@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "Delete",
   "Access": "private",
   "Functional Purpose": "Delete",
-  "Base URL": "{{baseURL}}",
+  "Base URL": "{{attendanceBaseUrl}}",
   "Endpoint / Path": "/api/attendance/holiday-templates/delete/{holidayTemplateId}",
   "HTTP Method": "DELETE",
   "Request Parameters": "path variables: holidayTemplateId | headers: Authorization=Bearer {{jwtToken}}",

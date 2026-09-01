@@ -59,7 +59,7 @@ cases:
             }
         ]
     }'
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/late-early-policies/update/2
   method: PUT
   requestParameters: 'headers: Authorization=Bearer <JWT_TOKEN>; Content-Type=application/json'

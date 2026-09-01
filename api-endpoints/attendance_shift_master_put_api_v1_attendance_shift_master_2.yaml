@@ -22,7 +22,7 @@ cases:
   subModule: Update Shift
   access: private
   purpose: Update Shift
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/v1/attendance/shift/master/2
   method: PUT
   requestParameters: 'headers: Authorization=Bearer {{authToken}}'

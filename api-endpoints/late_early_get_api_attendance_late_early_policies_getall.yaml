@@ -22,7 +22,7 @@ cases:
   subModule: getAll
   access: private
   purpose: getAll
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/late-early-policies/getAll
   method: GET
   requestParameters: 'query: page=0; size=10; sort=policyId,desc | headers: Authorization=Bearer <JWT_TOKEN>'

@@ -26,6 +26,11 @@ Credential aliases only. No raw credential value appears in either file.
 | `33ecada-run.json` + `33ecada-manifest.json` | 45 | 953 | **superseded** — pre-removal record |
 | `44-endpoint-run.json` + `44-endpoint-manifest.json` | 44 | 932 | **current** — diff against this |
 
+Re-cut after the attendance host correction. `total` is unchanged at 932 (the
+same 44 endpoints, the same 22 checks); what moved is which state each result
+landed in: **PASS 398 -> 483, FAIL 120 -> 53, passRate 0.7683 -> 0.9011**,
+stable across three consecutive runs with `unreachableResults: 0`.
+
 ### Why they differ
 
 The bruno `auth` entry was removed as a verified duplicate. It and

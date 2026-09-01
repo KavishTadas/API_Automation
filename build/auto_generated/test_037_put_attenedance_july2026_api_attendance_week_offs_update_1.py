@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "WeekOffUpdate",
   "Access": "private",
   "Functional Purpose": "WeekOffUpdate",
-  "Base URL": "{{baseURL}}",
+  "Base URL": "{{attendanceBaseUrl}}",
   "Endpoint / Path": "/api/attendance/week-offs/update/1",
   "HTTP Method": "PUT",
   "Request Parameters": "headers: Authorization=Bearer YOUR_JWT_TOKEN; Content-Type=application/json",

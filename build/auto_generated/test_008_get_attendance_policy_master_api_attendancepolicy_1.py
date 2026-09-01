@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "Get Policy By Id",
   "Access": "private",
   "Functional Purpose": "Get Policy By Id",
-  "Base URL": "{{baseURL}}",
+  "Base URL": "{{attendanceBaseUrl}}",
   "Endpoint / Path": "/api/attendancepolicy/1",
   "HTTP Method": "GET",
   "Request Parameters": "headers: Authorization=Bearer {{authToken}}",

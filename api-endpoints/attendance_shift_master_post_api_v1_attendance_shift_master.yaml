@@ -22,7 +22,7 @@ cases:
   subModule: Create CUSTOM Shift (FIXED Type)
   access: private
   purpose: Create CUSTOM Shift (FIXED Type)
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/v1/attendance/shift/master
   method: POST
   requestParameters: 'headers: Authorization=Bearer {{authToken}}'
@@ -118,7 +118,7 @@ cases:
   subModule: Create New Shift
   access: private
   purpose: Create New Shift
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/v1/attendance/shift/master
   method: POST
   requestParameters: 'headers: Authorization=Bearer {{authToken}}'

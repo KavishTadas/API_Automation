@@ -22,7 +22,7 @@ cases:
   subModule: WeekOffGetById
   access: private
   purpose: WeekOffGetById
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/week-offs/getById/1
   method: GET
   requestParameters: 'headers: Authorization=Bearer YOUR_JWT_TOKEN'

@@ -22,7 +22,7 @@ cases:
   subModule: Toggle Delete
   access: private
   purpose: Toggle Delete
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/v1/attendance/shift/master/status/7
   method: PATCH
   requestParameters: 'query: action=DEACTIVATE | headers: Authorization=Bearer {{authToken}}'

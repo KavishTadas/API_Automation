@@ -22,7 +22,7 @@ cases:
   subModule: Change Status
   access: private
   purpose: Change Status
-  basePath: '{{baseUrl}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/status-threshold/1/status
   method: PATCH
   requestParameters: 'headers: Authorization=Bearer {{token}}; Content-Type=application/json'

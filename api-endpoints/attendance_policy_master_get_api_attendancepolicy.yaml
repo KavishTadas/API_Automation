@@ -22,7 +22,7 @@ cases:
   subModule: Get All Policies
   access: private
   purpose: Get All Policies
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendancepolicy
   method: GET
   requestParameters: 'headers: Authorization=Bearer {{authToken}}'

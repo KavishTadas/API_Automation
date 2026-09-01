@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "Update Threshold",
   "Access": "private",
   "Functional Purpose": "Update Threshold",
-  "Base URL": "{{baseUrl}}",
+  "Base URL": "{{attendanceBaseUrl}}",
   "Endpoint / Path": "/api/attendance/status-threshold/update/1",
   "HTTP Method": "PUT",
   "Request Parameters": "headers: Authorization=Bearer {{token}}; Content-Type=application/json",

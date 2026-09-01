@@ -22,7 +22,7 @@ cases:
   subModule: Create
   access: private
   purpose: Create
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/holiday-templates/create
   method: POST
   requestParameters: 'headers: Authorization=Bearer {{jwtToken}}; Content-Type=application/json'

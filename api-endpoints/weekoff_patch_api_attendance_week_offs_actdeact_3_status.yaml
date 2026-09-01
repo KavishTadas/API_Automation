@@ -22,7 +22,7 @@ cases:
   subModule: WeekOffActDeact
   access: private
   purpose: WeekOffActDeact
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/week-offs/actDeact/3/status
   method: PATCH
   requestParameters: 'headers: Authorization=Bearer YOUR_JWT_TOKEN; Content-Type=application/json'

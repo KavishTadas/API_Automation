@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "getAll",
   "Access": "private",
   "Functional Purpose": "getAll",
-  "Base URL": "{{baseURL}}",
+  "Base URL": "{{attendanceBaseUrl}}",
   "Endpoint / Path": "/api/attendance/late-early-policies/getAll",
   "HTTP Method": "GET",
   "Request Parameters": "query: page=0; size=10; sort=policyId,desc | headers: Authorization=Bearer <JWT_TOKEN>",

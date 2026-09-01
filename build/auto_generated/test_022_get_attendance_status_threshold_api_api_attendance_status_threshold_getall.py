@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "Get All",
   "Access": "private",
   "Functional Purpose": "Get All",
-  "Base URL": "{{baseUrl}}",
+  "Base URL": "{{attendanceBaseUrl}}",
   "Endpoint / Path": "/api/attendance/status-threshold/getAll",
   "HTTP Method": "GET",
   "Request Parameters": "query: page=0; size=10; sort=thresholdName,asc | headers: Authorization=Bearer {{token}}",

@@ -22,7 +22,7 @@ cases:
   subModule: Create New Policy
   access: private
   purpose: Create New Policy
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendancepolicy
   method: POST
   requestParameters: 'headers: Authorization=Bearer {{authToken}}'

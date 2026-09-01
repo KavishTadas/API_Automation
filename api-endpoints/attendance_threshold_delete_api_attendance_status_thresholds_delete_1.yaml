@@ -22,7 +22,7 @@ cases:
   subModule: Delete Threshold
   access: private
   purpose: Delete Threshold
-  basePath: '{{baseUrl}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/status-thresholds/delete/1
   method: DELETE
   requestParameters: 'headers: Authorization=Bearer {{token}}'

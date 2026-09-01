@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "Get All",
   "Access": "private",
   "Functional Purpose": "Get All",
-  "Base URL": "{{baseURL}}",
+  "Base URL": "{{attendanceBaseUrl}}",
   "Endpoint / Path": "/api/attendance/holiday-templates/getAll",
   "HTTP Method": "GET",
   "Request Parameters": "query: page=0; size=10 | headers: Authorization=Bearer {{jwtToken}}",

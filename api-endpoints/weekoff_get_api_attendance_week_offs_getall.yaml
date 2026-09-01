@@ -22,7 +22,7 @@ cases:
   subModule: WeekOffGetAll
   access: private
   purpose: WeekOffGetAll
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/week-offs/getAll
   method: GET
   requestParameters: 'query: page=0; size=10; sort=weekOffName,asc | headers: Authorization=Bearer YOUR_JWT_TOKEN'

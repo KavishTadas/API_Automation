@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "getById/1",
   "Access": "private",
   "Functional Purpose": "Generated from cURL: curl --location 'http://localhost:9079/api/attendance/late-early-policies/getById/1' \\\n--header 'Authorization: Bearer <JWT_TOKEN>'",
-  "Base URL": "{{baseURL}}",
+  "Base URL": "{{attendanceBaseUrl}}",
   "Endpoint / Path": "/api/attendance/late-early-policies/getById/5",
   "HTTP Method": "GET",
   "Request Parameters": "headers: Authorization=Bearer <JWT_TOKEN>",

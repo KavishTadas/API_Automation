@@ -22,7 +22,7 @@ cases:
   subModule: create
   access: private
   purpose: create
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/late-early-policies/create
   method: POST
   requestParameters: 'headers: Authorization=Bearer YOUR_JWT_TOKEN; Content-Type=application/json'

@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "Delete Threshold",
   "Access": "private",
   "Functional Purpose": "Delete Threshold",
-  "Base URL": "{{baseUrl}}",
+  "Base URL": "{{attendanceBaseUrl}}",
   "Endpoint / Path": "/api/attendance/status-thresholds/delete/1",
   "HTTP Method": "DELETE",
   "Request Parameters": "headers: Authorization=Bearer {{token}}",

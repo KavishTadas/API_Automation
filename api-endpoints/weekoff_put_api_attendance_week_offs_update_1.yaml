@@ -22,7 +22,7 @@ cases:
   subModule: WeekOffUpdate
   access: private
   purpose: WeekOffUpdate
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/week-offs/update/1
   method: PUT
   requestParameters: 'headers: Authorization=Bearer YOUR_JWT_TOKEN; Content-Type=application/json'

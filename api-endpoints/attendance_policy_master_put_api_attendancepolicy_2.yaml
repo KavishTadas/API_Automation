@@ -22,7 +22,7 @@ cases:
   subModule: Update Policy By Id
   access: private
   purpose: Update Policy By Id
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendancepolicy/2
   method: PUT
   requestParameters: 'headers: Authorization=Bearer {{authToken}}'

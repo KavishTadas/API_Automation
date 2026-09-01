@@ -22,7 +22,7 @@ cases:
   subModule: Delete Policy By Id
   access: private
   purpose: Delete Policy By Id
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendancepolicy/2
   method: DELETE
   requestParameters: 'headers: Authorization=Bearer {{authToken}}'

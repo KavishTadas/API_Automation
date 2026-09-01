@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "Toggle Delete",
   "Access": "private",
   "Functional Purpose": "Toggle Delete",
-  "Base URL": "{{baseURL}}",
+  "Base URL": "{{attendanceBaseUrl}}",
   "Endpoint / Path": "/api/v1/attendance/shift/master/status/7",
   "HTTP Method": "PATCH",
   "Request Parameters": "query: action=DEACTIVATE | headers: Authorization=Bearer {{authToken}}",

@@ -22,7 +22,7 @@ cases:
   subModule: WeekOffMasterCreate
   access: private
   purpose: WeekOffMasterCreate
-  basePath: '{{baseURL}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/week-offs/create
   method: POST
   requestParameters: 'headers: Authorization=Bearer YOUR_JWT_TOKEN; Content-Type=application/json'

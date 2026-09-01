@@ -22,7 +22,7 @@ cases:
   subModule: Create Threshold
   access: private
   purpose: Create Threshold
-  basePath: '{{baseUrl}}'
+  basePath: '{{attendanceBaseUrl}}'
   endpointPath: /api/attendance/status-threshold/create
   method: POST
   requestParameters: 'headers: Authorization=Bearer {{token}}; Content-Type=application/json'
