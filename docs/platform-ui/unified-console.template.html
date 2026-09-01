@@ -2995,12 +2995,15 @@ function orderedChecks(){
   return SEED.globalTestCases.slice().sort((a,b)=>
     rank(a.category)-rank(b.category) || a.title.localeCompare(b.title));
 }
-/* TC-01..TC-nn, fixed for the life of the catalogue. */
+/* GC-01..GC-nn for the shared global checks. Deliberately NOT "TC-": the
+   endpoint tier numbers its own cases TC_001 per endpoint, and two schemes
+   telling themselves apart by a hyphen versus an underscore is not a
+   distinction anyone can see at a glance. GC = global contract. */
 let TC_NUM=null;
 function tcNum(id){
   if(!TC_NUM){
     TC_NUM=new Map();
-    orderedChecks().forEach((tc,i)=> TC_NUM.set(tc.id,'TC-'+String(i+1).padStart(2,'0')));
+    orderedChecks().forEach((tc,i)=> TC_NUM.set(tc.id,'GC-'+String(i+1).padStart(2,'0')));
   }
   return TC_NUM.get(id)||'TC-··';
 }
@@ -3074,11 +3077,34 @@ function tcListFor(api, prev){
     <span class="tc-tier-n">${n}</span>
     <span class="tc-tier-d">${esc(note)}</span></div>`;
 
-  return tier('Collection assertions', gapCard?1:0,
-              gapCard ? 'authored in the Postman collection for this request'
-                      : 'this request has none authored')
-       + (gapCard || `<p class="pl-none" style="margin:0 0 4px">Nothing to show — the
-          collection defines no assertion for this request.</p>`)
+  /* This endpoint's own cases: hand-authored files under test-cases/, the
+     collection's pm.test assertions, and the generated tier. Each carries the
+     TC_00N label the catalogue numbered it with -- per endpoint, so every
+     endpoint's list starts at TC_001. Before this they existed in the repo and
+     nowhere in the UI, because the seed only ever carried the global set. */
+  const own = (SEED.apiTestCases && SEED.apiTestCases[api.ref]) || [];
+  const TIER_NOTE = {
+    endpoint: 'hand-authored in test-cases/',
+    newman: 'authored in the Postman collection',
+    generated: 'generated from the inventory',
+  };
+  const ownCards = own.map(tc=>`<article class="tc">
+      <div class="tc-n">${esc(tc.displayId||'')}</div>
+      <div class="tc-b">
+        <h4 class="tc-t">${esc(tc.title||tc.id)}</h4>
+        <div class="tc-id">${esc(tc.tier||'')} · ${esc(TIER_NOTE[tc.tier]||tc.category||'')}</div>
+        ${tc.source?`<p class="tc-d">${esc(tc.source)}</p>`:''}
+        <div class="tc-f"><span class="tag">${esc(tc.category||'')}</span></div>
+      </div>
+      <span class="st" title="This tier runs separately from the contract engine,
+        so the catalogue carries no result state for it yet">${esc(tc.expectedState||'—')}</span>
+    </article>`).join('');
+
+  return tier("This endpoint's test cases", own.length,
+              own.length ? 'authored and collection cases scoped to this request'
+                         : 'this request has none authored')
+       + (ownCards || gapCard || `<p class="pl-none" style="margin:0 0 4px">Nothing to
+          show — no case is scoped to this request.</p>`)
        + tier('Global contract checks', orderedChecks().length,
               'run against every selected endpoint (D2)')
        + out.join('');

@@ -885,7 +885,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete",
-        "source": "test-cases/endpoint/holiday_template/DELETE_api_attendance_holiday_templates_delete_by_holidaytemplateid/01_outcome_reported_delete_by_holidaytemplatei.py"
+        "source": "test-cases/endpoint/holiday_template/DELETE_api_attendance_holiday_templates_delete_by_holidaytemplateid/01_outcome_reported_delete_by_holidaytemplatei.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold::test_reports_the_outcome_in_the_body",
@@ -894,7 +895,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold",
-        "source": "test-cases/endpoint/attendance_threshold/DELETE_api_attendance_status_thresholds_delete_1/01_outcome_reported_delete_delete_1.py"
+        "source": "test-cases/endpoint/attendance_threshold/DELETE_api_attendance_status_thresholds_delete_1/01_outcome_reported_delete_delete_1.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::delete|/api/attendancepolicy/2|attendance policy master|delete policy by id::test_reports_the_outcome_in_the_body",
@@ -903,7 +905,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "delete|/api/attendancepolicy/2|attendance policy master|delete policy by id",
-        "source": "test-cases/endpoint/attendance_policy_master/DELETE_api_attendancepolicy_2/01_outcome_reported_delete_attendancepolicy_2.py"
+        "source": "test-cases/endpoint/attendance_policy_master/DELETE_api_attendancepolicy_2/01_outcome_reported_delete_attendancepolicy_2.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift::test_reports_the_outcome_in_the_body",
@@ -912,7 +915,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift",
-        "source": "test-cases/endpoint/attendance_shift_master/DELETE_api_v1_attendance_shift_master_6/01_outcome_reported_delete_master_6.py"
+        "source": "test-cases/endpoint/attendance_shift_master/DELETE_api_v1_attendance_shift_master_6/01_outcome_reported_delete_master_6.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all::test_records_share_one_shape",
@@ -921,7 +925,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all",
-        "source": "test-cases/endpoint/holiday_template/GET_api_attendance_holiday_templates_getall/01_collection_shape_get_templates_getall.py"
+        "source": "test-cases/endpoint/holiday_template/GET_api_attendance_holiday_templates_getall/01_collection_shape_get_templates_getall.py",
+        "displayId": "TC_002"
       },
       {
         "id": "endpoint::get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all::test_returns_a_list",
@@ -930,7 +935,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all",
-        "source": "test-cases/endpoint/holiday_template/GET_api_attendance_holiday_templates_getall/01_collection_shape_get_templates_getall.py"
+        "source": "test-cases/endpoint/holiday_template/GET_api_attendance_holiday_templates_getall/01_collection_shape_get_templates_getall.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id::test_returns_the_entity_that_was_asked_for",
@@ -939,7 +945,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id",
-        "source": "test-cases/endpoint/holiday_template/GET_api_attendance_holiday_templates_getbyid_19/01_entity_identity_get_getbyid_19.py"
+        "source": "test-cases/endpoint/holiday_template/GET_api_attendance_holiday_templates_getbyid_19/01_entity_identity_get_getbyid_19.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::get|/api/attendance/late-early-policies/getall|latearly-policy|getall::test_records_share_one_shape",
@@ -948,7 +955,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/api/attendance/late-early-policies/getall|latearly-policy|getall",
-        "source": "test-cases/endpoint/late_early/GET_api_attendance_late_early_policies_getall/01_collection_shape_get_policies_getall.py"
+        "source": "test-cases/endpoint/late_early/GET_api_attendance_late_early_policies_getall/01_collection_shape_get_policies_getall.py",
+        "displayId": "TC_002"
       },
       {
         "id": "endpoint::get|/api/attendance/late-early-policies/getall|latearly-policy|getall::test_returns_a_list",
@@ -957,7 +965,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/api/attendance/late-early-policies/getall|latearly-policy|getall",
-        "source": "test-cases/endpoint/late_early/GET_api_attendance_late_early_policies_getall/01_collection_shape_get_policies_getall.py"
+        "source": "test-cases/endpoint/late_early/GET_api_attendance_late_early_policies_getall/01_collection_shape_get_policies_getall.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1::test_returns_the_entity_that_was_asked_for",
@@ -966,7 +975,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1",
-        "source": "test-cases/endpoint/late_early/GET_api_attendance_late_early_policies_getbyid_5/01_entity_identity_get_getbyid_5.py"
+        "source": "test-cases/endpoint/late_early/GET_api_attendance_late_early_policies_getbyid_5/01_entity_identity_get_getbyid_5.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::get|/api/attendance/status-threshold/getall|attendance status threshold api|get all::test_records_share_one_shape",
@@ -975,7 +985,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/api/attendance/status-threshold/getall|attendance status threshold api|get all",
-        "source": "test-cases/endpoint/attendance_threshold/GET_api_attendance_status_threshold_getall/01_collection_shape_get_threshold_getall.py"
+        "source": "test-cases/endpoint/attendance_threshold/GET_api_attendance_status_threshold_getall/01_collection_shape_get_threshold_getall.py",
+        "displayId": "TC_002"
       },
       {
         "id": "endpoint::get|/api/attendance/status-threshold/getall|attendance status threshold api|get all::test_returns_a_list",
@@ -984,7 +995,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/api/attendance/status-threshold/getall|attendance status threshold api|get all",
-        "source": "test-cases/endpoint/attendance_threshold/GET_api_attendance_status_threshold_getall/01_collection_shape_get_threshold_getall.py"
+        "source": "test-cases/endpoint/attendance_threshold/GET_api_attendance_status_threshold_getall/01_collection_shape_get_threshold_getall.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id::test_returns_the_entity_that_was_asked_for",
@@ -993,7 +1005,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id",
-        "source": "test-cases/endpoint/attendance_threshold/GET_api_attendance_status_threshold_getbyid_8/01_entity_identity_get_getbyid_8.py"
+        "source": "test-cases/endpoint/attendance_threshold/GET_api_attendance_status_threshold_getbyid_8/01_entity_identity_get_getbyid_8.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall::test_records_share_one_shape",
@@ -1002,7 +1015,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall",
-        "source": "test-cases/endpoint/weekoff/GET_api_attendance_week_offs_getall/01_collection_shape_get_offs_getall.py"
+        "source": "test-cases/endpoint/weekoff/GET_api_attendance_week_offs_getall/01_collection_shape_get_offs_getall.py",
+        "displayId": "TC_002"
       },
       {
         "id": "endpoint::get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall::test_returns_a_list",
@@ -1011,7 +1025,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall",
-        "source": "test-cases/endpoint/weekoff/GET_api_attendance_week_offs_getall/01_collection_shape_get_offs_getall.py"
+        "source": "test-cases/endpoint/weekoff/GET_api_attendance_week_offs_getall/01_collection_shape_get_offs_getall.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid::test_returns_the_entity_that_was_asked_for",
@@ -1020,7 +1035,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid",
-        "source": "test-cases/endpoint/weekoff/GET_api_attendance_week_offs_getbyid_1/01_entity_identity_get_getbyid_1.py"
+        "source": "test-cases/endpoint/weekoff/GET_api_attendance_week_offs_getbyid_1/01_entity_identity_get_getbyid_1.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::get|/api/attendancepolicy/1|attendance policy master|get policy by id::test_returns_the_entity_that_was_asked_for",
@@ -1029,7 +1045,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/api/attendancepolicy/1|attendance policy master|get policy by id",
-        "source": "test-cases/endpoint/attendance_policy_master/GET_api_attendancepolicy_1/01_entity_identity_get_attendancepolicy_1.py"
+        "source": "test-cases/endpoint/attendance_policy_master/GET_api_attendancepolicy_1/01_entity_identity_get_attendancepolicy_1.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::get|/api/attendancepolicy|attendance policy master|get all policies::test_records_share_one_shape",
@@ -1038,7 +1055,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/api/attendancepolicy|attendance policy master|get all policies",
-        "source": "test-cases/endpoint/attendance_policy_master/GET_api_attendancepolicy/01_collection_shape_get_api_attendancepolicy.py"
+        "source": "test-cases/endpoint/attendance_policy_master/GET_api_attendancepolicy/01_collection_shape_get_api_attendancepolicy.py",
+        "displayId": "TC_002"
       },
       {
         "id": "endpoint::get|/api/attendancepolicy|attendance policy master|get all policies::test_returns_a_list",
@@ -1047,7 +1065,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/api/attendancepolicy|attendance policy master|get all policies",
-        "source": "test-cases/endpoint/attendance_policy_master/GET_api_attendancepolicy/01_collection_shape_get_api_attendancepolicy.py"
+        "source": "test-cases/endpoint/attendance_policy_master/GET_api_attendancepolicy/01_collection_shape_get_api_attendancepolicy.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::get|/api/v1/attendance/shift/master/7|attendance shift master|get by id::test_returns_the_entity_that_was_asked_for",
@@ -1056,7 +1075,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/api/v1/attendance/shift/master/7|attendance shift master|get by id",
-        "source": "test-cases/endpoint/attendance_shift_master/GET_api_v1_attendance_shift_master_7/01_entity_identity_get_master_7.py"
+        "source": "test-cases/endpoint/attendance_shift_master/GET_api_v1_attendance_shift_master_7/01_entity_identity_get_master_7.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::get|/api/v1/attendance/shift/master|attendance shift master|get all shifts::test_records_share_one_shape",
@@ -1065,7 +1085,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/api/v1/attendance/shift/master|attendance shift master|get all shifts",
-        "source": "test-cases/endpoint/attendance_shift_master/GET_api_v1_attendance_shift_master/01_collection_shape_get_shift_master.py"
+        "source": "test-cases/endpoint/attendance_shift_master/GET_api_v1_attendance_shift_master/01_collection_shape_get_shift_master.py",
+        "displayId": "TC_002"
       },
       {
         "id": "endpoint::get|/api/v1/attendance/shift/master|attendance shift master|get all shifts::test_returns_a_list",
@@ -1074,7 +1095,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/api/v1/attendance/shift/master|attendance shift master|get all shifts",
-        "source": "test-cases/endpoint/attendance_shift_master/GET_api_v1_attendance_shift_master/01_collection_shape_get_shift_master.py"
+        "source": "test-cases/endpoint/attendance_shift_master/GET_api_v1_attendance_shift_master/01_collection_shape_get_shift_master.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::test_count_fields_are_integers",
@@ -1083,7 +1105,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
-        "source": "test-cases/endpoint/leave_api/GET_user_leaves_getallleavereports/01_report_envelope_shape.py"
+        "source": "test-cases/endpoint/leave_api/GET_user_leaves_getallleavereports/01_report_envelope_shape.py",
+        "displayId": "TC_003"
       },
       {
         "id": "endpoint::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::test_data_carries_count_and_leave_report",
@@ -1092,7 +1115,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
-        "source": "test-cases/endpoint/leave_api/GET_user_leaves_getallleavereports/01_report_envelope_shape.py"
+        "source": "test-cases/endpoint/leave_api/GET_user_leaves_getallleavereports/01_report_envelope_shape.py",
+        "displayId": "TC_002"
       },
       {
         "id": "endpoint::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::test_enough_records_to_spot_check",
@@ -1101,7 +1125,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
-        "source": "test-cases/endpoint/leave_api/GET_user_leaves_getallleavereports/02_every_record_carries_all_fields.py"
+        "source": "test-cases/endpoint/leave_api/GET_user_leaves_getallleavereports/02_every_record_carries_all_fields.py",
+        "displayId": "TC_004"
       },
       {
         "id": "endpoint::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::test_envelope_carries_status_and_message",
@@ -1110,7 +1135,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
-        "source": "test-cases/endpoint/leave_api/GET_user_leaves_getallleavereports/01_report_envelope_shape.py"
+        "source": "test-cases/endpoint/leave_api/GET_user_leaves_getallleavereports/01_report_envelope_shape.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::test_every_record_carries_every_field",
@@ -1119,7 +1145,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
-        "source": "test-cases/endpoint/leave_api/GET_user_leaves_getallleavereports/02_every_record_carries_all_fields.py"
+        "source": "test-cases/endpoint/leave_api/GET_user_leaves_getallleavereports/02_every_record_carries_all_fields.py",
+        "displayId": "TC_005"
       },
       {
         "id": "endpoint::get|/users/me|users|get profile::test_records_share_one_shape",
@@ -1128,7 +1155,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/users/me|users|get profile",
-        "source": "test-cases/endpoint/users/GET_users_me/01_collection_shape_get_users_me.py"
+        "source": "test-cases/endpoint/users/GET_users_me/01_collection_shape_get_users_me.py",
+        "displayId": "TC_002"
       },
       {
         "id": "endpoint::get|/users/me|users|get profile::test_returns_a_list",
@@ -1137,7 +1165,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "get|/users/me|users|get profile",
-        "source": "test-cases/endpoint/users/GET_users_me/01_collection_shape_get_users_me.py"
+        "source": "test-cases/endpoint/users/GET_users_me/01_collection_shape_get_users_me.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status::test_reports_the_outcome_in_the_body",
@@ -1146,7 +1175,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status",
-        "source": "test-cases/endpoint/holiday_template/PATCH_api_attendance_holiday_templates_19_status/01_outcome_reported_patch_19_status.py"
+        "source": "test-cases/endpoint/holiday_template/PATCH_api_attendance_holiday_templates_19_status/01_outcome_reported_patch_19_status.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus::test_reports_the_outcome_in_the_body",
@@ -1155,7 +1185,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus",
-        "source": "test-cases/endpoint/late_early/PATCH_api_attendance_late_early_policies_5_status/01_outcome_reported_patch_5_status.py"
+        "source": "test-cases/endpoint/late_early/PATCH_api_attendance_late_early_policies_5_status/01_outcome_reported_patch_5_status.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status::test_reports_the_outcome_in_the_body",
@@ -1164,7 +1195,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status",
-        "source": "test-cases/endpoint/attendance_threshold/PATCH_api_attendance_status_threshold_1_status/01_outcome_reported_patch_1_status.py"
+        "source": "test-cases/endpoint/attendance_threshold/PATCH_api_attendance_status_threshold_1_status/01_outcome_reported_patch_1_status.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus::test_reports_the_outcome_in_the_body",
@@ -1173,7 +1205,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus",
-        "source": "test-cases/endpoint/weekoff/PATCH_api_attendance_week_off_assignment_changestatus/01_outcome_reported_patch_assignment_changesta.py"
+        "source": "test-cases/endpoint/weekoff/PATCH_api_attendance_week_off_assignment_changestatus/01_outcome_reported_patch_assignment_changesta.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact::test_reports_the_outcome_in_the_body",
@@ -1182,7 +1215,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact",
-        "source": "test-cases/endpoint/weekoff/PATCH_api_attendance_week_offs_actdeact_3_status/01_outcome_reported_patch_3_status.py"
+        "source": "test-cases/endpoint/weekoff/PATCH_api_attendance_week_offs_actdeact_3_status/01_outcome_reported_patch_3_status.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::patch|/api/attendancepolicy/4/status|attendance policy master|activate deactivate::test_reports_the_outcome_in_the_body",
@@ -1191,7 +1225,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "patch|/api/attendancepolicy/4/status|attendance policy master|activate deactivate",
-        "source": "test-cases/endpoint/attendance_policy_master/PATCH_api_attendancepolicy_4_status/01_outcome_reported_patch_4_status.py"
+        "source": "test-cases/endpoint/attendance_policy_master/PATCH_api_attendancepolicy_4_status/01_outcome_reported_patch_4_status.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::patch|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete::test_reports_the_outcome_in_the_body",
@@ -1200,7 +1235,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "patch|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete",
-        "source": "test-cases/endpoint/attendance_shift_master/PATCH_api_v1_attendance_shift_master_status_7/01_outcome_reported_patch_status_7.py"
+        "source": "test-cases/endpoint/attendance_shift_master/PATCH_api_v1_attendance_shift_master_status_7/01_outcome_reported_patch_status_7.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::post|/api/attendance/holiday-templates/create|holiday template apis copy|create::test_duplicate_templatecode_database_crash_test_1",
@@ -1209,7 +1245,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendance/holiday-templates/create|holiday template apis copy|create",
-        "source": "test-cases/endpoint/holiday_template/POST_api_attendance_holiday_templates_create/01_duplicate_templatecode_database_crash_test_1.py"
+        "source": "test-cases/endpoint/holiday_template/POST_api_attendance_holiday_templates_create/01_duplicate_templatecode_database_crash_test_1.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::post|/api/attendance/holiday-templates/create|holiday template apis copy|create::test_sql_injection_security_breach_test_copy_2_does_not_crash_the_server",
@@ -1218,7 +1255,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendance/holiday-templates/create|holiday template apis copy|create",
-        "source": "test-cases/endpoint/holiday_template/POST_api_attendance_holiday_templates_create/02_sql_injection_security_breach_test_copy_2.py"
+        "source": "test-cases/endpoint/holiday_template/POST_api_attendance_holiday_templates_create/02_sql_injection_security_breach_test_copy_2.py",
+        "displayId": "TC_003"
       },
       {
         "id": "endpoint::post|/api/attendance/holiday-templates/create|holiday template apis copy|create::test_sql_injection_security_breach_test_copy_2_is_refused",
@@ -1227,7 +1265,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendance/holiday-templates/create|holiday template apis copy|create",
-        "source": "test-cases/endpoint/holiday_template/POST_api_attendance_holiday_templates_create/02_sql_injection_security_breach_test_copy_2.py"
+        "source": "test-cases/endpoint/holiday_template/POST_api_attendance_holiday_templates_create/02_sql_injection_security_breach_test_copy_2.py",
+        "displayId": "TC_002"
       },
       {
         "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_boundary_leave_deduct_days_does_not_crash_the_server",
@@ -1236,7 +1275,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
-        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/01_boundary_leave_deduct_days.py"
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/01_boundary_leave_deduct_days.py",
+        "displayId": "TC_002"
       },
       {
         "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_boundary_leave_deduct_days_is_refused",
@@ -1245,7 +1285,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
-        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/01_boundary_leave_deduct_days.py"
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/01_boundary_leave_deduct_days.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_deactivated_leave_type_foreign_key_status_gating_t",
@@ -1254,7 +1295,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
-        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/02_deactivated_leave_type_foreign_key_status_gating_t.py"
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/02_deactivated_leave_type_foreign_key_status_gating_t.py",
+        "displayId": "TC_003"
       },
       {
         "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_deactivated_leave_type_injection",
@@ -1263,7 +1305,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
-        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/03_deactivated_leave_type_injection.py"
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/03_deactivated_leave_type_injection.py",
+        "displayId": "TC_004"
       },
       {
         "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_deduction_type_contradiction_test_does_not_crash_the_server",
@@ -1272,7 +1315,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
-        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/04_deduction_type_contradiction_test.py"
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/04_deduction_type_contradiction_test.py",
+        "displayId": "TC_006"
       },
       {
         "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_deduction_type_contradiction_test_is_refused",
@@ -1281,7 +1325,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
-        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/04_deduction_type_contradiction_test.py"
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/04_deduction_type_contradiction_test.py",
+        "displayId": "TC_005"
       },
       {
         "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_duplicate_employee_assignment_collision_does_not_crash_the_server",
@@ -1290,7 +1335,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
-        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/05_duplicate_employee_assignment_collision.py"
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/05_duplicate_employee_assignment_collision.py",
+        "displayId": "TC_008"
       },
       {
         "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_duplicate_employee_assignment_collision_is_refused",
@@ -1299,7 +1345,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
-        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/05_duplicate_employee_assignment_collision.py"
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/05_duplicate_employee_assignment_collision.py",
+        "displayId": "TC_007"
       },
       {
         "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_duplicate_priority_order",
@@ -1308,7 +1355,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
-        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/06_duplicate_priority_order.py"
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/06_duplicate_priority_order.py",
+        "displayId": "TC_009"
       },
       {
         "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_fuzzing_defecr_policy_name_does_not_crash_the_server",
@@ -1317,7 +1365,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
-        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/07_fuzzing_defecr_policy_name.py"
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/07_fuzzing_defecr_policy_name.py",
+        "displayId": "TC_011"
       },
       {
         "id": "endpoint::post|/api/attendance/late-early-policies/create|latearly-policy|create::test_fuzzing_defecr_policy_name_is_refused",
@@ -1326,7 +1375,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
-        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/07_fuzzing_defecr_policy_name.py"
+        "source": "test-cases/endpoint/late_early/POST_api_attendance_late_early_policies_create/07_fuzzing_defecr_policy_name.py",
+        "displayId": "TC_010"
       },
       {
         "id": "endpoint::post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold::test_response_echoes_what_was_sent",
@@ -1335,7 +1385,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold",
-        "source": "test-cases/endpoint/attendance_threshold/POST_api_attendance_status_threshold_create/01_write_echo_post_threshold_create.py"
+        "source": "test-cases/endpoint/attendance_threshold/POST_api_attendance_status_threshold_create/01_write_echo_post_threshold_create.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid::test_response_echoes_what_was_sent",
@@ -1344,7 +1395,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid",
-        "source": "test-cases/endpoint/weekoff/POST_api_attendance_week_off_assignment_getbyweekoff/01_write_echo_post_assignment_getbyweeko.py"
+        "source": "test-cases/endpoint/weekoff/POST_api_attendance_week_off_assignment_getbyweekoff/01_write_echo_post_assignment_getbyweeko.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate::test_response_echoes_what_was_sent",
@@ -1353,7 +1405,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate",
-        "source": "test-cases/endpoint/weekoff/POST_api_attendance_week_offs_create/01_write_echo_post_offs_create.py"
+        "source": "test-cases/endpoint/weekoff/POST_api_attendance_week_offs_create/01_write_echo_post_offs_create.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::post|/api/attendancepolicy|attendance policy master|create new policy::test_duplicate_policy_name_collision_defect",
@@ -1362,7 +1415,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendancepolicy|attendance policy master|create new policy",
-        "source": "test-cases/endpoint/attendance_policy_master/POST_api_attendancepolicy/01_duplicate_policy_name_collision_defect.py"
+        "source": "test-cases/endpoint/attendance_policy_master/POST_api_attendancepolicy/01_duplicate_policy_name_collision_defect.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::post|/api/attendancepolicy|attendance policy master|create new policy::test_exceeding_2000_charac_does_not_crash_the_server",
@@ -1371,7 +1425,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendancepolicy|attendance policy master|create new policy",
-        "source": "test-cases/endpoint/attendance_policy_master/POST_api_attendancepolicy/02_exceeding_2000_charac.py"
+        "source": "test-cases/endpoint/attendance_policy_master/POST_api_attendancepolicy/02_exceeding_2000_charac.py",
+        "displayId": "TC_003"
       },
       {
         "id": "endpoint::post|/api/attendancepolicy|attendance policy master|create new policy::test_exceeding_2000_charac_is_refused",
@@ -1380,7 +1435,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendancepolicy|attendance policy master|create new policy",
-        "source": "test-cases/endpoint/attendance_policy_master/POST_api_attendancepolicy/02_exceeding_2000_charac.py"
+        "source": "test-cases/endpoint/attendance_policy_master/POST_api_attendancepolicy/02_exceeding_2000_charac.py",
+        "displayId": "TC_002"
       },
       {
         "id": "endpoint::post|/api/attendancepolicy|attendance policy master|create new policy::test_toctou",
@@ -1389,7 +1445,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/attendancepolicy|attendance policy master|create new policy",
-        "source": "test-cases/endpoint/attendance_policy_master/POST_api_attendancepolicy/03_toctou.py"
+        "source": "test-cases/endpoint/attendance_policy_master/POST_api_attendancepolicy/03_toctou.py",
+        "displayId": "TC_004"
       },
       {
         "id": "endpoint::post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)::test_response_echoes_what_was_sent",
@@ -1398,7 +1455,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)",
-        "source": "test-cases/endpoint/attendance_shift_master/POST_api_v1_attendance_shift_master/01_write_echo_post_shift_master.py"
+        "source": "test-cases/endpoint/attendance_shift_master/POST_api_v1_attendance_shift_master/01_write_echo_post_shift_master.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::post|/api/v1/attendance/shift/master|attendance shift master|create new shift::test_response_echoes_what_was_sent",
@@ -1407,7 +1465,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/api/v1/attendance/shift/master|attendance shift master|create new shift",
-        "source": "test-cases/endpoint/attendance_shift_master/POST_api_v1_attendance_shift_master/02_write_echo_create_new_shift.py"
+        "source": "test-cases/endpoint/attendance_shift_master/POST_api_v1_attendance_shift_master/02_write_echo_create_new_shift.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::post|/auth/token|employee auth api|tc01 - valid credentials return jwt token::test_empcode_and_username_returned",
@@ -1416,7 +1475,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
-        "source": "test-cases/login/employee_auth_api_POST_auth_token/02_identity_fields_returned.py"
+        "source": "test-cases/login/employee_auth_api_POST_auth_token/02_identity_fields_returned.py",
+        "displayId": "TC_002"
       },
       {
         "id": "endpoint::post|/auth/token|employee auth api|tc01 - valid credentials return jwt token::test_roles_is_a_non_empty_array",
@@ -1425,7 +1485,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
-        "source": "test-cases/login/employee_auth_api_POST_auth_token/02_identity_fields_returned.py"
+        "source": "test-cases/login/employee_auth_api_POST_auth_token/02_identity_fields_returned.py",
+        "displayId": "TC_003"
       },
       {
         "id": "endpoint::post|/auth/token|employee auth api|tc01 - valid credentials return jwt token::test_token_is_three_part_jwt",
@@ -1434,7 +1495,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
-        "source": "test-cases/login/employee_auth_api_POST_auth_token/01_token_is_three_part_jwt.py"
+        "source": "test-cases/login/employee_auth_api_POST_auth_token/01_token_is_three_part_jwt.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::post|/auth/token|employee auth api|tc02 - invalid empcode returns 400::test_rejection_carries_a_message",
@@ -1443,7 +1505,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/auth/token|employee auth api|tc02 - invalid empcode returns 400",
-        "source": "test-cases/login/employee_auth_api_POST_auth_token/03_invalid_empcode_explains_itself.py"
+        "source": "test-cases/login/employee_auth_api_POST_auth_token/03_invalid_empcode_explains_itself.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::post|/auth/token|employee auth api|tc02 - invalid empcode returns 400::test_rejection_does_not_leak_a_token",
@@ -1452,7 +1515,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/auth/token|employee auth api|tc02 - invalid empcode returns 400",
-        "source": "test-cases/login/employee_auth_api_POST_auth_token/03_invalid_empcode_explains_itself.py"
+        "source": "test-cases/login/employee_auth_api_POST_auth_token/03_invalid_empcode_explains_itself.py",
+        "displayId": "TC_002"
       },
       {
         "id": "endpoint::post|/auth/token|employee auth api|tc03 - missing password returns 400::test_missing_password_carries_a_validation_message",
@@ -1461,7 +1525,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/auth/token|employee auth api|tc03 - missing password returns 400",
-        "source": "test-cases/login/employee_auth_api_POST_auth_token/04_missing_password_explains_itself.py"
+        "source": "test-cases/login/employee_auth_api_POST_auth_token/04_missing_password_explains_itself.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::post|/auth/token|employee auth api|tc03 - missing password returns 400::test_missing_password_does_not_leak_a_token",
@@ -1470,7 +1535,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/auth/token|employee auth api|tc03 - missing password returns 400",
-        "source": "test-cases/login/employee_auth_api_POST_auth_token/04_missing_password_explains_itself.py"
+        "source": "test-cases/login/employee_auth_api_POST_auth_token/04_missing_password_explains_itself.py",
+        "displayId": "TC_002"
       },
       {
         "id": "endpoint::post|/auth/token|login auth uat api|tc01 - valid credentials return token::test_returns_a_three_part_token",
@@ -1479,7 +1545,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/auth/token|login auth uat api|tc01 - valid credentials return token",
-        "source": "test-cases/login/login_auth_uat_api_POST_auth_token/01_uat_login_returns_a_usable_token.py"
+        "source": "test-cases/login/login_auth_uat_api_POST_auth_token/01_uat_login_returns_a_usable_token.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::post|/auth/token|login auth uat api|tc01 - valid credentials return token::test_token_is_not_a_placeholder",
@@ -1488,7 +1555,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "post|/auth/token|login auth uat api|tc01 - valid credentials return token",
-        "source": "test-cases/login/login_auth_uat_api_POST_auth_token/01_uat_login_returns_a_usable_token.py"
+        "source": "test-cases/login/login_auth_uat_api_POST_auth_token/01_uat_login_returns_a_usable_token.py",
+        "displayId": "TC_002"
       },
       {
         "id": "endpoint::put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update::test_response_echoes_what_was_sent",
@@ -1497,7 +1565,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update",
-        "source": "test-cases/endpoint/holiday_template/PUT_api_attendance_holiday_templates_update_by_holidaytemplateid/01_write_echo_put_by_holidaytemplateid.py"
+        "source": "test-cases/endpoint/holiday_template/PUT_api_attendance_holiday_templates_update_by_holidaytemplateid/01_write_echo_put_by_holidaytemplateid.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::put|/api/attendance/late-early-policies/update/2|latearly-policy|update::test_bola_id_mismatch_full_child_replacement_integrity__does_not_crash_the_server",
@@ -1506,7 +1575,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "put|/api/attendance/late-early-policies/update/2|latearly-policy|update",
-        "source": "test-cases/endpoint/late_early/PUT_api_attendance_late_early_policies_update_2/01_bola_id_mismatch_full_child_replacement_integrity_.py"
+        "source": "test-cases/endpoint/late_early/PUT_api_attendance_late_early_policies_update_2/01_bola_id_mismatch_full_child_replacement_integrity_.py",
+        "displayId": "TC_002"
       },
       {
         "id": "endpoint::put|/api/attendance/late-early-policies/update/2|latearly-policy|update::test_bola_id_mismatch_full_child_replacement_integrity__is_refused",
@@ -1515,7 +1585,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "put|/api/attendance/late-early-policies/update/2|latearly-policy|update",
-        "source": "test-cases/endpoint/late_early/PUT_api_attendance_late_early_policies_update_2/01_bola_id_mismatch_full_child_replacement_integrity_.py"
+        "source": "test-cases/endpoint/late_early/PUT_api_attendance_late_early_policies_update_2/01_bola_id_mismatch_full_child_replacement_integrity_.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold::test_bola_id_mistmatch_mutation_does_not_crash_the_server",
@@ -1524,7 +1595,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold",
-        "source": "test-cases/endpoint/attendance_threshold/PUT_api_attendance_status_threshold_update_1/01_bola_id_mistmatch_mutation.py"
+        "source": "test-cases/endpoint/attendance_threshold/PUT_api_attendance_status_threshold_update_1/01_bola_id_mistmatch_mutation.py",
+        "displayId": "TC_002"
       },
       {
         "id": "endpoint::put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold::test_bola_id_mistmatch_mutation_is_refused",
@@ -1533,7 +1605,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold",
-        "source": "test-cases/endpoint/attendance_threshold/PUT_api_attendance_status_threshold_update_1/01_bola_id_mistmatch_mutation.py"
+        "source": "test-cases/endpoint/attendance_threshold/PUT_api_attendance_status_threshold_update_1/01_bola_id_mistmatch_mutation.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate::test_response_echoes_what_was_sent",
@@ -1542,7 +1615,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate",
-        "source": "test-cases/endpoint/weekoff/PUT_api_attendance_week_offs_update_1/01_write_echo_put_update_1.py"
+        "source": "test-cases/endpoint/weekoff/PUT_api_attendance_week_offs_update_1/01_write_echo_put_update_1.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::put|/api/attendancepolicy/2|attendance policy master|update policy by id::test_response_echoes_what_was_sent",
@@ -1551,7 +1625,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "put|/api/attendancepolicy/2|attendance policy master|update policy by id",
-        "source": "test-cases/endpoint/attendance_policy_master/PUT_api_attendancepolicy_2/01_write_echo_put_attendancepolicy_2.py"
+        "source": "test-cases/endpoint/attendance_policy_master/PUT_api_attendancepolicy_2/01_write_echo_put_attendancepolicy_2.py",
+        "displayId": "TC_001"
       },
       {
         "id": "endpoint::put|/api/v1/attendance/shift/master/2|attendance shift master|update shift::test_response_echoes_what_was_sent",
@@ -1560,7 +1635,8 @@
         "tier": "endpoint",
         "category": "business-rule",
         "apiRef": "put|/api/v1/attendance/shift/master/2|attendance shift master|update shift",
-        "source": "test-cases/endpoint/attendance_shift_master/PUT_api_v1_attendance_shift_master_2/01_write_echo_put_master_2.py"
+        "source": "test-cases/endpoint/attendance_shift_master/PUT_api_v1_attendance_shift_master_2/01_write_echo_put_master_2.py",
+        "displayId": "TC_001"
       },
       {
         "id": "generated::delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete::response_schema",
@@ -1568,7 +1644,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete"
+        "apiRef": "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete::status_code",
@@ -1576,7 +1653,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete"
+        "apiRef": "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold::response_schema",
@@ -1584,7 +1662,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold"
+        "apiRef": "delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold::status_code",
@@ -1592,7 +1671,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold"
+        "apiRef": "delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::delete|/api/attendancepolicy/2|attendance policy master|delete policy by id::response_schema",
@@ -1600,7 +1680,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "delete|/api/attendancepolicy/2|attendance policy master|delete policy by id"
+        "apiRef": "delete|/api/attendancepolicy/2|attendance policy master|delete policy by id",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::delete|/api/attendancepolicy/2|attendance policy master|delete policy by id::status_code",
@@ -1608,7 +1689,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "delete|/api/attendancepolicy/2|attendance policy master|delete policy by id"
+        "apiRef": "delete|/api/attendancepolicy/2|attendance policy master|delete policy by id",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift::response_schema",
@@ -1616,7 +1698,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift"
+        "apiRef": "delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift::status_code",
@@ -1624,7 +1707,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift"
+        "apiRef": "delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all::response_schema",
@@ -1632,7 +1716,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all"
+        "apiRef": "get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all",
+        "displayId": "TC_004"
       },
       {
         "id": "generated::get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all::status_code",
@@ -1640,7 +1725,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all"
+        "apiRef": "get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id::response_schema",
@@ -1648,7 +1734,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id"
+        "apiRef": "get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id::status_code",
@@ -1656,7 +1743,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id"
+        "apiRef": "get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::get|/api/attendance/late-early-policies/getall|latearly-policy|getall::response_schema",
@@ -1664,7 +1752,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "get|/api/attendance/late-early-policies/getall|latearly-policy|getall"
+        "apiRef": "get|/api/attendance/late-early-policies/getall|latearly-policy|getall",
+        "displayId": "TC_004"
       },
       {
         "id": "generated::get|/api/attendance/late-early-policies/getall|latearly-policy|getall::status_code",
@@ -1672,7 +1761,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "get|/api/attendance/late-early-policies/getall|latearly-policy|getall"
+        "apiRef": "get|/api/attendance/late-early-policies/getall|latearly-policy|getall",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1::response_schema",
@@ -1680,7 +1770,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1"
+        "apiRef": "get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1::status_code",
@@ -1688,7 +1779,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1"
+        "apiRef": "get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::get|/api/attendance/status-threshold/getall|attendance status threshold api|get all::response_schema",
@@ -1696,7 +1788,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "get|/api/attendance/status-threshold/getall|attendance status threshold api|get all"
+        "apiRef": "get|/api/attendance/status-threshold/getall|attendance status threshold api|get all",
+        "displayId": "TC_004"
       },
       {
         "id": "generated::get|/api/attendance/status-threshold/getall|attendance status threshold api|get all::status_code",
@@ -1704,7 +1797,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "get|/api/attendance/status-threshold/getall|attendance status threshold api|get all"
+        "apiRef": "get|/api/attendance/status-threshold/getall|attendance status threshold api|get all",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id::response_schema",
@@ -1712,7 +1806,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id"
+        "apiRef": "get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id::status_code",
@@ -1720,7 +1815,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id"
+        "apiRef": "get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall::response_schema",
@@ -1728,7 +1824,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall"
+        "apiRef": "get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall",
+        "displayId": "TC_004"
       },
       {
         "id": "generated::get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall::status_code",
@@ -1736,7 +1833,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall"
+        "apiRef": "get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid::response_schema",
@@ -1744,7 +1842,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid"
+        "apiRef": "get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid::status_code",
@@ -1752,7 +1851,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid"
+        "apiRef": "get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::get|/api/attendancepolicy/1|attendance policy master|get policy by id::response_schema",
@@ -1760,7 +1860,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "get|/api/attendancepolicy/1|attendance policy master|get policy by id"
+        "apiRef": "get|/api/attendancepolicy/1|attendance policy master|get policy by id",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::get|/api/attendancepolicy/1|attendance policy master|get policy by id::status_code",
@@ -1768,7 +1869,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "get|/api/attendancepolicy/1|attendance policy master|get policy by id"
+        "apiRef": "get|/api/attendancepolicy/1|attendance policy master|get policy by id",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::get|/api/attendancepolicy|attendance policy master|get all policies::response_schema",
@@ -1776,7 +1878,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "get|/api/attendancepolicy|attendance policy master|get all policies"
+        "apiRef": "get|/api/attendancepolicy|attendance policy master|get all policies",
+        "displayId": "TC_004"
       },
       {
         "id": "generated::get|/api/attendancepolicy|attendance policy master|get all policies::status_code",
@@ -1784,7 +1887,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "get|/api/attendancepolicy|attendance policy master|get all policies"
+        "apiRef": "get|/api/attendancepolicy|attendance policy master|get all policies",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::get|/api/v1/attendance/shift/master/7|attendance shift master|get by id::response_schema",
@@ -1792,7 +1896,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "get|/api/v1/attendance/shift/master/7|attendance shift master|get by id"
+        "apiRef": "get|/api/v1/attendance/shift/master/7|attendance shift master|get by id",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::get|/api/v1/attendance/shift/master/7|attendance shift master|get by id::status_code",
@@ -1800,7 +1905,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "get|/api/v1/attendance/shift/master/7|attendance shift master|get by id"
+        "apiRef": "get|/api/v1/attendance/shift/master/7|attendance shift master|get by id",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::get|/api/v1/attendance/shift/master|attendance shift master|get all shifts::response_schema",
@@ -1808,7 +1914,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "get|/api/v1/attendance/shift/master|attendance shift master|get all shifts"
+        "apiRef": "get|/api/v1/attendance/shift/master|attendance shift master|get all shifts",
+        "displayId": "TC_004"
       },
       {
         "id": "generated::get|/api/v1/attendance/shift/master|attendance shift master|get all shifts::status_code",
@@ -1816,7 +1923,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "get|/api/v1/attendance/shift/master|attendance shift master|get all shifts"
+        "apiRef": "get|/api/v1/attendance/shift/master|attendance shift master|get all shifts",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::response_schema",
@@ -1824,7 +1932,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+        "displayId": "TC_016"
       },
       {
         "id": "generated::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::status_code",
@@ -1832,7 +1941,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+        "displayId": "TC_015"
       },
       {
         "id": "generated::get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status::response_schema",
@@ -1840,7 +1950,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status"
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status",
+        "displayId": "TC_005"
       },
       {
         "id": "generated::get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status::status_code",
@@ -1848,7 +1959,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status"
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status",
+        "displayId": "TC_004"
       },
       {
         "id": "generated::get|/users/me|users|get profile::response_schema",
@@ -1856,7 +1968,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "get|/users/me|users|get profile"
+        "apiRef": "get|/users/me|users|get profile",
+        "displayId": "TC_004"
       },
       {
         "id": "generated::get|/users/me|users|get profile::status_code",
@@ -1864,7 +1977,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "get|/users/me|users|get profile"
+        "apiRef": "get|/users/me|users|get profile",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status::response_schema",
@@ -1872,7 +1986,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status"
+        "apiRef": "patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status::status_code",
@@ -1880,7 +1995,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status"
+        "apiRef": "patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus::response_schema",
@@ -1888,7 +2004,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus"
+        "apiRef": "patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus::status_code",
@@ -1896,7 +2013,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus"
+        "apiRef": "patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status::response_schema",
@@ -1904,7 +2022,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status"
+        "apiRef": "patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status::status_code",
@@ -1912,7 +2031,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status"
+        "apiRef": "patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus::response_schema",
@@ -1920,7 +2040,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus"
+        "apiRef": "patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus::status_code",
@@ -1928,7 +2049,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus"
+        "apiRef": "patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact::response_schema",
@@ -1936,7 +2058,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact"
+        "apiRef": "patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact::status_code",
@@ -1944,7 +2067,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact"
+        "apiRef": "patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::patch|/api/attendancepolicy/4/status|attendance policy master|activate deactivate::response_schema",
@@ -1952,7 +2076,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "patch|/api/attendancepolicy/4/status|attendance policy master|activate deactivate"
+        "apiRef": "patch|/api/attendancepolicy/4/status|attendance policy master|activate deactivate",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::patch|/api/attendancepolicy/4/status|attendance policy master|activate deactivate::status_code",
@@ -1960,7 +2085,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "patch|/api/attendancepolicy/4/status|attendance policy master|activate deactivate"
+        "apiRef": "patch|/api/attendancepolicy/4/status|attendance policy master|activate deactivate",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::patch|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete::response_schema",
@@ -1968,7 +2094,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "patch|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete"
+        "apiRef": "patch|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::patch|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete::status_code",
@@ -1976,7 +2103,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "patch|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete"
+        "apiRef": "patch|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::post|/api/attendance/holiday-templates/create|holiday template apis copy|create::response_schema",
@@ -1984,7 +2112,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "post|/api/attendance/holiday-templates/create|holiday template apis copy|create"
+        "apiRef": "post|/api/attendance/holiday-templates/create|holiday template apis copy|create",
+        "displayId": "TC_005"
       },
       {
         "id": "generated::post|/api/attendance/holiday-templates/create|holiday template apis copy|create::status_code",
@@ -1992,7 +2121,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "post|/api/attendance/holiday-templates/create|holiday template apis copy|create"
+        "apiRef": "post|/api/attendance/holiday-templates/create|holiday template apis copy|create",
+        "displayId": "TC_004"
       },
       {
         "id": "generated::post|/api/attendance/late-early-policies/create|latearly-policy|create::response_schema",
@@ -2000,7 +2130,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create"
+        "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
+        "displayId": "TC_013"
       },
       {
         "id": "generated::post|/api/attendance/late-early-policies/create|latearly-policy|create::status_code",
@@ -2008,7 +2139,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create"
+        "apiRef": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
+        "displayId": "TC_012"
       },
       {
         "id": "generated::post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold::response_schema",
@@ -2016,7 +2148,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold"
+        "apiRef": "post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold::status_code",
@@ -2024,7 +2157,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold"
+        "apiRef": "post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid::response_schema",
@@ -2032,7 +2166,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid"
+        "apiRef": "post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid::status_code",
@@ -2040,7 +2175,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid"
+        "apiRef": "post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate::response_schema",
@@ -2048,7 +2184,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate"
+        "apiRef": "post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate::status_code",
@@ -2056,7 +2193,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate"
+        "apiRef": "post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::post|/api/attendancepolicy|attendance policy master|create new policy::response_schema",
@@ -2064,7 +2202,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "post|/api/attendancepolicy|attendance policy master|create new policy"
+        "apiRef": "post|/api/attendancepolicy|attendance policy master|create new policy",
+        "displayId": "TC_006"
       },
       {
         "id": "generated::post|/api/attendancepolicy|attendance policy master|create new policy::status_code",
@@ -2072,7 +2211,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "post|/api/attendancepolicy|attendance policy master|create new policy"
+        "apiRef": "post|/api/attendancepolicy|attendance policy master|create new policy",
+        "displayId": "TC_005"
       },
       {
         "id": "generated::post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)::response_schema",
@@ -2080,7 +2220,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)"
+        "apiRef": "post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)::status_code",
@@ -2088,7 +2229,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)"
+        "apiRef": "post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::post|/api/v1/attendance/shift/master|attendance shift master|create new shift::response_schema",
@@ -2096,7 +2238,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "post|/api/v1/attendance/shift/master|attendance shift master|create new shift"
+        "apiRef": "post|/api/v1/attendance/shift/master|attendance shift master|create new shift",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::post|/api/v1/attendance/shift/master|attendance shift master|create new shift::status_code",
@@ -2104,7 +2247,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "post|/api/v1/attendance/shift/master|attendance shift master|create new shift"
+        "apiRef": "post|/api/v1/attendance/shift/master|attendance shift master|create new shift",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::post|/auth/token|employee auth api|tc01 - valid credentials return jwt token::response_schema",
@@ -2112,7 +2256,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+        "apiRef": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
+        "displayId": "TC_010"
       },
       {
         "id": "generated::post|/auth/token|employee auth api|tc01 - valid credentials return jwt token::status_code",
@@ -2120,7 +2265,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+        "apiRef": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
+        "displayId": "TC_009"
       },
       {
         "id": "generated::post|/auth/token|employee auth api|tc02 - invalid empcode returns 400::response_schema",
@@ -2128,7 +2274,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "post|/auth/token|employee auth api|tc02 - invalid empcode returns 400"
+        "apiRef": "post|/auth/token|employee auth api|tc02 - invalid empcode returns 400",
+        "displayId": "TC_007"
       },
       {
         "id": "generated::post|/auth/token|employee auth api|tc02 - invalid empcode returns 400::status_code",
@@ -2136,7 +2283,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "post|/auth/token|employee auth api|tc02 - invalid empcode returns 400"
+        "apiRef": "post|/auth/token|employee auth api|tc02 - invalid empcode returns 400",
+        "displayId": "TC_006"
       },
       {
         "id": "generated::post|/auth/token|employee auth api|tc03 - missing password returns 400::response_schema",
@@ -2144,7 +2292,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "post|/auth/token|employee auth api|tc03 - missing password returns 400"
+        "apiRef": "post|/auth/token|employee auth api|tc03 - missing password returns 400",
+        "displayId": "TC_007"
       },
       {
         "id": "generated::post|/auth/token|employee auth api|tc03 - missing password returns 400::status_code",
@@ -2152,7 +2301,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "post|/auth/token|employee auth api|tc03 - missing password returns 400"
+        "apiRef": "post|/auth/token|employee auth api|tc03 - missing password returns 400",
+        "displayId": "TC_006"
       },
       {
         "id": "generated::post|/auth/token|login auth uat api|tc01 - valid credentials return token::response_schema",
@@ -2160,7 +2310,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
+        "apiRef": "post|/auth/token|login auth uat api|tc01 - valid credentials return token",
+        "displayId": "TC_005"
       },
       {
         "id": "generated::post|/auth/token|login auth uat api|tc01 - valid credentials return token::status_code",
@@ -2168,7 +2319,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
+        "apiRef": "post|/auth/token|login auth uat api|tc01 - valid credentials return token",
+        "displayId": "TC_004"
       },
       {
         "id": "generated::put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update::response_schema",
@@ -2176,7 +2328,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update"
+        "apiRef": "put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update::status_code",
@@ -2184,7 +2337,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update"
+        "apiRef": "put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::put|/api/attendance/late-early-policies/update/2|latearly-policy|update::response_schema",
@@ -2192,7 +2346,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "put|/api/attendance/late-early-policies/update/2|latearly-policy|update"
+        "apiRef": "put|/api/attendance/late-early-policies/update/2|latearly-policy|update",
+        "displayId": "TC_004"
       },
       {
         "id": "generated::put|/api/attendance/late-early-policies/update/2|latearly-policy|update::status_code",
@@ -2200,7 +2355,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "put|/api/attendance/late-early-policies/update/2|latearly-policy|update"
+        "apiRef": "put|/api/attendance/late-early-policies/update/2|latearly-policy|update",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold::response_schema",
@@ -2208,7 +2364,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold"
+        "apiRef": "put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold",
+        "displayId": "TC_004"
       },
       {
         "id": "generated::put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold::status_code",
@@ -2216,7 +2373,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold"
+        "apiRef": "put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate::response_schema",
@@ -2224,7 +2382,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate"
+        "apiRef": "put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate::status_code",
@@ -2232,7 +2391,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate"
+        "apiRef": "put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::put|/api/attendancepolicy/2|attendance policy master|update policy by id::response_schema",
@@ -2240,7 +2400,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "put|/api/attendancepolicy/2|attendance policy master|update policy by id"
+        "apiRef": "put|/api/attendancepolicy/2|attendance policy master|update policy by id",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::put|/api/attendancepolicy/2|attendance policy master|update policy by id::status_code",
@@ -2248,7 +2409,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "put|/api/attendancepolicy/2|attendance policy master|update policy by id"
+        "apiRef": "put|/api/attendancepolicy/2|attendance policy master|update policy by id",
+        "displayId": "TC_002"
       },
       {
         "id": "generated::put|/api/v1/attendance/shift/master/2|attendance shift master|update shift::response_schema",
@@ -2256,7 +2418,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "schema",
-        "apiRef": "put|/api/v1/attendance/shift/master/2|attendance shift master|update shift"
+        "apiRef": "put|/api/v1/attendance/shift/master/2|attendance shift master|update shift",
+        "displayId": "TC_003"
       },
       {
         "id": "generated::put|/api/v1/attendance/shift/master/2|attendance shift master|update shift::status_code",
@@ -2264,7 +2427,8 @@
         "scope": "API_SPECIFIC",
         "tier": "generated",
         "category": "functional",
-        "apiRef": "put|/api/v1/attendance/shift/master/2|attendance shift master|update shift"
+        "apiRef": "put|/api/v1/attendance/shift/master/2|attendance shift master|update shift",
+        "displayId": "TC_002"
       },
       {
         "id": "newman::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::tc01-count-contains-observed-integer-fields",
@@ -2272,7 +2436,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+        "displayId": "TC_009"
       },
       {
         "id": "newman::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::tc01-full-response-matches-openapi-getallleavereportsresponse",
@@ -2280,7 +2445,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+        "displayId": "TC_007"
       },
       {
         "id": "newman::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::tc01-response-has-status-message-data-count-and-data-leavereport",
@@ -2288,7 +2454,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+        "displayId": "TC_008"
       },
       {
         "id": "newman::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::tc01-status-is-200",
@@ -2296,7 +2463,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+        "displayId": "TC_006"
       },
       {
         "id": "newman::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::tc03-at-least-two-records-available-for-required-spot-check",
@@ -2304,7 +2472,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+        "displayId": "TC_011"
       },
       {
         "id": "newman::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::tc03-every-leavereport-item-matches-openapi-getallleavereportsitem",
@@ -2312,7 +2481,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+        "displayId": "TC_010"
       },
       {
         "id": "newman::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::tc03-every-record-contains-all-13-expected-fields",
@@ -2320,7 +2490,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+        "displayId": "TC_012"
       },
       {
         "id": "newman::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::tc04-full-response-matches-openapi-getallleavereportserrorresponse",
@@ -2328,7 +2499,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+        "displayId": "TC_013"
       },
       {
         "id": "newman::get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure::tc04-invalid-month-returns-observed-error-structure",
@@ -2336,7 +2508,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure"
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate structure",
+        "displayId": "TC_014"
       },
       {
         "id": "newman::get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status::tc02-full-response-matches-openapi-getallleavereportserrorresponse",
@@ -2344,7 +2517,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status"
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status",
+        "displayId": "TC_002"
       },
       {
         "id": "newman::get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status::tc02-invalid-token-response-has-observed-error-structure",
@@ -2352,7 +2526,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status"
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status",
+        "displayId": "TC_003"
       },
       {
         "id": "newman::get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status::tc02-invalid-token-returns-observed-http-401",
@@ -2360,7 +2535,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status"
+        "apiRef": "get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization status",
+        "displayId": "TC_001"
       },
       {
         "id": "newman::post|/auth/token|employee auth api|tc01 - valid credentials return jwt token::tc01-empcode-and-username-returned",
@@ -2368,7 +2544,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+        "apiRef": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
+        "displayId": "TC_007"
       },
       {
         "id": "newman::post|/auth/token|employee auth api|tc01 - valid credentials return jwt token::tc01-full-response-matches-openapi-loginresponse",
@@ -2376,7 +2553,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+        "apiRef": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
+        "displayId": "TC_005"
       },
       {
         "id": "newman::post|/auth/token|employee auth api|tc01 - valid credentials return jwt token::tc01-roles-is-non-empty-array",
@@ -2384,7 +2562,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+        "apiRef": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
+        "displayId": "TC_008"
       },
       {
         "id": "newman::post|/auth/token|employee auth api|tc01 - valid credentials return jwt token::tc01-status-is-200",
@@ -2392,7 +2571,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+        "apiRef": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
+        "displayId": "TC_004"
       },
       {
         "id": "newman::post|/auth/token|employee auth api|tc01 - valid credentials return jwt token::tc01-token-is-three-part-jwt",
@@ -2400,7 +2580,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token"
+        "apiRef": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
+        "displayId": "TC_006"
       },
       {
         "id": "newman::post|/auth/token|employee auth api|tc02 - invalid empcode returns 400::tc02-error-message-returned",
@@ -2408,7 +2589,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "post|/auth/token|employee auth api|tc02 - invalid empcode returns 400"
+        "apiRef": "post|/auth/token|employee auth api|tc02 - invalid empcode returns 400",
+        "displayId": "TC_005"
       },
       {
         "id": "newman::post|/auth/token|employee auth api|tc02 - invalid empcode returns 400::tc02-full-response-matches-openapi-errorresponse",
@@ -2416,7 +2598,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "post|/auth/token|employee auth api|tc02 - invalid empcode returns 400"
+        "apiRef": "post|/auth/token|employee auth api|tc02 - invalid empcode returns 400",
+        "displayId": "TC_004"
       },
       {
         "id": "newman::post|/auth/token|employee auth api|tc02 - invalid empcode returns 400::tc02-status-is-400-for-bad-empcode",
@@ -2424,7 +2607,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "post|/auth/token|employee auth api|tc02 - invalid empcode returns 400"
+        "apiRef": "post|/auth/token|employee auth api|tc02 - invalid empcode returns 400",
+        "displayId": "TC_003"
       },
       {
         "id": "newman::post|/auth/token|employee auth api|tc03 - missing password returns 400::tc03-full-response-matches-openapi-errorresponse",
@@ -2432,7 +2616,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "post|/auth/token|employee auth api|tc03 - missing password returns 400"
+        "apiRef": "post|/auth/token|employee auth api|tc03 - missing password returns 400",
+        "displayId": "TC_004"
       },
       {
         "id": "newman::post|/auth/token|employee auth api|tc03 - missing password returns 400::tc03-status-is-400-for-missing-password",
@@ -2440,7 +2625,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "post|/auth/token|employee auth api|tc03 - missing password returns 400"
+        "apiRef": "post|/auth/token|employee auth api|tc03 - missing password returns 400",
+        "displayId": "TC_003"
       },
       {
         "id": "newman::post|/auth/token|employee auth api|tc03 - missing password returns 400::tc03-validation-message-returned",
@@ -2448,7 +2634,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "post|/auth/token|employee auth api|tc03 - missing password returns 400"
+        "apiRef": "post|/auth/token|employee auth api|tc03 - missing password returns 400",
+        "displayId": "TC_005"
       },
       {
         "id": "newman::post|/auth/token|login auth uat api|tc01 - valid credentials return token::tc01-valid-credentials-return-token",
@@ -2456,7 +2643,8 @@
         "scope": "API_SPECIFIC",
         "tier": "newman",
         "category": "functional",
-        "apiRef": "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
+        "apiRef": "post|/auth/token|login auth uat api|tc01 - valid credentials return token",
+        "displayId": "TC_003"
       }
     ]
   },

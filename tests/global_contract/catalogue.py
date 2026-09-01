@@ -650,7 +650,16 @@ def authored_endpoint_cases() -> dict[str, tuple[tuple[str, str], ...]]:
 
 
 def _api_specific_tests(api_row: dict[str, Any]) -> list[dict[str, Any]]:
-    """Newman and generated-tier cases for one API."""
+    """Authored, Newman and generated-tier cases for one API.
+
+    Each carries a ``displayId`` of ``TC_001``, ``TC_002`` ... numbered **within
+    the endpoint**, so every endpoint's cases read from one. That is a display
+    label and nothing else, exactly like the ``API-001`` labels beside them: it
+    is positional, so inserting a case renumbers the ones after it. The stable
+    identity stays in ``id`` -- ``endpoint::<ref>::<function>`` for authored
+    cases, derived from the function name so a retitle never moves it. Anything
+    joining results to cases must key on ``id``, never on the label.
+    """
     ref = str(api_row.get("API Identifier", ""))
     cases: list[dict[str, Any]] = []
 
@@ -732,6 +741,11 @@ def _api_specific_tests(api_row: dict[str, Any]) -> list[dict[str, Any]]:
                 "apiRef": ref,
             }
         )
+
+    # Numbered last, once the tier order is settled, so the sequence a reader
+    # sees matches the order the cases are listed in.
+    for index, case in enumerate(cases, start=1):
+        case["displayId"] = f"TC_{index:03d}"
 
     return cases
 
