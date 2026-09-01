@@ -21,8 +21,17 @@ on:
 jobs:
   generate-api-file:
     name: Generate API File
-    if: github.event_name == 'push' && github.ref_name == 'develop'
+    # main as well as develop: the job was gated to develop, so a merge to main
+    # regenerated nothing and the committed inventory fell behind the branch
+    # everyone clones.
+    if: github.event_name == 'push' && (github.ref_name == 'develop' || github.ref_name == 'main')
     runs-on: ubuntu-latest
+
+    # GITHUB_TOKEN defaults to read-only, so without this the commit-back below
+    # is rejected. The token is minted per run by GitHub -- nothing to create,
+    # store or rotate.
+    permissions:
+      contents: write
 
     env:
       ENV:              uat
@@ -56,6 +65,53 @@ jobs:
             api-docs/API_File.csv
             api-docs/API_File.json
           retention-days: 30
+
+      # This repository is public and has published a working password once
+      # already. An automated committer without this guard is a mechanism for
+      # doing it again on every push, unattended. Fails the job rather than
+      # committing -- and fails loudly, because a silent skip would look
+      # exactly like "nothing changed".
+      - name: Refuse to commit anything credential-shaped
+        run: |
+          set -euo pipefail
+          FILES="api-docs/API_File.json api-docs/API_File.csv"
+          # A password assignment, or a JWT. An employee code alone is an
+          # identifier, not a secret, and appears legitimately in sample data.
+          PATTERN='(password"?\s*[:=]\s*"?[^",[:space:]]{6,}|eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.)'
+          if grep -IEn "$PATTERN" $FILES ; then
+            echo "::error::A credential-shaped string is present in a file this job would commit."
+            echo "::error::Refusing to publish it. Remove the value and re-run."
+            exit 1
+          fi
+          echo "No credential-shaped string in the generated files."
+
+      - name: Commit the regenerated inventory
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add api-docs/API_File.json api-docs/API_File.csv
+
+          # Nothing to do is the normal case: most pushes do not change an
+          # endpoint. Committing anyway would fill the history with empty
+          # commits and retrigger the workflow on every one.
+          if git diff --cached --quiet ; then
+            echo "Inventory unchanged - nothing to commit."
+            exit 0
+          fi
+
+          # [skip ci] is what stops this from retriggering the workflow that
+          # created it. Without it, a commit on a watched branch starts another
+          # run, which commits again.
+          git commit -m "Regenerate the API inventory from collections/ and bruno/ [skip ci]"
+
+          # A rebase rather than a merge: another push landing mid-run should
+          # replay this one commit on top, not create a merge bubble.
+          if ! git push origin "HEAD:${GITHUB_REF_NAME}" ; then
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
+          echo "Inventory committed to ${GITHUB_REF_NAME}."
 
       - name: Setup Python
         uses: actions/setup-python@v5
