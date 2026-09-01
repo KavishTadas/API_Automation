@@ -570,27 +570,47 @@ def _build_headers(
         # an Authorization header cannot smuggle one past the suppression.
         headers = {k: v for k, v in headers.items() if k.lower() != "authorization"}
 
+    # A session with no credential is a harness configuration problem, never an
+    # API defect. These were a bare `assert` and an unprefixed `pytest.skip`, so
+    # one run of 44 endpoints with no provider reported 124 FAIL and 103
+    # NOT_APPLICABLE and exactly 1 SKIPPED_NO_TOKEN -- blaming the API for 124
+    # things it was never asked to do. SKIPPED_NO_TOKEN exists precisely for
+    # this, and is excluded from the pass-rate denominator; FAIL is not.
     if _requires_auth_token(api, request_parameters, context):
         token = _auth_token(context)
-        assert token, (
-            "Missing required auth credential: API requires authToken; "
-            "set AUTH_TOKEN, API_AUTH_TOKEN, or authToken before running generated tests"
-        )
+        if not token:
+            _skip_no_token(
+                "API requires authToken; set AUTH_TOKEN, API_AUTH_TOKEN or "
+                "authToken, or name an authProviderApiId in the manifest"
+            )
         headers["Authorization"] = f"Bearer {token}"
 
     for key, value in list(headers.items()):
         if _has_unresolved_template(value):
             if "authtoken" in value.lower() and not suppress:
                 token = _auth_token(context)
-                assert token, (
-                    f"Missing required auth credential: Header {key} "
-                    "contains unresolved authToken"
-                )
+                if not token:
+                    _skip_no_token(
+                        f"Header {key} carries an unresolved authToken and the "
+                        "session bootstrap provided none"
+                    )
                 headers[key] = re.sub(r"\{\{\s*authToken\s*}}", token, value)
             else:
                 pytest.skip(f"Header {key} contains unresolved template")
 
     return headers
+
+
+def _skip_no_token(detail: str) -> None:
+    """Report a missing session credential as SKIPPED_NO_TOKEN, not FAIL.
+
+    The state prefix is what the emitter classifies on. Without it an
+    unprefixed skip lands in NOT_APPLICABLE and a bare assert lands in FAIL,
+    and neither says what actually happened.
+    """
+    from tests.global_contract.result_states import ResultState, format_reason
+
+    pytest.skip(format_reason(ResultState.SKIPPED_NO_TOKEN, detail))
 
 
 def _requires_auth_token(

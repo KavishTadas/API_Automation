@@ -2427,6 +2427,19 @@ async function detectHarness(){
   return LIVE.available;
 }
 
+/* Which issuer a route's host will actually accept. Attendance is served by a
+   different host that rejects an Employee Auth token with INVALID_TOKEN, so a
+   single provider for the whole batch cannot work. */
+const ATTENDANCE_ROUTE = /^\/api\/(attendancepolicy|attendance\/|v1\/attendance\/)/;
+
+function defaultProviderFor(ref){
+  const path = (ref.split('|')[1] || '');
+  const wanted = ATTENDANCE_ROUTE.test(path) ? /login auth uat/i : /employee auth/i;
+  const provs = authProviders();
+  const match = provs.find(p => wanted.test(p.module || ''));
+  return (match || provs[0] || {}).ref || '';
+}
+
 function manifestFor(refs){
   return {
     runId: 'console-' + Date.now().toString(36),
@@ -2434,8 +2447,14 @@ function manifestFor(refs){
     requestedTiers: ['global_contract'],
     apis: refs.map(ref => {
       const entry = {ref, credentialAlias: aliasForManifest(STATE.alias)};
-      const prov = STATE.providers[ref];
-      if(prov) entry.authProviderApiId = prov;
+      /* STATE.providers is only written when an endpoint is opened in Configure,
+         so a batch of 44 selected from the list carried a provider for the few
+         that had been opened and nothing for the rest. That run reported 124
+         FAIL and 103 NOT_APPLICABLE purely for want of a credential. Falling
+         back to the issuer the route's host accepts makes an unconfigured batch
+         behave like a configured one; an explicit choice still wins. */
+      const prov = STATE.providers[ref] || defaultProviderFor(ref);
+      if(prov && prov !== ref) entry.authProviderApiId = prov;
       return entry;
     })
   };
