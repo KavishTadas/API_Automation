@@ -36,6 +36,7 @@ rather than asking for a different fixture.
 from __future__ import annotations
 
 import json
+import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -57,7 +58,11 @@ __all__ = [
     "BOOTSTRAP_REF",
     "row_for",
     "runtime_config",
+    "bootstrap_ref_for",
+    "ATTENDANCE_BOOTSTRAP_REF",
     "response_for",
+    "probe_response",
+    "reached_handler",
     "json_body",
     "case_response",
     "case_json",
@@ -83,9 +88,25 @@ def row_for(ref: str) -> dict[str, Any]:
     return row
 
 
-@lru_cache(maxsize=1)
-def runtime_config() -> dict[str, str]:
-    """Runtime config with a bootstrapped bearer token, once per session."""
+#: Attendance routes are served by a different host, and that host rejects an
+#: Employee Auth token with INVALID_TOKEN. Bootstrapping every case from one
+#: issuer produced 401s that the probes then read as "refused" -- a pass for
+#: entirely the wrong reason. The provider follows the route.
+ATTENDANCE_ROUTE = re.compile(r"^/api/(attendancepolicy|attendance/|v1/attendance/)")
+ATTENDANCE_BOOTSTRAP_REF = (
+    "post|/auth/token|login auth uat api|tc01 - valid credentials return token"
+)
+
+
+def bootstrap_ref_for(ref: str) -> str:
+    """Which token issuer this endpoint's host will actually accept."""
+    path = ref.split("|")[1] if "|" in ref else ref
+    return ATTENDANCE_BOOTSTRAP_REF if ATTENDANCE_ROUTE.match(path) else BOOTSTRAP_REF
+
+
+@lru_cache(maxsize=None)
+def runtime_config(bootstrap_ref: str = BOOTSTRAP_REF) -> dict[str, str]:
+    """Runtime config with a bootstrapped bearer token, once per issuer."""
     from tests.api_runtime._api_test_helpers import (
         load_runtime_config,
         perform_api_request,
@@ -93,7 +114,7 @@ def runtime_config() -> dict[str, str]:
     from tests.global_contract.auth_bootstrap import TOKEN_RUNTIME_KEYS, extract_token
 
     config = dict(load_runtime_config())
-    provider = _rows().get(BOOTSTRAP_REF)
+    provider = _rows().get(bootstrap_ref)
     if provider is None:
         return config
 
@@ -122,7 +143,41 @@ def response_for(ref: str) -> httpx.Response:
     """
     from tests.api_runtime._api_test_helpers import perform_api_request
 
-    return perform_api_request(row_for(ref), runtime_config())
+    return perform_api_request(row_for(ref), runtime_config(bootstrap_ref_for(ref)))
+
+
+@lru_cache(maxsize=None)
+def probe_response(ref: str, body: str = "", path: str = "") -> httpx.Response:
+    """Send this endpoint's request with a probe payload or path, once.
+
+    Used by the cases imported from the attendance repo's defect probes, each of
+    which sends deliberately invalid input to one endpoint. Cached on the full
+    (ref, body, path) triple so a probe fires once per run no matter how many
+    assertions read it -- these are mutations, and firing one per assertion
+    would multiply whatever a wrongly-accepted payload creates.
+    """
+    from tests.api_runtime._api_test_helpers import perform_api_request
+
+    row = dict(row_for(ref))
+    if body:
+        row["Request Body"] = body
+    if path:
+        row["Endpoint / Path"] = path
+    return perform_api_request(row, runtime_config(bootstrap_ref_for(ref)))
+
+
+def reached_handler(response: httpx.Response) -> None:
+    """Skip when the gateway answered instead of the endpoint.
+
+    A probe asserts "this invalid input must be refused". A 401 refuses it, but
+    for the wrong reason -- the payload was never inspected. Reporting that as a
+    pass is the exact failure the seven-state model exists to prevent.
+    """
+    if response.status_code in (401, 403):
+        pytest.skip(
+            f"answered {response.status_code} before reaching the handler, so "
+            "the probe payload was never evaluated"
+        )
 
 
 def json_body(response: httpx.Response) -> Any:

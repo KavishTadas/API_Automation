@@ -204,7 +204,37 @@ Found by `test_unknown_entity_mutation_returns_404`, ported from the attendance
 repo's `TC-GLOB-14`. Their matrix records 404 across all six masters for `PUT`;
 this is `PATCH` on the `/status` sub-route, which their suite did not probe.
 
-## 12. Smaller items
+## 12. Two attendance families accept neither available token
+
+Measured directly, same request, both issuers:
+
+| Family | Employee Auth | Login Auth UAT |
+|---|---|---|
+| `holiday-templates` | 401 | **200** |
+| `status-threshold` | 401 | **200** |
+| `attendancepolicy` | 401 | **200** |
+| `v1/attendance/shift/master` | 401 | 404 (reached the handler) |
+| `late-early-policies` | 401 | **401** |
+| `week-offs` | 401 | **401** |
+
+Employee Auth is rejected across the board, which is why the run manifest now
+assigns Login Auth UAT to attendance. But `late-early-policies` and `week-offs`
+refuse that token too, with `INVALID_TOKEN`. Either they need a third issuer we
+do not have, or the account behind Login Auth UAT lacks a role for them.
+
+Until that is resolved those two families cannot be exercised at all, and the
+imported probes on them correctly report NOT_ASSERTED rather than a verdict.
+That is 12 of the 44 endpoints.
+
+## 13. Junk record created on UAT during this work
+
+`POST /api/attendancepolicy` was called once while diagnosing the auth split and
+succeeded, creating **policyId 28, policyName "zz"**. It should be deleted. The
+imported probes create nothing while they report NOT_ASSERTED, but any that
+start passing through to a real handler can create records by design -- that is
+how "invalid input is stored" is observed.
+
+## 14. Smaller items
 
 - `.env` still carries `USERNAME` and `PASSWORD` with no consumer in current code.
   Untracked, so out of scope for a tracked-file cleanup.
