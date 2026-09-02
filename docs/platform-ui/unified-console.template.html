@@ -188,8 +188,27 @@ button,input,select,textarea{font:inherit;color:inherit}
   .rail .rail-item{justify-content:center;padding:9px 0} }
 
 .shell{flex:1;display:flex;flex-direction:column;min-width:0;height:100vh}
+/* The same band as the report masthead, so the console and the report read as
+   one product rather than two. Values are not repeated -- .mast-name below is
+   shared, and .sm is the only difference. */
 .topbar{display:flex;align-items:center;gap:14px;padding:10px 20px;border-bottom:1px solid var(--line);
-  background:var(--panel);flex-shrink:0;flex-wrap:wrap}
+  background:linear-gradient(103deg,#08152c 0%,#132f5e 44%,#0d2246 72%,#0a1932 100%);
+  flex-shrink:0;flex-wrap:wrap;position:relative;overflow:hidden}
+.topbar::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 86% 12%,rgba(96,165,250,.26) 0%,transparent 58%),
+    radial-gradient(circle at 8% 96%,rgba(45,212,191,.10) 0%,transparent 52%)}
+.topbar > *{position:relative;z-index:1}
+[data-theme="light"] .topbar{
+  background:linear-gradient(103deg,#eef3fd 0%,#d9e6fa 46%,#e6eefb 100%)}
+[data-theme="light"] .topbar::after{
+  background:
+    radial-gradient(circle at 86% 12%,rgba(37,99,235,.14) 0%,transparent 58%),
+    radial-gradient(circle at 8% 96%,rgba(13,148,136,.07) 0%,transparent 52%)}
+/* The band is dark in both themes' terms now, so the subtitle takes a fixed
+   light ink rather than the panel-relative token it used to. */
+.topbar .brand .sub{color:#93a9c9}
+[data-theme="light"] .topbar .brand .sub{color:#4a6285}
 .brand h1{margin:0;font-size:14.5px;font-weight:650;letter-spacing:.2px}
 .brand .sub{color:var(--text-dim);font-size:11.5px;margin-top:1px}
 .tb-sp{flex:1}
@@ -374,6 +393,18 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
   animation:mastShimmer 6s linear infinite;
 }
 @keyframes mastShimmer{ from{background-position:150% 0} to{background-position:-150% 0} }
+
+/* Topbar size: the same plate at a third of the type size, so the padding,
+   radius and spark offsets all come down with it. */
+.mast-name.sm{padding:3px 11px 4px;border-radius:5px;border-left-width:2px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    inset 0 -1px 0 rgba(0,0,0,.28),
+    0 4px 10px -6px rgba(0,0,0,.55),
+    0 0 20px -10px rgba(34,211,238,.80);
+  transform:perspective(500px) rotateX(5deg)}
+.mast-name.sm::before{width:4px;height:4px;top:1px;right:7px}
+.mast-name.sm::after{width:4px;height:4px;bottom:3px;left:15px}
 
 /* Two sparks, offset in time so they never blink together. Pointer-events off:
    decoration must never sit between the reader and the heading. */
@@ -2409,7 +2440,7 @@ html[data-fx="off"] .tg-pulse{animation:none;opacity:.5}
   <!-- ===================== TOPBAR ===================== -->
   <header class="topbar">
     <div class="brand">
-      <h1>HCM API Test Console &amp; Enterprise Analytics</h1>
+      <h1><span class="mast-name sm"><span class="t">API Testing Console</span></span></h1>
       <div class="sub" id="brandSub">Catalogue v— · 0 APIs · UAT</div>
     </div>
     <div class="tb-sp"></div>
