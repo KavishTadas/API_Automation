@@ -369,7 +369,7 @@ def _attach_response(
 
 def perform_api_request(api: dict[str, str], config: dict[str, str]) -> httpx.Response:
     context = dict(config)
-    context.update(_first_iteration_data(api))
+    context.update(_first_iteration_data(api, context))
     request_parameters = _parse_request_parameters(api.get("Request Parameters", ""))
 
     for key, value in request_parameters["path_variables"].items():
@@ -503,7 +503,35 @@ def _send_pinned_request(request: httpx.Request) -> httpx.Response:
     )
 
 
-def _first_iteration_data(api: dict[str, str]) -> dict[str, str]:
+_PLACEHOLDER = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)\}")
+
+
+def _expand_placeholders(value: str, config: dict[str, str]) -> str:
+    """Substitute ``${VAR}`` from the runtime config, then the environment.
+
+    Data-driven CSVs are committed, and this repository is public. A working
+    password lived in one of them for months, so the files now carry the name
+    of a credential rather than its value; this is what turns that name back
+    into a value at run time, from .env or the CI secret store.
+
+    An unresolved placeholder becomes empty rather than being left as the
+    literal ``${EMP_PASSWORD}``. Sending the placeholder text as a password
+    would produce a 400 that looks exactly like a genuine bad-credential
+    result, which is the one failure mode that would waste someone's afternoon.
+    """
+    def resolve(match: "re.Match[str]") -> str:
+        name = match.group(1)
+        found = config.get(name)
+        if found in (None, ""):
+            found = os.getenv(name, "")
+        return str(found)
+
+    return _PLACEHOLDER.sub(resolve, value)
+
+
+def _first_iteration_data(
+    api: dict[str, str], config: dict[str, str] | None = None
+) -> dict[str, str]:
     comments = api.get("Comments", "")
     match = re.search(r"Data-driven:\s*([^;]+)", comments)
     if not match:
@@ -513,10 +541,19 @@ def _first_iteration_data(api: dict[str, str]) -> dict[str, str]:
     if not data_path.exists():
         return {}
 
+    config = config or {}
     with data_path.open(newline="", encoding="utf-8-sig") as handle:
         reader = csv.DictReader(handle)
         first_row = next(reader, None)
-        return {key: value for key, value in (first_row or {}).items() if value}
+        resolved = {
+            key: _expand_placeholders(str(value), config)
+            for key, value in (first_row or {}).items()
+            if value
+        }
+        # Drop anything a placeholder resolved to nothing: the caller treats a
+        # missing key as "not supplied", which is correct, whereas an empty
+        # string would be sent as a deliberate empty credential.
+        return {key: value for key, value in resolved.items() if value}
 
 
 def _parse_request_parameters(raw_parameters: str) -> dict[str, Any]:

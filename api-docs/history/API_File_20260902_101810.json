@@ -830,7 +830,7 @@
     "HTTP Method": "POST",
     "Request Parameters": "headers: Content-Type=application/json",
     "Request Body": "{\n  \"empCode\": \"{{empCode}}\",\n  \"password\": \"{{empPassword}}\"\n}",
-    "Example Request Payload": "{\n  \"empCode\": \"${EMP_CODE}\",\n  \"password\": \"<empPassword>\"\n}",
+    "Example Request Payload": "{\n  \"empCode\": \"OMI-0001\",\n  \"password\": \"<empPassword>\"\n}",
     "Request Body Schema": "{\"empCode\":\"string\",\"password\":\"string\"}",
     "Response (example/200)": "Expected status(es): 200\n{\n  \"empCode\": \"<empCode>\",\n  \"roles\": [\n    \"<role>\"\n  ],\n  \"token\": \"<jwt-token>\",\n  \"username\": \"<username>\"\n}",
     "Example Response Payload": "{\n  \"empCode\": \"<empCode>\",\n  \"roles\": [\n    \"<role>\"\n  ],\n  \"token\": \"<jwt-token>\",\n  \"username\": \"<username>\"\n}",

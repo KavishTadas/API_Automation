@@ -922,7 +922,7 @@
   ""empCode"": ""{{empCode}}"",
   ""password"": ""{{empPassword}}""
 }","{
-  ""empCode"": ""${EMP_CODE}"",
+  ""empCode"": ""OMI-0001"",
   ""password"": ""<empPassword>""
 }","{""empCode"":""string"",""password"":""string""}","Expected status(es): 200
 {
