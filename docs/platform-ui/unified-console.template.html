@@ -307,11 +307,25 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 #view-analytics .an-wrap{max-width:1280px;width:100%;margin:0 auto;padding:22px 18px 0}
 
 /* ---- masthead ---- */
+/* Deep blue rather than the near-grey green it was. The old band ran
+   #0d2221 -> #163633: three shades of the same desaturated colour, lit from
+   nowhere, which is what made it read as dull rather than as dark. This one
+   carries an angle, a lift through the middle, and enough chroma to be a
+   colour instead of an absence of one. */
 .emast{border-bottom:1px solid var(--s800);padding:16px 18px;position:relative;overflow:hidden;
-  background:linear-gradient(90deg,#0d2221 0%,#163633 50%,#0f201f 100%)}
-[data-theme="light"] .emast{background:linear-gradient(90deg,#e6f2f0 0%,#d7ece8 50%,#e9f4f2 100%)}
+  background:linear-gradient(103deg,#08152c 0%,#132f5e 44%,#0d2246 72%,#0a1932 100%)}
+[data-theme="light"] .emast{
+  background:linear-gradient(103deg,#eef3fd 0%,#d9e6fa 46%,#e6eefb 100%)}
+/* Two lights, not one: a cool bloom top-right and a faint warm counter-light
+   bottom-left, so the band has a direction instead of a single flat wash. */
 .emast::after{content:'';position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(circle at 85% 15%,rgba(45,212,191,.12) 0%,transparent 60%)}
+  background:
+    radial-gradient(circle at 86% 12%,rgba(96,165,250,.26) 0%,transparent 58%),
+    radial-gradient(circle at 8% 96%,rgba(45,212,191,.10) 0%,transparent 52%)}
+[data-theme="light"] .emast::after{
+  background:
+    radial-gradient(circle at 86% 12%,rgba(37,99,235,.14) 0%,transparent 58%),
+    radial-gradient(circle at 8% 96%,rgba(13,148,136,.07) 0%,transparent 52%)}
 .emast-in{max-width:1280px;margin:0 auto;position:relative;z-index:1}
 .emast-top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .emast-tags{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap}
@@ -324,6 +338,78 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
 .emast h1{font:700 clamp(21px,2.4vw,30px)/1.15 var(--serif);color:var(--t50);margin:0;
   letter-spacing:-.02em;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 [data-theme="light"] .emast h1{color:#0e2a28}
+/* The name is the one thing on this band that has to be read first, and it was
+   competing with a tag row above it and a quality-gate pill beside it. The
+   clamp on .emast h1 already caps the type size, so the emphasis has to come
+   from the ground rather than from being bigger.
+
+   Three layers do that: a plate lit from above and tipped back a few degrees so
+   it reads as a physical key; an inset top highlight and bottom shade for the
+   bevel; and a shimmer travelling through the glyphs themselves. The shimmer is
+   the text's own background clipped to it, which is why the plate keeps its
+   separate fill. */
+.mast-name{
+  position:relative; display:inline-block; isolation:isolate;
+  padding:4px 18px 6px; border-radius:7px;
+  background:
+    linear-gradient(165deg, rgba(6,20,44,.55), rgba(8,26,54,.30) 55%, rgba(6,20,44,.48));
+  border-left:3px solid #22d3ee;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.20),
+    inset 0 -1px 0 rgba(0,0,0,.30),
+    0 8px 18px -8px rgba(0,0,0,.60),
+    0 0 34px -10px rgba(34,211,238,.90);
+  transform:perspective(700px) rotateX(7deg);
+  transform-origin:50% 100%;
+}
+.mast-name .t{
+  background:linear-gradient(100deg,
+    #a5f3fc 0%, #ffffff 32%, #22d3ee 46%, #67e8f9 58%, #a5f3fc 100%);
+  background-size:300% 100%;
+  -webkit-background-clip:text; background-clip:text;
+  color:transparent;
+  /* drop-shadow rather than text-shadow: with a transparent fill a text-shadow
+     shows through the glyphs and muddies them. */
+  filter:drop-shadow(0 2px 0 rgba(0,0,0,.48)) drop-shadow(0 0 16px rgba(34,211,238,.60));
+  animation:mastShimmer 6s linear infinite;
+}
+@keyframes mastShimmer{ from{background-position:150% 0} to{background-position:-150% 0} }
+
+/* Two sparks, offset in time so they never blink together. Pointer-events off:
+   decoration must never sit between the reader and the heading. */
+.mast-name::before,.mast-name::after{
+  content:'';position:absolute;width:7px;height:7px;pointer-events:none;z-index:2;
+  background:radial-gradient(circle, #fff 0 22%, rgba(165,243,252,.92) 40%, transparent 70%);
+  opacity:0;
+}
+.mast-name::before{top:2px;right:12px;animation:mastSpark 6s ease-in-out infinite}
+.mast-name::after{bottom:5px;left:26px;animation:mastSpark 6s ease-in-out 2.6s infinite}
+@keyframes mastSpark{
+  0%,72%,100%{opacity:0;transform:scale(.4) rotate(0deg)}
+  80%        {opacity:1;transform:scale(1.15) rotate(45deg)}
+  88%        {opacity:0;transform:scale(.5) rotate(90deg)}
+}
+
+[data-theme="light"] .mast-name{
+  background:linear-gradient(165deg, rgba(8,145,178,.20), rgba(8,145,178,.04) 55%, rgba(8,145,178,.12));
+  border-left-color:#0891b2;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.75),
+    inset 0 -1px 0 rgba(8,145,178,.22),
+    0 8px 18px -10px rgba(15,40,90,.45);
+}
+[data-theme="light"] .mast-name .t{
+  background:linear-gradient(100deg, #0b3a49 0%, #0891b2 34%, #062a36 46%, #0b3a49 60%, #0b3a49 100%);
+  background-size:300% 100%;
+  -webkit-background-clip:text; background-clip:text;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.55));
+}
+
+@media (prefers-reduced-motion:reduce){
+  .mast-name .t{animation:none}
+  .mast-name::before,.mast-name::after{animation:none;opacity:0}
+  .mast-name{transform:none}
+}
 .qg-pill{font:700 12px var(--sans);text-transform:uppercase;letter-spacing:.03em;
   padding:3px 11px;border-radius:99px;white-space:nowrap}
 .qg-WARNING{background:rgba(181,118,42,.2);color:var(--am300);border:1px solid rgba(181,118,42,.4)}
@@ -4514,7 +4600,7 @@ function masthead(R){
                 + 'border-color:var(--ro500);font-weight:700">&#9888; SIMULATED &mdash; no endpoint was called</span>'
               : '')}
         </div>
-        <h1>HCM Platform APIs
+        <h1><span class="mast-name"><span class="t">API Testing Console</span></span>
           <span class="qg-pill qg-${g.level}">Quality Gate: ${g.level}${
             R.summary.passRateApplicable?` (${pct(R.summary.passRate)})`:' (n/a)'}</span>
         </h1>
@@ -5118,6 +5204,8 @@ function tabDefects(R){
 
   const sec = (title, rows, note, render) => rows.length ? `
     <div class="card sect"><div class="card-h"><h3>${title}</h3><span class="sp"></span>
+      <button class="btn btn-sm" data-copy-sec title="Copy all ${rows.length} row(s) as text">
+        ${svg(ICO.clipboard)} Copy all</button>
       <span class="pill">${rows.length}</span></div>
       <div class="card-b" style="padding:0">${render(rows)}</div>
       ${note?`<div class="card-b faint" style="font-size:11.5px;border-top:1px solid var(--line-soft)">${note}</div>`:''}
@@ -5131,7 +5219,9 @@ function tabDefects(R){
         <div class="mono faint" style="font-size:11px;margin-top:3px">${esc(api.path)}</div></td>
       <td><span class="st" style="background:${cssv(v)}22;color:${cssv(v)}">${esc(c)}</span></td>
       <td class="dim">${esc(r.reason)}</td>
-      <td class="right"><button class="btn btn-sm" data-jira="${i}">Jira ticket</button></td>
+      <td class="right" style="white-space:nowrap">
+        <button class="btn btn-sm" data-copy-row title="Copy this defect">${svg(ICO.clipboard)}</button>
+        <button class="btn btn-sm" data-jira="${i}">Jira ticket</button></td>
     </tr>`;}).join('')}</tbody></table>`)}
 
   ${sec('Blocked — never executed', showBlocked,
@@ -5425,6 +5515,36 @@ function wireAnalytics(R){
   wireTrend();
   const fails = R.apis.flatMap(a=>a.results.filter(r=>r.state==='FAIL').map(r=>({r, api:resultApi(a.apiRef)})));
   $$('[data-jira]').forEach(b=> b.onclick=()=>jiraModal(fails[+b.dataset.jira], R));
+
+  /* Copy reads the rendered table rather than the result object, so what lands
+     on the clipboard is exactly what is on screen -- same filter, same order,
+     same wording. A second formatter over the same data is a second thing to
+     drift. Column headers become the field labels, so this works unchanged for
+     Failures, Blocked and the assertion gaps. */
+  const NL = String.fromCharCode(10);
+  const rowText = tr => {
+    const heads = [...tr.closest('table').querySelectorAll('thead th')]
+      .map(th => th.textContent.trim());
+    const cells = [...tr.children].map(td => td.textContent.replace(/\s+/g,' ').trim());
+    const head = cells[0] || '';
+    const rest = cells.slice(1).map((v, i) =>
+      (heads[i+1] && heads[i+1].toLowerCase() !== 'action' && v)
+        ? `  ${heads[i+1]}: ${v}` : '').filter(Boolean);
+    return [head, ...rest].join(NL);
+  };
+  const said = b => { const t = b.innerHTML; b.innerHTML = 'Copied'; setTimeout(()=>{ b.innerHTML = t; }, 1400); };
+  $$('[data-copy-row]').forEach(b => b.onclick = () => {
+    const tr = b.closest('tr'); if(!tr) return;
+    copy(rowText(tr)); said(b); toast('Defect copied');
+  });
+  $$('[data-copy-sec]').forEach(b => b.onclick = () => {
+    const card = b.closest('.card'); const tbl = card && card.querySelector('table');
+    if(!tbl) return;
+    const rows = [...tbl.querySelectorAll('tbody tr')].map(rowText);
+    const title = (card.querySelector('h3') || {}).textContent || 'Defects';
+    copy(title.trim() + ' (' + rows.length + ')' + NL + NL + rows.join(NL + NL));
+    said(b); toast(`${rows.length} row(s) copied`);
+  });
   $$('[data-curl-ref]').forEach(b=> b.onclick=()=>{
     const api=apiByRef(b.dataset.curlRef);
     copy(curlFor(api)); toast('cURL copied — token redacted');
@@ -7590,13 +7710,24 @@ function seedSampleHistory(quiet){
    The seed values are deliberately modest. Guessing high makes a fast run look
    broken; guessing low makes a slow one look stuck. Neither is worth defending
    when the run itself can tell us. */
-const LIVE_FIXED_MS = 4000, LIVE_PER_API_MS = 700;
+/* Measured against the live harness at four batch sizes -- 4, 12, 24 and 44
+   endpoints -- once the auth bootstrap actually issued a token. The previous
+   figures were calibrated while every secured endpoint was being skipped for
+   want of one, so they described a run that never happened: 44 endpoints was
+   quoted at 21s and took 80.
+
+   Deliberately a little high. "Longer than promised" is a worse experience
+   than "quicker than promised" for a dialog whose only job is to warn. */
+const LIVE_FIXED_MS = 6000, LIVE_PER_API_MS = 1500;
+/* Bumped whenever the constants above change, so a model learned from runs of
+   the old shape is discarded rather than averaged with the new one. */
+const LIVE_TIMING_V = 2;
 const FX_TIMING_LS = 'hcm-live-timing';
 
 function liveTiming(){
   try{
     const v = JSON.parse(localStorage.getItem(FX_TIMING_LS) || 'null');
-    if(v && isFinite(v.fixed) && isFinite(v.per) && v.per >= 0) return v;
+    if(v && v.v === LIVE_TIMING_V && isFinite(v.fixed) && isFinite(v.per) && v.per >= 0) return v;
   }catch(e){}
   return {fixed:LIVE_FIXED_MS, per:LIVE_PER_API_MS, n:0};
 }
@@ -7611,6 +7742,7 @@ function recordLiveTiming(count, elapsedMs){
     const n = Math.min(t.n || 0, 5) + 1;
     const per = Math.max(0, (elapsedMs - t.fixed) / count);
     localStorage.setItem(FX_TIMING_LS, JSON.stringify({
+      v:     LIVE_TIMING_V,
       fixed: t.fixed + (Math.min(elapsedMs * 0.25, t.fixed) - t.fixed) / n,
       per:   t.per + (per - t.per) / n,
       n:     n
