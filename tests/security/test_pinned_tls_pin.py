@@ -9,6 +9,7 @@ from __future__ import annotations
 import http.client
 import json
 import os
+import socket
 from pathlib import Path
 from unittest.mock import patch
 
@@ -50,9 +51,37 @@ def _attach_tls_evidence(name: str, evidence: dict[str, object]) -> None:
     )
 
 
+def _pinned_host_resolves() -> bool:
+    """Whether the pinned host still exists in DNS.
+
+    It stopped resolving when the estate moved to uat-mcdp-be, which has no
+    underscore and so needs no pin at all -- see HANDOVER item 16. Both call
+    sites gate on the resolved hostname matching PINNED_HOST, so the pin is
+    simply never selected now; nothing is weakened by its absence.
+    """
+    try:
+        socket.getaddrinfo(pinned_tls.PINNED_HOST, 443)
+    except OSError:
+        return False
+    return True
+
+
 def test_live_request_succeeds_through_current_certificate_pin() -> None:
     """Make a real pinned request to the fixed development auth host."""
+    # Checked before the skip below, deliberately. This is the guard against a
+    # pin edited quietly in scripts/pinned_tls.py, and that guard has to keep
+    # working whether or not the host is reachable -- otherwise a dead host
+    # would also switch off the one assertion that notices the pin changing.
     assert pinned_tls.EXPECTED_CERT_SHA256 == CURRENT_CERT_SHA256
+
+    if not _pinned_host_resolves():
+        pytest.skip(
+            f"{pinned_tls.PINNED_HOST} no longer resolves, so the live half of "
+            "this test cannot run. The pin's fingerprint is still asserted "
+            "above, and the fail-closed behaviour is proved offline by "
+            "test_wrong_certificate_pin_fails_closed_without_network. Whether "
+            "to retire the pinning module is HANDOVER item 16."
+        )
 
     emp_code = _credential("EMP_CODE")
     emp_password = _credential("EMP_PASSWORD")

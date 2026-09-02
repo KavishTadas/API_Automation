@@ -268,3 +268,25 @@ response header hygiene* step in `.github/workflows/api-tests.yml`. It reports
 rather than blocks today only because every host currently fails it.
 
 Related and still open: no host sends `Strict-Transport-Security`.
+
+## 16. The TLS pin now guards a host that no longer exists
+
+`scripts/pinned-tls-agent.js` and `scripts/pinned_tls.py` pin
+`dev_mcdp_be.omfysgroup.com`. That host stopped resolving, and the estate moved
+to `uat-mcdp-be`, which has no underscore -- so ordinary RFC 6125 hostname
+validation applies to it and the pin has nothing left to do.
+
+Both call sites gate on the resolved hostname matching `PINNED_HOST`, so with
+`AUTH_BASE_URL` set the pin is simply skipped and standard TLS is used. Nothing
+is weakened. But two things still point at the dead host:
+
+- `tests/security/test_pinned_tls_pin.py::test_live_request_succeeds_through_current_certificate_pin`
+  makes a live call to it and fails on DNS. It is the one failure in that suite.
+- `README.md` and `KT_Report_and_Current_status.txt` still document
+  `dev_mcdp_be` as the active auth target, including the rationale for pinning it.
+
+The decision is whether to retire the pinning module or re-point it. Retiring it
+is the honest reading -- it exists solely to work around an underscore in a
+hostname that is no longer used -- but it is a security-relevant change and the
+certificate fingerprint for any replacement host would have to be captured
+first. Recorded rather than actioned.

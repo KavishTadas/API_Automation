@@ -19,9 +19,21 @@ const {
   PINNED_HOST
 } = require('./pinned-tls-agent');
 
-const PINNED_AUTH_BASE_URL =
-  process.env.NEWMAN_RETRY_PROBE_AUTH_BASE_URL || `https://${PINNED_HOST}`;
-const LEAVE_REPORT_BASE_URL = 'https://devmcdphcmplatform.omfysgroup.com';
+// Deriving this from the pin made AUTH_BASE_URL dead configuration: the
+// workflow set it, .env set it, and neither was ever read. Every CI run was
+// therefore aimed at the pinned underscore host, which no longer resolves at
+// all -- the job failed on ENOTFOUND while the repository said the right
+// thing. The pin stays as the last fallback, because it is still the correct
+// host for anyone who has not set AUTH_BASE_URL; it is no longer the answer.
+// Whether the pinned agent is actually attached is decided further down by
+// comparing the RESOLVED hostname against PINNED_HOST, so pointing this
+// elsewhere weakens nothing.
+const AUTH_BASE_URL =
+  process.env.NEWMAN_RETRY_PROBE_AUTH_BASE_URL ||
+  process.env.AUTH_BASE_URL ||
+  `https://${PINNED_HOST}`;
+const LEAVE_BASE_URL =
+  process.env.LEAVE_BASE_URL || 'https://devmcdphcmplatform.omfysgroup.com';
 const PINNED_TLS_DEBUG = process.env.PINNED_TLS_DEBUG === '1';
 // Tune these two constants if the retry budget or initial backoff ever needs
 // to change. Attempts use 500ms then 1000ms delays (three attempts total).
@@ -291,16 +303,15 @@ if (filteredFiles.length === 0) {
 
 const results = [];
 const sharedEnvVars = {
-  authBaseUrl:       PINNED_AUTH_BASE_URL,
+  authBaseUrl:       AUTH_BASE_URL,
   baseUrl:           process.env.BASE_URL            ||
                      process.env.ATTENDANCE_BASE_URL ||
-                     'https://uat_mcdp_hcm.omfysgroup.com',
+                     'https://uatmcdphcmplatform.omfysgroup.com',
   attendanceBaseUrl: process.env.ATTENDANCE_BASE_URL ||
-                     'https://uat_mcdp_hcm.omfysgroup.com',
+                     'https://uatmcdphcmplatform.omfysgroup.com',
   empCode:           process.env.EMP_CODE            || '',
   empPassword:       process.env.EMP_PASSWORD        || '',
-  leaveBaseUrl:      process.env.LEAVE_BASE_URL      ||
-                     LEAVE_REPORT_BASE_URL,
+  leaveBaseUrl:      LEAVE_BASE_URL,
   openapiSchemaBundle: OPENAPI_SCHEMA_BUNDLE_JSON
 };
 
@@ -369,10 +380,10 @@ function runCollectionAttempt(collectionFile, attempt) {
     const collectionEnvVars = withReferencedCasings({
       ...sharedEnvVars,
       ...(collectionName === 'Employee_Auth_API'
-        ? { authBaseUrl: PINNED_AUTH_BASE_URL }
+        ? { authBaseUrl: AUTH_BASE_URL }
         : {}),
       ...(collectionName === 'Leave_API'
-        ? { leaveBaseUrl: LEAVE_REPORT_BASE_URL }
+        ? { leaveBaseUrl: LEAVE_BASE_URL }
         : {})
     }, collection);
     const options = {
@@ -409,7 +420,7 @@ function runCollectionAttempt(collectionFile, attempt) {
 
     let pinnedAuthAgent;
     if (collectionName === 'Employee_Auth_API') {
-      const authBaseUrl = new URL(PINNED_AUTH_BASE_URL);
+      const authBaseUrl = new URL(AUTH_BASE_URL);
       const usePinnedTlsAgent = (
         authBaseUrl.protocol === 'https:' &&
         authBaseUrl.hostname === PINNED_HOST
@@ -429,7 +440,7 @@ function runCollectionAttempt(collectionFile, attempt) {
         );
       } else {
         console.log(
-          `  Pinned TLS agent skipped for Employee_Auth_API; using ${PINNED_AUTH_BASE_URL}`
+          `  Pinned TLS agent skipped for Employee_Auth_API; using ${AUTH_BASE_URL}`
         );
       }
     }
