@@ -15,7 +15,7 @@
     "Response (example/200)": "Expected status(es): 200\n{\n  \"token\": \"<jwt-token>\"\n}",
     "Example Response Payload": "{\n  \"token\": \"<jwt-token>\"\n}",
     "Dependent APIs / Services": "Produces authToken for downstream APIs",
-    "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+    "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
     "API Identifier": "post|/auth/token|auth|login",
     "Comments": "Source: bruno/auth/login.bru; No saved response example in source file; Parsed from Bruno file"
   },
