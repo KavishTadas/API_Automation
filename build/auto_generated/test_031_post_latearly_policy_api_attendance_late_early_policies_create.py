@@ -24,13 +24,13 @@ API = json.loads(r"""{
   "Sub-Module Name": "create",
   "Access": "private",
   "Functional Purpose": "create",
-  "Base URL": "{{attendanceBaseUrl}}",
+  "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/attendance/late-early-policies/create",
   "HTTP Method": "POST",
   "Request Parameters": "headers: Authorization=Bearer YOUR_JWT_TOKEN; Content-Type=application/json",
   "Request Body Schema": "{\"policyCode\":\"null\",\"policyName\":\"string\",\"description\":\"string\",\"templateMode\":\"string\",\"eventCountMinutes\":\"number\",\"graceMinutes\":\"number\",\"graceEvent\":\"number\",\"allowedEvent\":\"number\",\"deductionType\":\"string\",\"leaveDeductDays\":\"number\",\"leaveTypeId\":\"number\",\"fineAmount\":\"null\",\"effectiveFrom\":\"string\",\"effectiveTo\":\"string\",\"isDefault\":\"string\",\"isActive\":\"string\",\"remarks\":\"string\",\"deductionPriorities\":[{\"priorityOrder\":\"number\",\"leaveTypeId\":\"number\",\"isActive\":\"string\"}],\"assignments\":[{\"employeeId\":\"number\",\"departmentId\":\"number\",\"designationId\":\"number\",\"effectiveFrom\":\"string\",\"effectiveTo\":\"string\",\"isActive\":\"string\"}]}",
   "Response (example/200)": "",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "post|/api/attendance/late-early-policies/create|latearly-policy|create",
   "Request Body": "{\n    \"policyCode\": null,\n    \"policyName\": \"Standard Laes Ears Policises1\",\n    \"description\": \"Policy for late coming and early leaving\",\n\n    \"templateMode\": \"CUSTOM\",\n\n    \"eventCountMinutes\": 30,\n    \"graceMinutes\": 10,\n    \"graceEvent\": 2,\n    \"allowedEvent\": 3,\n\n    \"deductionType\": \"LEAVE\",\n\n    \"leaveDeductDays\": 0.50,\n    \"leaveTypeId\": 1,\n    \"fineAmount\": null,\n\n    \"effectiveFrom\": \"2026-08-01\",\n    \"effectiveTo\": \"2026-12-31\",\n\n    \"isDefault\": \"N\",\n\t\t\"isActive\":\"N\",\n    \"remarks\": \"Applicable for regular employees\",\n\n    \"deductionPriorities\": [\n        {\n            \"priorityOrder\": 1,\n            \"leaveTypeId\": 1,\n            \"isActive\": \"Y\"\n        },\n        {\n            \"priorityOrder\": 2,\n            \"leaveTypeId\": 2,\n            \"isActive\": \"Y\"\n        }\n    ],\n\n    \"assignments\": [\n        {\n            \"employeeId\": 3721,\n            \"departmentId\": 141,\n            \"designationId\": 51,\n            \"effectiveFrom\": \"2026-08-01\",\n            \"effectiveTo\": \"2026-12-31\",\n            \"isActive\": \"Y\"\n        \n        }\n    ]\n}",
   "Example Request Payload": "{\n  \"policyCode\": null,\n  \"policyName\": \"Standard Laes Ears Policises1\",\n  \"description\": \"Policy for late coming and early leaving\",\n  \"templateMode\": \"CUSTOM\",\n  \"eventCountMinutes\": 30,\n  \"graceMinutes\": 10,\n  \"graceEvent\": 2,\n  \"allowedEvent\": 3,\n  \"deductionType\": \"LEAVE\",\n  \"leaveDeductDays\": 0.5,\n  \"leaveTypeId\": 1,\n  \"fineAmount\": null,\n  \"effectiveFrom\": \"2026-08-01\",\n  \"effectiveTo\": \"2026-12-31\",\n  \"isDefault\": \"N\",\n  \"isActive\": \"N\",\n  \"remarks\": \"Applicable for regular employees\",\n  \"deductionPriorities\": [\n    {\n      \"priorityOrder\": 1,\n      \"leaveTypeId\": 1,\n      \"isActive\": \"Y\"\n    },\n    {\n      \"priorityOrder\": 2,\n      \"leaveTypeId\": 2,\n      \"isActive\": \"Y\"\n    }\n  ],\n  \"assignments\": [\n    {\n      \"employeeId\": 3721,\n      \"departmentId\": 141,\n      \"designationId\": 51,\n      \"effectiveFrom\": \"2026-08-01\",\n      \"effectiveTo\": \"2026-12-31\",\n      \"isActive\": \"Y\"\n    }\n  ]\n}",
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (200)")
 @allure.label("sourceModule", "Latearly-Policy")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("post|/api/attendance/late-early-policies/create|latearly-policy|create", name="API Identifier")
 def test_latearly_policy_api_attendance_late_early_policies_create_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
@@ -67,7 +67,7 @@ def test_latearly_policy_api_attendance_late_early_policies_create_status_code(a
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Latearly-Policy")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("post|/api/attendance/late-early-policies/create|latearly-policy|create", name="API Identifier")
 def test_latearly_policy_api_attendance_late_early_policies_create_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")

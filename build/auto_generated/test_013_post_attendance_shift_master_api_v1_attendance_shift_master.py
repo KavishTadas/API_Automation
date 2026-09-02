@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "Create CUSTOM Shift (FIXED Type)",
   "Access": "private",
   "Functional Purpose": "Create CUSTOM Shift (FIXED Type)",
-  "Base URL": "{{attendanceBaseUrl}}",
+  "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/v1/attendance/shift/master",
   "HTTP Method": "POST",
   "Request Parameters": "headers: Authorization=Bearer {{authToken}}",

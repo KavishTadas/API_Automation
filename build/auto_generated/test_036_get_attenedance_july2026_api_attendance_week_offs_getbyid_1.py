@@ -24,13 +24,13 @@ API = json.loads(r"""{
   "Sub-Module Name": "WeekOffGetById",
   "Access": "private",
   "Functional Purpose": "WeekOffGetById",
-  "Base URL": "{{attendanceBaseUrl}}",
+  "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/attendance/week-offs/getById/1",
   "HTTP Method": "GET",
   "Request Parameters": "headers: Authorization=Bearer YOUR_JWT_TOKEN",
   "Request Body Schema": "",
   "Response (example/200)": "",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid",
   "Request Body": "",
   "Example Request Payload": "",
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (200)")
 @allure.label("sourceModule", "Attenedance-july2026")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid", name="API Identifier")
 def test_attenedance_july2026_api_attendance_week_offs_getbyid_1_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")
@@ -67,7 +67,7 @@ def test_attenedance_july2026_api_attendance_week_offs_getbyid_1_status_code(api
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Attenedance-july2026")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid", name="API Identifier")
 def test_attenedance_july2026_api_attendance_week_offs_getbyid_1_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")

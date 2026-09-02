@@ -24,13 +24,13 @@ API = json.loads(r"""{
   "Sub-Module Name": "getById/1",
   "Access": "private",
   "Functional Purpose": "Generated from cURL: curl --location 'http://localhost:9079/api/attendance/late-early-policies/getById/1' \\\n--header 'Authorization: Bearer <JWT_TOKEN>'",
-  "Base URL": "{{attendanceBaseUrl}}",
+  "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/attendance/late-early-policies/getById/5",
   "HTTP Method": "GET",
   "Request Parameters": "headers: Authorization=Bearer <JWT_TOKEN>",
   "Request Body Schema": "",
   "Response (example/200)": "",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1",
   "Request Body": "",
   "Example Request Payload": "",
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (200)")
 @allure.label("sourceModule", "Latearly-Policy")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1", name="API Identifier")
 def test_latearly_policy_api_attendance_late_early_policies_getbyid_5_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")
@@ -67,7 +67,7 @@ def test_latearly_policy_api_attendance_late_early_policies_getbyid_5_status_cod
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Latearly-Policy")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1", name="API Identifier")
 def test_latearly_policy_api_attendance_late_early_policies_getbyid_5_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")

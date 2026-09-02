@@ -24,13 +24,13 @@ API = json.loads(r"""{
   "Sub-Module Name": "week-off-assignment/changeStatus",
   "Access": "private",
   "Functional Purpose": "Generated from cURL: curl --location --request PATCH 'http://localhost:8080/api/attendance/week-off-assignment/changeStatus' \\\n--header 'Authorization: Bearer <TOKEN>' \\\n--header 'Content-Type: application/json' \\\n--data '{\n    \"assignmentId\": 1,\n    \"status\": \"N\"\n}'",
-  "Base URL": "{{attendanceBaseUrl}}",
+  "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/attendance/week-off-assignment/changeStatus",
   "HTTP Method": "PATCH",
   "Request Parameters": "headers: Authorization=Bearer <TOKEN>; Content-Type=application/json",
   "Request Body Schema": "{\"assignmentId\":\"number\",\"status\":\"string\"}",
   "Response (example/200)": "",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus",
   "Request Body": "{\n    \"assignmentId\": 3,\n    \"status\": \"N\"\n}",
   "Example Request Payload": "{\n  \"assignmentId\": 3,\n  \"status\": \"N\"\n}",
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (200)")
 @allure.label("sourceModule", "Attenedance-july2026")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus", name="API Identifier")
 def test_attenedance_july2026_api_attendance_week_off_assignment_changestatus_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PATCH")
@@ -67,7 +67,7 @@ def test_attenedance_july2026_api_attendance_week_off_assignment_changestatus_st
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Attenedance-july2026")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus", name="API Identifier")
 def test_attenedance_july2026_api_attendance_week_off_assignment_changestatus_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PATCH")

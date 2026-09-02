@@ -24,13 +24,13 @@ API = json.loads(r"""{
   "Sub-Module Name": "week-off-assignment/getByWeekOffId",
   "Access": "private",
   "Functional Purpose": "week-off-assignment/getByWeekOffId",
-  "Base URL": "{{attendanceBaseUrl}}",
+  "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/attendance/week-off-assignment/getByWeekOff",
   "HTTP Method": "POST",
   "Request Parameters": "query: page=0; size=10; sort=employeeId,asc | headers: Authorization=Bearer <YOUR_JWT_TOKEN>; Content-Type=application/json",
   "Request Body Schema": "{\"weekOffId\":\"number\"}",
   "Response (example/200)": "",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid",
   "Request Body": "{\n    \"weekOffId\": 1\n}",
   "Example Request Payload": "{\n  \"weekOffId\": 1\n}",
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (200)")
 @allure.label("sourceModule", "Attenedance-july2026")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid", name="API Identifier")
 def test_attenedance_july2026_api_attendance_week_off_assignment_getbyweekoff_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
@@ -67,7 +67,7 @@ def test_attenedance_july2026_api_attendance_week_off_assignment_getbyweekoff_st
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Attenedance-july2026")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid", name="API Identifier")
 def test_attenedance_july2026_api_attendance_week_off_assignment_getbyweekoff_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")

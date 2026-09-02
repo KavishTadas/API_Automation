@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "Delete Shift",
   "Access": "private",
   "Functional Purpose": "Delete Shift",
-  "Base URL": "{{attendanceBaseUrl}}",
+  "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/v1/attendance/shift/master/6",
   "HTTP Method": "DELETE",
   "Request Parameters": "headers: Authorization=Bearer {{authToken}}",

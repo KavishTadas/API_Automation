@@ -24,13 +24,13 @@ API = json.loads(r"""{
   "Sub-Module Name": "Create",
   "Access": "private",
   "Functional Purpose": "Create",
-  "Base URL": "{{attendanceBaseUrl}}",
+  "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/attendance/holiday-templates/create",
   "HTTP Method": "POST",
   "Request Parameters": "headers: Authorization=Bearer {{jwtToken}}; Content-Type=application/json",
   "Request Body Schema": "{\"templateCode\":\"string\",\"templateName\":\"string\",\"description\":\"string\",\"effectiveFrom\":\"string\",\"effectiveTo\":\"string\",\"optionModel\":\"string\",\"templateMode\":\"string\",\"isDefault\":\"string\",\"isActive\":\"string\",\"templateStatus\":\"string\",\"remarks\":\"string\",\"holidays\":[{\"holidayName\":\"string\",\"occasion\":\"string\",\"holidayDate\":\"string\",\"isOptional\":\"string\",\"isHalfDay\":\"string\",\"remarks\":\"string\"}],\"assignments\":[{\"employeeId\":\"number\",\"effectiveFrom\":\"string\",\"effectiveTo\":\"string\",\"isActive\":\"string\"}]}",
   "Response (example/200)": "",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "post|/api/attendance/holiday-templates/create|holiday template apis copy|create",
   "Request Body": "{\n  \"templateCode\": \"HOL2026\",\n  \"templateName\": \"India Holiday Calendar 2026\",\n  \"description\": \"National Holidays\",\n  \"effectiveFrom\": \"2026-01-01\",\n  \"effectiveTo\": \"2026-12-31\",\n  \"optionModel\": \"ALLOWED\",\n  \"templateMode\": \"DEFAULT\",\n  \"isDefault\": \"Y\",\n  \"isActive\": \"Y\",\n  \"templateStatus\": \"DRAFT\",\n  \"remarks\": \"2026\",\n  \"holidays\": [\n    {\n      \"holidayName\": \"Republic Day\",\n      \"occasion\": \"National Holiday\",\n      \"holidayDate\": \"2026-01-26\",\n      \"isOptional\": \"N\",\n      \"isHalfDay\": \"N\",\n      \"remarks\": \"\"\n    }\n  ],\n  \"assignments\": [\n    {\n      \"employeeId\": 101,\n      \"effectiveFrom\": \"2026-01-01\",\n      \"effectiveTo\": \"2026-12-31\",\n      \"isActive\": \"Y\"\n    }\n  ]\n}",
   "Example Request Payload": "{\n  \"templateCode\": \"HOL2026\",\n  \"templateName\": \"India Holiday Calendar 2026\",\n  \"description\": \"National Holidays\",\n  \"effectiveFrom\": \"2026-01-01\",\n  \"effectiveTo\": \"2026-12-31\",\n  \"optionModel\": \"ALLOWED\",\n  \"templateMode\": \"DEFAULT\",\n  \"isDefault\": \"Y\",\n  \"isActive\": \"Y\",\n  \"templateStatus\": \"DRAFT\",\n  \"remarks\": \"2026\",\n  \"holidays\": [\n    {\n      \"holidayName\": \"Republic Day\",\n      \"occasion\": \"National Holiday\",\n      \"holidayDate\": \"2026-01-26\",\n      \"isOptional\": \"N\",\n      \"isHalfDay\": \"N\",\n      \"remarks\": \"\"\n    }\n  ],\n  \"assignments\": [\n    {\n      \"employeeId\": 101,\n      \"effectiveFrom\": \"2026-01-01\",\n      \"effectiveTo\": \"2026-12-31\",\n      \"isActive\": \"Y\"\n    }\n  ]\n}",
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (200)")
 @allure.label("sourceModule", "Holiday Template APIs Copy")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("post|/api/attendance/holiday-templates/create|holiday template apis copy|create", name="API Identifier")
 def test_holiday_template_apis_copy_api_attendance_holiday_templates_create_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
@@ -67,7 +67,7 @@ def test_holiday_template_apis_copy_api_attendance_holiday_templates_create_stat
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Holiday Template APIs Copy")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("post|/api/attendance/holiday-templates/create|holiday template apis copy|create", name="API Identifier")
 def test_holiday_template_apis_copy_api_attendance_holiday_templates_create_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")

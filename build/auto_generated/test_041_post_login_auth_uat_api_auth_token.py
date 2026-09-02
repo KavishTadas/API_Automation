@@ -24,16 +24,16 @@ API = json.loads(r"""{
   "Sub-Module Name": "TC01 - Valid credentials return token",
   "Access": "public",
   "Functional Purpose": "TC01 - Valid credentials return token",
-  "Base URL": "{{baseUrl}}",
+  "Base URL": "{{authBaseUrl}}",
   "Endpoint / Path": "/auth/token",
   "HTTP Method": "POST",
   "Request Parameters": "headers: Content-Type=application/json",
   "Request Body Schema": "{\"empCode\":\"string\",\"password\":\"string\"}",
   "Response (example/200)": "Expected status(es): 200\n{\n  \"empCode\": \"<empCode>\",\n  \"roles\": [\n    \"<role>\"\n  ],\n  \"token\": \"<jwt-token>\",\n  \"username\": \"<username>\"\n}",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "post|/auth/token|login auth uat api|tc01 - valid credentials return token",
   "Request Body": "{\n  \"empCode\": \"{{empCode}}\",\n  \"password\": \"{{empPassword}}\"\n}",
-  "Example Request Payload": "{\n  \"empCode\": \"OMI-0001\",\n  \"password\": \"<empPassword>\"\n}",
+  "Example Request Payload": "{\n  \"empCode\": \"${EMP_CODE}\",\n  \"password\": \"<empPassword>\"\n}",
   "Example Response Payload": "{\n  \"empCode\": \"<empCode>\",\n  \"roles\": [\n    \"<role>\"\n  ],\n  \"token\": \"<jwt-token>\",\n  \"username\": \"<username>\"\n}",
   "Dependent APIs / Services": "Produces authToken for downstream APIs",
   "Comments": "Source: collections/auth/Login_Auth_UAT_API.json; Data-driven: test-data/auth/Login_Auth_UAT_API.csv; No saved response example in source file"
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (200)")
 @allure.label("sourceModule", "Login Auth UAT API")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("post|/auth/token|login auth uat api|tc01 - valid credentials return token", name="API Identifier")
 def test_login_auth_uat_api_auth_token_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
@@ -67,7 +67,7 @@ def test_login_auth_uat_api_auth_token_status_code(api_runtime_config: dict[str,
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Login Auth UAT API")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("post|/auth/token|login auth uat api|tc01 - valid credentials return token", name="API Identifier")
 def test_login_auth_uat_api_auth_token_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")

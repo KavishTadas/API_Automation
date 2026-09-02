@@ -30,7 +30,7 @@ API = json.loads(r"""{
   "Request Parameters": "headers: Content-Type=application/json",
   "Request Body Schema": "{\"empCode\":\"string\",\"password\":\"string\"}",
   "Response (example/200)": "Expected status(es): 200\n{\n  \"empCode\": \"<empCode>\",\n  \"roles\": [\n    \"<role>\"\n  ],\n  \"token\": \"<jwt-token>\",\n  \"username\": \"<username>\"\n}",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "post|/auth/token|employee auth api|tc01 - valid credentials return jwt token",
   "Request Body": "{\"empCode\": \"{{empCode}}\", \"password\": \"{{empPassword}}\"}",
   "Example Request Payload": "{\n  \"empCode\": \"<empCode>\",\n  \"password\": \"<empPassword>\"\n}",
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (200)")
 @allure.label("sourceModule", "Employee Auth API")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("post|/auth/token|employee auth api|tc01 - valid credentials return jwt token", name="API Identifier")
 def test_employee_auth_api_auth_token_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
@@ -67,7 +67,7 @@ def test_employee_auth_api_auth_token_status_code(api_runtime_config: dict[str, 
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Employee Auth API")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("post|/auth/token|employee auth api|tc01 - valid credentials return jwt token", name="API Identifier")
 def test_employee_auth_api_auth_token_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")

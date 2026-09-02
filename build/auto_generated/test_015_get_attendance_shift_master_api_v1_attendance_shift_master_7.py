@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "Get By Id",
   "Access": "private",
   "Functional Purpose": "Get By Id",
-  "Base URL": "{{attendanceBaseUrl}}",
+  "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/v1/attendance/shift/master/7",
   "HTTP Method": "GET",
   "Request Parameters": "headers: Authorization=Bearer {{authToken}}",

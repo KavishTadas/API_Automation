@@ -30,7 +30,7 @@ API = json.loads(r"""{
   "Request Parameters": "headers: Content-Type=application/json",
   "Request Body Schema": "{\"empCode\":\"string\"}",
   "Response (example/200)": "Expected status(es): 400\n{\n  \"token\": \"<jwt-token>\"\n}",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "post|/auth/token|employee auth api|tc03 - missing password returns 400",
   "Request Body": "{\"empCode\": \"{{empCode}}\"}",
   "Example Request Payload": "{\n  \"empCode\": \"<empCode>\"\n}",
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (400)")
 @allure.label("sourceModule", "Employee Auth API")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("post|/auth/token|employee auth api|tc03 - missing password returns 400", name="API Identifier")
 @pytest.mark.skip(reason="Temporarily disabled per user request due to negative scenario mismatch")
 def test_employee_auth_api_auth_token_status_code(api_runtime_config: dict[str, str]) -> None:
@@ -68,7 +68,7 @@ def test_employee_auth_api_auth_token_status_code(api_runtime_config: dict[str, 
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Employee Auth API")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("post|/auth/token|employee auth api|tc03 - missing password returns 400", name="API Identifier")
 @pytest.mark.skip(reason="Temporarily disabled per user request due to negative scenario mismatch")
 def test_employee_auth_api_auth_token_response_schema(api_runtime_config: dict[str, str]) -> None:

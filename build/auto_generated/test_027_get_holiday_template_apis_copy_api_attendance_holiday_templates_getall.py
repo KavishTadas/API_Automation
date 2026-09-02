@@ -24,13 +24,13 @@ API = json.loads(r"""{
   "Sub-Module Name": "Get All",
   "Access": "private",
   "Functional Purpose": "Get All",
-  "Base URL": "{{attendanceBaseUrl}}",
+  "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/attendance/holiday-templates/getAll",
   "HTTP Method": "GET",
   "Request Parameters": "query: page=0; size=10 | headers: Authorization=Bearer {{jwtToken}}",
   "Request Body Schema": "",
   "Response (example/200)": "",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all",
   "Request Body": "",
   "Example Request Payload": "",
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (200)")
 @allure.label("sourceModule", "Holiday Template APIs Copy")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all", name="API Identifier")
 def test_holiday_template_apis_copy_api_attendance_holiday_templates_getall_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")
@@ -67,7 +67,7 @@ def test_holiday_template_apis_copy_api_attendance_holiday_templates_getall_stat
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Holiday Template APIs Copy")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all", name="API Identifier")
 def test_holiday_template_apis_copy_api_attendance_holiday_templates_getall_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")

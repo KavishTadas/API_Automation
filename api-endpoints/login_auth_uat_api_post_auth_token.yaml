@@ -11,8 +11,7 @@ slug: login_auth_uat_api_post_auth_token
 module: Login Auth UAT API
 method: POST
 endpointPath: /auth/token
-environments:
-- UAT
+environments: []
 version: null
 credentialAlias: null
 metadata:
@@ -24,7 +23,7 @@ cases:
   subModule: TC01 - Valid credentials return token
   access: public
   purpose: TC01 - Valid credentials return token
-  basePath: '{{baseUrl}}'
+  basePath: '{{authBaseUrl}}'
   endpointPath: /auth/token
   method: POST
   requestParameters: 'headers: Content-Type=application/json'
@@ -39,7 +38,7 @@ cases:
       "token": "<jwt-token>",
       "username": "<username>"
     }
-  owner: KavishTadas <kavish.tadas@omfysgroup.com>
+  owner: Parth Divekar <parthdivekar987@gmail.com>
   canonicalRef: post|/auth/token|login auth uat api|tc01 - valid credentials return token
   samplePayloads:
   - payloadType: Request Body
@@ -51,7 +50,7 @@ cases:
   - payloadType: Example Request Payload
     json: |-
       {
-        "empCode": "OMI-0001",
+        "empCode": "${EMP_CODE}",
         "password": "<empPassword>"
       }
   - payloadType: Example Response Payload

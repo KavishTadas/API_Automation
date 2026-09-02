@@ -24,13 +24,13 @@ API = json.loads(r"""{
   "Sub-Module Name": "WeekOffMasterCreate",
   "Access": "private",
   "Functional Purpose": "WeekOffMasterCreate",
-  "Base URL": "{{attendanceBaseUrl}}",
+  "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/attendance/week-offs/create",
   "HTTP Method": "POST",
   "Request Parameters": "headers: Authorization=Bearer YOUR_JWT_TOKEN; Content-Type=application/json",
   "Request Body Schema": "{\"weekOffCode\":\"string\",\"weekOffName\":\"string\",\"description\":\"string\",\"optionModel\":\"string\",\"isDefault\":\"string\",\"isActive\":\"string\",\"details\":[{\"dayOfWeek\":\"string\",\"weekNo\":\"number\",\"isWeekOff\":\"string\"}],\"assignments\":[{\"employeeId\":\"number\",\"departmentId\":\"number\",\"locationId\":\"number\",\"effectiveFrom\":\"string\",\"effectiveTo\":\"string\",\"isActive\":\"string\"}]}",
   "Response (example/200)": "",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate",
   "Request Body": "{\n    \"weekOffCode\": \"WO001\",\n    \"weekOffName\": \"Sunday Week Off\",\n    \"description\": \"Default Sunday Week Off\",\n    \"optionModel\": \"ALLOWED\",\n    \"isDefault\": \"Y\",\n    \"isActive\": \"Y\",\n    \"details\": [\n        {\n            \"dayOfWeek\": \"SUNDAY\",\n            \"weekNo\": 1,\n            \"isWeekOff\": \"Y\"\n        },\n        {\n            \"dayOfWeek\": \"SUNDAY\",\n            \"weekNo\": 2,\n            \"isWeekOff\": \"Y\"\n        },\n        {\n            \"dayOfWeek\": \"SUNDAY\",\n            \"weekNo\": 3,\n            \"isWeekOff\": \"Y\"\n        },\n        {\n            \"dayOfWeek\": \"SUNDAY\",\n            \"weekNo\": 4,\n            \"isWeekOff\": \"Y\"\n        },\n        {\n            \"dayOfWeek\": \"SUNDAY\",\n            \"weekNo\": 5,\n            \"isWeekOff\": \"Y\"\n        }\n    ],\n    \"assignments\": [\n        {\n            \"employeeId\": 101,\n            \"departmentId\": 10,\n            \"locationId\": 1,\n            \"effectiveFrom\": \"2026-07-01\",\n            \"effectiveTo\": \"2026-12-31\",\n            \"isActive\": \"Y\"\n        }\n    ]\n}",
   "Example Request Payload": "{\n  \"weekOffCode\": \"WO001\",\n  \"weekOffName\": \"Sunday Week Off\",\n  \"description\": \"Default Sunday Week Off\",\n  \"optionModel\": \"ALLOWED\",\n  \"isDefault\": \"Y\",\n  \"isActive\": \"Y\",\n  \"details\": [\n    {\n      \"dayOfWeek\": \"SUNDAY\",\n      \"weekNo\": 1,\n      \"isWeekOff\": \"Y\"\n    },\n    {\n      \"dayOfWeek\": \"SUNDAY\",\n      \"weekNo\": 2,\n      \"isWeekOff\": \"Y\"\n    },\n    {\n      \"dayOfWeek\": \"SUNDAY\",\n      \"weekNo\": 3,\n      \"isWeekOff\": \"Y\"\n    },\n    {\n      \"dayOfWeek\": \"SUNDAY\",\n      \"weekNo\": 4,\n      \"isWeekOff\": \"Y\"\n    },\n    {\n      \"dayOfWeek\": \"SUNDAY\",\n      \"weekNo\": 5,\n      \"isWeekOff\": \"Y\"\n    }\n  ],\n  \"assignments\": [\n    {\n      \"employeeId\": 101,\n      \"departmentId\": 10,\n      \"locationId\": 1,\n      \"effectiveFrom\": \"2026-07-01\",\n      \"effectiveTo\": \"2026-12-31\",\n      \"isActive\": \"Y\"\n    }\n  ]\n}",
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (200)")
 @allure.label("sourceModule", "Attenedance-july2026")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate", name="API Identifier")
 def test_attenedance_july2026_api_attendance_week_offs_create_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")
@@ -67,7 +67,7 @@ def test_attenedance_july2026_api_attendance_week_offs_create_status_code(api_ru
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Attenedance-july2026")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate", name="API Identifier")
 def test_attenedance_july2026_api_attendance_week_offs_create_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "POST")

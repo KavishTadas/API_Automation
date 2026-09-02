@@ -24,13 +24,13 @@ API = json.loads(r"""{
   "Sub-Module Name": "getAll",
   "Access": "private",
   "Functional Purpose": "getAll",
-  "Base URL": "{{attendanceBaseUrl}}",
+  "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/attendance/late-early-policies/getAll",
   "HTTP Method": "GET",
   "Request Parameters": "query: page=0; size=10; sort=policyId,desc | headers: Authorization=Bearer <JWT_TOKEN>",
   "Request Body Schema": "",
   "Response (example/200)": "",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "get|/api/attendance/late-early-policies/getall|latearly-policy|getall",
   "Request Body": "",
   "Example Request Payload": "",
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (200)")
 @allure.label("sourceModule", "Latearly-Policy")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("get|/api/attendance/late-early-policies/getall|latearly-policy|getall", name="API Identifier")
 def test_latearly_policy_api_attendance_late_early_policies_getall_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")
@@ -67,7 +67,7 @@ def test_latearly_policy_api_attendance_late_early_policies_getall_status_code(a
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Latearly-Policy")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("get|/api/attendance/late-early-policies/getall|latearly-policy|getall", name="API Identifier")
 def test_latearly_policy_api_attendance_late_early_policies_getall_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "GET")

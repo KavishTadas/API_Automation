@@ -77,9 +77,9 @@
           "raw": "{\n  \"empCode\": \"{{empCode}}\",\n  \"password\": \"{{empPassword}}\"\n}"
         },
         "url": {
-          "raw": "{{baseUrl}}/auth/token",
+          "raw": "{{authBaseUrl}}/auth/token",
           "host": [
-            "{{baseUrl}}"
+            "{{authBaseUrl}}"
           ],
           "path": [
             "auth",
@@ -91,7 +91,7 @@
   ],
   "variable": [
     {
-      "key": "baseUrl",
+      "key": "authBaseUrl",
       "value": "https://uat-mcdp-be.omfysgroup.com",
       "type": "string"
     }

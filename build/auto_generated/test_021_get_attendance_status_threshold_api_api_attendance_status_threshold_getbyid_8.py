@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "Get By Id",
   "Access": "private",
   "Functional Purpose": "Get By Id",
-  "Base URL": "{{attendanceBaseUrl}}",
+  "Base URL": "{{baseUrl}}",
   "Endpoint / Path": "/api/attendance/status-threshold/getById/8",
   "HTTP Method": "GET",
   "Request Parameters": "headers: Authorization=Bearer {{token}}",

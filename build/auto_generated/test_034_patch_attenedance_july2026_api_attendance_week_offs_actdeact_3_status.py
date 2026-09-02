@@ -24,13 +24,13 @@ API = json.loads(r"""{
   "Sub-Module Name": "WeekOffActDeact",
   "Access": "private",
   "Functional Purpose": "WeekOffActDeact",
-  "Base URL": "{{attendanceBaseUrl}}",
+  "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/attendance/week-offs/actDeact/3/status",
   "HTTP Method": "PATCH",
   "Request Parameters": "headers: Authorization=Bearer YOUR_JWT_TOKEN; Content-Type=application/json",
   "Request Body Schema": "{\"status\":\"string\"}",
   "Response (example/200)": "",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact",
   "Request Body": "{\n    \"status\":\"N\"\n}",
   "Example Request Payload": "{\n  \"status\": \"N\"\n}",
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (200)")
 @allure.label("sourceModule", "Attenedance-july2026")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact", name="API Identifier")
 def test_attenedance_july2026_api_attendance_week_offs_actdeact_3_status_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PATCH")
@@ -67,7 +67,7 @@ def test_attenedance_july2026_api_attendance_week_offs_actdeact_3_status_status_
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Attenedance-july2026")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact", name="API Identifier")
 def test_attenedance_july2026_api_attendance_week_offs_actdeact_3_status_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PATCH")

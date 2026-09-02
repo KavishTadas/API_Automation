@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "Activate Deactivate",
   "Access": "private",
   "Functional Purpose": "Activate Deactivate",
-  "Base URL": "{{attendanceBaseUrl}}",
+  "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/attendancepolicy/4/status",
   "HTTP Method": "PATCH",
   "Request Parameters": "query: action=ACTIVATE | headers: Authorization=Bearer {{authToken}}",

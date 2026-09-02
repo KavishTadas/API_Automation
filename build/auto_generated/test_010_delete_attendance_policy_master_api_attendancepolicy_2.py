@@ -24,7 +24,7 @@ API = json.loads(r"""{
   "Sub-Module Name": "Delete Policy By Id",
   "Access": "private",
   "Functional Purpose": "Delete Policy By Id",
-  "Base URL": "{{attendanceBaseUrl}}",
+  "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/attendancepolicy/2",
   "HTTP Method": "DELETE",
   "Request Parameters": "headers: Authorization=Bearer {{authToken}}",

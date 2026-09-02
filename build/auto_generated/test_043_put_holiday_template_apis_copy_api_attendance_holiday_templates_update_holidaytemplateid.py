@@ -24,13 +24,13 @@ API = json.loads(r"""{
   "Sub-Module Name": "Update",
   "Access": "private",
   "Functional Purpose": "Update",
-  "Base URL": "{{attendanceBaseUrl}}",
+  "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/attendance/holiday-templates/update/{holidayTemplateId}",
   "HTTP Method": "PUT",
-  "Request Parameters": "path variables: holidayTemplateId | headers: Authorization=Bearer {{jwtToken}}; Content-Type=application/json",
+  "Request Parameters": "path variables: holidayTemplateId=999999 | headers: Authorization=Bearer {{jwtToken}}; Content-Type=application/json",
   "Request Body Schema": "{}",
   "Response (example/200)": "",
-  "Owner / Developer": "KavishTadas <kavish.tadas@omfysgroup.com>",
+  "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update",
   "Request Body": "{}",
   "Example Request Payload": "{}",
@@ -48,7 +48,7 @@ API = json.loads(r"""{
 @allure.sub_suite("HTTP Status Code Check (200)")
 @allure.label("sourceModule", "Holiday Template APIs Copy")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update", name="API Identifier")
 def test_holiday_template_apis_copy_api_attendance_holiday_templates_update_holidaytemplateid_status_code(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PUT")
@@ -67,7 +67,7 @@ def test_holiday_template_apis_copy_api_attendance_holiday_templates_update_holi
 @allure.sub_suite("OpenAPI Schema Validation Check")
 @allure.label("sourceModule", "Holiday Template APIs Copy")
 @allure.label("sourceType", "Python auto-generated")
-@allure.label("owner", "KavishTadas <kavish.tadas@omfysgroup.com>")
+@allure.label("owner", "Parth Divekar <parthdivekar987@gmail.com>")
 @allure.link("put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update", name="API Identifier")
 def test_holiday_template_apis_copy_api_attendance_holiday_templates_update_holidaytemplateid_response_schema(api_runtime_config: dict[str, str]) -> None:
     allure.dynamic.parameter("HTTP Method", "PUT")

@@ -1,5 +1,5 @@
 "Sr. No","Module Name","Sub-Module Name","Access","Functional Purpose","Base URL","Endpoint / Path","HTTP Method","Request Parameters","Request Body","Example Request Payload","Request Body Schema","Response (example/200)","Example Response Payload","Dependent APIs / Services","Owner / Developer","API Identifier","Comments"
-"1","auth","Login","public","Status is 200; Token exists; empCode matches","{{authBaseUrl}}","/auth/token","POST","","{
+"1","auth","Login","public","Status is 200; Token exists; empCode matches","{{baseUrl}}","/auth/token","POST","","{
     ""empCode"": ""{{empCode}}"",
     ""password"": ""{{empPassword}}""
   }","{
@@ -918,7 +918,7 @@
   ""assignmentId"": 3,
   ""status"": ""N""
 }","{""assignmentId"":""number"",""status"":""string""}","","","","Parth Divekar <parthdivekar987@gmail.com>","patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus","Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
-"42","Login Auth UAT API","TC01 - Valid credentials return token","public","TC01 - Valid credentials return token","{{authBaseUrl}}","/auth/token","POST","headers: Content-Type=application/json","{
+"42","Login Auth UAT API","TC01 - Valid credentials return token","public","TC01 - Valid credentials return token","{{baseUrl}}","/auth/token","POST","headers: Content-Type=application/json","{
   ""empCode"": ""{{empCode}}"",
   ""password"": ""{{empPassword}}""
 }","{

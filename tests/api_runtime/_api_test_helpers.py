@@ -707,10 +707,36 @@ def _resolve_templates(value: str, context: dict[str, str]) -> str:
 
         return match.group(0)
 
-    return re.sub(r"\{\{\s*([^}]+?)\s*}}", replace, text)
+    text = re.sub(r"\{\{\s*([^}]+?)\s*}}", replace, text)
+
+    # ${VAR} as well as {{var}}. A data-driven CSV names its credentials this
+    # way so the value itself is never committed, and generate-api-file.js
+    # copies the first data row into the inventory's example payload -- so the
+    # name arrives here inside a request body, not only inside the CSV.
+    # Resolving only {{var}} put the literal "${EMP_CODE}" on the wire as an
+    # employee code; the server answered 401, the auth bootstrap recorded a
+    # provider failure, and 962 checks behind it were skipped for want of a
+    # token that a correct request would have produced.
+    def expand(match: "re.Match[str]") -> str:
+        name = match.group(1)
+        found = (
+            os.getenv(name)
+            or context.get(name)
+            or context.get(_canonical_env_key(name))
+        )
+        # Left intact when unknown, so the guard below refuses the request
+        # instead of sending a placeholder as if it were a credential.
+        return str(found) if found else match.group(0)
+
+    return _PLACEHOLDER.sub(expand, text)
 
 
 def _has_unresolved_template(value: str) -> bool:
+    # Both spellings. A ${VAR} nothing resolved is exactly as unusable as an
+    # unresolved {{var}}, and sending it is worse than skipping: it returns a
+    # 401 that reads as a credential problem rather than a configuration one.
+    if _PLACEHOLDER.search(value or ""):
+        return True
     return "{{" in value and "}}" in value
 
 
