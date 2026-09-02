@@ -1,0 +1,39 @@
+# AUTHORED -- this file is the source of truth for this endpoint.
+#
+# A `cases[]` entry is one test case and carries all 18 inventory columns.
+# Content lives per case, not per endpoint: on POST /auth/token the purpose,
+# request payload and response differ across tc01/tc02/tc03, and folding them
+# up to the endpoint silently discarded two of the three.
+#
+# canonicalRef is contract-visible. Do not normalise it, do not fix its
+# spelling -- the harness, run manifest and result document all key on it.
+slug: holiday_template_get_api_attendance_holiday_templates_getall
+module: Holiday Template APIs Copy
+method: GET
+endpointPath: /api/attendance/holiday-templates/getAll
+environments:
+- UAT
+version: null
+credentialAlias: null
+metadata: null
+cases:
+- apiId: '28'
+  module: Holiday Template APIs Copy
+  subModule: Get All
+  access: private
+  purpose: Get All
+  basePath: '{{attendanceBaseUrl}}'
+  endpointPath: /api/attendance/holiday-templates/getAll
+  method: GET
+  requestParameters: 'query: page=0; size=10 | headers: Authorization=Bearer {{jwtToken}}'
+  requestBodySchema: null
+  responseExample: null
+  owner: KavishTadas <kavish.tadas@omfysgroup.com>
+  canonicalRef: get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all
+  samplePayloads: []
+  rules:
+  - category: Non-Functional
+    description: 'Source: collections/Holiday_Template_API.json; No saved response example in source file'
+  assertionState: not-asserted
+  sourceType: newman
+  sourceCollection: collections/Holiday_Template_API.json

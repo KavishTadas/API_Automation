@@ -1,0 +1,43 @@
+# AUTHORED -- this file is the source of truth for this endpoint.
+#
+# A `cases[]` entry is one test case and carries all 18 inventory columns.
+# Content lives per case, not per endpoint: on POST /auth/token the purpose,
+# request payload and response differ across tc01/tc02/tc03, and folding them
+# up to the endpoint silently discarded two of the three.
+#
+# canonicalRef is contract-visible. Do not normalise it, do not fix its
+# spelling -- the harness, run manifest and result document all key on it.
+slug: attendance_shift_master_patch_api_v1_attendance_shift_master_status_7
+module: Attendance Shift Master
+method: PATCH
+endpointPath: /api/v1/attendance/shift/master/status/7
+environments:
+- UAT
+version: null
+credentialAlias: null
+metadata: null
+cases:
+- apiId: '18'
+  module: Attendance Shift Master
+  subModule: Toggle Delete
+  access: private
+  purpose: Toggle Delete
+  basePath: '{{attendanceBaseUrl}}'
+  endpointPath: /api/v1/attendance/shift/master/status/7
+  method: PATCH
+  requestParameters: 'query: action=DEACTIVATE | headers: Authorization=Bearer {{authToken}}'
+  requestBodySchema: null
+  responseExample: null
+  owner: Parth Divekar <parthdivekar987@gmail.com>
+  canonicalRef: patch|/api/v1/attendance/shift/master/status/7|attendance shift master|toggle delete
+  samplePayloads: []
+  rules:
+  - category: Dependency
+    description: Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token
+      for authToken
+  - category: Non-Functional
+    description: 'Source: collections/Attendance_Management_API.json; No saved response example in source
+      file'
+  assertionState: not-asserted
+  sourceType: newman
+  sourceCollection: collections/Attendance_Management_API.json

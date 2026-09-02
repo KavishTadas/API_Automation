@@ -1,0 +1,50 @@
+# AUTHORED -- this file is the source of truth for this endpoint.
+#
+# A `cases[]` entry is one test case and carries all 18 inventory columns.
+# Content lives per case, not per endpoint: on POST /auth/token the purpose,
+# request payload and response differ across tc01/tc02/tc03, and folding them
+# up to the endpoint silently discarded two of the three.
+#
+# canonicalRef is contract-visible. Do not normalise it, do not fix its
+# spelling -- the harness, run manifest and result document all key on it.
+slug: weekoff_post_api_attendance_week_off_assignment_getbyweekoff
+module: Attenedance-july2026
+method: POST
+endpointPath: /api/attendance/week-off-assignment/getByWeekOff
+environments:
+- UAT
+version: null
+credentialAlias: null
+metadata: null
+cases:
+- apiId: '40'
+  module: Attenedance-july2026
+  subModule: week-off-assignment/getByWeekOffId
+  access: private
+  purpose: week-off-assignment/getByWeekOffId
+  basePath: '{{attendanceBaseUrl}}'
+  endpointPath: /api/attendance/week-off-assignment/getByWeekOff
+  method: POST
+  requestParameters: 'query: page=0; size=10; sort=employeeId,asc | headers: Authorization=Bearer <YOUR_JWT_TOKEN>;
+    Content-Type=application/json'
+  requestBodySchema: '{"weekOffId":"number"}'
+  responseExample: null
+  owner: KavishTadas <kavish.tadas@omfysgroup.com>
+  canonicalRef: post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid
+  samplePayloads:
+  - payloadType: Request Body
+    json: |-
+      {
+          "weekOffId": 1
+      }
+  - payloadType: Example Request Payload
+    json: |-
+      {
+        "weekOffId": 1
+      }
+  rules:
+  - category: Non-Functional
+    description: 'Source: collections/Weekoff_Policy_API.json; No saved response example in source file'
+  assertionState: not-asserted
+  sourceType: newman
+  sourceCollection: collections/Weekoff_Policy_API.json

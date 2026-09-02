@@ -35,3 +35,8 @@ group.com*
 
 # export test output
 .export-test/
+
+# build/ is deliberately TRACKED, not ignored. The generated tier is imported by
+# authored code -- tests/global_contract/ imports the runtime at module level --
+# so a fresh clone must be able to run the suite without a generation step first.
+# Regenerate with: python scripts/generate-generic-tests.py

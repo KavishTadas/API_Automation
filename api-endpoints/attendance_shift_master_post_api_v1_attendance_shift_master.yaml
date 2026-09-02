@@ -1,0 +1,209 @@
+# AUTHORED -- this file is the source of truth for this endpoint.
+#
+# A `cases[]` entry is one test case and carries all 18 inventory columns.
+# Content lives per case, not per endpoint: on POST /auth/token the purpose,
+# request payload and response differ across tc01/tc02/tc03, and folding them
+# up to the endpoint silently discarded two of the three.
+#
+# canonicalRef is contract-visible. Do not normalise it, do not fix its
+# spelling -- the harness, run manifest and result document all key on it.
+slug: attendance_shift_master_post_api_v1_attendance_shift_master
+module: Attendance Shift Master
+method: POST
+endpointPath: /api/v1/attendance/shift/master
+environments:
+- UAT
+version: null
+credentialAlias: null
+metadata: null
+cases:
+- apiId: '14'
+  module: Attendance Shift Master
+  subModule: Create CUSTOM Shift (FIXED Type)
+  access: private
+  purpose: Create CUSTOM Shift (FIXED Type)
+  basePath: '{{attendanceBaseUrl}}'
+  endpointPath: /api/v1/attendance/shift/master
+  method: POST
+  requestParameters: 'headers: Authorization=Bearer {{authToken}}'
+  requestBodySchema: '{"shiftCode":"string","shiftName":"string","shiftType":"string","applicabilityType":"string","startTime":"string","endTime":"string","graceMinutes":"number","requiredDurationHours":"null","effectiveFrom":"string","effectiveTo":"string","activeFlag":"boolean","remarks":"string","breakConfigs":[{"breakName":"string","breakDurationMinutes":"number","paidFlag":"boolean"}],"applicableEmpIds":["number"]}'
+  responseExample: null
+  owner: Parth Divekar <parthdivekar987@gmail.com>
+  canonicalRef: post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed
+    type)
+  samplePayloads:
+  - payloadType: Request Body
+    json: |-
+      {
+        "shiftCode": "SHF-NIGHT-005",
+        "shiftName": "   Night Shift -Tech Support Team ",
+        "shiftType": "FIXED",
+        "applicabilityType": "CUSTOM",
+        "startTime": "22:00:00",
+        "endTime": "06:00:00",
+        "graceMinutes": 10,
+        "requiredDurationHours": null,
+        "effectiveFrom": "01-Aug-2026",
+        "effectiveTo": "31-Mar-2027",
+        "activeFlag": true,
+        "remarks": "Night shift for global support team (cross-midnight)",
+        "breakConfigs": [
+          {
+            "breakName": "Dinner Break",
+            "breakDurationMinutes": 45,
+            "paidFlag": false
+          },
+          {
+            "breakName": "Tea Break",
+            "breakDurationMinutes": 15,
+            "paidFlag": true
+          },
+          {
+            "breakName": "Refreshment Break",
+            "breakDurationMinutes": 10,
+            "paidFlag": true
+          }
+        ],
+        "applicableEmpIds": [3496,3500]
+      }
+  - payloadType: Example Request Payload
+    json: |-
+      {
+        "shiftCode": "SHF-NIGHT-005",
+        "shiftName": "   Night Shift -Tech Support Team ",
+        "shiftType": "FIXED",
+        "applicabilityType": "CUSTOM",
+        "startTime": "22:00:00",
+        "endTime": "06:00:00",
+        "graceMinutes": 10,
+        "requiredDurationHours": null,
+        "effectiveFrom": "01-Aug-2026",
+        "effectiveTo": "31-Mar-2027",
+        "activeFlag": true,
+        "remarks": "Night shift for global support team (cross-midnight)",
+        "breakConfigs": [
+          {
+            "breakName": "Dinner Break",
+            "breakDurationMinutes": 45,
+            "paidFlag": false
+          },
+          {
+            "breakName": "Tea Break",
+            "breakDurationMinutes": 15,
+            "paidFlag": true
+          },
+          {
+            "breakName": "Refreshment Break",
+            "breakDurationMinutes": 10,
+            "paidFlag": true
+          }
+        ],
+        "applicableEmpIds": [
+          3496,
+          3500
+        ]
+      }
+  rules:
+  - category: Dependency
+    description: Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token
+      for authToken
+  - category: Non-Functional
+    description: 'Source: collections/Attendance_Management_API.json; No saved response example in source
+      file'
+  assertionState: not-asserted
+  sourceType: newman
+  sourceCollection: collections/Attendance_Management_API.json
+- apiId: '13'
+  module: Attendance Shift Master
+  subModule: Create New Shift
+  access: private
+  purpose: Create New Shift
+  basePath: '{{attendanceBaseUrl}}'
+  endpointPath: /api/v1/attendance/shift/master
+  method: POST
+  requestParameters: 'headers: Authorization=Bearer {{authToken}}'
+  requestBodySchema: '{"shiftCode":"string","shiftName":"string","shiftType":"string","applicabilityType":"string","startTime":"string","endTime":"string","graceMinutes":"number","requiredDurationHours":"null","effectiveFrom":"string","effectiveTo":"string","isDeleted":"string","description":"string","remarks":"string","breakConfigs":[{"breakName":"string","breakDurationMinutes":"number","paidFlag":"boolean"}],"applicableEmpIds":"null"}'
+  responseExample: null
+  owner: Parth Divekar <parthdivekar987@gmail.com>
+  canonicalRef: post|/api/v1/attendance/shift/master|attendance shift master|create new shift
+  samplePayloads:
+  - payloadType: Request Body
+    json: |-
+      {
+        "shiftCode": "SHF-MIDNIGHT-001",
+        "shiftName": "MidNight Shift - Standard",
+        "shiftType": "FIXED",
+        "applicabilityType": "DEFAULT",
+        "startTime": "09:00:00",
+        "endTime": "18:00:00",
+        "graceMinutes": 15,
+        "requiredDurationHours": null,
+        "effectiveFrom": "01-Aug-2026",
+        "effectiveTo": "31-Dec-2026",
+        "isDeleted": "N",
+        "description":"xyz",
+        "remarks": "Standard morning shift for all employees",
+        "breakConfigs": [
+          {
+            "breakName": "Lunch Break",
+            "breakDurationMinutes": 60,
+            "paidFlag": false
+          },
+          {
+            "breakName": "Tea Break",
+            "breakDurationMinutes": 15,
+            "paidFlag": true
+          },
+          {
+            "breakName": "Evening Tea",
+            "breakDurationMinutes": 15,
+            "paidFlag": true
+          }
+        ],
+        "applicableEmpIds": null
+      }
+  - payloadType: Example Request Payload
+    json: |-
+      {
+        "shiftCode": "SHF-MIDNIGHT-001",
+        "shiftName": "MidNight Shift - Standard",
+        "shiftType": "FIXED",
+        "applicabilityType": "DEFAULT",
+        "startTime": "09:00:00",
+        "endTime": "18:00:00",
+        "graceMinutes": 15,
+        "requiredDurationHours": null,
+        "effectiveFrom": "01-Aug-2026",
+        "effectiveTo": "31-Dec-2026",
+        "isDeleted": "N",
+        "description": "xyz",
+        "remarks": "Standard morning shift for all employees",
+        "breakConfigs": [
+          {
+            "breakName": "Lunch Break",
+            "breakDurationMinutes": 60,
+            "paidFlag": false
+          },
+          {
+            "breakName": "Tea Break",
+            "breakDurationMinutes": 15,
+            "paidFlag": true
+          },
+          {
+            "breakName": "Evening Tea",
+            "breakDurationMinutes": 15,
+            "paidFlag": true
+          }
+        ],
+        "applicableEmpIds": null
+      }
+  rules:
+  - category: Dependency
+    description: Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token
+      for authToken
+  - category: Non-Functional
+    description: 'Source: collections/Attendance_Management_API.json; No saved response example in source
+      file'
+  assertionState: not-asserted
+  sourceType: newman
+  sourceCollection: collections/Attendance_Management_API.json

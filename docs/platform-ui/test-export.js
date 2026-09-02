@@ -80,7 +80,13 @@ const ok = (n, c, d) => { console.log((c ? '  PASS  ' : '  FAIL  ') + n + (c ? '
   ok('text report states the pass-rate basis', txt.includes('PASS / (PASS + FAIL)'));
   ok('text report lists every state', ['PASS', 'FAIL', 'WARN', 'NOT_ASSERTED',
      'NOT_APPLICABLE', 'SKIPPED_NO_TOKEN', 'INFORMATIONAL'].every(s => txt.includes(s)));
-  ok('text report carries the D7 note', /never rendered as a pass/i.test(txt));
+  // The D7 note belongs to the ASSERTION GAPS section, which the report emits
+  // only when there are gaps. Every endpoint now carries authored cases, so the
+  // section is correctly absent -- assert the pairing, not the old data.
+  const hasGapSection = /ASSERTION GAPS/.test(txt);
+  ok('text report carries the D7 note exactly when it reports gaps',
+     hasGapSection === /never rendered as a pass/i.test(txt),
+     hasGapSection ? 'gaps section present' : 'no gaps, section correctly omitted');
   // look for credential *values*, not the word -- the report's own footer
   // says "no secret value appears here", which a naive scan would flag
   const leaks = blob => (/Bearer\s+ey[A-Za-z0-9_.-]{10,}/.test(blob) ? 'jwt ' : '') +

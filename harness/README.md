@@ -26,3 +26,11 @@ vanish when the process stops.
 - All seven result states render distinctly
 - Pass rate excludes the five non-denominator states
 - Credential aliases resolve **server-side**; no raw value ever reaches the browser
+
+## One UI
+
+There is a single page: the unified console, served at both `/` and `/console`.
+A second, simpler UI used to live here as `ui.html`. Two pages against one
+engine meant two auth-provider dropdowns with two different filters, and the
+bug fixed in one of them (d8045e6) still shipped in the other months later.
+Rebuild the console with `python scripts/build_unified_console.py`.

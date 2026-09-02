@@ -1,0 +1,133 @@
+# AUTHORED -- this file is the source of truth for this endpoint.
+#
+# A `cases[]` entry is one test case and carries all 18 inventory columns.
+# Content lives per case, not per endpoint: on POST /auth/token the purpose,
+# request payload and response differ across tc01/tc02/tc03, and folding them
+# up to the endpoint silently discarded two of the three.
+#
+# canonicalRef is contract-visible. Do not normalise it, do not fix its
+# spelling -- the harness, run manifest and result document all key on it.
+slug: weekoff_post_api_attendance_week_offs_create
+module: Attenedance-july2026
+method: POST
+endpointPath: /api/attendance/week-offs/create
+environments:
+- UAT
+version: null
+credentialAlias: null
+metadata: null
+cases:
+- apiId: '39'
+  module: Attenedance-july2026
+  subModule: WeekOffMasterCreate
+  access: private
+  purpose: WeekOffMasterCreate
+  basePath: '{{attendanceBaseUrl}}'
+  endpointPath: /api/attendance/week-offs/create
+  method: POST
+  requestParameters: 'headers: Authorization=Bearer YOUR_JWT_TOKEN; Content-Type=application/json'
+  requestBodySchema: '{"weekOffCode":"string","weekOffName":"string","description":"string","optionModel":"string","isDefault":"string","isActive":"string","details":[{"dayOfWeek":"string","weekNo":"number","isWeekOff":"string"}],"assignments":[{"employeeId":"number","departmentId":"number","locationId":"number","effectiveFrom":"string","effectiveTo":"string","isActive":"string"}]}'
+  responseExample: null
+  owner: KavishTadas <kavish.tadas@omfysgroup.com>
+  canonicalRef: post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate
+  samplePayloads:
+  - payloadType: Request Body
+    json: |-
+      {
+          "weekOffCode": "WO001",
+          "weekOffName": "Sunday Week Off",
+          "description": "Default Sunday Week Off",
+          "optionModel": "ALLOWED",
+          "isDefault": "Y",
+          "isActive": "Y",
+          "details": [
+              {
+                  "dayOfWeek": "SUNDAY",
+                  "weekNo": 1,
+                  "isWeekOff": "Y"
+              },
+              {
+                  "dayOfWeek": "SUNDAY",
+                  "weekNo": 2,
+                  "isWeekOff": "Y"
+              },
+              {
+                  "dayOfWeek": "SUNDAY",
+                  "weekNo": 3,
+                  "isWeekOff": "Y"
+              },
+              {
+                  "dayOfWeek": "SUNDAY",
+                  "weekNo": 4,
+                  "isWeekOff": "Y"
+              },
+              {
+                  "dayOfWeek": "SUNDAY",
+                  "weekNo": 5,
+                  "isWeekOff": "Y"
+              }
+          ],
+          "assignments": [
+              {
+                  "employeeId": 101,
+                  "departmentId": 10,
+                  "locationId": 1,
+                  "effectiveFrom": "2026-07-01",
+                  "effectiveTo": "2026-12-31",
+                  "isActive": "Y"
+              }
+          ]
+      }
+  - payloadType: Example Request Payload
+    json: |-
+      {
+        "weekOffCode": "WO001",
+        "weekOffName": "Sunday Week Off",
+        "description": "Default Sunday Week Off",
+        "optionModel": "ALLOWED",
+        "isDefault": "Y",
+        "isActive": "Y",
+        "details": [
+          {
+            "dayOfWeek": "SUNDAY",
+            "weekNo": 1,
+            "isWeekOff": "Y"
+          },
+          {
+            "dayOfWeek": "SUNDAY",
+            "weekNo": 2,
+            "isWeekOff": "Y"
+          },
+          {
+            "dayOfWeek": "SUNDAY",
+            "weekNo": 3,
+            "isWeekOff": "Y"
+          },
+          {
+            "dayOfWeek": "SUNDAY",
+            "weekNo": 4,
+            "isWeekOff": "Y"
+          },
+          {
+            "dayOfWeek": "SUNDAY",
+            "weekNo": 5,
+            "isWeekOff": "Y"
+          }
+        ],
+        "assignments": [
+          {
+            "employeeId": 101,
+            "departmentId": 10,
+            "locationId": 1,
+            "effectiveFrom": "2026-07-01",
+            "effectiveTo": "2026-12-31",
+            "isActive": "Y"
+          }
+        ]
+      }
+  rules:
+  - category: Non-Functional
+    description: 'Source: collections/Weekoff_Policy_API.json; No saved response example in source file'
+  assertionState: not-asserted
+  sourceType: newman
+  sourceCollection: collections/Weekoff_Policy_API.json

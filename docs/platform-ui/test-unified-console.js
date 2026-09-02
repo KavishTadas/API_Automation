@@ -1,6 +1,6 @@
 /* Headless invariant test for the unified console's simulated engine.
    Stubs just enough DOM for the page script to evaluate, then asserts the
-   project's contract rules against a real batch over the real 45-API seed. */
+   project's contract rules against a real batch over the real 44-API seed. */
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');

@@ -1,0 +1,114 @@
+# AUTHORED -- this file is the source of truth for this endpoint.
+#
+# A `cases[]` entry is one test case and carries all 18 inventory columns.
+# Content lives per case, not per endpoint: on POST /auth/token the purpose,
+# request payload and response differ across tc01/tc02/tc03, and folding them
+# up to the endpoint silently discarded two of the three.
+#
+# canonicalRef is contract-visible. Do not normalise it, do not fix its
+# spelling -- the harness, run manifest and result document all key on it.
+slug: attendance_threshold_post_api_attendance_status_threshold_create
+module: Attendance Status Threshold API
+method: POST
+endpointPath: /api/attendance/status-threshold/create
+environments:
+- UAT
+version: null
+credentialAlias: null
+metadata: null
+cases:
+- apiId: '20'
+  module: Attendance Status Threshold API
+  subModule: Create Threshold
+  access: private
+  purpose: Create Threshold
+  basePath: '{{attendanceBaseUrl}}'
+  endpointPath: /api/attendance/status-threshold/create
+  method: POST
+  requestParameters: 'headers: Authorization=Bearer {{token}}; Content-Type=application/json'
+  requestBodySchema: '{"thresholdCode":"string","thresholdName":"string","description":"string","templateMode":"string","shiftTypeApplicability":"string","absentMaxHours":"number","halfDayMinHours":"number","fullDayMinHours":"number","presentMinHours":"number","effectiveFrom":"string","effectiveTo":"string","isDefault":"string","isActive":"string","templateStatus":"string","remarks":"string","assignments":[{"employeeId":"number","departmentId":"number","designationId":"number","isActive":"string","effectiveFrom":"string","effectiveTo":"string"}]}'
+  responseExample: null
+  owner: Parth Divekar <parthdivekar987@gmail.com>
+  canonicalRef: post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold
+  samplePayloads:
+  - payloadType: Request Body
+    json: |-
+      {
+        "thresholdCode": "CUST_STD_0001",
+        "thresholdName": "Standard Custom Thresholdsl",
+        "description": "Custom threshold for flexible shift employees",
+        "templateMode": "CUSTOM",
+        "shiftTypeApplicability": "ALL",
+        "absentMaxHours": 3.00,
+        "halfDayMinHours": 3.01,
+        "fullDayMinHours": 5.00,
+        "presentMinHours": 8.00,
+        "effectiveFrom": "2026-08-01",
+        "effectiveTo": "2026-12-31",
+        "isDefault": "N",
+        "isActive": "Y",
+        "templateStatus": "PUBLISHED",
+        "remarks": "Applicable for flexible shift employees only",
+        "assignments": [
+          {
+            "employeeId": 41,
+            "departmentId": 1,
+            "designationId": 5,
+            "isActive": "N",
+            "effectiveFrom": "2026-08-01",
+            "effectiveTo": "2026-12-31"
+          },
+          {
+            "employeeId": 550,
+            "departmentId": 1,
+            "designationId": 6,
+            "isActive": "Y",
+            "effectiveFrom": "2026-08-01",
+            "effectiveTo": "2026-08-01"
+          }
+        ]
+      }
+  - payloadType: Example Request Payload
+    json: |-
+      {
+        "thresholdCode": "CUST_STD_0001",
+        "thresholdName": "Standard Custom Thresholdsl",
+        "description": "Custom threshold for flexible shift employees",
+        "templateMode": "CUSTOM",
+        "shiftTypeApplicability": "ALL",
+        "absentMaxHours": 3,
+        "halfDayMinHours": 3.01,
+        "fullDayMinHours": 5,
+        "presentMinHours": 8,
+        "effectiveFrom": "2026-08-01",
+        "effectiveTo": "2026-12-31",
+        "isDefault": "N",
+        "isActive": "Y",
+        "templateStatus": "PUBLISHED",
+        "remarks": "Applicable for flexible shift employees only",
+        "assignments": [
+          {
+            "employeeId": 41,
+            "departmentId": 1,
+            "designationId": 5,
+            "isActive": "N",
+            "effectiveFrom": "2026-08-01",
+            "effectiveTo": "2026-12-31"
+          },
+          {
+            "employeeId": 550,
+            "departmentId": 1,
+            "designationId": 6,
+            "isActive": "Y",
+            "effectiveFrom": "2026-08-01",
+            "effectiveTo": "2026-08-01"
+          }
+        ]
+      }
+  rules:
+  - category: Non-Functional
+    description: 'Source: collections/Attendance_Threshold_API.json; No saved response example in source
+      file'
+  assertionState: not-asserted
+  sourceType: newman
+  sourceCollection: collections/Attendance_Threshold_API.json

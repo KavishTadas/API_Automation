@@ -1,0 +1,39 @@
+# AUTHORED -- this file is the source of truth for this endpoint.
+#
+# A `cases[]` entry is one test case and carries all 18 inventory columns.
+# Content lives per case, not per endpoint: on POST /auth/token the purpose,
+# request payload and response differ across tc01/tc02/tc03, and folding them
+# up to the endpoint silently discarded two of the three.
+#
+# canonicalRef is contract-visible. Do not normalise it, do not fix its
+# spelling -- the harness, run manifest and result document all key on it.
+slug: weekoff_get_api_attendance_week_offs_getall
+module: Attenedance-july2026
+method: GET
+endpointPath: /api/attendance/week-offs/getAll
+environments:
+- UAT
+version: null
+credentialAlias: null
+metadata: null
+cases:
+- apiId: '36'
+  module: Attenedance-july2026
+  subModule: WeekOffGetAll
+  access: private
+  purpose: WeekOffGetAll
+  basePath: '{{attendanceBaseUrl}}'
+  endpointPath: /api/attendance/week-offs/getAll
+  method: GET
+  requestParameters: 'query: page=0; size=10; sort=weekOffName,asc | headers: Authorization=Bearer YOUR_JWT_TOKEN'
+  requestBodySchema: null
+  responseExample: null
+  owner: KavishTadas <kavish.tadas@omfysgroup.com>
+  canonicalRef: get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall
+  samplePayloads: []
+  rules:
+  - category: Non-Functional
+    description: 'Source: collections/Weekoff_Policy_API.json; No saved response example in source file'
+  assertionState: not-asserted
+  sourceType: newman
+  sourceCollection: collections/Weekoff_Policy_API.json

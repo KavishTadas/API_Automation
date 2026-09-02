@@ -1,0 +1,80 @@
+# AUTHORED -- this file is the source of truth for this endpoint.
+#
+# A `cases[]` entry is one test case and carries all 18 inventory columns.
+# Content lives per case, not per endpoint: on POST /auth/token the purpose,
+# request payload and response differ across tc01/tc02/tc03, and folding them
+# up to the endpoint silently discarded two of the three.
+#
+# canonicalRef is contract-visible. Do not normalise it, do not fix its
+# spelling -- the harness, run manifest and result document all key on it.
+slug: attendance_threshold_put_api_attendance_status_threshold_update_1
+module: Attendance Status Threshold API
+method: PUT
+endpointPath: /api/attendance/status-threshold/update/1
+environments:
+- UAT
+version: null
+credentialAlias: null
+metadata: null
+cases:
+- apiId: '21'
+  module: Attendance Status Threshold API
+  subModule: Update Threshold
+  access: private
+  purpose: Update Threshold
+  basePath: '{{attendanceBaseUrl}}'
+  endpointPath: /api/attendance/status-threshold/update/1
+  method: PUT
+  requestParameters: 'headers: Authorization=Bearer {{token}}; Content-Type=application/json'
+  requestBodySchema: '{"thresholdCode":"string","thresholdName":"string","description":"string","templateMode":"string","shiftTypeApplicability":"string","absentMaxHours":"number","halfDayMinHours":"number","fullDayMinHours":"number","presentMinHours":"number","effectiveFrom":"string","effectiveTo":"null","isDefault":"string","isActive":"string","templateStatus":"string","remarks":"string","assignments":[]}'
+  responseExample: null
+  owner: Parth Divekar <parthdivekar987@gmail.com>
+  canonicalRef: put|/api/attendance/status-threshold/update/1|attendance status threshold api|update threshold
+  samplePayloads:
+  - payloadType: Request Body
+    json: |-
+      {
+        "thresholdCode": "TH001",
+        "thresholdName": "Updated Threshold",
+        "description": "Updated Description",
+        "templateMode": "DEFAULT",
+        "shiftTypeApplicability": "ALL",
+        "absentMaxHours": 3.00,
+        "halfDayMinHours": 3.01,
+        "fullDayMinHours": 5.01,
+        "presentMinHours": 5.02,
+        "effectiveFrom": "2027-01-01",
+        "effectiveTo": null,
+        "isDefault": "Y",
+        "isActive": "Y",
+        "templateStatus": "DRAFT",
+        "remarks": "Updated",
+        "assignments": []
+      }
+  - payloadType: Example Request Payload
+    json: |-
+      {
+        "thresholdCode": "TH001",
+        "thresholdName": "Updated Threshold",
+        "description": "Updated Description",
+        "templateMode": "DEFAULT",
+        "shiftTypeApplicability": "ALL",
+        "absentMaxHours": 3,
+        "halfDayMinHours": 3.01,
+        "fullDayMinHours": 5.01,
+        "presentMinHours": 5.02,
+        "effectiveFrom": "2027-01-01",
+        "effectiveTo": null,
+        "isDefault": "Y",
+        "isActive": "Y",
+        "templateStatus": "DRAFT",
+        "remarks": "Updated",
+        "assignments": []
+      }
+  rules:
+  - category: Non-Functional
+    description: 'Source: collections/Attendance_Threshold_API.json; No saved response example in source
+      file'
+  assertionState: not-asserted
+  sourceType: newman
+  sourceCollection: collections/Attendance_Threshold_API.json

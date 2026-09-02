@@ -1,0 +1,105 @@
+# AUTHORED -- this file is the source of truth for this endpoint.
+#
+# A `cases[]` entry is one test case and carries all 18 inventory columns.
+# Content lives per case, not per endpoint: on POST /auth/token the purpose,
+# request payload and response differ across tc01/tc02/tc03, and folding them
+# up to the endpoint silently discarded two of the three.
+#
+# canonicalRef is contract-visible. Do not normalise it, do not fix its
+# spelling -- the harness, run manifest and result document all key on it.
+slug: holiday_template_post_api_attendance_holiday_templates_create
+module: Holiday Template APIs Copy
+method: POST
+endpointPath: /api/attendance/holiday-templates/create
+environments:
+- UAT
+version: null
+credentialAlias: null
+metadata: null
+cases:
+- apiId: '26'
+  module: Holiday Template APIs Copy
+  subModule: Create
+  access: private
+  purpose: Create
+  basePath: '{{attendanceBaseUrl}}'
+  endpointPath: /api/attendance/holiday-templates/create
+  method: POST
+  requestParameters: 'headers: Authorization=Bearer {{jwtToken}}; Content-Type=application/json'
+  requestBodySchema: '{"templateCode":"string","templateName":"string","description":"string","effectiveFrom":"string","effectiveTo":"string","optionModel":"string","templateMode":"string","isDefault":"string","isActive":"string","templateStatus":"string","remarks":"string","holidays":[{"holidayName":"string","occasion":"string","holidayDate":"string","isOptional":"string","isHalfDay":"string","remarks":"string"}],"assignments":[{"employeeId":"number","effectiveFrom":"string","effectiveTo":"string","isActive":"string"}]}'
+  responseExample: null
+  owner: KavishTadas <kavish.tadas@omfysgroup.com>
+  canonicalRef: post|/api/attendance/holiday-templates/create|holiday template apis copy|create
+  samplePayloads:
+  - payloadType: Request Body
+    json: |-
+      {
+        "templateCode": "HOL2026",
+        "templateName": "India Holiday Calendar 2026",
+        "description": "National Holidays",
+        "effectiveFrom": "2026-01-01",
+        "effectiveTo": "2026-12-31",
+        "optionModel": "ALLOWED",
+        "templateMode": "DEFAULT",
+        "isDefault": "Y",
+        "isActive": "Y",
+        "templateStatus": "DRAFT",
+        "remarks": "2026",
+        "holidays": [
+          {
+            "holidayName": "Republic Day",
+            "occasion": "National Holiday",
+            "holidayDate": "2026-01-26",
+            "isOptional": "N",
+            "isHalfDay": "N",
+            "remarks": ""
+          }
+        ],
+        "assignments": [
+          {
+            "employeeId": 101,
+            "effectiveFrom": "2026-01-01",
+            "effectiveTo": "2026-12-31",
+            "isActive": "Y"
+          }
+        ]
+      }
+  - payloadType: Example Request Payload
+    json: |-
+      {
+        "templateCode": "HOL2026",
+        "templateName": "India Holiday Calendar 2026",
+        "description": "National Holidays",
+        "effectiveFrom": "2026-01-01",
+        "effectiveTo": "2026-12-31",
+        "optionModel": "ALLOWED",
+        "templateMode": "DEFAULT",
+        "isDefault": "Y",
+        "isActive": "Y",
+        "templateStatus": "DRAFT",
+        "remarks": "2026",
+        "holidays": [
+          {
+            "holidayName": "Republic Day",
+            "occasion": "National Holiday",
+            "holidayDate": "2026-01-26",
+            "isOptional": "N",
+            "isHalfDay": "N",
+            "remarks": ""
+          }
+        ],
+        "assignments": [
+          {
+            "employeeId": 101,
+            "effectiveFrom": "2026-01-01",
+            "effectiveTo": "2026-12-31",
+            "isActive": "Y"
+          }
+        ]
+      }
+  rules:
+  - category: Non-Functional
+    description: 'Source: collections/Holiday_Template_API.json; No saved response example in source file'
+  assertionState: not-asserted
+  sourceType: newman
+  sourceCollection: collections/Holiday_Template_API.json

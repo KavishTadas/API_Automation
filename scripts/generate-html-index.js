@@ -8,7 +8,7 @@ const stripBom = value => value.replace(/^\uFEFF/, '');
 const ROOT_DIR = path.join(__dirname, '..');
 const REPORTS_DIR = path.join(ROOT_DIR, 'reports');
 const HTML_REPORTS_DIR = path.join(REPORTS_DIR, 'html');
-const GENERATED_TESTS_DIR = path.join(ROOT_DIR, 'tests', 'auto_generated');
+const GENERATED_TESTS_DIR = path.join(ROOT_DIR, 'build', 'auto_generated');
 const GENERATED_ALLURE_DIR = path.join(
   REPORTS_DIR,
   'allure-results',
@@ -271,7 +271,7 @@ function readGeneratedTestMetadata() {
         const fileBase = path.basename(filePath, '.py');
         metadata[functionName] = metadata[functionName] || item;
         metadata[`${fileBase}#${functionName}`] = item;
-        metadata[`tests.auto_generated.${fileBase}#${functionName}`] = item;
+        metadata[`build.auto_generated.${fileBase}#${functionName}`] = item;
       });
     });
 
@@ -331,7 +331,7 @@ function parseAllureResult(filePath, metadataByName, includeAll) {
     includeAll ||
     Boolean(metadata) ||
     /auto_generated/.test(result.fullName || '') ||
-    /tests[/.\\]auto_generated/.test(filePath);
+    /build[/.\\]auto_generated/.test(filePath);
 
   if (!looksGenerated) {
     return null;
