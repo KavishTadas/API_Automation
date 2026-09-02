@@ -1,0 +1,51 @@
+# AUTHORED -- this file is the source of truth for this endpoint.
+#
+# A `cases[]` entry is one test case and carries all 18 inventory columns.
+# Content lives per case, not per endpoint: on POST /auth/token the purpose,
+# request payload and response differ across tc01/tc02/tc03, and folding them
+# up to the endpoint silently discarded two of the three.
+#
+# canonicalRef is contract-visible. Do not normalise it, do not fix its
+# spelling -- the harness, run manifest and result document all key on it.
+slug: attendance_threshold_patch_api_attendance_status_threshold_1_status
+module: Attendance Status Threshold API
+method: PATCH
+endpointPath: /api/attendance/status-threshold/1/status
+environments:
+- UAT
+version: null
+credentialAlias: null
+metadata: null
+cases:
+- apiId: '25'
+  module: Attendance Status Threshold API
+  subModule: Change Status
+  access: private
+  purpose: Change Status
+  basePath: '{{attendanceBaseUrl}}'
+  endpointPath: /api/attendance/status-threshold/1/status
+  method: PATCH
+  requestParameters: 'headers: Authorization=Bearer {{token}}; Content-Type=application/json'
+  requestBodySchema: '{"isActive":"string"}'
+  responseExample: null
+  owner: Parth Divekar <parthdivekar987@gmail.com>
+  canonicalRef: patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change
+    status
+  samplePayloads:
+  - payloadType: Request Body
+    json: |-
+      {
+        "isActive": "Y"
+      }
+  - payloadType: Example Request Payload
+    json: |-
+      {
+        "isActive": "Y"
+      }
+  rules:
+  - category: Non-Functional
+    description: 'Source: collections/Attendance_Threshold_API.json; No saved response example in source
+      file'
+  assertionState: not-asserted
+  sourceType: newman
+  sourceCollection: collections/Attendance_Threshold_API.json

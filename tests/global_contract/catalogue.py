@@ -68,8 +68,11 @@ __all__ = [
 
 
 COLLECTIONS_DIR = ROOT_DIR / "collections"
-GLOBAL_TIER_SOURCE = Path(__file__).with_name("test_global_api_contract.py")
-GENERATED_TESTS_DIR = ROOT_DIR / "tests" / "auto_generated"
+#: Phase 4 split the tier into one file per check. The parser reads the whole
+#: directory rather than a single module, so a check cannot exist without being
+#: discovered -- adding a file is enough, there is no list to also update.
+GLOBAL_TIER_DIR = ROOT_DIR / "test-cases" / "global"
+GENERATED_TESTS_DIR = ROOT_DIR / "build" / "auto_generated"
 
 CATALOGUE_VERSION = "1.2"
 
@@ -106,6 +109,13 @@ GLOBAL_TEST_CATEGORIES = {
     "test_security_headers_present": "security",
     "test_no_server_version_disclosure": "security",
     "test_trace_method_is_disabled": "security",
+    # --- ported from the attendance repo's global matrix (TC-GLOB-03/04/06/07/08/13/14) ---
+    "test_invalid_sort_column_is_rejected_cleanly": "resilience",
+    "test_negative_page_parameters_are_rejected_cleanly": "resilience",
+    "test_out_of_bounds_page_returns_an_empty_page": "resilience",
+    "test_unknown_entity_id_returns_404": "functional",
+    "test_unknown_entity_mutation_returns_404": "functional",
+    "test_blank_name_input_is_rejected": "security",
 }
 
 #: Tests that measure a host/gateway property rather than an endpoint property.
@@ -183,6 +193,15 @@ def generated_test_id(api_ref: str, check: str) -> str:
     return f"generated::{api_ref}::{check}"
 
 
+def endpoint_case_id(api_ref: str, function: str) -> str:
+    """ID for a hand-authored endpoint case in ``test-cases/``.
+
+    Function-derived, like the global tier's, so renaming a docstring or an
+    allure title leaves the ID -- and the result history -- alone.
+    """
+    return f"endpoint::{api_ref}::{function}"
+
+
 def newman_test_id(api_ref: str, assertion_name: str, ordinal: int = 0) -> str:
     """ID for one Newman assertion.
 
@@ -218,12 +237,17 @@ def global_tests() -> tuple[GlobalTest, ...]:
     Parsed statically out of the tier's source rather than imported, so building
     a catalogue cannot trigger collection, fixtures, or any other side effect.
     """
-    tree = ast.parse(GLOBAL_TIER_SOURCE.read_text(encoding="utf-8"))
     found: list[GlobalTest] = []
+    nodes: list[ast.FunctionDef] = []
+    for source in sorted(GLOBAL_TIER_DIR.glob("[0-9][0-9]_*.py")):
+        tree = ast.parse(source.read_text(encoding="utf-8"))
+        nodes += [
+            n
+            for n in tree.body
+            if isinstance(n, ast.FunctionDef) and n.name.startswith("test_")
+        ]
 
-    for node in tree.body:
-        if not isinstance(node, ast.FunctionDef) or not node.name.startswith("test_"):
-            continue
+    for node in nodes:
 
         title = ""
         for decorator in node.decorator_list:
@@ -562,6 +586,13 @@ def _assertion_state(
     asserted: bool | None,
     source: str,
 ) -> str:
+    # Hand-authored cases in test-cases/ settle this before the source request
+    # is consulted. They are assertions, they are executed, and they are the
+    # tier this repo is moving coverage into -- so an endpoint carrying them is
+    # asserted even when its Postman collection asserts nothing, which is true
+    # of every Attendance request.
+    if authored_endpoint_cases().get(str(api_row.get("API Identifier", ""))):
+        return "asserted"
     if asserted is None:
         return "unknown"
     if not asserted:
@@ -572,15 +603,87 @@ def _assertion_state(
     return "asserted-not-executed"
 
 
+#: Roots holding hand-authored endpoint cases. Two, at different depths:
+#: endpoint/<suite>/<endpoint>/ and the flat login/<endpoint>/.
+AUTHORED_CASE_ROOTS = (
+    ROOT_DIR / "test-cases" / "endpoint",
+    ROOT_DIR / "test-cases" / "login",
+)
+
+
+@lru_cache(maxsize=1)
+def authored_endpoint_cases() -> dict[str, tuple[tuple[str, str], ...]]:
+    """``caseRef`` -> the authored cases scoped to it, parsed not imported.
+
+    Read statically for the same reason ``global_tests()`` is: building a
+    catalogue must not import test modules, trigger collection, or open a
+    socket. A case declares which row it exercises with a module-level
+    ``caseRef``; files without one are skipped rather than guessed at.
+
+    Without this the catalogue could not see the authored tier at all, so 40
+    endpoints carrying real cases still rendered as "no assert" in the console
+    and counted toward the assertion-gap total.
+    """
+    found: dict[str, list[tuple[str, str]]] = {}
+    for root in AUTHORED_CASE_ROOTS:
+        if not root.exists():
+            continue
+        for path in sorted(root.rglob("[0-9][0-9]_*.py")):
+            try:
+                tree = ast.parse(path.read_text(encoding="utf-8"))
+            except SyntaxError:
+                continue
+            ref = ""
+            for node in tree.body:
+                if isinstance(node, ast.Assign) and any(
+                    getattr(t, "id", "") == "caseRef" for t in node.targets
+                ):
+                    if isinstance(node.value, ast.Constant):
+                        ref = str(node.value.value)
+            if not ref:
+                continue
+            relative = path.relative_to(ROOT_DIR).as_posix()
+            for node in tree.body:
+                if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
+                    found.setdefault(ref, []).append((relative, node.name))
+    return {ref: tuple(cases) for ref, cases in found.items()}
+
+
 def _api_specific_tests(api_row: dict[str, Any]) -> list[dict[str, Any]]:
-    """Newman and generated-tier cases for one API."""
+    """Authored, Newman and generated-tier cases for one API.
+
+    Each carries a ``displayId`` of ``TC_001``, ``TC_002`` ... numbered **within
+    the endpoint**, so every endpoint's cases read from one. That is a display
+    label and nothing else, exactly like the ``API-001`` labels beside them: it
+    is positional, so inserting a case renumbers the ones after it. The stable
+    identity stays in ``id`` -- ``endpoint::<ref>::<function>`` for authored
+    cases, derived from the function name so a retitle never moves it. Anything
+    joining results to cases must key on ``id``, never on the label.
+    """
     ref = str(api_row.get("API Identifier", ""))
     cases: list[dict[str, Any]] = []
 
     source = _source_collection(api_row)
     asserted = _row_has_assertions(api_row)
 
-    if source.startswith("collections/") and asserted is False:
+    authored = authored_endpoint_cases().get(ref, ())
+    for relative, function in authored:
+        cases.append(
+            {
+                "id": endpoint_case_id(ref, function),
+                "title": function.removeprefix("test_").replace("_", " ").capitalize(),
+                "scope": "API_SPECIFIC",
+                "tier": "endpoint",
+                "category": "business-rule",
+                "apiRef": ref,
+                "source": relative,
+            }
+        )
+
+    # An endpoint with hand-authored cases is not an assertion gap, whatever its
+    # Postman collection does or does not carry. Emitting the gap entry anyway
+    # would report 40 endpoints as unasserted while their cases sit next to them.
+    if source.startswith("collections/") and asserted is False and not authored:
         # The request runs and asserts nothing. Publishing an explicit entry for
         # that gap is the whole point of D7: without one, a not-asserted API
         # contributes zero test cases and the platform has nothing to render the
@@ -638,6 +741,11 @@ def _api_specific_tests(api_row: dict[str, Any]) -> list[dict[str, Any]]:
                 "apiRef": ref,
             }
         )
+
+    # Numbered last, once the tier order is settled, so the sequence a reader
+    # sees matches the order the cases are listed in.
+    for index, case in enumerate(cases, start=1):
+        case["displayId"] = f"TC_{index:03d}"
 
     return cases
 
@@ -709,7 +817,7 @@ def build_catalogue(
 def _catalogue_config() -> dict[str, str]:
     import os
 
-    from tests.auto_generated._api_test_helpers import load_runtime_config
+    from tests.api_runtime._api_test_helpers import load_runtime_config
 
     try:
         config = load_runtime_config()
@@ -721,7 +829,7 @@ def _catalogue_config() -> dict[str, str]:
 def _row_host(api_row: dict[str, Any], config: dict[str, str]) -> str:
     from urllib.parse import urlsplit
 
-    from tests.auto_generated._api_test_helpers import _resolve_templates
+    from tests.api_runtime._api_test_helpers import _resolve_templates
 
     raw = str(api_row.get("Base URL", "") or "")
     if not raw:

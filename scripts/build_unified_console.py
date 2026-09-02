@@ -117,7 +117,7 @@ def load_inventory() -> dict:
     the inventory's ``API Identifier``, which is the same ref the catalogue
     uses. A miss is worth knowing about rather than silently blanking a panel.
     """
-    path = ROOT / "api-docs" / "API_File.json"
+    path = ROOT / "build" / "API_File.json"
     if not path.exists():
         sys.exit(f"missing inventory: {path}")
     rows = json.loads(path.read_text(encoding="utf-8"))
@@ -238,6 +238,20 @@ def enrich(api: dict, inv: dict) -> dict:
     return api
 
 
+def api_test_cases(catalogue: dict) -> dict:
+    """apiSpecific cases grouped by apiRef, in displayId order.
+
+    Sorted by the TC_00N label so the UI renders them in the order the catalogue
+    numbered them, rather than whatever order the list happened to arrive in.
+    """
+    grouped: dict[str, list] = {}
+    for case in catalogue.get("testCases", {}).get("apiSpecific", []) or []:
+        grouped.setdefault(str(case.get("apiRef", "")), []).append(case)
+    for cases in grouped.values():
+        cases.sort(key=lambda c: str(c.get("displayId", "")))
+    return grouped
+
+
 def main() -> int:
     catalogue = load("sample-catalogue.json")
     inv = load_inventory()
@@ -251,6 +265,11 @@ def main() -> int:
         "resultStates": catalogue["resultStates"],
         "apis": [enrich(a, inv) for a in endpoints_from_inventory(inv, catalogue)],
         "globalTestCases": global_test_cases(catalogue),
+        # An endpoint's own cases -- authored, Newman and generated -- grouped by
+        # ref. Without these the Test Cases view could only ever show the shared
+        # global checks plus an assertion-gap placeholder, so 76 authored cases
+        # existed in the repo and nowhere in the UI.
+        "apiTestCases": api_test_cases(catalogue),
         "applicability": applicability(catalogue),
         "environments": catalogue["environments"],
         "credentialAliases": catalogue["credentialAliases"],
@@ -313,6 +332,8 @@ def main() -> int:
 
     print(f"wrote {OUT.relative_to(ROOT)}  ({OUT.stat().st_size/1024:.0f} KB)")
     print(f"  {len(seed['apis'])} APIs · {len(seed['globalTestCases'])} global checks")
+    print(f"  {sum(len(v) for v in seed['apiTestCases'].values())} endpoint test cases "
+          f"across {len(seed['apiTestCases'])} endpoints")
     joined = sum(1 for a in seed["apis"] if a["purpose"])
     bodies = sum(1 for a in seed["apis"] if a["requestBody"])
     resps = sum(1 for a in seed["apis"] if a["successResponse"])

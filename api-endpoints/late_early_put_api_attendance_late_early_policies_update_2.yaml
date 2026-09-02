@@ -1,0 +1,149 @@
+# AUTHORED -- this file is the source of truth for this endpoint.
+#
+# A `cases[]` entry is one test case and carries all 18 inventory columns.
+# Content lives per case, not per endpoint: on POST /auth/token the purpose,
+# request payload and response differ across tc01/tc02/tc03, and folding them
+# up to the endpoint silently discarded two of the three.
+#
+# canonicalRef is contract-visible. Do not normalise it, do not fix its
+# spelling -- the harness, run manifest and result document all key on it.
+slug: late_early_put_api_attendance_late_early_policies_update_2
+module: Latearly-Policy
+method: PUT
+endpointPath: /api/attendance/late-early-policies/update/2
+environments:
+- UAT
+version: null
+credentialAlias: null
+metadata: null
+cases:
+- apiId: '30'
+  module: Latearly-Policy
+  subModule: update
+  access: private
+  purpose: |-
+    Generated from cURL: curl --location --request PUT 'http://localhost:9079/api/attendance/late-early-policies/update/1' \
+    --header 'Authorization: Bearer <JWT_TOKEN>' \
+    --header 'Content-Type: application/json' \
+    --data '{
+        "policyCode": "LEP001",
+        "policyName": "Updated Late/Early Policy",
+        "description": "Updated Policy",
+        "templateMode": "DEFAULT",
+        "templateStatus": "PUBLISHED",
+        "eventCountMinutes": 20,
+        "graceMinutes": 5,
+        "graceEvent": 2,
+        "allowedEvent": 3,
+        "deductionType": "LEAVE",
+        "leaveDeductDays": 1,
+        "leaveTypeId": 1,
+        "fineAmount": null,
+        "effectiveFrom": "2026-08-01",
+        "effectiveTo": null,
+        "isDefault": "N",
+        "remarks": "Updated Policy",
+        "deductionPriorities": [
+            {
+                "priorityOrder": 1,
+                "leaveTypeId": 1,
+                "isActive": "Y"
+            }
+        ],
+        "assignments": [
+            {
+                "employeeId": 1001,
+                "effectiveFrom": "2026-08-01",
+                "effectiveTo": null,
+                "isActive": "Y"
+            }
+        ]
+    }'
+  basePath: '{{attendanceBaseUrl}}'
+  endpointPath: /api/attendance/late-early-policies/update/2
+  method: PUT
+  requestParameters: 'headers: Authorization=Bearer <JWT_TOKEN>; Content-Type=application/json'
+  requestBodySchema: '{"policyCode":"string","policyName":"string","description":"string","templateMode":"string","templateStatus":"string","eventCountMinutes":"number","graceMinutes":"number","graceEvent":"number","allowedEvent":"number","deductionType":"string","leaveDeductDays":"number","leaveTypeId":"number","fineAmount":"null","effectiveFrom":"string","effectiveTo":"null","isDefault":"string","remarks":"string","deductionPriorities":[{"priorityOrder":"number","leaveTypeId":"number","isActive":"string"}],"assignments":[{"employeeId":"number","effectiveFrom":"string","effectiveTo":"null","isActive":"string"}]}'
+  responseExample: null
+  owner: KavishTadas <kavish.tadas@omfysgroup.com>
+  canonicalRef: put|/api/attendance/late-early-policies/update/2|latearly-policy|update
+  samplePayloads:
+  - payloadType: Request Body
+    json: |-
+      {
+          "policyCode": "LEP001",
+          "policyName": "Updated Late/Early Policy",
+          "description": "Updated Policy",
+          "templateMode": "DEFAULT",
+          "templateStatus": "PUBLISHED",
+          "eventCountMinutes": 5,
+          "graceMinutes": 20,
+          "graceEvent": 2,
+          "allowedEvent": 3,
+          "deductionType": "LEAVE",
+          "leaveDeductDays": 1,
+          "leaveTypeId": 1,
+          "fineAmount": null,
+          "effectiveFrom": "2026-08-01",
+          "effectiveTo": null,
+          "isDefault": "N",
+          "remarks": "Updated Policy",
+          "deductionPriorities": [
+              {
+                  "priorityOrder": 3,
+                  "leaveTypeId": 1,
+                  "isActive": "Y"
+              }
+          ],
+          "assignments": [
+              {
+                  "employeeId": 3844,
+                  "effectiveFrom": "2026-08-01",
+                  "effectiveTo": null,
+                  "isActive": "Y"
+              }
+          ]
+      }
+  - payloadType: Example Request Payload
+    json: |-
+      {
+        "policyCode": "LEP001",
+        "policyName": "Updated Late/Early Policy",
+        "description": "Updated Policy",
+        "templateMode": "DEFAULT",
+        "templateStatus": "PUBLISHED",
+        "eventCountMinutes": 5,
+        "graceMinutes": 20,
+        "graceEvent": 2,
+        "allowedEvent": 3,
+        "deductionType": "LEAVE",
+        "leaveDeductDays": 1,
+        "leaveTypeId": 1,
+        "fineAmount": null,
+        "effectiveFrom": "2026-08-01",
+        "effectiveTo": null,
+        "isDefault": "N",
+        "remarks": "Updated Policy",
+        "deductionPriorities": [
+          {
+            "priorityOrder": 3,
+            "leaveTypeId": 1,
+            "isActive": "Y"
+          }
+        ],
+        "assignments": [
+          {
+            "employeeId": 3844,
+            "effectiveFrom": "2026-08-01",
+            "effectiveTo": null,
+            "isActive": "Y"
+          }
+        ]
+      }
+  rules:
+  - category: Non-Functional
+    description: 'Source: collections/Late_Early_Policy_API.json; No saved response example in source
+      file'
+  assertionState: not-asserted
+  sourceType: newman
+  sourceCollection: collections/Late_Early_Policy_API.json

@@ -31,15 +31,15 @@ const click = el => el.dispatchEvent(new window.Event('click', { bubbles: true }
     return Object.values(byCat).every(v => v.join('|') === v.slice().sort().join('|'));
   })());
   ok('every check gets a stable number',
-     window.orderedChecks().every(t => /^TC-\d\d$/.test(window.tcNum(t.id))),
+     window.orderedChecks().every(t => /^GC-\d\d$/.test(window.tcNum(t.id))),
      window.orderedChecks().map(t => window.tcNum(t.id)).join(' '));
   ok('numbers are unique and sequential', (() => {
     const ns = window.orderedChecks().map(t => window.tcNum(t.id));
     return new Set(ns).size === ns.length &&
-           ns.join(',') === ns.map((_, i) => 'TC-' + String(i + 1).padStart(2, '0')).join(',');
+           ns.join(',') === ns.map((_, i) => 'GC-' + String(i + 1).padStart(2, '0')).join(',');
   })());
   ok('the same check numbers the same everywhere',
-     window.tcNum(window.orderedChecks()[3].id) === 'TC-04');
+     window.tcNum(window.orderedChecks()[3].id) === 'GC-04');
 
   console.log('\nendpoint screen:');
   click($$('.sc-row')[0]);
@@ -61,8 +61,15 @@ const click = el => el.dispatchEvent(new window.Event('click', { bubbles: true }
   ok('each heading counts its checks',
      $$('#dCases .tc-grp').every(g => /\d/.test(g.querySelector('.tc-grp-n').textContent)));
   const nums = $$('#dCases .tc .tc-n').map(n => n.textContent.trim()).filter(x => x !== '—');
-  ok('numbers ascend down the page',
-     nums.join(',') === nums.slice().sort().join(','), nums.join(' '));
+  // Two schemes now: TC_001.. numbered per endpoint, GC-01.. shared across all
+  // of them. Each must ascend within itself; comparing them against one another
+  // only ever tested which separator sorts first.
+  const ascends = pre => {
+    const seq = nums.filter(n => n.startsWith(pre));
+    return seq.join(',') === seq.slice().sort().join(',');
+  };
+  ok('numbers ascend down the page, within each scheme',
+     ascends('TC_') && ascends('GC-'), nums.join(' '));
   ok('an assertion gap is called out first',
      !$('#dCases .tc.gap') || $$('#dCases .tc')[0].classList.contains('gap'));
 
@@ -70,7 +77,7 @@ const click = el => el.dispatchEvent(new window.Event('click', { bubbles: true }
   click($('#railMenu [data-menu-act="cases"]'));
   await wait(110);
   ok('the explorer is its own view', $('#view-cases').classList.contains('active'));
-  ok('it lists every endpoint', $$('#caseBody .case').length === 45,
+  ok('it lists every endpoint', $$('#caseBody .case').length === 44,
      $$('#caseBody .case').length + ' endpoints');
   ok('each row names method, endpoint and module',
      $$('#caseBody .case-h').every(h => h.querySelector('.m') &&
@@ -103,7 +110,7 @@ const click = el => el.dispatchEvent(new window.Event('click', { bubbles: true }
   ok('the explorer filters', $$('#caseBody .case').length < 45 &&
      $$('#caseBody .case').length > 0, $$('#caseBody .case').length + ' shown');
   ok('the hint reports the filtered count',
-     /of 45 endpoints match/.test($('#caseHint').textContent),
+     /of 44 endpoints match/.test($('#caseHint').textContent),
      $('#caseHint').textContent.trim());
   $('#caseSearch').value = 'no-such-thing-xyz';
   $('#caseSearch').dispatchEvent(new window.Event('input', { bubbles: true }));
@@ -126,7 +133,7 @@ const click = el => el.dispatchEvent(new window.Event('click', { bubbles: true }
   await wait(100);
   ok('clicking a check opens its detail', $('#ovModal').classList.contains('open'));
   const md = $('#mBody').textContent;
-  ok('the title carries the case number', /^TC-\d\d · /.test($('#mTitle').textContent),
+  ok('the title carries the case number', /^GC-\d\d · /.test($('#mTitle').textContent),
      $('#mTitle').textContent);
 
   ok('severity is shown', /Severity/.test(md) &&
@@ -275,8 +282,8 @@ const click = el => el.dispatchEvent(new window.Event('click', { bubbles: true }
   const tiers = $$('#caseBody .case.open .tc-tier');
   ok('two tiers are separated', tiers.length === 2,
      tiers.map(t => t.querySelector('.tc-tier-t').textContent.trim()).join(' | '));
-  ok('collection assertions are named first',
-     /Collection assertions/.test(tiers[0].textContent));
+  ok("the endpoint's own cases are named first",
+     /This endpoint's test cases/.test(tiers[0].textContent), tiers[0].textContent.trim());
   ok('global contract checks are named second',
      /Global contract checks/.test(tiers[1].textContent));
   ok('the global tier carries the engine count',

@@ -1,0 +1,40 @@
+# AUTHORED -- this file is the source of truth for this endpoint.
+#
+# A `cases[]` entry is one test case and carries all 18 inventory columns.
+# Content lives per case, not per endpoint: on POST /auth/token the purpose,
+# request payload and response differ across tc01/tc02/tc03, and folding them
+# up to the endpoint silently discarded two of the three.
+#
+# canonicalRef is contract-visible. Do not normalise it, do not fix its
+# spelling -- the harness, run manifest and result document all key on it.
+slug: holiday_template_delete_api_attendance_holiday_templates_delete_by_holidaytemplateid
+module: Holiday Template APIs Copy
+method: DELETE
+endpointPath: /api/attendance/holiday-templates/delete/{holidayTemplateId}
+environments:
+- UAT
+version: null
+credentialAlias: null
+metadata: null
+cases:
+- apiId: '45'
+  module: Holiday Template APIs Copy
+  subModule: Delete
+  access: private
+  purpose: Delete
+  basePath: '{{attendanceBaseUrl}}'
+  endpointPath: /api/attendance/holiday-templates/delete/{holidayTemplateId}
+  method: DELETE
+  requestParameters: 'path variables: holidayTemplateId | headers: Authorization=Bearer {{jwtToken}}'
+  requestBodySchema: null
+  responseExample: null
+  owner: KavishTadas <kavish.tadas@omfysgroup.com>
+  canonicalRef: delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis
+    copy|delete
+  samplePayloads: []
+  rules:
+  - category: Non-Functional
+    description: 'Source: collections/Holiday_Template_API.json; No saved response example in source file'
+  assertionState: not-asserted
+  sourceType: newman
+  sourceCollection: collections/Holiday_Template_API.json

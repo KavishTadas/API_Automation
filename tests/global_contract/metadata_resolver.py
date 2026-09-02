@@ -16,7 +16,7 @@ Precedence chain (per field, first hit wins)
 --------------------------------------------
 1. ``openapi/openapi.yaml`` — authoritative wherever an entry exists
 2. A supplied :class:`ApiDefinition` — Excel/cURL, per the template contract
-3. ``api-docs/API_File.json`` — inventory-inferred
+3. ``build/API_File.json`` — inventory-inferred (derived from api-endpoints/)
 4. ``None`` (a global default may then apply; see :data:`DEFAULT_SLA_MS`)
 
 A field merely *missing* from a higher source is a miss, not a hit — an
@@ -69,7 +69,7 @@ __all__ = [
 
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
-API_FILE_PATH = ROOT_DIR / "api-docs" / "API_File.json"
+API_FILE_PATH = ROOT_DIR / "build" / "API_File.json"
 OPENAPI_PATH = ROOT_DIR / "openapi" / "openapi.yaml"
 
 HTTP_METHODS = frozenset({"get", "post", "put", "patch", "delete", "head", "options"})

@@ -797,6 +797,12 @@ table.pl tr:last-child td{border-bottom:0}
   text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);border-bottom:1px solid var(--line-soft)}
 .ms-gh .sp{flex:1}
 .ms-item{display:flex;gap:10px;align-items:center;padding:7px 6px;border-radius:6px;cursor:pointer}
+.ms-ephead{display:flex;gap:10px;align-items:center;padding:7px 6px;border-radius:6px;
+  cursor:pointer;font-weight:600}
+.ms-ephead:hover{background:var(--panel-2)}
+.ms-ephead input{accent-color:var(--accent);flex-shrink:0;width:15px;height:15px}
+.ms-ephead .nm{font:600 12px var(--mono);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ms-cases{margin-left:22px;padding-left:8px;border-left:1px solid var(--line)}
 .ms-item:hover{background:var(--panel-2)}
 .ms-item input{accent-color:var(--accent);flex-shrink:0;width:15px;height:15px}
 .ms-item .nm{font-size:12.5px;font-weight:600;flex:1;min-width:0;overflow:hidden;
@@ -2996,6 +3002,19 @@ async function detectHarness(){
   return LIVE.available;
 }
 
+/* Which issuer a route's host will actually accept. Attendance is served by a
+   different host that rejects an Employee Auth token with INVALID_TOKEN, so a
+   single provider for the whole batch cannot work. */
+const ATTENDANCE_ROUTE = /^\/api\/(attendancepolicy|attendance\/|v1\/attendance\/)/;
+
+function defaultProviderFor(ref){
+  const path = (ref.split('|')[1] || '');
+  const wanted = ATTENDANCE_ROUTE.test(path) ? /login auth uat/i : /employee auth/i;
+  const provs = authProviders();
+  const match = provs.find(p => wanted.test(p.module || ''));
+  return (match || provs[0] || {}).ref || '';
+}
+
 /* An uploaded endpoint is never written to the repository (DR-2), so the
    engine cannot look one up -- a ref for it resolves against the inventory and
    misses, and every check reports NOT_APPLICABLE against an endpoint that was
@@ -3028,8 +3047,14 @@ function manifestFor(refs){
     requestedTiers: ['global_contract'],
     apis: refs.map(ref => {
       const entry = {credentialAlias: aliasForManifest(STATE.alias)};
-      const prov = STATE.providers[ref];
-      if(prov) entry.authProviderApiId = prov;
+      /* STATE.providers is only written when an endpoint is opened in Configure,
+         so a batch of 44 selected from the list carried a provider for the few
+         that had been opened and nothing for the rest. That run reported 124
+         FAIL and 103 NOT_APPLICABLE purely for want of a credential. Falling
+         back to the issuer the route's host accepts makes an unconfigured batch
+         behave like a configured one; an explicit choice still wins. */
+      const prov = STATE.providers[ref] || defaultProviderFor(ref);
+      if(prov && prov !== ref) entry.authProviderApiId = prov;
       /* Either a ref or a definition, never both -- the manifest rejects an
          entry carrying the two together. */
       const imported = STATE.imported.find(a => a.ref === ref);
@@ -3367,6 +3392,14 @@ function renderStrip(){
     `<span class="chip"><span class="d"></span>Target: ${esc(STATE.env)}</span>`,
     R?`<span class="chip ${R.summary.clean?'ok':'warn'}"><span class="d"></span>Last run: ${pct(R.summary.passRate)} pass</span>`:''
   ].join('');
+
+  /* "Only assertion gaps" is static markup, so unlike the two gap chips beside
+     it -- both already `gaps ? ... : ''` -- it survived the count reaching zero.
+     A control that selects nothing and then reports doing so is worse than no
+     control. Hidden rather than deleted: gaps return the moment an endpoint is
+     added without a case, and the filter is the fastest way to find them. */
+  const gapBtn = $('#btnSelGaps');
+  if(gapBtn) gapBtn.hidden = !gaps;
 }
 
 function renderHome(){
@@ -3376,30 +3409,89 @@ function renderHome(){
   syncSel();
 }
 
+/* Catalogue rows are test CASES, not endpoints: POST /auth/token carries three
+   (TC01/TC02/TC03). Listing them flat made one endpoint look like three separate
+   APIs, which contradicted api-endpoints/ and test-cases/ -- both of which count
+   40 endpoints for these 44 rows. Group by method+path so the picker agrees, and
+   keep every case individually selectable: TC02 is a real case somebody may want
+   to run alone. */
+function endpointGroups(list){
+  const g=new Map();
+  for(const a of list){
+    const key=`${a.method} ${a.path}`;
+    if(!g.has(key)) g.set(key,[]);
+    g.get(key).push(a);
+  }
+  return g;
+}
+
+/* `n` is this row's position within its own endpoint, so an endpoint's cases
+   read TC_001, TC_002, TC_003 rather than the API-0NN labels that number every
+   row in the catalogue from one end to the other. The API id is the manifest
+   key and stays reachable on hover -- it is what a run actually sends. */
+function msCaseRow(a, n){
+  const caseId = n ? 'TC_'+String(n).padStart(3,'0') : displayId(a);
+  return `<label class="ms-item">
+    <input type="checkbox" ${STATE.selected.has(a.ref)?'checked':''} data-chk="${esc(a.ref)}">
+    <span class="m ${esc(a.method)}">${esc(a.method)}</span>
+    <span class="nm">${esc(a.name||a.subModule||a.path)}</span>
+    ${sourceBadge(a)}
+    ${a.assertionState==='not-asserted'?'<span class="pill gap">no assert</span>':''}
+    <span class="id" title="${esc(displayId(a))} — the catalogue id a run sends">${esc(caseId)}</span>
+    ${delBtn(a)}
+  </label>`;
+}
+
 function renderMultiSelect(){
   const m=moduleGroups($('#apiSearch').value);
   const box=$('#msBox');
   if(!m.size){ box.innerHTML=`<div class="empty">No endpoint matches that filter.</div>`; return; }
   box.innerHTML=[...m.entries()].map(([mod,list])=>{
     const sel=list.filter(a=>STATE.selected.has(a.ref)).length;
+    const eps=endpointGroups(list);
+    /* Every endpoint gets the same shape, including the 37 that carry a single
+       case. Skipping the wrapper for those looked like a tidy saving and read as
+       a bug: the list showed two row shapes with no visible rule, so /auth/token
+       nested its three cases while WeekOffGetAll sat bare beside it and nothing
+       told the reader why. Uniform beats shorter -- one rule to learn, one code
+       path to maintain, and a single-case endpoint still shows its case rather
+       than hiding it behind a row that merely resembles one. */
+    const body=[...eps.entries()].map(([ep,cases])=>{
+      const on=cases.filter(c=>STATE.selected.has(c.ref)).length;
+      const refs=cases.map(c=>c.ref).join('\n');
+      return `<div class="ms-ep">
+        <label class="ms-ephead">
+          <input type="checkbox" ${on===cases.length?'checked':''}
+                 data-ep="${esc(refs)}" data-on="${on}" data-all="${cases.length}">
+          <span class="m ${esc(cases[0].method)}">${esc(cases[0].method)}</span>
+          <span class="nm">${esc(cases[0].path)}</span>
+          <span class="pill${on?' ok':''}">${on}/${cases.length} cases</span>
+        </label>
+        <div class="ms-cases">${cases.map((c,i)=>msCaseRow(c,i+1)).join('')}</div>
+      </div>`;
+    }).join('');
     return `<div class="ms-group">
       <div class="ms-gh"><span>${esc(mod)}</span><span class="sp"></span>
         <span class="pill${sel?' ok':''}">${sel}/${list.length}</span></div>
-      ${list.map(a=>`<label class="ms-item">
-        <input type="checkbox" ${STATE.selected.has(a.ref)?'checked':''} data-chk="${esc(a.ref)}">
-        <span class="m ${esc(a.method)}">${esc(a.method)}</span>
-        <span class="nm">${esc(a.name||a.subModule||a.path)}</span>
-        ${sourceBadge(a)}
-        ${a.assertionState==='not-asserted'?'<span class="pill gap">no assert</span>':''}
-        <span class="id">${esc(displayId(a))}</span>
-        ${delBtn(a)}
-      </label>`).join('')}
+      ${body}
     </div>`;
   }).join('');
   wireDelete(box);
+
   box.querySelectorAll('[data-chk]').forEach(cb=> cb.onchange=()=>{
     cb.checked ? STATE.selected.add(cb.dataset.chk) : STATE.selected.delete(cb.dataset.chk);
     persist(); syncSel(); renderMultiSelect();
+  });
+  box.querySelectorAll('[data-ep]').forEach(cb=>{
+    /* Partly-selected endpoints show indeterminate, which no HTML attribute can
+       express -- it is a property, so it has to be set after render. */
+    const on=Number(cb.dataset.on), all=Number(cb.dataset.all);
+    cb.indeterminate = on>0 && on<all;
+    cb.onchange=()=>{
+      const refs=cb.dataset.ep.split('\n').filter(Boolean);
+      refs.forEach(r=> cb.checked ? STATE.selected.add(r) : STATE.selected.delete(r));
+      persist(); syncSel(); renderMultiSelect();
+    };
   });
 }
 
@@ -3587,12 +3679,15 @@ function orderedChecks(){
   return SEED.globalTestCases.slice().sort((a,b)=>
     rank(a.category)-rank(b.category) || a.title.localeCompare(b.title));
 }
-/* TC-01..TC-nn, fixed for the life of the catalogue. */
+/* GC-01..GC-nn for the shared global checks. Deliberately NOT "TC-": the
+   endpoint tier numbers its own cases TC_001 per endpoint, and two schemes
+   telling themselves apart by a hyphen versus an underscore is not a
+   distinction anyone can see at a glance. GC = global contract. */
 let TC_NUM=null;
 function tcNum(id){
   if(!TC_NUM){
     TC_NUM=new Map();
-    orderedChecks().forEach((tc,i)=> TC_NUM.set(tc.id,'TC-'+String(i+1).padStart(2,'0')));
+    orderedChecks().forEach((tc,i)=> TC_NUM.set(tc.id,'GC-'+String(i+1).padStart(2,'0')));
   }
   return TC_NUM.get(id)||'TC-··';
 }
@@ -3666,11 +3761,34 @@ function tcListFor(api, prev){
     <span class="tc-tier-n">${n}</span>
     <span class="tc-tier-d">${esc(note)}</span></div>`;
 
-  return tier('Collection assertions', gapCard?1:0,
-              gapCard ? 'authored in the Postman collection for this request'
-                      : 'this request has none authored')
-       + (gapCard || `<p class="pl-none" style="margin:0 0 4px">Nothing to show — the
-          collection defines no assertion for this request.</p>`)
+  /* This endpoint's own cases: hand-authored files under test-cases/, the
+     collection's pm.test assertions, and the generated tier. Each carries the
+     TC_00N label the catalogue numbered it with -- per endpoint, so every
+     endpoint's list starts at TC_001. Before this they existed in the repo and
+     nowhere in the UI, because the seed only ever carried the global set. */
+  const own = (SEED.apiTestCases && SEED.apiTestCases[api.ref]) || [];
+  const TIER_NOTE = {
+    endpoint: 'hand-authored in test-cases/',
+    newman: 'authored in the Postman collection',
+    generated: 'generated from the inventory',
+  };
+  const ownCards = own.map(tc=>`<article class="tc">
+      <div class="tc-n">${esc(tc.displayId||'')}</div>
+      <div class="tc-b">
+        <h4 class="tc-t">${esc(tc.title||tc.id)}</h4>
+        <div class="tc-id">${esc(tc.tier||'')} · ${esc(TIER_NOTE[tc.tier]||tc.category||'')}</div>
+        ${tc.source?`<p class="tc-d">${esc(tc.source)}</p>`:''}
+        <div class="tc-f"><span class="tag">${esc(tc.category||'')}</span></div>
+      </div>
+      <span class="st" title="This tier runs separately from the contract engine,
+        so the catalogue carries no result state for it yet">${esc(tc.expectedState||'—')}</span>
+    </article>`).join('');
+
+  return tier("This endpoint's test cases", own.length,
+              own.length ? 'authored and collection cases scoped to this request'
+                         : 'this request has none authored')
+       + (ownCards || gapCard || `<p class="pl-none" style="margin:0 0 4px">Nothing to
+          show — no case is scoped to this request.</p>`)
        + tier('Global contract checks', orderedChecks().length,
               'run against every selected endpoint (D2)')
        + out.join('');
@@ -3924,9 +4042,24 @@ function renderCases(){
   });
 }
 
+/* A negative auth case asserts a 4xx by design and can never mint a token, so
+   offering one as a provider guarantees a failed bootstrap with no visible
+   cause. The now-removed harness/ui.html carried this filter (d8045e6) while
+   the console did not, so POST /auth/token showed four options -- TC01, TC02,
+   TC03 and Login Auth UAT -- three labelled identically because the label
+   omitted the only field that differs. Having the same control in two pages
+   with two filters is why there is now one page. */
+const AUTH_NEGATIVE_CASE =
+  /\b(invalid|missing|expired|malformed|unauthori[sz]ed|returns\s+4\d\d)\b/i;
+
+function canMintToken(a){
+  return (a.method||'').toUpperCase() === 'POST'
+    && !AUTH_NEGATIVE_CASE.test(a.ref||'');
+}
+
 function authProviders(){
-  const p = allApis().filter(a=>/\/auth\/(token|login)/i.test(a.path||''));
-  return p.length ? p : allApis().filter(a=>/auth/i.test(a.module||'')).slice(0,4);
+  const p = allApis().filter(a=>/\/auth\/(token|login)/i.test(a.path||'') && canMintToken(a));
+  return p.length ? p : allApis().filter(a=>/auth/i.test(a.module||'') && canMintToken(a)).slice(0,4);
 }
 
 function renderDetail(){
@@ -3950,8 +4083,17 @@ function renderDetail(){
 
   const provs=authProviders();
   const chosen = STATE.providers[a.ref] || (provs[0] ? provs[0].ref : '');
+  /* Persist the default we are about to display. Previously `chosen` was
+     computed for rendering only and STATE.providers was written solely by the
+     onchange handler, so a user who accepted the shown default sent a manifest
+     with no authProviderApiId at all -- the engine then had nothing to bootstrap
+     from and every credential-needing check came back SKIPPED_NO_TOKEN with
+     blockedBy:null, while the panel showed a provider selected. */
+  if(chosen && STATE.providers[a.ref] !== chosen){ STATE.providers[a.ref] = chosen; persist(); }
+  /* Label carries subModule: module and path are identical across every case on
+     one endpoint, so without it the options are indistinguishable. */
   $('#dProvider').innerHTML = provs.map(p=>
-    `<option value="${esc(p.ref)}"${p.ref===chosen?' selected':''}>${esc(p.module)} — ${esc(p.path)}</option>`).join('')
+    `<option value="${esc(p.ref)}"${p.ref===chosen?' selected':''}>${esc(p.module)} — ${esc(p.subModule || p.path)}</option>`).join('')
     || `<option value="">— none discovered —</option>`;
   const isAtt=/attendance|holiday|weekoff|late|threshold/i.test(a.module||'');
   $('#dProviderHint').innerHTML = isAtt

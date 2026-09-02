@@ -1,0 +1,57 @@
+# AUTHORED -- this file is the source of truth for this endpoint.
+#
+# A `cases[]` entry is one test case and carries all 18 inventory columns.
+# Content lives per case, not per endpoint: on POST /auth/token the purpose,
+# request payload and response differ across tc01/tc02/tc03, and folding them
+# up to the endpoint silently discarded two of the three.
+#
+# canonicalRef is contract-visible. Do not normalise it, do not fix its
+# spelling -- the harness, run manifest and result document all key on it.
+slug: attendance_policy_master_post_api_attendancepolicy
+module: Attendance Policy Master
+method: POST
+endpointPath: /api/attendancepolicy
+environments:
+- UAT
+version: null
+credentialAlias: null
+metadata: null
+cases:
+- apiId: '7'
+  module: Attendance Policy Master
+  subModule: Create New Policy
+  access: private
+  purpose: Create New Policy
+  basePath: '{{attendanceBaseUrl}}'
+  endpointPath: /api/attendancepolicy
+  method: POST
+  requestParameters: 'headers: Authorization=Bearer {{authToken}}'
+  requestBodySchema: '{"policyName":"string","policyHeading":"string","policyDescription":"string"}'
+  responseExample: null
+  owner: Parth Divekar <parthdivekar987@gmail.com>
+  canonicalRef: post|/api/attendancepolicy|attendance policy master|create new policy
+  samplePayloads:
+  - payloadType: Request Body
+    json: |-
+      {
+          "policyName": "Late Coming",
+          "policyHeading":"Late Coming Policy Heading",
+          "policyDescription":"Late Coming Policy Description"
+      }
+  - payloadType: Example Request Payload
+    json: |-
+      {
+        "policyName": "Late Coming",
+        "policyHeading": "Late Coming Policy Heading",
+        "policyDescription": "Late Coming Policy Description"
+      }
+  rules:
+  - category: Dependency
+    description: Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token
+      for authToken
+  - category: Non-Functional
+    description: 'Source: collections/Attendance_Management_API.json; No saved response example in source
+      file'
+  assertionState: not-asserted
+  sourceType: newman
+  sourceCollection: collections/Attendance_Management_API.json

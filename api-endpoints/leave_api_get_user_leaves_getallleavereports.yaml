@@ -1,0 +1,113 @@
+# AUTHORED -- this file is the source of truth for this endpoint.
+#
+# A `cases[]` entry is one test case and carries all 18 inventory columns.
+# Content lives per case, not per endpoint: on POST /auth/token the purpose,
+# request payload and response differ across tc01/tc02/tc03, and folding them
+# up to the endpoint silently discarded two of the three.
+#
+# canonicalRef is contract-visible. Do not normalise it, do not fix its
+# spelling -- the harness, run manifest and result document all key on it.
+slug: leave_api_get_user_leaves_getallleavereports
+module: Leave API
+method: GET
+endpointPath: /user/leaves/getAllLeaveReports
+environments:
+- UAT
+version: null
+credentialAlias: null
+metadata:
+  x-idempotent: true
+  x-required-role: authenticated-employee
+  x-sla-ms: 3000
+cases:
+- apiId: '5'
+  module: Leave API
+  subModule: TC01/TC03 - Get all leave reports and validate structure
+  access: private
+  purpose: TC01 - Status is 200 - ; TC01 - Full response matches OpenAPI GetAllLeaveReportsResponse -
+    ; TC01 - Response has status, message, data.count and data.leaveReport - ; TC01 - Count contains observed
+    integer fields - ; TC03 - Every leaveReport item matches OpenAPI GetAllLeaveReportsItem - ; TC03 -
+    At least two records available for required spot-check - ; TC03 - Every record contains all 13 expected
+    fields - ; TC04 - Full response matches OpenAPI GetAllLeaveReportsErrorResponse - ; TC04 - Invalid
+    month returns observed error structure -
+  basePath: '{{leaveBaseUrl}}'
+  endpointPath: /user/leaves/getAllLeaveReports
+  method: GET
+  requestParameters: 'query: month={{month}}; year={{year}} | headers: Authorization=Bearer {{authToken}}'
+  requestBodySchema: null
+  responseExample: |-
+    Expected status(es): 200
+    {
+      "status": "<status>",
+      "message": "<message>",
+      "data": {
+        "count": {
+          "rejected": 0,
+          "cancelled": 0,
+          "pending": 0,
+          "approved": 0
+        },
+        "leaveReport": []
+      }
+    }
+  owner: Parth Divekar <parthdivekar987@gmail.com>
+  canonicalRef: get|/user/leaves/getallleavereports|leave api|tc01/tc03 - get all leave reports and validate
+    structure
+  samplePayloads:
+  - payloadType: Example Response Payload
+    json: |-
+      {
+        "status": "<status>",
+        "message": "<message>",
+        "data": {
+          "count": {
+            "rejected": 0,
+            "cancelled": 0,
+            "pending": 0,
+            "approved": 0
+          },
+          "leaveReport": []
+        }
+      }
+  rules:
+  - category: Dependency
+    description: Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token
+      for authToken
+  - category: Non-Functional
+    description: 'Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response
+      example in source file'
+  assertionState: asserted
+  sourceType: newman
+  sourceCollection: collections/Leave_API.json
+- apiId: '6'
+  module: Leave API
+  subModule: TC02 - Invalid token returns observed authorization status
+  access: private
+  purpose: TC02 - Invalid token returns observed HTTP 401; TC02 - Full response matches OpenAPI GetAllLeaveReportsErrorResponse;
+    TC02 - Invalid token response has observed error structure
+  basePath: '{{leaveBaseUrl}}'
+  endpointPath: /user/leaves/getAllLeaveReports
+  method: GET
+  requestParameters: 'query: month=4; year=2026 | headers: Authorization=Bearer invalid-token-value'
+  requestBodySchema: null
+  responseExample: |-
+    Expected status(es): 401
+    {
+      "token": "<jwt-token>"
+    }
+  owner: Parth Divekar <parthdivekar987@gmail.com>
+  canonicalRef: get|/user/leaves/getallleavereports|leave api|tc02 - invalid token returns observed authorization
+    status
+  samplePayloads:
+  - payloadType: Example Response Payload
+    json: |-
+      {
+        "token": "<jwt-token>"
+      }
+  rules:
+  - category: Non-Functional
+    description: 'Source: collections/Leave_API.json; Data-driven: test-data/Leave_API.csv; No saved response
+      example in source file'
+  assertionState: asserted
+  sourceType: newman
+  sourceCollection: collections/Leave_API.json

@@ -19,29 +19,42 @@
       "type": "string",
       "minLength": 1,
       "description": "Version of the catalogue contract. Echoed into every result document so a consumer can tell which catalogue a set of results joins against.",
-      "examples": ["1.2"]
+      "examples": [
+        "1.2"
+      ]
     },
-    "resultStates": { "$ref": "#/$defs/classificationRules" },
+    "resultStates": {
+      "$ref": "#/$defs/classificationRules"
+    },
     "apis": {
       "type": "array",
       "description": "Every API in the generated inventory, sorted by `ref`.",
-      "items": { "$ref": "#/$defs/apiEntry" }
+      "items": {
+        "$ref": "#/$defs/apiEntry"
+      }
     },
     "testCases": {
       "type": "object",
-      "required": ["global", "apiSpecific"],
+      "required": [
+        "global",
+        "apiSpecific"
+      ],
       "additionalProperties": false,
       "description": "The global set is published ONCE rather than duplicated under every API - it is the same checks for all of them, and repeating them per API would multiply the document by the inventory size for no added information. The size of the tier is deliberately not stated here: it grows as checks are added, so read the count off the `global` array rather than from this description.",
       "properties": {
         "global": {
           "type": "array",
           "description": "The shared global-contract checks. Sorted by id.",
-          "items": { "$ref": "#/$defs/globalTestCase" }
+          "items": {
+            "$ref": "#/$defs/globalTestCase"
+          }
         },
         "apiSpecific": {
           "type": "array",
           "description": "Checks belonging to one API - Newman assertions and generated checks. Sorted by id.",
-          "items": { "$ref": "#/$defs/apiSpecificTestCase" }
+          "items": {
+            "$ref": "#/$defs/apiSpecificTestCase"
+          }
         }
       }
     },
@@ -49,23 +62,35 @@
       "type": "object",
       "title": "What would run, per API",
       "description": "`ref` -> `testId` -> verdict. Computed statically, with no HTTP requests, so the platform can show it before a run.\n\nThe only legal transition at run time is `PLANNED` -> `NOT_APPLICABLE`; a test predicted `NOT_APPLICABLE` will never suddenly run. That direction is expected and is not an inconsistency - `test_content_type_negotiation` does it whenever an API returns a status nothing declared.",
-      "propertyNames": { "minLength": 1 },
+      "propertyNames": {
+        "minLength": 1
+      },
       "additionalProperties": {
         "type": "object",
-        "propertyNames": { "minLength": 1 },
-        "additionalProperties": { "$ref": "#/$defs/applicabilityVerdict" }
+        "propertyNames": {
+          "minLength": 1
+        },
+        "additionalProperties": {
+          "$ref": "#/$defs/applicabilityVerdict"
+        }
       }
     },
     "environments": {
       "type": "array",
       "description": "The environments actually registered in this deployment, derived from the `<MODULE>_BASE_URL_<ENV>` keys - never a hardcoded list. Registering `ATTENDANCE_BASE_URL_QA` is all it takes to add `QA`. This is the set a manifest's `environment` is validated against at run time.",
-      "items": { "type": "string", "minLength": 1 },
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
       "uniqueItems": true
     },
     "credentialAliases": {
       "type": "array",
       "description": "The credential LABELS registered in this deployment, so the platform can offer a valid choice instead of letting a user type one that is registered nowhere.\n\nLABELS ONLY. Never a value, never a length, never a masked form - a masked value still leaks its shape and its existence.",
-      "items": { "type": "string", "minLength": 1 },
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
       "uniqueItems": true
     }
   },
@@ -126,13 +151,31 @@
           "description": "All seven states with their definitions and their pass-rate membership. Exactly seven - a document with more or fewer is not this contract.",
           "items": {
             "type": "object",
-            "required": ["name", "definition", "reasonPrefix", "countsTowardPassRate", "executed"],
+            "required": [
+              "name",
+              "definition",
+              "reasonPrefix",
+              "countsTowardPassRate",
+              "executed"
+            ],
             "additionalProperties": false,
             "properties": {
-              "name": { "$ref": "#/$defs/resultStateName" },
-              "definition": { "type": "string", "minLength": 1, "description": "Human-readable meaning, for report legends." },
-              "reasonPrefix": { "$ref": "#/$defs/resultStateName", "description": "The prefix this state travels as. Equals `name`." },
-              "countsTowardPassRate": { "type": "boolean", "description": "True for PASS and FAIL only." },
+              "name": {
+                "$ref": "#/$defs/resultStateName"
+              },
+              "definition": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Human-readable meaning, for report legends."
+              },
+              "reasonPrefix": {
+                "$ref": "#/$defs/resultStateName",
+                "description": "The prefix this state travels as. Equals `name`."
+              },
+              "countsTowardPassRate": {
+                "type": "boolean",
+                "description": "True for PASS and FAIL only."
+              },
               "executed": {
                 "type": "boolean",
                 "description": "Whether the check actually ran. True for PASS, FAIL, WARN and INFORMATIONAL - the last two despite being reported as skips."
@@ -142,7 +185,10 @@
         },
         "passRateDenominatorStates": {
           "type": "array",
-          "const": ["FAIL", "PASS"],
+          "const": [
+            "FAIL",
+            "PASS"
+          ],
           "description": "THE ONLY TWO STATES THAT MAY APPEAR IN A PASS-RATE DENOMINATOR. Locked to this exact value by contract, sorted. If a consumer's denominator contains anything else, the consumer is wrong - most requests in the source collections carry no assertions, and counting those as passes makes the headline number a lie."
         },
         "passRateExcludedStates": {
@@ -167,7 +213,12 @@
         },
         "executedStates": {
           "type": "array",
-          "const": ["FAIL", "INFORMATIONAL", "PASS", "WARN"],
+          "const": [
+            "FAIL",
+            "INFORMATIONAL",
+            "PASS",
+            "WARN"
+          ],
           "description": "The states meaning the check actually ran against the API, sorted. WARN and INFORMATIONAL belong here even though pytest reports them as skips; treating them as 'did not execute' understates real coverage."
         }
       }
@@ -196,48 +247,114 @@
           "description": "THE JOIN KEY, and what a manifest's `ref` must match. `method|path|module|sub-module`, lowercased. Content-derived, so it survives the inventory being regenerated."
         },
         "displayId": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "A display label such as `API-001`, scoped to whoever filled in the source sheet. NOT an engine identifier and never a join key. Currently `null` for every inventory row - emitted as null rather than invented."
         },
-        "name": { "type": ["string", "null"] },
-        "module": { "type": ["string", "null"] },
-        "subModule": { "type": ["string", "null"] },
-        "method": { "type": "string", "minLength": 1, "description": "Upper-cased." },
-        "path": { "type": "string", "description": "Endpoint path as written in the source, host excluded. May carry URL-encoded template placeholders." },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "module": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "subModule": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "method": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Upper-cased."
+        },
+        "path": {
+          "type": "string",
+          "description": "Endpoint path as written in the source, host excluded. May carry URL-encoded template placeholders."
+        },
         "owner": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "Currently null for every inventory row. Emitted as null rather than back-filled with a guess."
         },
         "sourceType": {
           "type": "string",
-          "enum": ["newman", "bruno", "unknown"],
+          "enum": [
+            "newman",
+            "bruno",
+            "unknown"
+          ],
           "description": "Which kind of collection this row came from. Determines whether its assertions are executable - see `assertionState`."
         },
-        "sourceCollection": { "type": ["string", "null"], "description": "Repo-relative path to the file this row was read from." },
-        "assertionState": { "$ref": "#/$defs/assertionState" }
+        "sourceCollection": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Repo-relative path to the file this row was read from."
+        },
+        "assertionState": {
+          "$ref": "#/$defs/assertionState"
+        }
       }
     },
     "assertionState": {
       "type": "string",
-      "enum": ["asserted", "asserted-not-executed", "not-asserted", "unknown"],
+      "enum": [
+        "asserted",
+        "asserted-not-executed",
+        "not-asserted",
+        "unknown"
+      ],
       "description": "What is known about this API's own assertions:\n\n  asserted              - assertions exist AND a runner executes them.\n  asserted-not-executed - ASSERTIONS EXIST BUT NOTHING RUNS THEM.\n  not-asserted          - the request runs; nothing asserts anything about it.\n  unknown               - could not be determined from the source.\n\n`asserted-not-executed` IS THE ONE THAT MATTERS. A Bruno flow carries real `test(...)` blocks that the Newman runner never runs. Calling that `asserted` would show the platform assertions that cannot fire - the same failure as rendering an unasserted request green, just harder to spot. It is a PARTIAL state, not zero coverage: the generated tier still exercises these APIs. Render it distinctly from both neighbours."
     },
     "globalTestCase": {
       "type": "object",
       "title": "One shared global check",
-      "required": ["id", "title", "scope", "tier", "category", "hostLevel"],
+      "required": [
+        "id",
+        "title",
+        "scope",
+        "tier",
+        "category",
+        "hostLevel"
+      ],
       "additionalProperties": false,
       "properties": {
         "id": {
           "type": "string",
           "minLength": 1,
           "description": "Derived from the test FUNCTION name, never its title, so it survives any wording change.",
-          "examples": ["global_contract::test_401_without_valid_token"]
+          "examples": [
+            "global_contract::test_401_without_valid_token"
+          ]
         },
-        "title": { "type": "string", "minLength": 1, "description": "Human-readable, read from the test's own decorator." },
-        "scope": { "type": "string", "const": "GLOBAL" },
-        "tier": { "type": "string", "const": "global_contract" },
-        "category": { "$ref": "#/$defs/category" },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable, read from the test's own decorator."
+        },
+        "scope": {
+          "type": "string",
+          "const": "GLOBAL"
+        },
+        "tier": {
+          "type": "string",
+          "const": "global_contract"
+        },
+        "category": {
+          "$ref": "#/$defs/category"
+        },
         "hostLevel": {
           "type": "boolean",
           "description": "True for a check measuring a HOST or GATEWAY property rather than an endpoint property. These run ONCE PER DISTINCT HOST and are referenced by the other APIs behind it - applicability and results both say so, via `measuredBy`."
@@ -248,7 +365,14 @@
       "type": "object",
       "title": "One check belonging to a single API",
       "description": "Two shapes: an ordinary case, and an ASSERTION-GAP placeholder carrying `assertionGap` and `expectedState`.",
-      "required": ["id", "title", "scope", "tier", "category", "apiRef"],
+      "required": [
+        "id",
+        "title",
+        "scope",
+        "tier",
+        "category",
+        "apiRef"
+      ],
       "additionalProperties": false,
       "properties": {
         "id": {
@@ -256,15 +380,31 @@
           "minLength": 1,
           "description": "Deterministic and free of run-specific data.\n\nGENERATED ids derive from code identifiers and survive a title change. NEWMAN ids are TITLE-DERIVED and do not: a Postman assertion has no id and no stable position, and Newman reports results by assertion NAME, so the name is the only thing that can join. RENAMING A `pm.test()` STRING RETIRES ONE CASE AND INTRODUCES ANOTHER - history does not follow a rename. Reordering assertions is safe, which is the more common edit."
         },
-        "title": { "type": "string", "minLength": 1 },
-        "scope": { "type": "string", "const": "API_SPECIFIC" },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "type": "string",
+          "const": "API_SPECIFIC"
+        },
         "tier": {
           "type": "string",
-          "enum": ["newman", "generated"],
-          "description": "`newman` - an assertion written in the collection. `generated` - a check the engine derives from the API's declared metadata."
+          "enum": [
+            "newman",
+            "generated",
+            "endpoint"
+          ],
+          "description": "`newman` - an assertion written in the collection. `generated` - a check the engine derives from the API's declared metadata. `endpoint` - a case authored by hand under test-cases/, which carries `source`."
         },
-        "category": { "$ref": "#/$defs/category" },
-        "apiRef": { "type": "string", "minLength": 1, "description": "Joins to `apis[].ref`." },
+        "category": {
+          "$ref": "#/$defs/category"
+        },
+        "apiRef": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Joins to `apis[].ref`."
+        },
         "assertionGap": {
           "type": "boolean",
           "const": true,
@@ -274,27 +414,54 @@
           "$ref": "#/$defs/resultStateName",
           "const": "NOT_ASSERTED",
           "description": "What this placeholder will report at run time. Always `NOT_ASSERTED`, which is excluded from the pass-rate denominator - the gap is counted as a gap, never as a pass."
+        },
+        "displayId": {
+          "type": "string",
+          "pattern": "^TC_[0-9]{3}$",
+          "description": "Per-endpoint case number, TC_001 upward in catalogue order."
+        },
+        "source": {
+          "type": "string",
+          "description": "Repository-relative path to the authored case file. Present on the `endpoint` tier only; generated and newman cases have no single source file."
         }
       },
       "dependentRequired": {
-        "assertionGap": ["expectedState"],
-        "expectedState": ["assertionGap"]
+        "assertionGap": [
+          "expectedState"
+        ],
+        "expectedState": [
+          "assertionGap"
+        ]
       }
     },
     "category": {
       "type": "string",
-      "enum": ["functional", "schema", "security", "performance", "resilience", "coverage-gap"],
-      "description": "How results are grouped for reporting. `coverage-gap` belongs to assertion-gap placeholders only."
+      "enum": [
+        "functional",
+        "business-rule",
+        "schema",
+        "security",
+        "performance",
+        "resilience",
+        "coverage-gap"
+      ],
+      "description": "How results are grouped for reporting. `coverage-gap` belongs to assertion-gap placeholders only. `business-rule` belongs to authored endpoint cases, which assert an API's own contract rather than a cross-cutting property."
     },
     "applicabilityVerdict": {
       "type": "object",
       "title": "Whether one check would run for one API",
-      "required": ["state", "reason"],
+      "required": [
+        "state",
+        "reason"
+      ],
       "additionalProperties": false,
       "properties": {
         "state": {
           "type": "string",
-          "enum": ["PLANNED", "NOT_APPLICABLE"],
+          "enum": [
+            "PLANNED",
+            "NOT_APPLICABLE"
+          ],
           "description": "What the catalogue can say BEFORE anything runs. Only these two - the other five result states are outcomes, not predictions.\n\n`PLANNED` may still become `NOT_APPLICABLE` at run time. The reverse cannot happen."
         },
         "reason": {

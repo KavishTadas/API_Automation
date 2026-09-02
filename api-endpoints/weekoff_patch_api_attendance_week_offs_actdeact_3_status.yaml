@@ -1,0 +1,49 @@
+# AUTHORED -- this file is the source of truth for this endpoint.
+#
+# A `cases[]` entry is one test case and carries all 18 inventory columns.
+# Content lives per case, not per endpoint: on POST /auth/token the purpose,
+# request payload and response differ across tc01/tc02/tc03, and folding them
+# up to the endpoint silently discarded two of the three.
+#
+# canonicalRef is contract-visible. Do not normalise it, do not fix its
+# spelling -- the harness, run manifest and result document all key on it.
+slug: weekoff_patch_api_attendance_week_offs_actdeact_3_status
+module: Attenedance-july2026
+method: PATCH
+endpointPath: /api/attendance/week-offs/actDeact/3/status
+environments:
+- UAT
+version: null
+credentialAlias: null
+metadata: null
+cases:
+- apiId: '35'
+  module: Attenedance-july2026
+  subModule: WeekOffActDeact
+  access: private
+  purpose: WeekOffActDeact
+  basePath: '{{attendanceBaseUrl}}'
+  endpointPath: /api/attendance/week-offs/actDeact/3/status
+  method: PATCH
+  requestParameters: 'headers: Authorization=Bearer YOUR_JWT_TOKEN; Content-Type=application/json'
+  requestBodySchema: '{"status":"string"}'
+  responseExample: null
+  owner: KavishTadas <kavish.tadas@omfysgroup.com>
+  canonicalRef: patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact
+  samplePayloads:
+  - payloadType: Request Body
+    json: |-
+      {
+          "status":"N"
+      }
+  - payloadType: Example Request Payload
+    json: |-
+      {
+        "status": "N"
+      }
+  rules:
+  - category: Non-Functional
+    description: 'Source: collections/Weekoff_Policy_API.json; No saved response example in source file'
+  assertionState: not-asserted
+  sourceType: newman
+  sourceCollection: collections/Weekoff_Policy_API.json

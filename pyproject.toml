@@ -24,3 +24,8 @@ testpaths = [
     "tests"
 ]
 addopts = "-p no:cacheprovider"
+# The Phase 4 global checks are named <NN>_<check_name>.py so the directory
+# listing reads as an ordered index. That does not match pytest's default
+# test_*.py, so the pattern is added rather than the files renamed. Two leading
+# digits plus an underscore is specific enough not to collect anything else.
+python_files = ["test_*.py", "[0-9][0-9]_*.py"]

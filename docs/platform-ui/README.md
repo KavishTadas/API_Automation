@@ -2,7 +2,7 @@
 
 A single self-contained page that merges the two standalone mock artifacts
 (`hcm-platform-console.html` and `enterprise-dashboard.html`, preserved in
-`docs/ui-mock-source/`) into one console + analytics view.
+two removed design mocks) into one console + analytics view.
 
 **This is a UI mock, not the platform plugin.** No engine is attached. The
 platform team still builds against `docs/platform-handoff/`. What this page is

@@ -1,0 +1,114 @@
+# AUTHORED -- this file is the source of truth for this endpoint.
+#
+# A `cases[]` entry is one test case and carries all 18 inventory columns.
+# Content lives per case, not per endpoint: on POST /auth/token the purpose,
+# request payload and response differ across tc01/tc02/tc03, and folding them
+# up to the endpoint silently discarded two of the three.
+#
+# canonicalRef is contract-visible. Do not normalise it, do not fix its
+# spelling -- the harness, run manifest and result document all key on it.
+slug: attendance_shift_master_put_api_v1_attendance_shift_master_2
+module: Attendance Shift Master
+method: PUT
+endpointPath: /api/v1/attendance/shift/master/2
+environments:
+- UAT
+version: null
+credentialAlias: null
+metadata: null
+cases:
+- apiId: '15'
+  module: Attendance Shift Master
+  subModule: Update Shift
+  access: private
+  purpose: Update Shift
+  basePath: '{{attendanceBaseUrl}}'
+  endpointPath: /api/v1/attendance/shift/master/2
+  method: PUT
+  requestParameters: 'headers: Authorization=Bearer {{authToken}}'
+  requestBodySchema: '{"shiftName":"string","shiftType":"string","applicabilityType":"string","startTime":"string","endTime":"string","graceMinutes":"number","requiredDurationHours":"null","effectiveFrom":"string","effectiveTo":"string","activeFlag":"boolean","description":"string","remarks":"string","breakConfigs":[{"breakName":"string","breakDurationMinutes":"number","paidFlag":"boolean"}],"applicableEmpIds":["number"]}'
+  responseExample: null
+  owner: Parth Divekar <parthdivekar987@gmail.com>
+  canonicalRef: put|/api/v1/attendance/shift/master/2|attendance shift master|update shift
+  samplePayloads:
+  - payloadType: Request Body
+    json: |-
+      {
+        "shiftName": "Night Shift -Techno Support Team",
+        "shiftType": "FIXED",
+        "applicabilityType": "DEFAULT",
+        "startTime": "22:00:00",
+        "endTime": "06:00:00",
+        "graceMinutes": 10,
+        "requiredDurationHours": null,
+        "effectiveFrom": "01-Aug-2026",
+        "effectiveTo": "31-Mar-2027",
+        "activeFlag": true,
+        "description":"xyz",
+        "remarks": "Night shift for global support team (cross-midnight)",
+        "breakConfigs": [
+          {
+            "breakName": "Dinner Break",
+            "breakDurationMinutes": 45,
+            "paidFlag": false
+          },
+          {
+            "breakName": "Shortscut Break",
+            "breakDurationMinutes": 15,
+            "paidFlag": true
+          },
+          {
+            "breakName": "Refreshment Break",
+            "breakDurationMinutes": 10,
+            "paidFlag": true
+          }
+        ],
+        "applicableEmpIds": [3496,3500]
+      }
+  - payloadType: Example Request Payload
+    json: |-
+      {
+        "shiftName": "Night Shift -Techno Support Team",
+        "shiftType": "FIXED",
+        "applicabilityType": "DEFAULT",
+        "startTime": "22:00:00",
+        "endTime": "06:00:00",
+        "graceMinutes": 10,
+        "requiredDurationHours": null,
+        "effectiveFrom": "01-Aug-2026",
+        "effectiveTo": "31-Mar-2027",
+        "activeFlag": true,
+        "description": "xyz",
+        "remarks": "Night shift for global support team (cross-midnight)",
+        "breakConfigs": [
+          {
+            "breakName": "Dinner Break",
+            "breakDurationMinutes": 45,
+            "paidFlag": false
+          },
+          {
+            "breakName": "Shortscut Break",
+            "breakDurationMinutes": 15,
+            "paidFlag": true
+          },
+          {
+            "breakName": "Refreshment Break",
+            "breakDurationMinutes": 10,
+            "paidFlag": true
+          }
+        ],
+        "applicableEmpIds": [
+          3496,
+          3500
+        ]
+      }
+  rules:
+  - category: Dependency
+    description: Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token
+      for authToken
+  - category: Non-Functional
+    description: 'Source: collections/Attendance_Management_API.json; No saved response example in source
+      file'
+  assertionState: not-asserted
+  sourceType: newman
+  sourceCollection: collections/Attendance_Management_API.json

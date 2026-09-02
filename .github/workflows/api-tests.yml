@@ -205,7 +205,7 @@ jobs:
         continue-on-error: true
         run: |
           mkdir -p reports/html reports/allure-results/generated-tests
-          python -m pytest tests/auto_generated \
+          python -m pytest build/auto_generated \
             --html=reports/html/auto-generated-pytest-report.html \
             --self-contained-html \
             --alluredir=reports/allure-results/generated-tests
@@ -253,7 +253,6 @@ jobs:
       AUTH_BASE_URL:       "https://uat-mcdp-be.omfysgroup.com"
       LEAVE_BASE_URL:      "https://devmcdphcmplatform.omfysgroup.com"
       ATTENDANCE_BASE_URL: "https://uatmcdphcmplatform.omfysgroup.com"
-      POSTMAN_API_KEY:   ${{ secrets.POSTMAN_API_KEY }}
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
     steps:
@@ -301,7 +300,7 @@ jobs:
         continue-on-error: true
         run: |
           mkdir -p reports/html reports/allure-results/generated-tests
-          python -m pytest tests/auto_generated \
+          python -m pytest build/auto_generated \
             --html=reports/html/auto-generated-pytest-report.html \
             --self-contained-html \
             --alluredir=reports/allure-results/generated-tests

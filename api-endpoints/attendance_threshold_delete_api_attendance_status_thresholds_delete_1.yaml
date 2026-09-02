@@ -1,0 +1,41 @@
+# AUTHORED -- this file is the source of truth for this endpoint.
+#
+# A `cases[]` entry is one test case and carries all 18 inventory columns.
+# Content lives per case, not per endpoint: on POST /auth/token the purpose,
+# request payload and response differ across tc01/tc02/tc03, and folding them
+# up to the endpoint silently discarded two of the three.
+#
+# canonicalRef is contract-visible. Do not normalise it, do not fix its
+# spelling -- the harness, run manifest and result document all key on it.
+slug: attendance_threshold_delete_api_attendance_status_thresholds_delete_1
+module: Attendance Status Threshold API
+method: DELETE
+endpointPath: /api/attendance/status-thresholds/delete/1
+environments:
+- UAT
+version: null
+credentialAlias: null
+metadata: null
+cases:
+- apiId: '24'
+  module: Attendance Status Threshold API
+  subModule: Delete Threshold
+  access: private
+  purpose: Delete Threshold
+  basePath: '{{attendanceBaseUrl}}'
+  endpointPath: /api/attendance/status-thresholds/delete/1
+  method: DELETE
+  requestParameters: 'headers: Authorization=Bearer {{token}}'
+  requestBodySchema: null
+  responseExample: null
+  owner: Parth Divekar <parthdivekar987@gmail.com>
+  canonicalRef: delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete
+    threshold
+  samplePayloads: []
+  rules:
+  - category: Non-Functional
+    description: 'Source: collections/Attendance_Threshold_API.json; No saved response example in source
+      file'
+  assertionState: not-asserted
+  sourceType: newman
+  sourceCollection: collections/Attendance_Threshold_API.json

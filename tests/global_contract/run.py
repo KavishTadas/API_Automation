@@ -94,7 +94,7 @@ def _aborted_document(
 
 
 def _config() -> dict[str, str]:
-    from tests.auto_generated._api_test_helpers import load_runtime_config
+    from tests.api_runtime._api_test_helpers import load_runtime_config
 
     try:
         config = load_runtime_config()
@@ -169,7 +169,13 @@ def main(argv: list[str] | None = None) -> int:
 
     import pytest
 
-    pytest_args = [str(ROOT_DIR / "tests" / "global_contract"), "-p", "no:cacheprovider"]
+    # The checks moved to test-cases/global/ in Phase 4. Its conftest re-exports
+    # the emission hooks, so the result document is still written from there.
+    pytest_args = [
+        str(ROOT_DIR / "test-cases" / "global"),
+        "-p",
+        "no:cacheprovider",
+    ]
     if args.quiet:
         pytest_args += ["-q", "--tb=no"]
 
