@@ -249,6 +249,64 @@ function boot(html, opts) {
      !/FAIL/.test(a.$('#qabot').getAttribute('aria-label') || ''),
      'the mood class or the label contradicts the result');
 
+  console.log('\nthe report survives an endpoint leaving the console:');
+  // The reported failure: run every suite, then delete an imported suite, and
+  // every tab but the one on screen goes dead. renderAnalytics() dereferenced
+  // the null from apiByRef() and threw mid-render, so the tab bar stayed bound
+  // to a function that throws. Nothing looked broken — it just stopped moving.
+  {
+    const g = boot(html);
+    await wait(320);
+    const items = [];
+    for (let i = 0; i < 8; i++) items.push({ name: 'ep' + i, request: {
+      method: ['GET', 'POST', 'PUT'][i % 3],
+      url: { raw: 'https://h.example.com/api/imported/' + i } } });
+    g.w.__c = { info: { name: 'Bad Upload' }, item: items };
+    g.w.eval('STATE.imported = fromPostman(__c, "imp");' +
+             'allApis().forEach(a => STATE.selected.add(a.ref));' +
+             'STATE.result = runBatch([...STATE.selected]); go("analytics")');
+    await wait(220);
+
+    const gerrs = [];
+    g.w.addEventListener('error', e => gerrs.push(e.message));
+    g.w.console.error = (...a) => gerrs.push(a.join(' '));
+
+    g.w.__m = 'Imported · Bad Upload';
+    const removed = g.w.eval('removeImportedSuite(__m)');
+    g.w.eval('afterCatalogueChange()');
+    await wait(120);
+    ok('the suite goes', removed === 8, 'removed ' + removed);
+    ok('and the run still holds its results',
+       g.w.eval('STATE.result.apis.filter(a => !apiByRef(a.apiRef)).length') === 8,
+       'the run lost the rows for the deleted endpoints');
+
+    const tabs = [...g.d.querySelectorAll('#anTabs .nitem')];
+    ok('every tab still renders after the delete', await (async () => {
+      let allDrew = tabs.length >= 8;
+      for (const t of tabs) {
+        t.dispatchEvent(new g.w.Event('click', { bubbles: true }));
+        await wait(60);
+        if ((g.d.querySelector('#anBody').innerHTML.length || 0) < 500) allDrew = false;
+      }
+      return allDrew;
+    })(), 'a tab rendered nothing — renderAnalytics threw partway');
+    ok('and none of them threw', gerrs.length === 0,
+       gerrs.length + ' error(s): ' + (gerrs[0] || '').slice(0, 110));
+
+    // Honesty: the request really was made, so the row stays and says so.
+    g.w.eval('STATE.tab = "suites"; renderAnalytics()');
+    await wait(90);
+    ok('a removed endpoint is reported, not dropped',
+       /No longer in the console/.test(g.d.querySelector('#anBody').textContent),
+       'the results of deleted endpoints vanished from the report');
+
+    // The synthetic host entry must NOT resolve, or every count gains one.
+    ok('the host-level entry still does not resolve to an endpoint',
+       g.w.eval('resultApi("uatmcdphcmplatform.omfysgroup.com")') === null &&
+       g.w.eval('resultApi("")') === null,
+       'a non-endpoint ref produced a tombstone — counts will read one too many');
+  }
+
   console.log('\nit greets before it judges, and stays in character:');
   // The arrival is a hello, not a verdict. It lands smiling whatever the last
   // run did — but only the face says so: the mood class, the aria-label and

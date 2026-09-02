@@ -2360,6 +2360,8 @@ html[data-fx="off"] .tg-pulse{animation:none;opacity:.5}
       <button class="btn btn-sm" id="btnSelGaps">Only assertion gaps</button>
       <button class="btn btn-sm" id="btnRevert" disabled>&#8630; Undo
         <span class="pill" id="revertBadge">0</span></button>
+      <button class="btn btn-sm" id="btnClearImported" disabled>&#10005; Remove imported
+        <span class="pill" id="importedBadge">0</span></button>
       <span class="sp"></span>
       <button class="btn btn-sm" id="btnOpenNav">☰ Navigator <span class="pill" id="navBadge">0</span></button>
     </div>
@@ -2593,7 +2595,7 @@ let persist=function persist(){
 function sharedBundle(R){
   const exec=[], defects=[], mods=new Map();
   R.apis.forEach(a=>{
-    const api=apiByRef(a.apiRef); if(!api) return;
+    const api=resultApi(a.apiRef); if(!api) return;
     const m=api.module;
     if(!mods.has(m)) mods.set(m,{name:m,passed:0,failed:0,warned:0,blocked:0,notAsserted:0});
     const bucket=mods.get(m);
@@ -2867,6 +2869,39 @@ function wireDelete(host){
 }
 
 function apiByRef(ref){ return allApis().find(a=>a.ref===ref) || null; }
+
+/* Resolve an endpoint for something a run already reported.
+
+   A run is a record of what happened, and endpoints legitimately leave the
+   console afterwards: an import deleted, a ref renamed, an inventory
+   regenerated. The report still has to render, because the request really was
+   made -- dropping the row would under-report the run, and dereferencing null
+   crashes renderAnalytics() mid-render, which leaves the tab bar bound to a
+   function that throws. Every tab then looks dead except the one already on
+   screen. That is exactly the defect this exists to prevent.
+
+   So a missing endpoint resolves to a tombstone carrying what the ref itself
+   encodes -- refs are method|path|module|name -- flagged `removed` so the UI
+   can say the endpoint is no longer listed rather than silently inventing one.
+
+   Only refs that actually parse as an endpoint get a tombstone. The engine
+   also puts a synthetic host-level entry in R.apis, and resolving that one
+   would re-inflate every endpoint count by one: the "46 of 45" bug. */
+var HTTP_VERB = /^(get|post|put|patch|delete|head|options)$/i;
+function resultApi(ref){
+  var known = apiByRef(ref);
+  if(known) return known;
+  var bits = String(ref == null ? '' : ref).split('|');
+  if(bits.length < 2 || !HTTP_VERB.test(bits[0])) return null;
+  var path = bits[1] || String(ref);
+  return {
+    ref: ref, method: bits[0].toUpperCase(), path: path,
+    name: bits[3] || path, module: 'No longer in the console',
+    subModule: null, owner: null, sourceType: '', sourceCollection: null,
+    assertionState: 'global-only', samplePayload: {}, importedHeaders: {},
+    strippedHeaders: 0, removed: true
+  };
+}
 
 function toast(msg){
   $('#toastMsg').textContent=msg; const t=$('#toast');
@@ -3451,7 +3486,11 @@ function renderSuitesGrid(){
     const n = removeImportedSuite(mod);
     if(!n) return;
     afterCatalogueChange(); renderMultiSelect(); syncSel();
-    toast(`Removed ${mod} — ${n} endpoint${n===1?'':'s'}. Undo restores them.`);
+    const held = STATE.result
+      ? STATE.result.apis.filter(x => !apiByRef(x.apiRef)).length : 0;
+    toast(`Removed ${mod} — ${n} endpoint${n===1?'':'s'}` +
+          (held ? `. The open report still shows ${held} result${held===1?'':'s'} for endpoints no longer listed` : '') +
+          '. Undo restores them.');
   });
   grid.querySelectorAll('[data-toggle]').forEach(h=> h.onclick=()=>{
     const mod=h.dataset.toggle, at=STATE.closedSuites.indexOf(mod);
@@ -3488,6 +3527,13 @@ function syncSel(){
         : 'Select at least one API in the grid above, then run.');
   pick('#btnConfigureFirst', 'Select at least one API to configure it.');
   $('#navBadge').textContent = allApis().length;
+  const imp = STATE.imported.length, ci = $('#btnClearImported');
+  if(ci){
+    ci.disabled = !imp;
+    $('#importedBadge').textContent = imp;
+    ci.title = imp ? `Remove all ${imp} imported endpoint(s) — undoable`
+                   : 'Nothing imported — the list is entirely from the repository';
+  }
   const has=!!STATE.result;
   $('#btnViewReportHome').disabled = !has;
   const vr=$('#btnViewReport'); if(vr) vr.disabled = !hasResultFor(STATE.focus);
@@ -4475,7 +4521,7 @@ function assertedChecks(R){
 
 function kpiRow(R){
   const c=R.summary.counts, all=R.apis.flatMap(a=>a.results);
-  const mods=new Set(R.apis.map(a=>{const x=apiByRef(a.apiRef);return x?x.module:'—';}));
+  const mods=new Set(R.apis.map(a=>{const x=resultApi(a.apiRef);return x?x.module:'—';}));
   const durs=all.filter(r=>r.executed&&r.durationMs>0).map(r=>r.durationMs).sort((a,b)=>a-b);
   const avg=durs.length?durs.reduce((a,b)=>a+b,0)/durs.length:0;
   const p95=durs.length?durs[Math.min(durs.length-1,Math.floor(durs.length*0.95))]:0;
@@ -4743,7 +4789,7 @@ function signOff(R){
 function tabOverview(R){
   const perMod=new Map();
   R.apis.forEach(a=>{
-    const api=apiByRef(a.apiRef); const m=api?api.module:'—';
+    const api=resultApi(a.apiRef); const m=api?api.module:'—';
     if(!perMod.has(m)) perMod.set(m,[]);
     perMod.get(m).push(...a.results);
   });
@@ -4905,11 +4951,11 @@ function filterBar(label, field, items, note){
 
 function tabDefects(R){
   const fails = R.apis.flatMap(a=>a.results.filter(r=>r.state==='FAIL')
-    .map(r=>({r, api:apiByRef(a.apiRef)})));
+    .map(r=>({r, api:resultApi(a.apiRef)})));
   const blocked = R.apis.flatMap(a=>a.results.filter(r=>r.state==='SKIPPED_NO_TOKEN')
-    .map(r=>({r, api:apiByRef(a.apiRef)})));
+    .map(r=>({r, api:resultApi(a.apiRef)})));
   const gaps = R.apis.flatMap(a=>a.results.filter(r=>r.state==='NOT_ASSERTED')
-    .map(r=>({r, api:apiByRef(a.apiRef)})));
+    .map(r=>({r, api:resultApi(a.apiRef)})));
 
   const cat = r => CAT_META[defectCat(r)];
   const f = STATE.catFilter;
@@ -4971,7 +5017,7 @@ function tabDefects(R){
 
 function tabSuites(R){
   const byMod=new Map();
-  R.apis.forEach(a=>{ const api=apiByRef(a.apiRef); if(!api) return;
+  R.apis.forEach(a=>{ const api=resultApi(a.apiRef); if(!api) return;
     if(!byMod.has(api.module)) byMod.set(api.module,[]);
     byMod.get(api.module).push(a); });
   const f=STATE.modFilter;
@@ -4990,7 +5036,7 @@ function tabSuites(R){
     <div class="card-b" style="padding:0">${rows.length?`<table>
       <thead><tr><th>Endpoint</th><th>Module</th><th>Source</th><th style="width:190px">States</th>
         <th class="right">Pass rate</th><th class="right">Clean</th></tr></thead>
-      <tbody>${rows.map(a=>{const api=apiByRef(a.apiRef); const su=a.summary; return `<tr>
+      <tbody>${rows.map(a=>{const api=resultApi(a.apiRef); const su=a.summary; return `<tr>
         <td><span class="m ${esc(api.method)}">${esc(api.method)}</span>
           <div class="mono faint" style="font-size:11px;margin-top:3px">${esc(api.path)}</div></td>
         <td class="dim">${esc(api.module)}</td>
@@ -5007,7 +5053,7 @@ function tabBehaviors(R){
   // Epic = module, Feature = endpoint, Story = check.
   const tree=new Map();
   R.apis.forEach(a=>{
-    const api=apiByRef(a.apiRef);
+    const api=resultApi(a.apiRef);
     if(!tree.has(api.module)) tree.set(api.module, new Map());
     tree.get(api.module).set(a.apiRef, a.results);
   });
@@ -5019,7 +5065,7 @@ function tabBehaviors(R){
         @Epic: ${esc(mod)}
       </div>
       ${[...feats.entries()].map(([ref, rs])=>{
-        const api=apiByRef(ref); const s=summarise(rs);
+        const api=resultApi(ref); const s=summarise(rs);
         return `<div style="margin-left:20px;margin-bottom:9px">
           <div class="row" style="font-size:12px;font-weight:650">
             <span class="m ${esc(api.method)}">${esc(api.method)}</span>
@@ -5042,7 +5088,7 @@ function titleFor(testId){
 }
 
 function tabTimeline(R){
-  const rows = R.apis.flatMap(a=>a.results.map(r=>({r, api:apiByRef(a.apiRef)})))
+  const rows = R.apis.flatMap(a=>a.results.map(r=>({r, api:resultApi(a.apiRef)})))
     .filter(x=>x.r.durationMs>0).sort((a,b)=>b.r.durationMs-a.r.durationMs);
   const max = Math.max(...rows.map(x=>x.r.durationMs), 1);
   const totalMs = rows.reduce((n,x)=>n+x.r.durationMs,0);
@@ -5061,7 +5107,7 @@ function tabTimeline(R){
 
 function tabPayloads(R){
   return `<div class="stack">${R.apis.map(a=>{
-    const api=apiByRef(a.apiRef);
+    const api=resultApi(a.apiRef);
     const hostRes = a.results.find(r=>r.hostLevel);
     return `<div class="card">
       <div class="card-h">
@@ -5105,10 +5151,10 @@ function payloadBlock(api){
 
 function tabPerf(R){
   const timed = R.apis.flatMap(a=>a.results.filter(r=>r.executed && r.durationMs>1)
-    .map(r=>({r, api:apiByRef(a.apiRef)})));
+    .map(r=>({r, api:resultApi(a.apiRef)})));
   const ds = timed.map(x=>x.r.durationMs).sort((a,b)=>a-b);
   const p = q => ds.length ? ds[Math.min(ds.length-1, Math.floor(q*ds.length))] : null;
-  const warns = R.apis.flatMap(a=>a.results.filter(r=>r.state==='WARN').map(r=>({r, api:apiByRef(a.apiRef)})));
+  const warns = R.apis.flatMap(a=>a.results.filter(r=>r.state==='WARN').map(r=>({r, api:resultApi(a.apiRef)})));
   const max = Math.max(...ds, SLA_MS);
 
   return `
@@ -5235,7 +5281,7 @@ function wireTrend(){
 
 function wireAnalytics(R){
   wireTrend();
-  const fails = R.apis.flatMap(a=>a.results.filter(r=>r.state==='FAIL').map(r=>({r, api:apiByRef(a.apiRef)})));
+  const fails = R.apis.flatMap(a=>a.results.filter(r=>r.state==='FAIL').map(r=>({r, api:resultApi(a.apiRef)})));
   $$('[data-jira]').forEach(b=> b.onclick=()=>jiraModal(fails[+b.dataset.jira], R));
   $$('[data-curl-ref]').forEach(b=> b.onclick=()=>{
     const api=apiByRef(b.dataset.curlRef);
@@ -5569,7 +5615,7 @@ function buildDocx(bodyXml){
 function exportModel(R){
   const rows=[];
   R.apis.forEach(a=>{
-    const api=apiByRef(a.apiRef);
+    const api=resultApi(a.apiRef);
     a.results.forEach(r=> rows.push({
       id:api?displayId(api):'—',
       module:api?api.module:'—',
@@ -5628,7 +5674,7 @@ function exportXlsx(R){
     { name:'API_Overview', title:'API Overview — one row per endpoint in this run',
       cols:[{w:11},{w:30},{w:11},{w:46},{w:38},{w:12},{w:11},{w:9},{w:22}],
       head:['API ID','Module','HTTP Method','Endpoint Path','Base URL','Pass rate','Results','Clean','Blockers'],
-      rows:m.R.apis.map(a=>{ const api=apiByRef(a.apiRef), s=a.summary; return [
+      rows:m.R.apis.map(a=>{ const api=resultApi(a.apiRef), s=a.summary; return [
         api?displayId(api):'—', api?api.module:'—', api?api.method:'', api?api.path:'',
         api?(api.baseUrl||hostForModule(api)):'',
         s.passRateApplicable?pct(s.passRate):'n/a', s.total,
@@ -5682,7 +5728,7 @@ function exportDocx(R){
 
     dP('Endpoints in this run',{style:'Heading1'}),
     dTable(['API','Module','Endpoint','Pass rate','Clean'],
-      m.R.apis.map(a=>{const api=apiByRef(a.apiRef), s=a.summary; return [
+      m.R.apis.map(a=>{const api=resultApi(a.apiRef), s=a.summary; return [
         api?displayId(api):'—', api?api.module:'—',
         {v:(api?api.method+' '+api.path:''), mono:true},
         s.passRateApplicable?pct(s.passRate):'n/a',
@@ -5741,7 +5787,7 @@ function exportTxt(R){
   STATES.forEach(s=> L.push(`  ${pad(s,20)} ${String(c[s]||0).padStart(5)}`));
   L.push('',dash,`ENDPOINTS (${m.R.apis.length})`,dash);
   L.push(pad('API',9)+pad('METHOD',8)+pad('ENDPOINT',46)+pad('PASS',9)+'CLEAN');
-  m.R.apis.forEach(a=>{ const api=apiByRef(a.apiRef), s=a.summary;
+  m.R.apis.forEach(a=>{ const api=resultApi(a.apiRef), s=a.summary;
     L.push(pad(api?displayId(api):'—',9)+pad(api?api.method:'',8)+pad(api?api.path:'',46)+
            pad(s.passRateApplicable?pct(s.passRate):'n/a',9)+(s.clean?'yes':'no')); });
   if(m.fails.length){
@@ -7284,6 +7330,24 @@ $('#credSel').onchange = e => { STATE.alias=e.target.value; persist();
 /* The stack survives a reload, so the badge has to reflect it on boot -- not
    only after the next change. */
 syncRevert();
+/* A bad upload arrives as several suites at once -- nine of them accounted for
+   79 duplicate rows here -- so clearing it a suite at a time is the wrong unit
+   of work. One undo step covers the lot. */
+$('#btnClearImported').onclick = () => {
+  const gone = STATE.imported.slice();
+  if(!gone.length) return;
+  STATE.imported = [];
+  gone.forEach(a => { STATE.selected.delete(a.ref); delete STATE.providers[a.ref]; });
+  pushImportStep({kind:'removeMany', endpoints:gone, suite:'All imported endpoints'});
+  DISPLAY_ID = null;
+  afterCatalogueChange(); renderMultiSelect(); syncSel();
+  const held = STATE.result
+    ? STATE.result.apis.filter(a => gone.some(g => g.ref === a.apiRef)).length : 0;
+  toast(`Removed ${gone.length} imported endpoint${gone.length===1?'':'s'}` +
+        (held ? ` — the current report still shows their ${held} result${held===1?'':'s'}` : '') +
+        '. Undo restores them.');
+};
+
 $('#btnRevert').onclick = () => {
   const st = undoImportStep();
   if(!st) return;
@@ -8043,7 +8107,7 @@ function buildLayer(){
           var a = R.apis[i];
           var failed = a.results.filter(function(r){ return r.state === 'FAIL'; }).length;
           if(!failed) continue;
-          var api = apiByRef(a.apiRef);
+          var api = resultApi(a.apiRef);
           if(api && severityOf(api).k === 'Critical'){
             crit += failed;
             if(api.name && critNames.indexOf(api.name) < 0) critNames.push(api.name);
