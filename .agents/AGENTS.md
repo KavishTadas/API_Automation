@@ -13,7 +13,7 @@
    - Always install Python reporting packages (`allure-combine`, `dev-requirements.txt`) BEFORE running API test suites so `if: always()` report generation steps do not fail with `ModuleNotFoundError`.
 
 4. **Attendance Management Testing & Allure Pre-Processor Invariants**:
-   - Attendance API requests MUST target `attendanceBaseUrl` (`https://uat_mcdp_hcm.omfysgroup.com`).
+   - Attendance API requests MUST target `attendanceBaseUrl` (`https://uatmcdphcmplatform.omfysgroup.com`).
    - `scripts/generate-allure.js` MUST purge skipped placeholder results (such as `test_users_users_me`) and inject `epic: "Attendance Management API"` and `feature: "<METHOD> <PATH>"` for all Attendance endpoints.
 5. **Strict Git Push Governance**:
    - NEVER execute `git push` (to `origin/attendance`, `main`, or any remote branch) without asking for and receiving explicit user confirmation first.

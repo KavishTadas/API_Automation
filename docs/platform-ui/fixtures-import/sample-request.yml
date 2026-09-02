@@ -1,0 +1,30 @@
+info:
+  name: Create Attendance Policy
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: https://uatmcdphcmplatform.omfysgroup.com/api/attendancepolicy
+  headers:
+    - name: Authorization
+      value: bearer{{authToken}}
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |
+      {
+        "policyName": "General Attendance Standard",
+        "policyHeading": "Company Attendance and Punctuality Guidelines",
+        "policyDescription": "This policy establishes the standard working hours, reporting timelines, and compliance rules for all full-time employees."
+      }
+  auth:
+    type: bearer
+    token: "{{authToken}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

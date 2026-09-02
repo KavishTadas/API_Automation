@@ -209,5 +209,25 @@
       "Holiday Template APIs Copy - PUT - /api/attendance/holiday-templates/update/%7BholidayTemplateId%7D - Update",
       "Holiday Template APIs Copy - DELETE - /api/attendance/holiday-templates/delete/%7BholidayTemplateId%7D - Delete"
     ]
+  },
+  {
+    "version": 15,
+    "timestamp": "20260831_123046",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260831_123046.json",
+    "previousCsv": "api-docs/history/API_File_20260831_123046.csv",
+    "newApis": [],
+    "refreshedCount": 45,
+    "missingApis": []
+  },
+  {
+    "version": 16,
+    "timestamp": "20260902_101810",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260902_101810.json",
+    "previousCsv": "api-docs/history/API_File_20260902_101810.csv",
+    "newApis": [],
+    "refreshedCount": 45,
+    "missingApis": []
   }
 ]

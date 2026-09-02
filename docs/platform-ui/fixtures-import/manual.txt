@@ -1,0 +1,5 @@
+Manual run notes
+
+curl -X GET 'https://uatmcdphcmplatform.omfysgroup.com/api/attendance/holiday-templates/getall' -H 'Authorization: Bearer LIVE.TOKEN'
+
+curl -X DELETE 'https://uatmcdphcmplatform.omfysgroup.com/api/attendance/holiday-templates/delete/77' -H 'Content-Type: application/json'

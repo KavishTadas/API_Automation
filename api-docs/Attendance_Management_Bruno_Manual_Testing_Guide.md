@@ -40,7 +40,7 @@ flowchart TD
     "status": "SUCCESS",
     "data": {
       "empCode": "OMI-0076",
-      "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPTUktMDA3NiIsImVtcElkIjozNCwiZW1wQ29kZSI6Ik9NSS0wMDc2In0.V9rtFbyNH..."
+      "token": "<JWT redacted - the run writes this into {{authToken}}>"
     }
   }
   ```

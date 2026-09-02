@@ -12,6 +12,7 @@ Writes ``docs/platform-ui/unified-console.html`` — self-contained, no CDN.
 
 from __future__ import annotations
 
+import datetime as _dt
 import json
 import re
 import sys
@@ -143,6 +144,68 @@ def _payload(v) -> str:
         return s
 
 
+def _display_id(index: int) -> str:
+    """API-001 style. Positional, and the list is sorted before numbering, so
+    the same inventory always yields the same ids."""
+    return f"API-{index + 1:03d}"
+
+
+def _source_of(row: dict) -> tuple[str, str]:
+    """Where an endpoint came from, read from the row's own provenance note.
+
+    The generator records the file it parsed in Comments as "Source: <path>",
+    which is the only place this is stated -- the inventory has no column for
+    it.
+    """
+    comments = str(row.get("Comments", "") or "")
+    match = re.search(r"Source:\s*([^;]+)", comments)
+    path = match.group(1).strip() if match else ""
+    if path.startswith("bruno/"):
+        return "bruno", path
+    if path.startswith("collections/"):
+        return "newman", path
+    return ("uploaded" if path else ""), path
+
+
+def endpoints_from_inventory(inv: dict, catalogue: dict) -> list[dict]:
+    """Build the console's endpoint list from the inventory.
+
+    Curated fields on an endpoint the catalogue already describes are kept: a
+    derived name should not silently replace one someone chose. Everything
+    else -- and every endpoint the catalogue has never seen -- comes from the
+    inventory, which is what makes a merged PR appear without a hand edit.
+    """
+    curated = {str(a.get("ref", "")).strip().lower(): a for a in catalogue.get("apis", [])}
+
+    built: list[dict] = []
+    for key, row in inv.items():
+        ref = str(row.get("API Identifier", "") or "").strip()
+        if not ref:
+            continue
+        was = curated.get(ref.strip().lower(), {})
+        source_type, source_collection = _source_of(row)
+        built.append({
+            "ref": ref,
+            "name": was.get("name") or _clean(row.get("Sub-Module Name")) or ref.split("|")[1],
+            "module": was.get("module") or _clean(row.get("Module Name")),
+            "subModule": was.get("subModule") or _clean(row.get("Sub-Module Name")) or None,
+            "method": str(row.get("HTTP Method", "") or "").upper(),
+            "path": _clean(row.get("Endpoint / Path")),
+            "owner": _clean(row.get("Owner / Developer")) or None,
+            "sourceType": source_type or was.get("sourceType") or "",
+            "sourceCollection": source_collection or was.get("sourceCollection") or None,
+            # Nothing in the inventory records whether a collection defines its
+            # own assertions, so a curated value wins and the rest default to
+            # the honest answer: only the global tier covers them.
+            "assertionState": was.get("assertionState") or "global-only",
+        })
+
+    built.sort(key=lambda a: (a["module"] or "", a["path"] or "", a["method"] or ""))
+    for i, api in enumerate(built):
+        api["displayId"] = _display_id(i)
+    return built
+
+
 def enrich(api: dict, inv: dict) -> dict:
     """Attach the host, and the request/response examples for this endpoint."""
     module = (api.get("module") or "").lower()
@@ -195,9 +258,12 @@ def main() -> int:
     template = TEMPLATE.read_text(encoding="utf-8")
 
     seed = {
+        # When this console was built. Piece B surfaces it, so "my PR merged but the
+        # console still shows yesterday's inventory" is a visible fact, not a hunch.
+        "generatedAt": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),
         "catalogueVersion": catalogue["catalogueVersion"],
         "resultStates": catalogue["resultStates"],
-        "apis": [enrich(a, inv) for a in catalogue["apis"]],
+        "apis": [enrich(a, inv) for a in endpoints_from_inventory(inv, catalogue)],
         "globalTestCases": global_test_cases(catalogue),
         # An endpoint's own cases -- authored, Newman and generated -- grouped by
         # ref. Without these the Test Cases view could only ever show the shared
@@ -210,6 +276,43 @@ def main() -> int:
         "hosts": HOSTS,
         "authProviderRef": AUTH_PROVIDER_REF,
     }
+
+    # The console's endpoint list comes from the catalogue, and nothing
+    # regenerates the catalogue -- so an endpoint added to the inventory by CI
+    # is invisible here until someone updates it by hand. That is a hole in the
+    # Bruno round trip and it fails silently: the inventory grew 45 -> 47 while
+    # the console stayed at 45 and said nothing.
+    #
+    # The catalogue carries test cases and applicability the inventory does not,
+    # so it cannot simply be replaced by one. Naming the orphans is the honest
+    # minimum: a build that drops an endpoint should say which one.
+    # The endpoint list is generated now, so an inventory row can no longer go
+    # missing. What can go wrong instead is the opposite: testCases and
+    # applicability are keyed by ref, and a hand-written key that no longer
+    # matches any endpoint points at nothing. That is the
+    # %7bholidaytemplateid%7d defect, where six test cases silently addressed an
+    # endpoint that had been renamed out from under them -- so it fails the
+    # build rather than shipping a catalogue that references thin air.
+    live = {str(a.get("ref", "")) for a in seed["apis"]}
+    dangling: list[str] = []
+    for case in catalogue.get("testCases", {}).get("apiSpecific", []):
+        ref = str(case.get("apiRef", "") or "")
+        if ref and ref not in live:
+            dangling.append(f"testCases.apiSpecific -> {ref}")
+    for ref in catalogue.get("applicability", {}):
+        if str(ref) not in live:
+            dangling.append(f"applicability -> {ref}")
+    if dangling:
+        print(f"  {len(dangling)} catalogue key(s) reference an endpoint that no longer exists:")
+        for d in dangling[:10]:
+            print(f"    {d}")
+        if len(dangling) > 10:
+            print(f"    ... and {len(dangling) - 10} more")
+        sys.exit(
+            "catalogue keys must resolve to a real endpoint - "
+            "the inventory is generated, so a stale ref here is a rename that "
+            "left its test cases behind"
+        )
 
     blob = json.dumps(seed, separators=(",", ":"), ensure_ascii=False)
 

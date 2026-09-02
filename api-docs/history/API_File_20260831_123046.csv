@@ -29,7 +29,7 @@
   ],
   ""token"": ""<jwt-token>"",
   ""username"": ""<username>""
-}","Produces authToken for downstream APIs","Parth Divekar <parthdivekar987@gmail.com>","post|/auth/token|employee auth api|tc01 - valid credentials return jwt token","Source: collections/auth/Employee_Auth_API.json; No saved response example in source file"
+}","Produces authToken for downstream APIs","KavishTadas <kavish.tadas@omfysgroup.com>","post|/auth/token|employee auth api|tc01 - valid credentials return jwt token","Source: collections/auth/Employee_Auth_API.json; No saved response example in source file"
 "3","Employee Auth API","TC02 - Invalid empCode returns 400","public","TC02 - Status is 400 for bad empCode; TC02 - Full response matches OpenAPI ErrorResponse; TC02 - Error message returned","{{authBaseUrl}}","/auth/token","POST","headers: Content-Type=application/json","{""empCode"": ""INVALID-999"", ""password"": ""wrongpassword""}","{
   ""empCode"": ""INVALID-999"",
   ""password"": ""wrongpassword""
@@ -38,7 +38,7 @@
   ""token"": ""<jwt-token>""
 }","{
   ""token"": ""<jwt-token>""
-}","","Parth Divekar <parthdivekar987@gmail.com>","post|/auth/token|employee auth api|tc02 - invalid empcode returns 400","Source: collections/auth/Employee_Auth_API.json; No saved response example in source file"
+}","","KavishTadas <kavish.tadas@omfysgroup.com>","post|/auth/token|employee auth api|tc02 - invalid empcode returns 400","Source: collections/auth/Employee_Auth_API.json; No saved response example in source file"
 "4","Employee Auth API","TC03 - Missing password returns 400","public","TC03 - Status is 400 for missing password; TC03 - Full response matches OpenAPI ErrorResponse; TC03 - Validation message returned","{{authBaseUrl}}","/auth/token","POST","headers: Content-Type=application/json","{""empCode"": ""{{empCode}}""}","{
   ""empCode"": ""<empCode>""
 }","{""empCode"":""string""}","Expected status(es): 400
@@ -46,7 +46,7 @@
   ""token"": ""<jwt-token>""
 }","{
   ""token"": ""<jwt-token>""
-}","","Parth Divekar <parthdivekar987@gmail.com>","post|/auth/token|employee auth api|tc03 - missing password returns 400","Source: collections/auth/Employee_Auth_API.json; No saved response example in source file"
+}","","KavishTadas <kavish.tadas@omfysgroup.com>","post|/auth/token|employee auth api|tc03 - missing password returns 400","Source: collections/auth/Employee_Auth_API.json; No saved response example in source file"
 "5","Leave API","TC01/TC03 - Get all leave reports and validate structure","private","TC01 - Status is 200 - ; TC01 - Full response matches OpenAPI GetAllLeaveReportsResponse - ; TC01 - Response has status, message, data.count and data.leaveReport - ; TC01 - Count contains observed integer fields - ; TC03 - Every leaveReport item matches OpenAPI GetAllLeaveReportsItem - ; TC03 - At least two records available for required spot-check - ; TC03 - Every record contains all 13 expected fields - ; TC04 - Full response matches OpenAPI GetAllLeaveReportsErrorResponse - ; TC04 - Invalid month returns observed error structure -","{{leaveBaseUrl}}","/user/leaves/getAllLeaveReports","GET","query: month={{month}}; year={{year}} | headers: Authorization=Bearer {{authToken}}","","","","Expected status(es): 200
 {
   ""status"": ""<status>"",
@@ -539,14 +539,14 @@
       ""isActive"": ""Y""
     }
   ]
-}","{""templateCode"":""string"",""templateName"":""string"",""description"":""string"",""effectiveFrom"":""string"",""effectiveTo"":""string"",""optionModel"":""string"",""templateMode"":""string"",""isDefault"":""string"",""isActive"":""string"",""templateStatus"":""string"",""remarks"":""string"",""holidays"":[{""holidayName"":""string"",""occasion"":""string"",""holidayDate"":""string"",""isOptional"":""string"",""isHalfDay"":""string"",""remarks"":""string""}],""assignments"":[{""employeeId"":""number"",""effectiveFrom"":""string"",""effectiveTo"":""string"",""isActive"":""string""}]}","","","","Parth Divekar <parthdivekar987@gmail.com>","post|/api/attendance/holiday-templates/create|holiday template apis copy|create","Source: collections/Holiday_Template_API.json; No saved response example in source file"
-"27","Holiday Template APIs Copy","Get By Id","private","Get By Id","{{baseURL}}","/api/attendance/holiday-templates/getById/19","GET","headers: Authorization=Bearer {{jwtToken}}","","","","","","","Parth Divekar <parthdivekar987@gmail.com>","get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id","Source: collections/Holiday_Template_API.json; No saved response example in source file"
-"28","Holiday Template APIs Copy","Get All","private","Get All","{{baseURL}}","/api/attendance/holiday-templates/getAll","GET","query: page=0; size=10 | headers: Authorization=Bearer {{jwtToken}}","","","","","","","Parth Divekar <parthdivekar987@gmail.com>","get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all","Source: collections/Holiday_Template_API.json; No saved response example in source file"
+}","{""templateCode"":""string"",""templateName"":""string"",""description"":""string"",""effectiveFrom"":""string"",""effectiveTo"":""string"",""optionModel"":""string"",""templateMode"":""string"",""isDefault"":""string"",""isActive"":""string"",""templateStatus"":""string"",""remarks"":""string"",""holidays"":[{""holidayName"":""string"",""occasion"":""string"",""holidayDate"":""string"",""isOptional"":""string"",""isHalfDay"":""string"",""remarks"":""string""}],""assignments"":[{""employeeId"":""number"",""effectiveFrom"":""string"",""effectiveTo"":""string"",""isActive"":""string""}]}","","","","KavishTadas <kavish.tadas@omfysgroup.com>","post|/api/attendance/holiday-templates/create|holiday template apis copy|create","Source: collections/Holiday_Template_API.json; No saved response example in source file"
+"27","Holiday Template APIs Copy","Get By Id","private","Get By Id","{{baseURL}}","/api/attendance/holiday-templates/getById/19","GET","headers: Authorization=Bearer {{jwtToken}}","","","","","","","KavishTadas <kavish.tadas@omfysgroup.com>","get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id","Source: collections/Holiday_Template_API.json; No saved response example in source file"
+"28","Holiday Template APIs Copy","Get All","private","Get All","{{baseURL}}","/api/attendance/holiday-templates/getAll","GET","query: page=0; size=10 | headers: Authorization=Bearer {{jwtToken}}","","","","","","","KavishTadas <kavish.tadas@omfysgroup.com>","get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all","Source: collections/Holiday_Template_API.json; No saved response example in source file"
 "29","Holiday Template APIs Copy","Change Status","private","Change Status","{{baseURL}}","/api/attendance/holiday-templates/19/status","PATCH","headers: Authorization=Bearer {{jwtToken}}; Content-Type=application/json","{
   ""isActive"": ""N""
 }","{
   ""isActive"": ""N""
-}","{""isActive"":""string""}","","","","Parth Divekar <parthdivekar987@gmail.com>","patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status","Source: collections/Holiday_Template_API.json; No saved response example in source file"
+}","{""isActive"":""string""}","","","","KavishTadas <kavish.tadas@omfysgroup.com>","patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status","Source: collections/Holiday_Template_API.json; No saved response example in source file"
 "30","Latearly-Policy","update","private","Generated from cURL: curl --location --request PUT 'http://localhost:9079/api/attendance/late-early-policies/update/1' \
 --header 'Authorization: Bearer <JWT_TOKEN>' \
 --header 'Content-Type: application/json' \
@@ -649,9 +649,9 @@
       ""isActive"": ""Y""
     }
   ]
-}","{""policyCode"":""string"",""policyName"":""string"",""description"":""string"",""templateMode"":""string"",""templateStatus"":""string"",""eventCountMinutes"":""number"",""graceMinutes"":""number"",""graceEvent"":""number"",""allowedEvent"":""number"",""deductionType"":""string"",""leaveDeductDays"":""number"",""leaveTypeId"":""number"",""fineAmount"":""null"",""effectiveFrom"":""string"",""effectiveTo"":""null"",""isDefault"":""string"",""remarks"":""string"",""deductionPriorities"":[{""priorityOrder"":""number"",""leaveTypeId"":""number"",""isActive"":""string""}],""assignments"":[{""employeeId"":""number"",""effectiveFrom"":""string"",""effectiveTo"":""null"",""isActive"":""string""}]}","","","","Parth Divekar <parthdivekar987@gmail.com>","put|/api/attendance/late-early-policies/update/2|latearly-policy|update","Source: collections/Late_Early_Policy_API.json; No saved response example in source file"
+}","{""policyCode"":""string"",""policyName"":""string"",""description"":""string"",""templateMode"":""string"",""templateStatus"":""string"",""eventCountMinutes"":""number"",""graceMinutes"":""number"",""graceEvent"":""number"",""allowedEvent"":""number"",""deductionType"":""string"",""leaveDeductDays"":""number"",""leaveTypeId"":""number"",""fineAmount"":""null"",""effectiveFrom"":""string"",""effectiveTo"":""null"",""isDefault"":""string"",""remarks"":""string"",""deductionPriorities"":[{""priorityOrder"":""number"",""leaveTypeId"":""number"",""isActive"":""string""}],""assignments"":[{""employeeId"":""number"",""effectiveFrom"":""string"",""effectiveTo"":""null"",""isActive"":""string""}]}","","","","KavishTadas <kavish.tadas@omfysgroup.com>","put|/api/attendance/late-early-policies/update/2|latearly-policy|update","Source: collections/Late_Early_Policy_API.json; No saved response example in source file"
 "31","Latearly-Policy","getById/1","private","Generated from cURL: curl --location 'http://localhost:9079/api/attendance/late-early-policies/getById/1' \
---header 'Authorization: Bearer <JWT_TOKEN>'","{{baseURL}}","/api/attendance/late-early-policies/getById/5","GET","headers: Authorization=Bearer <JWT_TOKEN>","","","","","","","Parth Divekar <parthdivekar987@gmail.com>","get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1","Source: collections/Late_Early_Policy_API.json; No saved response example in source file"
+--header 'Authorization: Bearer <JWT_TOKEN>'","{{baseURL}}","/api/attendance/late-early-policies/getById/5","GET","headers: Authorization=Bearer <JWT_TOKEN>","","","","","","","KavishTadas <kavish.tadas@omfysgroup.com>","get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1","Source: collections/Late_Early_Policy_API.json; No saved response example in source file"
 "32","Latearly-Policy","create","private","create","{{baseURL}}","/api/attendance/late-early-policies/create","POST","headers: Authorization=Bearer YOUR_JWT_TOKEN; Content-Type=application/json","{
     ""policyCode"": null,
     ""policyName"": ""Standard Laes Ears Policises1"",
@@ -741,17 +741,17 @@
       ""isActive"": ""Y""
     }
   ]
-}","{""policyCode"":""null"",""policyName"":""string"",""description"":""string"",""templateMode"":""string"",""eventCountMinutes"":""number"",""graceMinutes"":""number"",""graceEvent"":""number"",""allowedEvent"":""number"",""deductionType"":""string"",""leaveDeductDays"":""number"",""leaveTypeId"":""number"",""fineAmount"":""null"",""effectiveFrom"":""string"",""effectiveTo"":""string"",""isDefault"":""string"",""isActive"":""string"",""remarks"":""string"",""deductionPriorities"":[{""priorityOrder"":""number"",""leaveTypeId"":""number"",""isActive"":""string""}],""assignments"":[{""employeeId"":""number"",""departmentId"":""number"",""designationId"":""number"",""effectiveFrom"":""string"",""effectiveTo"":""string"",""isActive"":""string""}]}","","","","Parth Divekar <parthdivekar987@gmail.com>","post|/api/attendance/late-early-policies/create|latearly-policy|create","Source: collections/Late_Early_Policy_API.json; No saved response example in source file"
-"33","Latearly-Policy","getAll","private","getAll","{{baseURL}}","/api/attendance/late-early-policies/getAll","GET","query: page=0; size=10; sort=policyId,desc | headers: Authorization=Bearer <JWT_TOKEN>","","","","","","","Parth Divekar <parthdivekar987@gmail.com>","get|/api/attendance/late-early-policies/getall|latearly-policy|getall","Source: collections/Late_Early_Policy_API.json; No saved response example in source file"
+}","{""policyCode"":""null"",""policyName"":""string"",""description"":""string"",""templateMode"":""string"",""eventCountMinutes"":""number"",""graceMinutes"":""number"",""graceEvent"":""number"",""allowedEvent"":""number"",""deductionType"":""string"",""leaveDeductDays"":""number"",""leaveTypeId"":""number"",""fineAmount"":""null"",""effectiveFrom"":""string"",""effectiveTo"":""string"",""isDefault"":""string"",""isActive"":""string"",""remarks"":""string"",""deductionPriorities"":[{""priorityOrder"":""number"",""leaveTypeId"":""number"",""isActive"":""string""}],""assignments"":[{""employeeId"":""number"",""departmentId"":""number"",""designationId"":""number"",""effectiveFrom"":""string"",""effectiveTo"":""string"",""isActive"":""string""}]}","","","","KavishTadas <kavish.tadas@omfysgroup.com>","post|/api/attendance/late-early-policies/create|latearly-policy|create","Source: collections/Late_Early_Policy_API.json; No saved response example in source file"
+"33","Latearly-Policy","getAll","private","getAll","{{baseURL}}","/api/attendance/late-early-policies/getAll","GET","query: page=0; size=10; sort=policyId,desc | headers: Authorization=Bearer <JWT_TOKEN>","","","","","","","KavishTadas <kavish.tadas@omfysgroup.com>","get|/api/attendance/late-early-policies/getall|latearly-policy|getall","Source: collections/Late_Early_Policy_API.json; No saved response example in source file"
 "34","Latearly-Policy","ChangeStatus","private","Generated from cURL: curl --location --request PATCH 'http://localhost:9079/api/attendance/late-early-policies/5/status?status=Y' \
---header 'Authorization: Bearer <JWT_TOKEN>'","{{baseURL}}","/api/attendance/late-early-policies/5/status","PATCH","query: status=N | headers: Authorization=Bearer <JWT_TOKEN>","","","","","","","Parth Divekar <parthdivekar987@gmail.com>","patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus","Source: collections/Late_Early_Policy_API.json; No saved response example in source file"
+--header 'Authorization: Bearer <JWT_TOKEN>'","{{baseURL}}","/api/attendance/late-early-policies/5/status","PATCH","query: status=N | headers: Authorization=Bearer <JWT_TOKEN>","","","","","","","KavishTadas <kavish.tadas@omfysgroup.com>","patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus","Source: collections/Late_Early_Policy_API.json; No saved response example in source file"
 "35","Attenedance-july2026","WeekOffActDeact","private","WeekOffActDeact","{{baseURL}}","/api/attendance/week-offs/actDeact/3/status","PATCH","headers: Authorization=Bearer YOUR_JWT_TOKEN; Content-Type=application/json","{
     ""status"":""N""
 }","{
   ""status"": ""N""
-}","{""status"":""string""}","","","","Parth Divekar <parthdivekar987@gmail.com>","patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact","Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
-"36","Attenedance-july2026","WeekOffGetAll","private","WeekOffGetAll","{{baseURL}}","/api/attendance/week-offs/getAll","GET","query: page=0; size=10; sort=weekOffName,asc | headers: Authorization=Bearer YOUR_JWT_TOKEN","","","","","","","Parth Divekar <parthdivekar987@gmail.com>","get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall","Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
-"37","Attenedance-july2026","WeekOffGetById","private","WeekOffGetById","{{baseURL}}","/api/attendance/week-offs/getById/1","GET","headers: Authorization=Bearer YOUR_JWT_TOKEN","","","","","","","Parth Divekar <parthdivekar987@gmail.com>","get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid","Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
+}","{""status"":""string""}","","","","KavishTadas <kavish.tadas@omfysgroup.com>","patch|/api/attendance/week-offs/actdeact/3/status|attenedance-july2026|weekoffactdeact","Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
+"36","Attenedance-july2026","WeekOffGetAll","private","WeekOffGetAll","{{baseURL}}","/api/attendance/week-offs/getAll","GET","query: page=0; size=10; sort=weekOffName,asc | headers: Authorization=Bearer YOUR_JWT_TOKEN","","","","","","","KavishTadas <kavish.tadas@omfysgroup.com>","get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall","Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
+"37","Attenedance-july2026","WeekOffGetById","private","WeekOffGetById","{{baseURL}}","/api/attendance/week-offs/getById/1","GET","headers: Authorization=Bearer YOUR_JWT_TOKEN","","","","","","","KavishTadas <kavish.tadas@omfysgroup.com>","get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid","Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
 "38","Attenedance-july2026","WeekOffUpdate","private","WeekOffUpdate","{{baseURL}}","/api/attendance/week-offs/update/1","PUT","headers: Authorization=Bearer YOUR_JWT_TOKEN; Content-Type=application/json","{
     ""weekOffCode"": ""WO001"",
     ""weekOffName"": ""Updated Sunday Week Off"",
@@ -810,7 +810,7 @@
       ""isActive"": ""Y""
     }
   ]
-}","{""weekOffCode"":""string"",""weekOffName"":""string"",""description"":""string"",""optionModel"":""string"",""isDefault"":""string"",""isActive"":""string"",""details"":[{""dayOfWeek"":""string"",""weekNo"":""number"",""isWeekOff"":""string""}],""assignments"":[{""employeeId"":""number"",""departmentId"":""number"",""locationId"":""number"",""effectiveFrom"":""string"",""effectiveTo"":""string"",""isActive"":""string""}]}","","","","Parth Divekar <parthdivekar987@gmail.com>","put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate","Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
+}","{""weekOffCode"":""string"",""weekOffName"":""string"",""description"":""string"",""optionModel"":""string"",""isDefault"":""string"",""isActive"":""string"",""details"":[{""dayOfWeek"":""string"",""weekNo"":""number"",""isWeekOff"":""string""}],""assignments"":[{""employeeId"":""number"",""departmentId"":""number"",""locationId"":""number"",""effectiveFrom"":""string"",""effectiveTo"":""string"",""isActive"":""string""}]}","","","","KavishTadas <kavish.tadas@omfysgroup.com>","put|/api/attendance/week-offs/update/1|attenedance-july2026|weekoffupdate","Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
 "39","Attenedance-july2026","WeekOffMasterCreate","private","WeekOffMasterCreate","{{baseURL}}","/api/attendance/week-offs/create","POST","headers: Authorization=Bearer YOUR_JWT_TOKEN; Content-Type=application/json","{
     ""weekOffCode"": ""WO001"",
     ""weekOffName"": ""Sunday Week Off"",
@@ -899,12 +899,12 @@
       ""isActive"": ""Y""
     }
   ]
-}","{""weekOffCode"":""string"",""weekOffName"":""string"",""description"":""string"",""optionModel"":""string"",""isDefault"":""string"",""isActive"":""string"",""details"":[{""dayOfWeek"":""string"",""weekNo"":""number"",""isWeekOff"":""string""}],""assignments"":[{""employeeId"":""number"",""departmentId"":""number"",""locationId"":""number"",""effectiveFrom"":""string"",""effectiveTo"":""string"",""isActive"":""string""}]}","","","","Parth Divekar <parthdivekar987@gmail.com>","post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate","Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
+}","{""weekOffCode"":""string"",""weekOffName"":""string"",""description"":""string"",""optionModel"":""string"",""isDefault"":""string"",""isActive"":""string"",""details"":[{""dayOfWeek"":""string"",""weekNo"":""number"",""isWeekOff"":""string""}],""assignments"":[{""employeeId"":""number"",""departmentId"":""number"",""locationId"":""number"",""effectiveFrom"":""string"",""effectiveTo"":""string"",""isActive"":""string""}]}","","","","KavishTadas <kavish.tadas@omfysgroup.com>","post|/api/attendance/week-offs/create|attenedance-july2026|weekoffmastercreate","Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
 "40","Attenedance-july2026","week-off-assignment/getByWeekOffId","private","week-off-assignment/getByWeekOffId","{{baseURL}}","/api/attendance/week-off-assignment/getByWeekOff","POST","query: page=0; size=10; sort=employeeId,asc | headers: Authorization=Bearer <YOUR_JWT_TOKEN>; Content-Type=application/json","{
     ""weekOffId"": 1
 }","{
   ""weekOffId"": 1
-}","{""weekOffId"":""number""}","","","","Parth Divekar <parthdivekar987@gmail.com>","post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid","Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
+}","{""weekOffId"":""number""}","","","","KavishTadas <kavish.tadas@omfysgroup.com>","post|/api/attendance/week-off-assignment/getbyweekoff|attenedance-july2026|week-off-assignment/getbyweekoffid","Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
 "41","Attenedance-july2026","week-off-assignment/changeStatus","private","Generated from cURL: curl --location --request PATCH 'http://localhost:8080/api/attendance/week-off-assignment/changeStatus' \
 --header 'Authorization: Bearer <TOKEN>' \
 --header 'Content-Type: application/json' \
@@ -917,12 +917,12 @@
 }","{
   ""assignmentId"": 3,
   ""status"": ""N""
-}","{""assignmentId"":""number"",""status"":""string""}","","","","Parth Divekar <parthdivekar987@gmail.com>","patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus","Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
+}","{""assignmentId"":""number"",""status"":""string""}","","","","KavishTadas <kavish.tadas@omfysgroup.com>","patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus","Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
 "42","Login Auth UAT API","TC01 - Valid credentials return token","public","TC01 - Valid credentials return token","{{baseUrl}}","/auth/token","POST","headers: Content-Type=application/json","{
   ""empCode"": ""{{empCode}}"",
   ""password"": ""{{empPassword}}""
 }","{
-  ""empCode"": ""${EMP_CODE}"",
+  ""empCode"": ""OMI-0001"",
   ""password"": ""<empPassword>""
 }","{""empCode"":""string"",""password"":""string""}","Expected status(es): 200
 {
@@ -939,12 +939,12 @@
   ],
   ""token"": ""<jwt-token>"",
   ""username"": ""<username>""
-}","Produces authToken for downstream APIs","Parth Divekar <parthdivekar987@gmail.com>","post|/auth/token|login auth uat api|tc01 - valid credentials return token","Source: collections/auth/Login_Auth_UAT_API.json; Data-driven: test-data/auth/Login_Auth_UAT_API.csv; No saved response example in source file"
+}","Produces authToken for downstream APIs","KavishTadas <kavish.tadas@omfysgroup.com>","post|/auth/token|login auth uat api|tc01 - valid credentials return token","Source: collections/auth/Login_Auth_UAT_API.json; Data-driven: test-data/auth/Login_Auth_UAT_API.csv; No saved response example in source file"
 "43","users","Get profile","private","Status is 200; Email is a string","{{BASE_URL}}","/users/me","GET","auth: bearer token={{authToken}}","","","","Expected status(es): 200
 {
   ""email"": ""<email>""
 }","{
   ""email"": ""<email>""
 }","Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken","Parth Divekar <parthdivekar987@gmail.com>","get|/users/me|users|get profile","Source: bruno/users/get-profile.bru; No saved response example in source file; Parsed from Bruno file"
-"44","Holiday Template APIs Copy","Update","private","Update","{{baseURL}}","/api/attendance/holiday-templates/update/{holidayTemplateId}","PUT","path variables: holidayTemplateId=999999 | headers: Authorization=Bearer {{jwtToken}}; Content-Type=application/json","{}","{}","{}","","","","Parth Divekar <parthdivekar987@gmail.com>","put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update","Source: collections/Holiday_Template_API.json; No saved response example in source file"
-"45","Holiday Template APIs Copy","Delete","private","Delete","{{baseURL}}","/api/attendance/holiday-templates/delete/{holidayTemplateId}","DELETE","path variables: holidayTemplateId=999999 | headers: Authorization=Bearer {{jwtToken}}","","","","","","","Parth Divekar <parthdivekar987@gmail.com>","delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete","Source: collections/Holiday_Template_API.json; No saved response example in source file"
+"44","Holiday Template APIs Copy","Update","private","Update","{{baseURL}}","/api/attendance/holiday-templates/update/{holidayTemplateId}","PUT","path variables: holidayTemplateId | headers: Authorization=Bearer {{jwtToken}}; Content-Type=application/json","{}","{}","{}","","","","KavishTadas <kavish.tadas@omfysgroup.com>","put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update","Source: collections/Holiday_Template_API.json; No saved response example in source file"
+"45","Holiday Template APIs Copy","Delete","private","Delete","{{baseURL}}","/api/attendance/holiday-templates/delete/{holidayTemplateId}","DELETE","path variables: holidayTemplateId | headers: Authorization=Bearer {{jwtToken}}","","","","","","","KavishTadas <kavish.tadas@omfysgroup.com>","delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete","Source: collections/Holiday_Template_API.json; No saved response example in source file"

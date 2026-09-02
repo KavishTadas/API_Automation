@@ -405,8 +405,12 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
   backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   border-bottom:1px solid var(--s800);padding:8px 18px}
 [data-theme="light"] .enav{background:rgba(255,255,255,.95)}
-.enav-in{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:4px;
-  overflow-x:auto;scrollbar-width:thin}
+/* Wraps rather than scrolls. Eight tabs do not fit a narrow window, and
+   scrolling them put half the report behind a thin scrollbar that is easy to
+   miss entirely -- which reads as "only Overview exists", not as "there is
+   more to the right". A second row costs 30px and keeps every tab reachable. */
+.enav-in{max-width:1280px;margin:0 auto;display:flex;align-items:center;
+  flex-wrap:wrap;gap:4px 4px}
 .nitem{padding:6px 12px;border-radius:8px;font:500 12px var(--mono);color:var(--s300);
   background:none;border:0;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
   transition:all .15s;white-space:nowrap}
@@ -804,6 +808,21 @@ table.pl tr:last-child td{border-bottom:0}
 .ms-item .nm{font-size:12.5px;font-weight:600;flex:1;min-width:0;overflow:hidden;
   text-overflow:ellipsis;white-space:nowrap}
 .ms-item .id{font:500 11px var(--mono);color:var(--text-faint);flex-shrink:0}
+/* Sits quietly until the row is hovered: a delete on every row, at full
+   strength, turns a list into a minefield. It stays reachable by keyboard
+   through the row itself rather than being tabbable 124 times. */
+.row-del{flex-shrink:0;width:22px;height:22px;border:0;border-radius:6px;
+  background:none;color:var(--text-faint);font-size:15px;line-height:1;
+  cursor:pointer;opacity:.45;transition:opacity .12s,background .12s,color .12s}
+/* Faint, not invisible. Hiding it until hover meant it may as well not exist:
+   nothing on screen said the rows could be deleted at all. It stays quiet
+   enough that 124 of them do not read as 124 warnings. */
+.ms-item:hover .row-del,.sc-row:hover .row-del{opacity:1}
+.row-del:disabled{opacity:.18}
+.row-del:hover:not(:disabled){background:rgba(239,68,68,.15);color:#ef4444}
+.row-del:focus-visible{opacity:1;outline:2px solid var(--accent);outline-offset:1px}
+.row-del.locked{cursor:not-allowed}
+.row-del.locked:hover{background:none;color:var(--text-faint)}
 .qr-actions{display:flex;gap:9px;align-items:center;padding:12px 14px;border-top:1px solid var(--line-soft);flex-wrap:wrap}
 .qr-actions .sp{flex:1}
 
@@ -832,12 +851,42 @@ table.pl tr:last-child td{border-bottom:0}
 .sect-head .sub b{color:var(--accent);font-weight:650}
 .sect-head .searchwrap{display:block;width:100%;margin-top:var(--gap-md)}
 
-.suites-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(420px,100%),1fr));
-  gap:var(--gap-md);min-width:0;align-items:start}
+/* A column flow, not a grid. Grid rows align to their tallest cell, so a
+   six-endpoint suite beside a seven-endpoint one left a visible band of empty
+   card beneath it and a ragged edge all the way down. Columns let each card
+   fall where there is room, closing the gap without inflating anything.
+
+   Reading order becomes down-then-across; for a filtered, browsed list of
+   suites that costs nothing. */
+.suites-grid{
+  column-width:420px;
+  column-gap:var(--gap-md);
+  min-width:0;
+}
+.suites-grid > *{
+  /* A card must not be split across a column break, and the bottom margin is
+     what column-gap cannot supply vertically. */
+  break-inside:avoid;
+  -webkit-column-break-inside:avoid;
+  page-break-inside:avoid;
+  margin-bottom:var(--gap-md);
+  width:100%;
+}
+.suites-grid > .empty{column-span:all}
 .suite-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
   box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;
   min-width:0;width:100%;position:relative}
 .suite-card:hover{border-color:var(--text-faint)}
+/* The toggle is itself a button, so the suite delete has to be its sibling --
+   a button inside a button is invalid and browsers unnest it. */
+.sc-hrow{display:flex;align-items:stretch;border-bottom:1px solid var(--line)}
+.sc-hrow .sc-h{flex:1;min-width:0;border-bottom:0}
+.suite-del{flex-shrink:0;width:34px;border:0;border-left:1px solid var(--line);
+  background:var(--panel-2);color:var(--text-faint);font-size:17px;line-height:1;
+  cursor:pointer;opacity:.5;transition:opacity .12s,background .12s,color .12s}
+.suite-card:hover .suite-del{opacity:1}
+.suite-del:hover{background:rgba(239,68,68,.15);color:#ef4444}
+.suite-del:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;opacity:1}
 .sc-h{display:flex;align-items:center;gap:11px;padding:var(--pad-card);background:var(--panel-2);
   border-bottom:1px solid var(--line);width:100%;text-align:left;border-top:0;border-left:0;
   border-right:0;font:inherit;color:inherit;cursor:pointer}
@@ -857,7 +906,7 @@ table.pl tr:last-child td{border-bottom:0}
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sc-ico{flex-shrink:0}
 .sc-rows{padding:2px 0;flex:1}
-.sc-row{display:grid;grid-template-columns:54px 64px minmax(0,1fr) minmax(0,auto);
+.sc-row{display:grid;grid-template-columns:54px 64px minmax(0,1fr) minmax(0,auto) 24px;
   align-items:center;gap:11px;padding:var(--pad-row);cursor:pointer;
   border-bottom:1px solid var(--line-soft);transition:background .12s}
 .sc-row:last-child{border-bottom:0}
@@ -974,7 +1023,7 @@ table.pl tr:last-child td{border-bottom:0}
 
 @media(max-width:1080px){
   .detail-grid{grid-template-columns:1fr}
-  .suites-grid{grid-template-columns:1fr}
+  .suites-grid{column-width:auto;column-count:1}
 }
 .grid{display:grid;gap:14px}
 .kpis{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-bottom:14px}
@@ -1041,6 +1090,11 @@ hr{border:none;border-top:1px solid var(--line-soft);margin:12px 0}
 .toast{position:fixed;bottom:20px;right:20px;background:var(--panel);border:1px solid var(--accent-line);
   border-left:3px solid var(--accent);border-radius:9px;padding:11px 15px;box-shadow:var(--shadow-lg);
   display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;z-index:200;
+  /* An icon and a line of text, nothing to click -- and it sits bottom-right
+     at the top of the stack, over the end of every full-width button. It is
+     shown for 2.6s at a time, so left hit-testable it makes controls under
+     it intermittently dead, which is far harder to report than always dead. */
+  pointer-events:none;
   transform:translateY(150%);transition:transform .28s cubic-bezier(.2,.8,.3,1)}
 .toast.show{transform:translateY(0)}
 .toast svg{width:16px;height:16px;color:var(--accent)}
@@ -1203,11 +1257,30 @@ html[data-fx="on"] .fx-sweep circle{
   position:fixed; right:20px; bottom:16px; width:98px; height:156px;
   z-index:60; cursor:pointer; border:0; padding:0; background:none;
   display:none;
+  /* The figure is narrow and its box is not: most of this rectangle is empty
+     and sits over the report. Clicks pass through it and are re-enabled below
+     on the painted shapes only, so the assistant stays clickable exactly where
+     it is visible and the page beneath is reachable everywhere else. This is
+     the defect behind "the buttons do not respond" -- a full-width button
+     running under this box was dead along its right end. */
+  pointer-events:none;
   perspective:520px; perspective-origin:50% 42%;
   transition:transform .5s cubic-bezier(.22,.61,.36,1);
   touch-action:manipulation;
-  --bot-core:#2dd4bf;
-  --bot-eye:#e8faff;
+  /* Repulsor blue, and it never changes. The arc reactor and the boot
+     thrust are the character; tinting them by run result made a failing
+     run render the figure in magenta, which reads as a different robot
+     rather than as the same one having bad news. The mood lives in the
+     face -- mouth, blush, squint, eye tint -- where it belongs. */
+  --bot-core:#8fe3fb;
+  /* The run result, kept separate from the suit's own colours so a failing
+     run tints the status lamp and the ground ring and nothing else. */
+  --bot-signal:#2dd4bf;
+  /* Lit, not merely pale. A near-white slit reads as a painted-on visor;
+     the blue tint is what makes it read as emitting. Same rule as the
+     reactor and the thrust -- the eyes are repulsor-lit and never take
+     a mood colour. */
+  --bot-eye:#bfeeff;
   --bot-yaw:0deg;
   --bot-pitch:0deg;
 }
@@ -1217,10 +1290,9 @@ html[data-fx="on"] .fx-sweep circle{
    itself never has to know moods exist. */
 #qabot .bot-eyes,
 #qabot .bot-palm{color:#6fd6ff}
-#qabot.mood-warn .bot-eyes,
-#qabot.mood-warn .bot-palm{color:#ffc46b}
-#qabot.mood-sad .bot-eyes,
-#qabot.mood-sad .bot-palm{color:#ff8098}
+/* The glow around the slits stays blue in every mood. The run result moved to
+   the beacon and the ring, which signal by rate and by colour without
+   repainting the character -- see the mood blocks below. */
 
 /* A slow flicker in the beam. Real emitters are never perfectly steady, and a
    constant glow reads as a sticker rather than a light. */
@@ -1247,7 +1319,19 @@ html[data-fx="on"] #qabot{display:block}
   transform:translateZ(var(--z,0));
   transform-style:preserve-3d;
 }
-.bot-layer svg{width:100%;height:100%;display:block;overflow:visible}
+.bot-layer svg{width:100%;height:100%;display:block;overflow:visible;pointer-events:none}
+/* visiblePainted is the SVG default, but must be restated because the button
+   turned pointer events off for the whole subtree. Only drawn pixels answer,
+   so the gaps between the arms and the corners of the box stay transparent. */
+.bot-layer svg path,
+.bot-layer svg rect,
+.bot-layer svg circle,
+.bot-layer svg ellipse{pointer-events:visiblePainted}
+/* Decoration that reaches well outside the figure must not become a click
+   target over the report. */
+#qabot .bot-ring,
+#qabot .bot-halo,
+#qabot .bot-jets *{pointer-events:none}
 
 /* Contact shadow, flat on the ground while the figure turns above it. */
 .bot-ground{
@@ -1288,13 +1372,17 @@ html[data-fx="on"] #qabot{display:block}
   90%{transform:rotate(16deg)}
 }
 .bot-arm-r{transform-origin:92px 84px;transform:rotate(10deg)}
-/* Idle: an occasional small wave. */
-@keyframes botWaveIdle{
-  0%,86%,100%{transform:rotate(10deg)}
-  90%{transform:rotate(22deg)}
-  94%{transform:rotate(12deg)}
+/* The idle wave fired for 8% of a six-second cycle -- a twitch once every six
+   seconds, which is why the figure looked switched off between clicks. It now
+   waves continuously and gently, and the click wave stays bigger and faster so
+   it is still distinguishable from the idle. */
+@keyframes botWaveLoop{
+  0%,100%{transform:rotate(6deg)}
+  25%    {transform:rotate(26deg)}
+  50%    {transform:rotate(8deg)}
+  75%    {transform:rotate(24deg)}
 }
-#qabot .bot-arm-r{animation:botWaveIdle 6s ease-in-out infinite}
+#qabot .bot-arm-r{animation:botWaveLoop 2.4s ease-in-out infinite}
 /* Clicked or greeting: a full, unmistakable wave. */
 #qabot.is-waving .bot-arm-r{animation:botWave 1.5s ease-in-out 2}
 #qabot.is-waving .bot-palm{animation:botPalm 1.5s ease-in-out 2}
@@ -1303,11 +1391,26 @@ html[data-fx="on"] #qabot{display:block}
 .bot-arm-l{transform-origin:28px 84px;animation:botSway 3.8s ease-in-out infinite}
 @keyframes botSway{0%,100%{transform:rotate(0)}50%{transform:rotate(-6deg)}}
 
-.bot-head{transform-origin:60px 50px;animation:botNod 5.4s ease-in-out infinite}
+.bot-head{transform-origin:60px 48px;animation:botNod 5.4s ease-in-out infinite}
 @keyframes botNod{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
 
-.bot-eyes{animation:botSlit 4.8s ease-in-out infinite}
-@keyframes botSlit{0%,92%,100%{opacity:1}95%{opacity:.2}}
+/* A blink is a lid closing, not a light dimming. The old rule faded opacity
+   to .2 for a seventh of a second, which reads as a flicker in the visor
+   rather than as the figure being awake.
+
+   It lives on its own element inside .bot-eyes because three things transform
+   the eyes -- the blink here, the mood squint on .bot-eyes, and the per-eye
+   mood rotations -- and a CSS animation overrides any static transform on the
+   same element, so sharing one would silently drop the mood. Both eyes are in
+   this group, so they close together by construction. */
+.bot-blink{transform-origin:60px 38px;animation:botBlink 4.2s ease-in-out infinite}
+@keyframes botBlink{
+  0%,88%,100%{transform:scaleY(1)}
+  90.5%      {transform:scaleY(.06)}   /* shut  */
+  93%        {transform:scaleY(1)}     /* open  */
+  95%        {transform:scaleY(.06)}   /* again -- a double blink reads alive */
+  97.5%      {transform:scaleY(1)}
+}
 
 .bot-core-lamp{transform-origin:60px 94px;animation:botCore 2.6s ease-in-out infinite}
 @keyframes botCore{0%,100%{opacity:.82;transform:scale(.93)}50%{opacity:1;transform:scale(1.09)}}
@@ -1331,29 +1434,66 @@ html[data-fx="on"] #qabot{display:block}
    one without reading a number. */
 
 /* happy: slits arch up, everything runs brighter and quicker */
-#qabot.mood-ok{--bot-core:#2dd4bf; --bot-eye:#e8ffff}
-#qabot.mood-ok .bot-eye-l{transform:rotate(-9deg);transform-origin:51px 43px}
-#qabot.mood-ok .bot-eye-r{transform:rotate(9deg);transform-origin:69px 43px}
-#qabot.mood-ok .bot-mouth{transform:translateY(1px) scaleX(1.1);transform-origin:60px 61px}
+#qabot.mood-ok{--bot-eye:#d6f6ff; --bot-signal:#2dd4bf}
+#qabot.mood-ok .bot-eye-l{transform:rotate(-9deg);transform-origin:50px 43px}
+#qabot.mood-ok .bot-eye-r{transform:rotate(9deg);transform-origin:70px 43px}
+/* The mouth alone cannot carry a mood this small, so passing squints the
+   eyes and brings the blush up with the wider smile. Three signals that agree
+   read instantly; one subtle one does not read at all. */
+#qabot.mood-ok .bot-mouth{transform:scale(1.15,1.3);transform-origin:60px 50px}
+#qabot.mood-ok .bot-eyes{transform:scaleY(.74);transform-origin:60px 38px}
+#qabot .bot-blush{opacity:0;transition:opacity .35s ease}
+#qabot.mood-ok .bot-blush{opacity:.85}
 #qabot.mood-ok .bot-3d{animation-duration:3s, 9s}
 #qabot.mood-ok .bot-core-lamp{animation-duration:2.1s}
 
 /* warning: amber, and the hover settles */
-#qabot.mood-warn{--bot-core:#e0a63a; --bot-eye:#fff3d6}
+#qabot.mood-warn{--bot-eye:#bfeeff; --bot-signal:#e0a63a}
+/* Warnings are neither pass nor fail, so the mouth flattens to a line
+   rather than picking a side. */
+#qabot.mood-warn .bot-mouth{transform:scale(.95,.9);transform-origin:60px 50px}
 #qabot.mood-warn .bot-jets{animation-duration:.7s;opacity:.8}
 
 /* failing: the wave stops, the head hangs, the thrusters gutter */
-#qabot.mood-sad{--bot-core:#f43f5e; --bot-eye:#ffdbe2}
+#qabot.mood-sad{--bot-eye:#bfeeff; --bot-signal:#f43f5e}
 #qabot.mood-sad .bot-arm-r{animation:none;transform:rotate(-4deg)}
-#qabot.mood-sad .bot-eye-l{transform:rotate(15deg);transform-origin:51px 43px}
-#qabot.mood-sad .bot-eye-r{transform:rotate(-15deg);transform-origin:69px 43px}
-#qabot.mood-sad .bot-eyes{animation:none;opacity:.75}
-#qabot.mood-sad .bot-mouth{transform:translateY(3px) rotate(180deg);transform-origin:60px 61px}
+#qabot.mood-sad .bot-eye-l{transform:rotate(15deg);transform-origin:50px 43px}
+#qabot.mood-sad .bot-eye-r{transform:rotate(-15deg);transform-origin:70px 43px}
+/* Still blinking -- a figure that stops entirely reads as broken rather than
+   as unhappy -- but slower, and dimmer. */
+#qabot.mood-sad .bot-eyes{opacity:.75}
+#qabot.mood-sad .bot-blink{animation-duration:6.5s}
+/* A stroked seam bows rather than flips: rotating a line 180 degrees moves
+   it without changing its shape. */
+/* It keeps smiling. The mouth used to flip to a frown on a failing run, which
+   is how the figure spent most of its life scowling -- the suite rarely runs
+   completely clean, so the "unhappy" state was effectively the default and the
+   assistant read as broken rather than as informative.
+
+   Nothing is lost by this, because the mouth was never where the truth lived:
+   the eye tint, the ring speed, the beacon, the aria-label and -- above all --
+   what it actually says when clicked all still report the real result. A
+   smaller, quieter smile here, and the run state stays legible everywhere it
+   was already legible. */
+#qabot.mood-sad .bot-mouth{transform:scale(.88,.8);transform-origin:60px 50px}
 #qabot.mood-sad .bot-head{animation:none;transform:rotate(0) translateY(5px)}
 #qabot.mood-sad .bot-jets{animation-duration:.22s;opacity:.45;transform:scaleY(.5)}
 #qabot.mood-sad .bot-core-lamp{animation-duration:1s}
 #qabot.mood-sad .bot-3d{animation-duration:6s, 14s}
 #qabot.mood-sad .bot-ring{animation-duration:5.5s;opacity:.45}
+
+/* The arrival is a greeting, not a verdict. It flies in, lands and says hello
+   with a smile whatever the last run did, then takes the run's mood the moment
+   the greeting is over. These come after the mood blocks deliberately: same
+   specificity, so source order decides, and the greeting wins for its two and
+   a half seconds.
+
+   The mood class itself is never touched, so the aria-label, the beacon and
+   everything a screen reader is told stay accurate throughout -- only the face
+   says hello. */
+#qabot.is-greeting .bot-mouth{transform:scale(1.15,1.3);transform-origin:60px 50px}
+#qabot.is-greeting .bot-eyes{transform:scaleY(.74);transform-origin:60px 38px}
+#qabot.is-greeting .bot-blush{opacity:.85}
 /* even when it is clicked, a failing run gets a half-hearted wave */
 #qabot.mood-sad.is-waving .bot-arm-r{animation:botWave 2.4s ease-in-out 1;opacity:.85}
 
@@ -1398,19 +1538,47 @@ html[data-fx="on"] #qabot{display:block}
 /* Thrusters wide open through the descent, easing back as it settles. */
 /* Thrust follows the flight: open through the descent, hardest during the
    flare that arrests it, easing back once weight is on the ground. */
+/* Hardest at the flare that arrests the fall, then cut back sharply as weight
+   goes onto the feet -- thrust that stayed constant through touchdown would
+   read as hovering, not landing. */
 @keyframes botArriveJets{
-  0%  {opacity:.9; transform:scaleY(2.2)}
-  38% {opacity:1;  transform:scaleY(2.6)}
-  62% {opacity:1;  transform:scaleY(3.1)}
-  82% {opacity:1;  transform:scaleY(1.4)}
+  0%  {opacity:.9; transform:scaleY(2.4)}
+  38% {opacity:1;  transform:scaleY(2.9)}
+  62% {opacity:1;  transform:scaleY(3.4)}
+  74% {opacity:1;  transform:scaleY(1.2)}
+  84% {opacity:.7; transform:scaleY(.7)}
   100%{opacity:.9; transform:scaleY(1)}
 }
 #qabot.is-arriving .bot-jets{
   animation:botArriveJets 2.3s linear both;
   transform-origin:60px 176px;
 }
-/* It holds its pose on the way down rather than idling. */
-#qabot.is-arriving .bot-3d{animation:none;transform:rotateY(-8deg)}
+/* It holds its pose on the way down, then absorbs the landing. The crouch
+   lives on the inner box because the outer element is running the flight --
+   put both on one element and the last keyframe wins, losing the crouch. */
+@keyframes botTouchdownPose{
+  0%,58%  {transform:rotateY(-8deg) scaleY(1)    translateY(0)}
+  74%     {transform:rotateY(-6deg) scaleY(.84)  translateY(9px)}   /* absorb */
+  84%     {transform:rotateY(-4deg) scaleY(.9)   translateY(5px)}   /* hold   */
+  100%    {transform:rotateY(0deg)  scaleY(1)    translateY(0)}     /* rise   */
+}
+#qabot.is-arriving .bot-3d{
+  animation:botTouchdownPose 2.3s cubic-bezier(.3,.6,.3,1) both;
+  transform-origin:60px 186px;   /* the soles: a crouch folds from the ground */
+}
+
+/* Knees take the compression, so the legs read as bending rather than the
+   whole figure being squashed. */
+@keyframes botKnee{
+  0%,58%{transform:scaleY(1)}
+  74%   {transform:scaleY(.72)}
+  84%   {transform:scaleY(.82)}
+  100%  {transform:scaleY(1)}
+}
+#qabot.is-arriving .bot-layer:nth-child(3){
+  animation:botKnee 2.3s cubic-bezier(.3,.6,.3,1) both;
+  transform-origin:60px 186px;
+}
 #qabot.is-arriving .bot-arm-r,
 #qabot.is-arriving .bot-arm-l{animation:none}
 
@@ -1435,6 +1603,31 @@ html[data-fx="on"] #qabot{display:block}
 }
 .bot-halo{opacity:0}
 
+/* Announcing a result.
+
+   The arm already waves continuously, so a merely larger wave does not read as
+   news -- it reads as the same idle. The announcement therefore swings much
+   wider, crosses the rest position hard, and hops the whole figure. Motion
+   across a boundary is what the eye catches at the edge of vision; amplitude
+   alone is not. */
+@keyframes botAnnounceWave{
+  0%,100%{transform:rotate(6deg)}
+  10%    {transform:rotate(-14deg)}
+  25%    {transform:rotate(44deg)}
+  40%    {transform:rotate(-10deg)}
+  55%    {transform:rotate(40deg)}
+  70%    {transform:rotate(-6deg)}
+  85%    {transform:rotate(34deg)}
+}
+@keyframes botHop{
+  0%,100%{transform:translateY(0)}
+  18%    {transform:translateY(-10px)}
+  38%    {transform:translateY(0)}
+  54%    {transform:translateY(-6px)}
+  72%    {transform:translateY(0)}
+}
+#qabot.is-announcing .bot-arm-r{animation:botAnnounceWave 1.3s ease-in-out 3}
+#qabot.is-announcing .bot-3d{animation:botHop 1.3s ease-in-out 3}
 #qabot.has-news .bot-beacon{animation:botBeaconNews .82s ease-in-out infinite}
 @keyframes botBeaconNews{
   0%,100%{opacity:.75;transform:scale(.9)}
@@ -1480,7 +1673,10 @@ html[data-fx="on"] #qabot{display:block}
   background:#fff; color:#0f1a22; border-color:#d6e0e8;
   box-shadow:0 10px 26px rgba(15,26,34,.14);
 }
-#qasay.on{opacity:1;transform:none;pointer-events:auto}
+/* Click-through even when shown. At up to 330px it covers a third of a card,
+   and a panel that eats clicks is worse than one that closes a little sooner
+   -- hovering the figure and the timeout both still hold it open. */
+#qasay.on{opacity:1;transform:none}
 #qasay b{color:var(--accent, #2dd4bf);font-weight:700}
 #qasay b.bad{color:var(--ro400, #fb7185)}
 #qasay b.good{color:var(--em400, #34d399)}
@@ -1504,8 +1700,9 @@ html[data-fx="on"] #qabot{display:block}
   #qabot.is-arriving,#qabot.is-arriving .bot-jets,#qabot.is-arriving .bot-ground{
     animation:none; transform:none; opacity:1}
   #qabot .bot-3d,#qabot .bot-ground,#qabot .bot-arm-r,#qabot .bot-arm-l,
-  #qabot .bot-head,#qabot .bot-eyes,#qabot .bot-core-lamp,#qabot .bot-jets,
-  #qabot .bot-ring,#qabot .bot-beacon,#qabot .bot-halo{animation:none}
+  #qabot .bot-head,#qabot .bot-eyes,#qabot .bot-blink,#qabot .bot-core-lamp,#qabot .bot-jets,
+  #qabot .bot-ring,#qabot .bot-beacon,#qabot .bot-halo,
+  #qabot.is-announcing .bot-arm-r,#qabot.is-announcing .bot-3d{animation:none}
   /* The beacon still has to be able to signal, so it holds bright rather
      than flashing. */
   #qabot.has-news .bot-beacon{opacity:1}
@@ -1917,6 +2114,191 @@ html[data-fx="off"] .tg-pulse{animation:none;opacity:.5}
   [data-theme="light"] .cs-top > .cs-pane + .cs-pane{border-top-color:#e4ebf2}
 }
 
+
+/* -- file import ---------------------------------------------------------- */
+.up-drop{
+  border:1.5px dashed var(--s700); border-radius:12px;
+  padding:20px 16px; text-align:center; cursor:pointer;
+  transition:border-color .18s ease, background .18s ease;
+  background:rgba(148,163,184,.05);
+}
+.up-drop:hover,.up-drop.over{
+  border-color:var(--accent); background:var(--accent-bg);
+}
+[data-theme="light"] .up-drop{border-color:#c8d6e4;background:rgba(15,23,42,.02)}
+[data-theme="light"] .up-drop.over,[data-theme="light"] .up-drop:hover{
+  border-color:var(--t700);background:rgba(15,118,110,.06)}
+.up-drop b{color:var(--text)}
+.up-drop .up-hint{display:block;margin-top:5px;font-size:11px;color:var(--text-dim)}
+.up-list{max-height:230px;overflow:auto;margin-top:12px;
+  border:1px solid var(--s800);border-radius:10px}
+[data-theme="light"] .up-list{border-color:#e4ebf2}
+.up-row{display:grid;grid-template-columns:auto 62px 1fr auto;gap:9px;
+  align-items:center;padding:7px 11px;border-bottom:1px solid var(--s800);
+  font-size:12px}
+[data-theme="light"] .up-row{border-bottom-color:#eef2f6}
+.up-row:last-child{border-bottom:0}
+.up-row .m{font:700 9.5px var(--mono);padding:2px 6px;border-radius:4px;
+  text-align:center;background:var(--slate-bg);color:var(--text-dim)}
+.up-row .p{font-family:var(--mono);font-size:11px;color:var(--text-dim);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.up-row .src{font-size:10px;color:var(--text-dim);opacity:.8}
+.up-sum{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px;font-size:11.5px}
+.up-sum span{padding:3px 9px;border-radius:99px;background:var(--slate-bg);
+  color:var(--text-dim)}
+.up-sum span.good{background:var(--accent-bg);color:var(--accent)}
+.up-sum span.warn{background:rgba(180,83,9,.14);color:var(--amber)}
+.up-diag{margin-top:11px;border:1px solid var(--line);border-radius:9px;padding:10px 12px;
+  background:var(--panel-2)}
+.up-diag .d-h{font:700 10px var(--mono);letter-spacing:.09em;text-transform:uppercase;
+  color:var(--text-dim);margin-bottom:5px}
+.up-diag .d-row{display:grid;grid-template-columns:minmax(120px,auto) 1fr;gap:10px;
+  font-size:11.5px;padding:3px 0;align-items:baseline}
+.up-diag .d-row b{color:var(--text)}
+.up-diag .d-row span{color:var(--text-dim);font-family:var(--mono);font-size:10.5px;
+  overflow-wrap:anywhere}
+/* An inferred verb must never look like a stated one. */
+.up-row .m.guessed{background:rgba(180,83,9,.18);color:var(--amber);
+  border:1px dashed rgba(180,83,9,.5)}
+
+
+/* ==========================================================================
+   QUICK ACTIONS
+
+   Four identical grey outlines said nothing about what any of them did. The
+   colours below encode the job, they are not decoration:
+
+     Add cURL / Upload   bring endpoints in -- one family, teal to indigo
+     Only assertion gaps a filter, in the amber its own chip already uses
+     Navigator           opens a panel; not an action on the data, so neutral
+
+   Every one keeps its border and focus ring, so the set still reads without
+   relying on hue alone.
+   ========================================================================== */
+.quick-actions .btn{
+  border-width:1.5px;
+  border-radius:9px;
+  padding:7px 14px;
+  font-weight:700;
+  letter-spacing:.01em;
+  transition:transform .16s cubic-bezier(.22,.61,.36,1),
+             box-shadow .16s ease, background .16s ease, border-color .16s ease;
+}
+.quick-actions .btn:hover:not(:disabled){transform:translateY(-1px)}
+.quick-actions .btn:active:not(:disabled){transform:translateY(0)}
+
+/* -- bring endpoints in --------------------------------------------------- */
+#btnCurl{
+  background:linear-gradient(180deg, rgba(45,212,191,.20), rgba(45,212,191,.08));
+  border-color:rgba(45,212,191,.55);
+  color:#5eead4;
+}
+#btnCurl:hover:not(:disabled){
+  background:linear-gradient(180deg, rgba(45,212,191,.30), rgba(45,212,191,.14));
+  border-color:#2dd4bf;
+  box-shadow:0 4px 14px -4px rgba(45,212,191,.55);
+}
+#btnUpload{
+  background:linear-gradient(180deg, rgba(96,165,250,.20), rgba(96,165,250,.08));
+  border-color:rgba(96,165,250,.55);
+  color:#93c5fd;
+}
+#btnUpload:hover:not(:disabled){
+  background:linear-gradient(180deg, rgba(96,165,250,.30), rgba(96,165,250,.14));
+  border-color:#60a5fa;
+  box-shadow:0 4px 14px -4px rgba(96,165,250,.55);
+}
+
+/* -- a filter, in the colour its own chip already uses -------------------- */
+#btnSelGaps{
+  background:linear-gradient(180deg, rgba(251,191,36,.18), rgba(251,191,36,.07));
+  border-color:rgba(251,191,36,.5);
+  color:#fcd34d;
+}
+#btnSelGaps:hover:not(:disabled){
+  background:linear-gradient(180deg, rgba(251,191,36,.28), rgba(251,191,36,.12));
+  border-color:#fbbf24;
+  box-shadow:0 4px 14px -4px rgba(251,191,36,.5);
+}
+
+/* -- opens a panel; not an action on the data ----------------------------- */
+#btnOpenNav{
+  background:linear-gradient(180deg, rgba(167,139,250,.16), rgba(167,139,250,.06));
+  border-color:rgba(167,139,250,.45);
+  color:#c4b5fd;
+}
+#btnOpenNav:hover:not(:disabled){
+  background:linear-gradient(180deg, rgba(167,139,250,.26), rgba(167,139,250,.10));
+  border-color:#a78bfa;
+  box-shadow:0 4px 14px -4px rgba(167,139,250,.5);
+}
+#btnOpenNav .pill{
+  background:rgba(167,139,250,.22);
+  color:#ddd6fe;
+  border-color:rgba(167,139,250,.4);
+}
+
+/* -- light needs its own values ------------------------------------------
+   The dark fills are translucent tints over a dark ground; the same alphas on
+   white read as washed-out pastels with unreadable text, so light takes solid
+   ink on a pale wash instead. */
+[data-theme="light"] .quick-actions #btnCurl{
+  background:linear-gradient(180deg,#e6fbf7,#d3f5ef);
+  border-color:#5eccbb; color:#0b6f68;
+}
+[data-theme="light"] .quick-actions #btnCurl:hover:not(:disabled){
+  background:linear-gradient(180deg,#d3f5ef,#bfeee5);
+  border-color:#0f8a80; box-shadow:0 4px 12px -3px rgba(15,138,128,.4);
+}
+[data-theme="light"] .quick-actions #btnUpload{
+  background:linear-gradient(180deg,#e8f1fe,#d6e6fd);
+  border-color:#7aaef5; color:#1d4ed8;
+}
+[data-theme="light"] .quick-actions #btnUpload:hover:not(:disabled){
+  background:linear-gradient(180deg,#d6e6fd,#c3d9fb);
+  border-color:#2563eb; box-shadow:0 4px 12px -3px rgba(37,99,235,.38);
+}
+[data-theme="light"] .quick-actions #btnSelGaps{
+  background:linear-gradient(180deg,#fdf3dd,#fbe9c2);
+  border-color:#e0ab3c; color:#8a5a06;
+}
+[data-theme="light"] .quick-actions #btnSelGaps:hover:not(:disabled){
+  background:linear-gradient(180deg,#fbe9c2,#f8dda3);
+  border-color:#b45309; box-shadow:0 4px 12px -3px rgba(180,83,9,.35);
+}
+[data-theme="light"] .quick-actions #btnOpenNav{
+  background:linear-gradient(180deg,#f0ecfe,#e4dcfd);
+  border-color:#a78bfa; color:#5b21b6;
+}
+[data-theme="light"] .quick-actions #btnOpenNav:hover:not(:disabled){
+  background:linear-gradient(180deg,#e4dcfd,#d6c9fb);
+  border-color:#7c3aed; box-shadow:0 4px 12px -3px rgba(124,58,237,.35);
+}
+[data-theme="light"] .quick-actions #btnOpenNav .pill{
+  background:#e4dcfd; color:#5b21b6; border-color:#a78bfa;
+}
+
+@media(prefers-reduced-motion:reduce){
+  .quick-actions .btn{transition:none}
+  .quick-actions .btn:hover:not(:disabled){transform:none}
+}
+
+
+/* -- provenance ------------------------------------------------------------
+   Which side of the repository boundary an endpoint sits on. Structural, not
+   decorative: it is the difference between "this is committed" and "this is
+   only in my browser", which is the boundary the Bruno round trip crosses. */
+.src-badge{
+  font:700 8.5px var(--mono);letter-spacing:.07em;text-transform:uppercase;
+  padding:2px 6px;border-radius:3px;white-space:nowrap;flex:none;
+  border:1px solid transparent;
+}
+.src-badge.bruno{background:rgba(31,111,139,.16);color:#4aa8c4;border-color:rgba(31,111,139,.4)}
+.src-badge.newman{background:rgba(100,116,139,.16);color:var(--text-dim);border-color:rgba(100,116,139,.3)}
+.src-badge.local{background:rgba(180,83,9,.16);color:var(--amber);border-color:rgba(180,83,9,.45)}
+[data-theme="light"] .src-badge.bruno{background:rgba(31,111,139,.10);color:#1f6f8b;border-color:rgba(31,111,139,.35)}
+[data-theme="light"] .src-badge.local{background:rgba(180,83,9,.10);color:#8a6014}
+
 </style>
 </head>
 <body>
@@ -1979,7 +2361,11 @@ html[data-fx="off"] .tg-pulse{animation:none;opacity:.5}
   <section class="view scroll active" id="view-home">
     <div class="quick-actions">
       <button class="btn btn-sm" id="btnCurl">+ Add cURL</button>
+      <button class="btn btn-sm" id="btnUpload">&#8593; Upload file</button>
+      <button class="btn btn-sm" id="btnBruno">&#8595; Export Bruno</button>
       <button class="btn btn-sm" id="btnSelGaps">Only assertion gaps</button>
+      <button class="btn btn-sm" id="btnRevert" disabled>&#8630; Undo
+        <span class="pill" id="revertBadge">0</span></button>
       <span class="sp"></span>
       <button class="btn btn-sm" id="btnOpenNav">☰ Navigator <span class="pill" id="navBadge">0</span></button>
     </div>
@@ -2169,6 +2555,7 @@ const STATE = {
   focus:null,
   result:null,
   imported:[],          // APIs added via cURL (travel by value, DR-2)
+  importSteps:[],       // undo stack for additions and deletions, newest last
   providers:{},         // apiRef -> authProviderApiId (K1c: travels in the manifest)
   history:[],           // last N run summaries, newest last — drives the trend chart
   pane:'suites',        // which workbench pane the side menu is pointing at
@@ -2190,7 +2577,8 @@ let persist=function persist(){
   try{ localStorage.setItem(LS, JSON.stringify({
     view:STATE.view, tab:STATE.tab, persona:STATE.persona, env:STATE.env,
     alias:STATE.alias, selected:[...STATE.selected], focus:STATE.focus,
-    imported:STATE.imported, result:STATE.result, providers:STATE.providers, live:STATE.live,
+    imported:STATE.imported, importSteps:STATE.importSteps,
+    result:STATE.result, providers:STATE.providers, live:STATE.live,
     history:STATE.history, pane:STATE.pane,
     catFilter:STATE.catFilter, modFilter:STATE.modFilter, closedSuites:STATE.closedSuites,
     seededTrend:STATE.seededTrend, viewing:STATE.viewing, openCase:STATE.openCase,
@@ -2272,6 +2660,21 @@ function rateIsHollow(R){
   return ((R.summary||{}).unreachableResults||0) > 0;
 }
 
+/* Age in the reader's terms. An ISO timestamp in a status strip is a fact
+   nobody converts in their head. */
+function inventoryAge(){
+  try{
+    const t = new Date(SEED.generatedAt);
+    if(isNaN(t)) return 'built';
+    const mins = Math.round((Date.now() - t.getTime()) / 60000);
+    if(mins < 2) return 'just built';
+    if(mins < 60) return mins + 'm old';
+    const h = Math.round(mins / 60);
+    if(h < 24) return h + 'h old';
+    return Math.round(h / 24) + 'd old';
+  }catch(e){ return 'built'; }
+}
+
 function qualityGate(R){
   const c=R.summary.counts;
   const unreachable=R.summary.unreachableResults||0;
@@ -2302,7 +2705,8 @@ function restore(){
   STATE.view='home'; STATE.tab=s.tab||'overview';
   STATE.persona=s.persona||'qa'; STATE.env=s.env||STATE.env; STATE.alias=s.alias||STATE.alias;
   STATE.selected=new Set(s.selected||[]); STATE.focus=s.focus||null;
-  STATE.imported=s.imported||[]; STATE.result=s.result||null;
+  STATE.imported=s.imported||[]; STATE.importSteps=s.importSteps||[];
+  STATE.result=s.result||null;
   STATE.providers=s.providers||{}; STATE.history=s.history||[]; STATE.live=!!s.live;
   STATE.pane=s.pane||'suites';
   STATE.catFilter=s.catFilter||'all'; STATE.modFilter=s.modFilter||'all';
@@ -2332,6 +2736,142 @@ function label(a){ return a.method+' '+a.path; }
 function subLabel(a){ return a.module + (a.subModule && a.subModule!==a.module ? ' › '+a.subModule : ''); }
 
 function allApis(){ return SEED.apis.concat(STATE.imported); }
+
+function isImported(ref){ return STATE.imported.some(a => a.ref === ref); }
+
+/* An endpoint is in one of three places, and the reader needs to tell them
+   apart: committed under bruno/, committed under collections/, or sitting in
+   this browser only and one refresh from being gone. */
+function sourceBadge(a){
+  if(!a) return '';
+  if(isImported(a.ref)) return '<span class="src-badge local" title="In this browser only — export and commit it to keep it">local</span>';
+  const t = String(a.sourceType || '').toLowerCase();
+  if(t === 'bruno')  return '<span class="src-badge bruno" title="Committed under bruno/">bruno</span>';
+  if(t === 'newman') return '<span class="src-badge newman" title="Committed under collections/">postman</span>';
+  return t ? `<span class="src-badge newman" title="Committed">${esc(t)}</span>` : '';
+}
+
+/* ------------------------------------------------------------------ undo --
+   A stack of deltas, newest last. An 'add' step names the refs it brought in;
+   a 'remove' step carries the endpoint itself, so putting it back is possible.
+
+   Deltas rather than snapshots: a snapshot per step copies the whole endpoint
+   list, payloads included, into the same 5MB the run archive already evicts
+   from. Capped for the same reason. */
+const IMPORT_STEPS_MAX = 20;
+
+function pushImportStep(step){
+  STATE.importSteps.push(Object.assign({at: new Date().toISOString()}, step));
+  if(STATE.importSteps.length > IMPORT_STEPS_MAX){
+    STATE.importSteps = STATE.importSteps.slice(-IMPORT_STEPS_MAX);
+  }
+}
+
+function describeStep(st){
+  if(!st) return '';
+  if(st.kind === 'add'){
+    const n = (st.refs || []).length;
+    return `${n} endpoint${n === 1 ? '' : 's'}${st.from ? ' from ' + st.from : ''} removed again`;
+  }
+  if(st.kind === 'removeMany'){
+    const n = (st.endpoints || []).length;
+    return `${st.suite || 'Suite'} restored — ${n} endpoint${n === 1 ? '' : 's'}`;
+  }
+  return `${(st.endpoint && (st.endpoint.name || st.endpoint.path)) || 'endpoint'} restored`;
+}
+
+/* Reverses exactly one step and returns it, so the caller can say what moved. */
+function undoImportStep(){
+  const st = STATE.importSteps.pop();
+  if(!st) return null;
+  if(st.kind === 'add'){
+    const drop = new Set(st.refs || []);
+    STATE.imported = STATE.imported.filter(a => !drop.has(a.ref));
+    drop.forEach(r => { STATE.selected.delete(r); delete STATE.providers[r]; });
+  }else if(st.kind === 'remove' && st.endpoint){
+    STATE.imported.push(st.endpoint);
+  }else if(st.kind === 'removeMany' && st.endpoints){
+    st.endpoints.forEach(a => STATE.imported.push(a));
+  }
+  DISPLAY_ID = null;
+  return st;
+}
+
+/* Imported endpoints only. One that came from the repository would return on
+   the next reload, leaving the console disagreeing with CI about what exists. */
+function removeImported(ref){
+  const at = STATE.imported.findIndex(a => a.ref === ref);
+  if(at < 0) return false;
+  const gone = STATE.imported.splice(at, 1)[0];
+  STATE.selected.delete(ref);
+  delete STATE.providers[ref];
+  pushImportStep({kind: 'remove', endpoint: gone});
+  DISPLAY_ID = null;
+  return true;
+}
+
+/* Delete a whole imported suite. A bad upload arrives as a suite, not as an
+   endpoint -- nine of them accounted for 79 duplicate rows here -- so removing
+   it one row at a time is the wrong unit of work. One undo step covers the
+   whole suite, so a mis-click costs one click to reverse, which is why this
+   needs no confirmation dialog. */
+function removeImportedSuite(mod){
+  const gone = STATE.imported.filter(a => a.module === mod);
+  if(!gone.length) return 0;
+  STATE.imported = STATE.imported.filter(a => a.module !== mod);
+  gone.forEach(a => { STATE.selected.delete(a.ref); delete STATE.providers[a.ref]; });
+  pushImportStep({kind: 'removeMany', endpoints: gone, suite: mod});
+  DISPLAY_ID = null;
+  return gone.length;
+}
+
+/* The catalogue changed: save it, then redraw every view that counts endpoints.
+   renderSuitesGrid only exists once the suites view has been built. */
+function afterCatalogueChange(){
+  persist(); renderTopbar(); renderHome(); syncRevert();
+  if(typeof renderSuitesGrid === 'function' && $('#suitesGrid')) renderSuitesGrid();
+}
+
+function syncRevert(){
+  const b = $('#btnRevert'); if(!b) return;
+  const n = STATE.importSteps.length;
+  const badge = $('#revertBadge'); if(badge) badge.textContent = n;
+  b.disabled = !n;
+  b.title = n ? 'Undo the last change to the endpoint list'
+              : 'Nothing to revert — the list matches the repository';
+}
+/* Delete, per endpoint. removeImported() and its undo stack have existed
+   since imports landed but nothing ever called them, so the only way to undo a
+   bad upload was to clear the browser's storage.
+
+   Only an imported endpoint can actually go. One that came from the repository
+   would be back on the next reload, and worse, an existing run holds results
+   keyed by its ref -- dropping it from allApis() turns every one of those into
+   "matched no inventory row". So the button is present on every row and says
+   which of the two it is, rather than being absent on most of them. */
+function delBtn(a){
+  const mine = isImported(a.ref);
+  return `<button class="row-del${mine?'':' locked'}" data-del="${esc(a.ref)}"
+    ${mine?'':'disabled'} tabindex="-1"
+    title="${mine ? 'Remove this endpoint (undoable)'
+                  : 'Committed to the repository — it would return on the next reload. Remove it in the collection and let CI regenerate.'}"
+    aria-label="Remove ${esc(a.method + ' ' + a.path)}">&times;</button>`;
+}
+
+/* One handler for both endpoint lists. Stops the click reaching the row, which
+   would otherwise open the endpoint that is being deleted. */
+function wireDelete(host){
+  if(!host) return;
+  host.querySelectorAll('[data-del]').forEach(b => b.onclick = ev => {
+    ev.preventDefault(); ev.stopPropagation();
+    const a = apiByRef(b.dataset.del);
+    if(!a || !removeImported(b.dataset.del)) return;
+    afterCatalogueChange();
+    renderMultiSelect(); syncSel();
+    toast(`Removed ${a.method} ${a.path} — Undo restores it`);
+  });
+}
+
 function apiByRef(ref){ return allApis().find(a=>a.ref===ref) || null; }
 
 function toast(msg){
@@ -2440,13 +2980,38 @@ function defaultProviderFor(ref){
   return (match || provs[0] || {}).ref || '';
 }
 
+/* An uploaded endpoint is never written to the repository (DR-2), so the
+   engine cannot look one up -- a ref for it resolves against the inventory and
+   misses, and every check reports NOT_APPLICABLE against an endpoint that was
+   never contacted. It has to travel by value instead.
+
+   Only the fields the manifest schema allows; it rejects unknown ones. */
+function definitionFor(api){
+  const id = api.displayId || 'API-IMPORTED';
+  const def = {
+    'API ID': id,
+    'API / Feature Name': api.name || api.path,
+    'Module': api.module || 'Imported',
+    'HTTP Method': String(api.method || 'GET').toUpperCase(),
+    'Endpoint Path': api.path,
+    'Environment(s)': STATE.env
+  };
+  if(api.baseUrl) def['Base URL'] = api.baseUrl;
+  const body = api.samplePayload;
+  if(body && Object.keys(body).length){
+    def.payloads = [{'API ID': id, 'Payload Type': 'Request',
+                     'Sample JSON': JSON.stringify(body)}];
+  }
+  return def;
+}
+
 function manifestFor(refs){
   return {
     runId: 'console-' + Date.now().toString(36),
     environment: STATE.env,
     requestedTiers: ['global_contract'],
     apis: refs.map(ref => {
-      const entry = {ref, credentialAlias: aliasForManifest(STATE.alias)};
+      const entry = {credentialAlias: aliasForManifest(STATE.alias)};
       /* STATE.providers is only written when an endpoint is opened in Configure,
          so a batch of 44 selected from the list carried a provider for the few
          that had been opened and nothing for the rest. That run reported 124
@@ -2455,6 +3020,11 @@ function manifestFor(refs){
          behave like a configured one; an explicit choice still wins. */
       const prov = STATE.providers[ref] || defaultProviderFor(ref);
       if(prov && prov !== ref) entry.authProviderApiId = prov;
+      /* Either a ref or a definition, never both -- the manifest rejects an
+         entry carrying the two together. */
+      const imported = STATE.imported.find(a => a.ref === ref);
+      if(imported) entry.definition = definitionFor(imported);
+      else entry.ref = ref;
       return entry;
     })
   };
@@ -2775,6 +3345,12 @@ function renderStrip(){
     LIVE.available
       ? `<span class="chip ok"><span class="d"></span>Live Engine &middot; harness attached</span>`
       : `<span class="chip"><span class="d"></span>Simulated Engine &middot; standalone</span>`,
+    /* When the inventory this console was built from was generated. Without
+       it, "my PR merged an hour ago" and "the console is showing yesterday's
+       inventory" are indistinguishable. */
+    SEED.generatedAt
+      ? `<span class="chip" title="${esc(SEED.generatedAt)}"><span class="d"></span>Inventory ${esc(inventoryAge())}</span>`
+      : '',
     `<span class="chip blue"><span class="d"></span>${mods.size} Suites Active</span>`,
     `<span class="chip ok"><span class="d"></span>${apis.length} APIs Loaded</span>`,
     gaps?`<span class="chip warn"><span class="d"></span>${gaps} Assertion Gaps</span>`:'',
@@ -2824,8 +3400,10 @@ function msCaseRow(a, n){
     <input type="checkbox" ${STATE.selected.has(a.ref)?'checked':''} data-chk="${esc(a.ref)}">
     <span class="m ${esc(a.method)}">${esc(a.method)}</span>
     <span class="nm">${esc(a.name||a.subModule||a.path)}</span>
+    ${sourceBadge(a)}
     ${a.assertionState==='not-asserted'?'<span class="pill gap">no assert</span>':''}
     <span class="id" title="${esc(displayId(a))} — the catalogue id a run sends">${esc(caseId)}</span>
+    ${delBtn(a)}
   </label>`;
 }
 
@@ -2863,6 +3441,7 @@ function renderMultiSelect(){
       ${body}
     </div>`;
   }).join('');
+  wireDelete(box);
 
   box.querySelectorAll('[data-chk]').forEach(cb=> cb.onchange=()=>{
     cb.checked ? STATE.selected.add(cb.dataset.chk) : STATE.selected.delete(cb.dataset.chk);
@@ -2913,7 +3492,7 @@ function renderSuitesGrid(){
 
   const grid=$('#suitesGrid');
   if(!m.size){
-    grid.innerHTML=`<div class="empty" style="grid-column:1/-1">
+    grid.innerHTML=`<div class="empty" style="column-span:all">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.65" y2="16.65"/></svg>
       <div>Nothing matches “${esc(q)}”.</div>
       <div style="margin-top:5px;font-size:12px">Filters match name, method, path, module and display id.</div>
@@ -2928,6 +3507,7 @@ function renderSuitesGrid(){
     const gaps=list.filter(a=>a.assertionState==='not-asserted').length;
     const collapsed = STATE.closedSuites.includes(mod) && !q;
     return `<article class="suite-card${collapsed?' collapsed':''}" data-suite="${esc(mod)}">
+      <div class="sc-hrow">
       <button class="sc-h" data-toggle="${esc(mod)}" aria-expanded="${!collapsed}"
         title="${collapsed?'Show':'Hide'} the ${list.length} endpoint(s) in ${esc(mod)}">
         <svg class="sc-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -2939,16 +3519,32 @@ function renderSuitesGrid(){
         </span>
         <span class="pill${gaps?' partial':''}">${list.length} API${list.length===1?'':'s'}</span>
       </button>
+      ${list.every(a=>isImported(a.ref))
+        ? `<button class="suite-del" data-del-suite="${esc(mod)}"
+             title="Remove all ${list.length} endpoints in ${esc(mod)} (undoable)"
+             aria-label="Remove the suite ${esc(mod)}">&times;</button>`
+        : ''}
+      </div>
       <div class="sc-rows">${list.map(a=>`
         <div class="sc-row" data-open="${esc(a.ref)}" role="button" tabindex="0">
           <span class="m ${esc(a.method)}">${hl(a.method,q)}</span>
           <span class="id">${hl(displayId(a),q)}</span>
           <span class="nm">${hl(a.name||a.subModule||a.path,q)}</span>
           <span class="pa" title="${esc(a.path)}">${hl(a.path,q)}</span>
+          ${delBtn(a)}
         </div>`).join('')}</div>
     </article>`;
   }).join('');
 
+  wireDelete(grid);
+  grid.querySelectorAll('[data-del-suite]').forEach(b => b.onclick = ev => {
+    ev.preventDefault(); ev.stopPropagation();
+    const mod = b.dataset.delSuite;
+    const n = removeImportedSuite(mod);
+    if(!n) return;
+    afterCatalogueChange(); renderMultiSelect(); syncSel();
+    toast(`Removed ${mod} — ${n} endpoint${n===1?'':'s'}. Undo restores them.`);
+  });
   grid.querySelectorAll('[data-toggle]').forEach(h=> h.onclick=()=>{
     const mod=h.dataset.toggle, at=STATE.closedSuites.indexOf(mod);
     at<0 ? STATE.closedSuites.push(mod) : STATE.closedSuites.splice(at,1);
@@ -2975,10 +3571,20 @@ function syncSel(){
   $('#btnRunLabel').textContent = `Run Selected Batch (${n})`;
   $('#btnRun').disabled = n===0 || STATE.running;
   $('#btnConfigureFirst').disabled = n===0;
+  /* A disabled control that does not say why reads as broken -- which is how
+     these were reported. The reason is always one of two, and both are things
+     the user can act on. */
+  const pick = (sel, why) => { const b=$(sel); if(b) b.title = b.disabled ? why : ''; };
+  pick('#btnRun', STATE.running
+        ? 'A batch is already running.'
+        : 'Select at least one API in the grid above, then run.');
+  pick('#btnConfigureFirst', 'Select at least one API to configure it.');
   $('#navBadge').textContent = allApis().length;
   const has=!!STATE.result;
   $('#btnViewReportHome').disabled = !has;
   const vr=$('#btnViewReport'); if(vr) vr.disabled = !hasResultFor(STATE.focus);
+  pick('#btnViewReportHome', 'No run yet — run a batch and the report opens here.');
+  pick('#btnViewReport', 'This API has no result in the current run.');
 }
 
 function hasResultFor(ref){
@@ -3991,6 +4597,18 @@ function ranEndpoints(R){
    then declined -- no path-parameter value, no declared sample -- is not
    coverage, and counting it as such is how 23 checks on an endpoint asserting
    4 of them reads as a tested endpoint. */
+/* How many distinct contract checks the run exercised. Not the same as the
+   number of result rows: one check can run more than one variant per endpoint
+   (the 401 check sends a missing token and an invalid one), and host-level
+   probes are attributed to one endpoint and referenced by the others. Stating
+   all three separately is the only way the totals stop looking arbitrary. */
+function distinctChecks(R){
+  const names = new Set();
+  R.apis.forEach(a => a.results.forEach(r =>
+    names.add(String(r.testId||'').split('::').pop().split('[')[0])));
+  return names.size;
+}
+
 function assertedChecks(R){
   const asserting = {PASS:1, FAIL:1, WARN:1};
   return R.apis.reduce((n,a) =>
@@ -4027,8 +4645,10 @@ function kpiRow(R){
       <div class="estat-h"><span>Executed This Run</span><span class="estat-ic ic-blue">${svg(ICO.check2)}</span></div>
       <div class="estat-v"><span class="estat-n">${ranEndpoints(R)}</span>
         <span class="estat-sub">of ${allApis().length} endpoints &middot; ${mods.size} suite${mods.size===1?'':'s'}</span></div>
-      <div class="estat-f"><span><b>${assertedChecks(R)}</b> of ${R.summary.total} checks asserted</span>
-        <span class="t">${(R.summary.total-assertedChecks(R))} not asserted</span></div>
+      <div class="estat-f"><span><b>${distinctChecks(R)}</b> contract checks per endpoint</span>
+        <span class="t">${R.summary.total} result rows</span></div>
+      <div class="estat-f" style="margin-top:4px"><span><b>${assertedChecks(R)}</b> asserted</span>
+        <span class="t">${(R.summary.total-assertedChecks(R))} skipped &mdash; not applicable</span></div>
       ${ranEndpoints(R) < allApis().length ? `<div class="estat-sub amber" style="margin-top:8px;line-height:1.45">
         ${allApis().length - ranEndpoints(R)} endpoint${allApis().length-ranEndpoints(R)===1?'':'s'}
         in the catalogue were not part of this run
@@ -4603,10 +5223,27 @@ function tabPayloads(R){
           <b style="font-size:11.5px">Request body</b>
           <button class="btn btn-sm" data-curl-ref="${esc(a.apiRef)}">Copy cURL</button>
         </div>
-        <pre>${esc(JSON.stringify(api.samplePayload||{},null,2))}</pre>
+        ${payloadBlock(api)}
       </div></div>`;}).join('')}</div>`;
 }
 function labelRef(ref){ const a=apiByRef(ref); return a? label(a) : ref; }
+
+/* An empty payload was printed as `{}`, which claims the request sends an
+   empty JSON object. Two very different things produce it, and only one is a
+   problem: a GET legitimately sends nothing, while a POST with no captured
+   body means the importer never saw one. Printing the same `{}` for both is
+   what made a correct report look broken. */
+const BODYLESS = {GET:1, HEAD:1, DELETE:1, OPTIONS:1};
+function payloadBlock(api){
+  const p = api.samplePayload;
+  const empty = !p || (typeof p === 'object' && !Object.keys(p).length);
+  if(!empty) return `<pre>${esc(JSON.stringify(p,null,2))}</pre>`;
+  if(BODYLESS[api.method])
+    return `<div class="empty">No request body — ${esc(api.method)} sends none.</div>`;
+  return `<div class="empty">No body recorded for this ${esc(api.method)}.
+    The source collection did not carry one, so the request goes out with an
+    empty body.</div>`;
+}
 
 function tabPerf(R){
   const timed = R.apis.flatMap(a=>a.results.filter(r=>r.executed && r.durationMs>1)
@@ -5290,6 +5927,161 @@ const EXPORTERS={xlsx:exportXlsx, docx:exportDocx, html:exportHtml,
 
 /* Exports whichever run it is handed — the one on screen, or any archived
    snapshot straight from the history list. */
+
+/* ==========================================================================
+   BRUNO EXPORT
+
+   The inverse of the importer. Produces a .bru per endpoint, foldered by
+   module, plus the bruno.json that makes the folder openable in Bruno itself.
+
+   Nothing here writes to the repository: it is a download, and a person
+   chooses to commit it. That is what keeps DR-2 intact -- a definition still
+   travels by value, and reaching main stays a decision someone makes.
+   ========================================================================== */
+
+/* Bruno resolves {{var}} the same way the engine does, so a credential can be
+   named rather than dropped. Stripping it outright would hand the next reader
+   a collection that cannot authenticate. */
+const BRU_TOKEN_VAR = '{{authToken}}';
+
+function bruSafeName(t){
+  return String(t || 'request')
+    .trim()
+    .replace(/[^\w\s.-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .toLowerCase()
+    .slice(0, 60) || 'request';
+}
+
+/* Bruno's format is indentation-sensitive: two spaces inside a block, the
+   closing brace in column zero. Building it through one helper keeps every
+   block consistent rather than trusting each call site to remember. */
+function bruBlock(name, lines){
+  const body = lines.filter(Boolean).map(l => '  ' + l).join('\n');
+  return name + ' {\n' + body + '\n}\n';
+}
+
+function toBru(api, seq){
+  const method = String(api.method || 'GET').toLowerCase();
+  const url = (api.baseUrl || '') + (api.path || '');
+
+  const headers = Object.assign({}, api.importedHeaders || {});
+  /* Bruno expresses auth two ways, and only one of them is read back. A
+     hand-written `headers { Authorization: ... }` is valid Bruno but invisible
+     to generate-api-file.js, which looks for the structured `auth:bearer`
+     block -- so an endpoint exported the header way reached the inventory
+     carrying no credential at all, while looking perfectly imported. The
+     structured block is what Bruno itself writes, and what round-trips. */
+  const needsAuth = api.strippedHeaders > 0 ||
+    Object.keys(headers).some(h => /^authorization$/i.test(h));
+  Object.keys(headers).forEach(h => {
+    if(/^authorization$/i.test(h)) delete headers[h];
+  });
+  const hasBody = api.samplePayload && Object.keys(api.samplePayload).length > 0;
+
+  let out = bruBlock('meta', [
+    'name: ' + (api.name || api.path),
+    'type: http',
+    'seq: ' + (seq + 1)
+  ]);
+  out += '\n' + bruBlock(method, [
+    'url: ' + url,
+    'body: ' + (hasBody ? 'json' : 'none'),
+    'auth: ' + (needsAuth ? 'bearer' : 'none')
+  ]);
+  const hk = Object.keys(headers);
+  if(hk.length){
+    out += '\n' + bruBlock('headers', hk.map(k => k + ': ' + headers[k]));
+  }
+  if(needsAuth){
+    out += '\n' + bruBlock('auth:bearer', ['token: ' + BRU_TOKEN_VAR]);
+  }
+  if(hasBody){
+    /* The payload is indented as a block, so it survives the round trip
+       through a parser that strips one level of indentation. */
+    const json = JSON.stringify(api.samplePayload, null, 2)
+      .split('\n').map(l => '  ' + l).join('\n');
+    out += '\nbody:json {\n' + json + '\n}\n';
+  }
+  return out;
+}
+
+/* One file per endpoint, foldered by module, plus the collection manifest. */
+function bruCollection(apis, collectionName){
+  const files = [];
+  const used = {};
+  const byModule = {};
+  apis.forEach(a => {
+    const m = bruSafeName(a.module || 'imported');
+    (byModule[m] = byModule[m] || []).push(a);
+  });
+
+  Object.keys(byModule).forEach(folder => {
+    byModule[folder].forEach((api, i) => {
+      let base = bruSafeName(api.name || api.path);
+      /* Two requests can legitimately share a name -- five POST /auth/token
+         scenarios already do in this inventory -- and a zip with duplicate
+         paths silently keeps only the last. */
+      let key = folder + '/' + base, n = 1;
+      while(used[key]){ key = folder + '/' + base + '-' + (++n); }
+      used[key] = true;
+      files.push({name: key + '.bru', data: toBru(api, i)});
+    });
+  });
+
+  files.push({name: 'bruno.json', data: JSON.stringify({
+    version: '1',
+    name: collectionName || 'HCM imported',
+    type: 'collection',
+    ignore: ['node_modules', '.git']
+  }, null, 2)});
+
+  return files;
+}
+
+function exportBrunoModal(){
+  const apis = STATE.imported || [];
+  if(!apis.length){
+    toast('Nothing to export — upload a file or add a cURL first');
+    return;
+  }
+  const files = bruCollection(apis, 'HCM imported');
+  const modules = [...new Set(apis.map(a => a.module || 'Imported'))];
+  const withAuth = apis.filter(a => a.strippedHeaders > 0).length;
+
+  openModal('Export as Bruno collection',
+    `<div class="up-sum">
+       <span class="good">${apis.length} endpoint${apis.length===1?'':'s'}</span>
+       <span>${modules.length} folder${modules.length===1?'':'s'}</span>
+       <span>${files.length} file${files.length===1?'':'s'}</span>
+       ${withAuth ? `<span>${withAuth} will carry <code>${esc(BRU_TOKEN_VAR)}</code></span>` : ''}
+     </div>
+     <div class="up-list">${files.filter(f => f.name.endsWith('.bru')).map(f => `
+       <div class="up-row">
+         <span class="m">bru</span>
+         <span class="src"></span>
+         <span class="p" title="${esc(f.name)}">${esc(f.name)}</span>
+         <span class="src">${f.data.length} B</span>
+       </div>`).join('')}</div>
+     <div class="faint" style="font-size:11.5px;margin-top:11px">
+       Unzip into <code>bruno/</code>, commit, open a PR. CI regenerates the inventory
+       on push and the endpoints join the suite &mdash; nothing here writes to the
+       repository (DR-2). Credentials are written as
+       <code>${esc(BRU_TOKEN_VAR)}</code>, never as a real token.
+     </div>`,
+    `<button class="btn" data-close>Cancel</button>
+     <button class="btn btn-primary" id="btnBruSave">Download .zip</button>`);
+
+  $('#btnBruSave').onclick = () => {
+    const day = new Date().toISOString().slice(0, 10);
+    download(zipStore(files), `hcm-bruno-${day}.zip`, 'application/zip');
+    closeModal();
+    toast(`${apis.length} endpoint${apis.length===1?'':'s'} exported — unzip into bruno/ and commit`);
+  };
+}
+
 function exportModal(run){
   /* Called two ways: as a click handler, and with a specific run from the
      history list. An Event is truthy, so `run || STATE.result` silently took
@@ -5570,10 +6362,21 @@ function curlModal(){
        The definition travels <b>by value</b> with the run and is never written to the repo (DR-2).
        Any <code>Authorization</code> header is stripped on import — send the credential alias instead.
      </div>
+     <div class="up-drop" id="curlDrop" style="margin-top:14px">
+       <b>&#8593; Or upload a file</b>
+       <span class="up-hint">Postman &middot; Bruno (.bru or .zip) &middot; OpenAPI &middot; .har
+         &middot; .docx &middot; .txt of cURL commands &middot; .json</span>
+     </div>
+     <div id="curlUpOut"></div>
      <div id="curlErr" style="color:var(--rose);font-size:11.5px;margin-top:8px"></div>`,
     `<button class="btn" data-close>Cancel</button>
      <button class="btn btn-primary" id="btnCurlSave">Add endpoint</button>`);
+  wireDrop($('#curlDrop'), $('#curlUpOut'));
   $('#btnCurlSave').onclick=()=>{
+    /* The card has two inputs. If a file was reviewed, that is what the button
+       commits -- otherwise a reader who uploaded and then pressed the only
+       obvious button would get "no URL in that command". */
+    if(PENDING_IMPORT.length){ commitImport(); return; }
     const parsed=parseCurl($('#curlIn').value);
     if(!parsed){ $('#curlErr').textContent='Could not find a URL in that command.'; return; }
     STATE.imported.push(parsed); STATE.selected.add(parsed.ref);
@@ -5582,6 +6385,869 @@ function curlModal(){
     toast('Endpoint added — credentials stripped');
   };
 }
+
+/* ==========================================================================
+   FILE IMPORT
+
+   Reads a dropped or chosen file and pulls endpoint definitions out of it.
+   No library: a .docx and a Bruno .zip are both ZIP containers, and the
+   browser can inflate their members itself.
+
+   Everything imported travels by value with the run and is never written to
+   the repo (DR-2). Authorization headers are stripped on the way in, because
+   an export taken from a working session is exactly the file most likely to
+   carry a live token.
+   ========================================================================== */
+
+const UPLOAD_ACCEPT =
+  '.json,.txt,.md,.curl,.http,.bru,.yaml,.yml,.csv,.har,.zip,.docx,.xlsx,.postman_collection';
+
+/* -- ZIP ------------------------------------------------------------------
+   Enough of the format to walk the central directory and inflate members.
+   Only stored (0) and deflate (8) appear in a .docx or a Bruno export. */
+async function unzip(buf){
+  const dv = new DataView(buf), u8 = new Uint8Array(buf);
+  /* The end-of-central-directory record is last, after a comment of unknown
+     length, so it has to be found by scanning backwards for its signature. */
+  let eocd = -1;
+  for(let i = u8.length - 22; i >= 0 && i > u8.length - 66000; i--){
+    if(dv.getUint32(i, true) === 0x06054b50){ eocd = i; break; }
+  }
+  if(eocd < 0) throw new Error('not a zip file');
+  const count = dv.getUint16(eocd + 10, true);
+  let p = dv.getUint32(eocd + 16, true);
+
+  const out = [];
+  for(let i = 0; i < count; i++){
+    if(dv.getUint32(p, true) !== 0x02014b50) break;
+    const method  = dv.getUint16(p + 10, true);
+    const csize   = dv.getUint32(p + 20, true);
+    const nameLen = dv.getUint16(p + 28, true);
+    const extLen  = dv.getUint16(p + 30, true);
+    const cmtLen  = dv.getUint16(p + 32, true);
+    const lho     = dv.getUint32(p + 42, true);
+    const name    = new TextDecoder().decode(u8.subarray(p + 46, p + 46 + nameLen));
+    p += 46 + nameLen + extLen + cmtLen;
+
+    if(name.endsWith('/')) continue;                 // directory entry
+    /* The local header repeats the name and extra fields at its own lengths,
+       which are not always the central directory's. */
+    const lnameLen = dv.getUint16(lho + 26, true);
+    const lextLen  = dv.getUint16(lho + 28, true);
+    const start = lho + 30 + lnameLen + lextLen;
+    const raw = u8.subarray(start, start + csize);
+    out.push({name, method, raw});
+  }
+  return out;
+}
+
+async function inflateEntry(entry){
+  if(entry.method === 0) return new TextDecoder().decode(entry.raw);
+  if(typeof DecompressionStream !== 'function'){
+    throw new Error('this browser cannot inflate zip members');
+  }
+  const ds = new DecompressionStream('deflate-raw');
+  const stream = new Blob([entry.raw]).stream().pipeThrough(ds);
+  return new TextDecoder().decode(await new Response(stream).arrayBuffer());
+}
+
+/* -- extractors -----------------------------------------------------------
+   Each knows one shape. Tried in order of how confidently a file can be
+   identified, so a Postman collection is never guessed at as loose JSON. */
+
+/* Postman stores a body under a different key per mode. Reading only `raw`
+   dropped every form-encoded and GraphQL request silently -- they imported
+   with an empty payload and the report showed `{}`, which reads as "this
+   endpoint sends nothing" rather than "the importer could not see it". */
+function postmanBody(b){
+  if(!b) return '';
+  if(b.mode === 'raw')        return b.raw || '';
+  if(b.mode === 'graphql')    return JSON.stringify(b.graphql || {});
+  if(b.mode === 'formdata' || b.mode === 'urlencoded'){
+    const rows = b[b.mode] || [];
+    const obj = {};
+    rows.forEach(f => { if(f && f.key && !f.disabled) obj[f.key] = f.value != null ? f.value : ''; });
+    return Object.keys(obj).length ? JSON.stringify(obj) : '';
+  }
+  if(b.mode === 'file')       return '';
+  return b.raw || '';
+}
+
+function fromPostman(doc, label){
+  if(!doc || !Array.isArray(doc.item)) return [];
+  const out = [];
+  const walk = (items, trail) => items.forEach(it => {
+    if(Array.isArray(it.item)) return walk(it.item, trail.concat(it.name || ''));
+    const r = it.request; if(!r) return;
+    const rawUrl = typeof r.url === 'string' ? r.url : (r.url && r.url.raw) || '';
+    if(!rawUrl) return;
+    const headers = {};
+    (r.header || []).forEach(h => { if(h && h.key) headers[h.key] = h.value; });
+    out.push(makeImported({
+      method: (r.method || 'GET').toUpperCase(),
+      rawUrl,
+      headers,
+      body: postmanBody(r.body),
+      name: it.name || '',
+      module: 'Imported · ' + (doc.info && doc.info.name || label),
+      via: 'postman'
+    }));
+  });
+  walk(doc.item, []);
+  return out.filter(Boolean);
+}
+
+function fromOpenApi(doc, label){
+  if(!doc || !doc.paths || !(doc.openapi || doc.swagger)) return [];
+  const base = (doc.servers && doc.servers[0] && doc.servers[0].url) || '';
+  const out = [];
+  Object.keys(doc.paths).forEach(path => {
+    const ops = doc.paths[path] || {};
+    Object.keys(ops).forEach(m => {
+      if(!/^(get|post|put|patch|delete|head|options)$/i.test(m)) return;
+      const op = ops[m] || {};
+      out.push(makeImported({
+        method: m.toUpperCase(),
+        rawUrl: (base || '') + path,
+        headers: {},
+        body: '',
+        name: op.summary || op.operationId || path,
+        module: 'Imported · ' + (doc.info && doc.info.title || label),
+        via: 'openapi'
+      }));
+    });
+  });
+  return out.filter(Boolean);
+}
+
+/* Bruno stores one request per .bru file in a brace-block format. */
+function fromBru(text, label, fileName){
+  const block = n => {
+    const m = text.match(new RegExp(n + '\\s*\\{([\\s\\S]*?)\\n\\}', 'm'));
+    return m ? m[1] : '';
+  };
+  const verbM = text.match(/^\s*(get|post|put|patch|delete|head|options)\s*\{/mi);
+  if(!verbM) return [];
+  const method = verbM[1].toUpperCase();
+  const body = block(method.toLowerCase());
+  const urlM = body.match(/url:\s*(\S+)/);
+  if(!urlM) return [];
+  const headers = {};
+  block('headers').split('\n').forEach(l => {
+    const m = l.match(/^\s*([A-Za-z0-9\-_]+):\s*(.*)$/);
+    if(m) headers[m[1]] = m[2].trim();
+  });
+  const jsonBody = (text.match(/body:json\s*\{([\s\S]*?)\n\}/) || [])[1] || '';
+  const nameM = block('meta').match(/name:\s*(.+)/);
+  return [makeImported({
+    method, rawUrl: urlM[1], headers, body: jsonBody,
+    name: (nameM ? nameM[1] : fileName).trim(),
+    module: 'Imported · ' + label, via: 'bruno'
+  })].filter(Boolean);
+}
+
+/* A .har, or anything else holding a list of request-shaped objects. */
+function fromHar(doc, label){
+  const entries = doc && doc.log && Array.isArray(doc.log.entries) ? doc.log.entries : null;
+  if(!entries) return [];
+  return entries.map(e => {
+    const r = e.request || {};
+    if(!r.url) return null;
+    const headers = {};
+    (r.headers || []).forEach(h => { if(h && h.name) headers[h.name] = h.value; });
+    return makeImported({
+      method: (r.method || 'GET').toUpperCase(), rawUrl: r.url, headers,
+      body: (r.postData && r.postData.text) || '', name: '',
+      module: 'Imported · ' + label, via: 'har'
+    });
+  }).filter(Boolean);
+}
+
+/* Any text that contains curl commands -- a .txt, a .md, the text of a .docx. */
+function fromCurlText(text, label){
+  const out = [];
+  /* Split on each curl invocation so a file of many commands yields many
+     endpoints rather than one mangled first match. */
+  const parts = text.split(/(?=\bcurl\s)/g);
+  parts.forEach(part => {
+    if(!/\bcurl\s/.test(part)) return;
+    const p = parseCurl(part);
+    if(p){ p.module = 'Imported · ' + label; out.push(p); }
+  });
+  return out;
+}
+
+/* Loose JSON: an array of objects that name a method and a url/path. */
+function fromLooseJson(doc, label){
+  const arr = Array.isArray(doc) ? doc
+            : Array.isArray(doc && doc.apis) ? doc.apis
+            : Array.isArray(doc && doc.endpoints) ? doc.endpoints : null;
+  if(!arr) return [];
+  return arr.map(o => {
+    const url = o.url || o.rawUrl || o.endpoint || o['Endpoint / Path'] || o.path;
+    if(!url) return null;
+    const base = o.baseUrl || o['Base URL'] || '';
+    return makeImported({
+      method: String(o.method || o['HTTP Method'] || 'GET').toUpperCase(),
+      rawUrl: /^https?:/i.test(url) ? url : (base + url),
+      headers: o.headers || {},
+      body: typeof o.body === 'string' ? o.body
+          : o.body ? JSON.stringify(o.body)
+          : (o['Request Body'] || ''),
+      name: o.name || o['API Name'] || '',
+      module: 'Imported · ' + label, via: 'json'
+    });
+  }).filter(Boolean);
+}
+
+
+/* An OpenCollection / Bruno-style YAML request. Matched by shape rather than
+   parsed: a YAML parser to read four keys is a lot of surface for no gain, and
+   both exports express a request the same way. */
+function fromYamlRequest(text, label, fileName){
+  /* Bruno writes its brace syntax into files named .yml as often as .bru, and
+     that syntax carries the verb as the block name -- `post { url: ... }` --
+     with no `method:` line at all. Dispatching on the extension imported every
+     one of those as a GET: present, wrong, and undetectable downstream. Shape
+     decides, not the filename. */
+  if(/^\s*(get|post|put|patch|delete|head|options)\s*\{/mi.test(text)){
+    return fromBru(text, label, fileName);
+  }
+  const mUrl = text.match(/^\s*url:\s*(\S+)/m);
+  const mMethod = text.match(/^\s*method:\s*([A-Za-z]+)/m);
+  if(!mUrl) return [];
+  const headers = {};
+  /* Header lists appear as `- name: X` / `value: Y` pairs. */
+  const hre = /-\s*name:\s*(\S+)\s*\n\s*value:\s*(.*)/g;
+  let hm;
+  while((hm = hre.exec(text)) !== null) headers[hm[1]] = (hm[2] || '').trim();
+
+  /* OpenCollection nests the payload two levels down --
+         body:
+           type: json
+           data: |
+             { ... }
+     -- so a match on `body:` followed directly by JSON finds nothing, which is
+     why 0 of 207 bodies came out. Read the block scalar instead. */
+  let body = '';
+  const bm = text.match(/^\s*(?:data|json|text):\s*\|\s*\n((?:[ \t]+.*\n?)+)/m);
+  if(bm){
+    const dedented = bm[1].replace(/^[ \t]{0,10}/gm, '').trim();
+    if(dedented.startsWith('{') || dedented.startsWith('[')) body = dedented;
+  }
+  if(!body){
+    /* Fall back to a payload sitting directly under body:, which some exports
+       do produce. */
+    const flat = text.match(/^\s*body:\s*\n((?:[ \t]+.*\n)+)/m);
+    if(flat){
+      const d = flat[1].replace(/^[ \t]{0,8}/gm, '').trim();
+      if(d.startsWith('{')) body = d;
+    }
+  }
+  return [makeImported({
+    method: (mMethod ? mMethod[1] : 'GET').toUpperCase(),
+    rawUrl: mUrl[1], headers, body,
+    name: ((text.match(/^\s*name:\s*(.+)/m) || [])[1] || fileName || '').trim(),
+    module: 'Imported · ' + label, via: 'yaml'
+  })].filter(Boolean);
+}
+
+/* CSV, mapped onto the same field names the JSON path accepts, so an exported
+   inventory needs no second code path. */
+/* Column names this reader understands. Also used to find the header row,
+   since a spreadsheet anyone maintains tends to open with a title. */
+const IMPORT_COLUMNS = {
+  path:  ['Endpoint / Path','Endpoint Path','path','endpoint','url','uri',
+          'URL Path','route','request url','api endpoint'],
+  method:['HTTP Method','method','verb','type','request method'],
+  base:  ['Base URL','baseUrl','base','host','server','environment url'],
+  body:  ['Request Body','body','payload','Sample JSON','sample payload',
+          'example request payload','request payload'],
+  name:  ['API Name','API / Feature Name','name','title','summary',
+          'sub-module name','feature'],
+  module:['Module','module','suite','Module Name','domain','component'],
+  id:    ['API ID','apiId','id','Endpoint ID','Test Case ID','Sr. No','Sr.No'],
+};
+
+/* The console's own report export puts a title on row 0 and a blank on row 1,
+   so the header is on row 2. Taking row 0 on faith meant a report exported
+   from this console could not be read back into it, and said nothing about
+   why. */
+function headerRowIndex(rows){
+  const wanted = IMPORT_COLUMNS.path.map(x => x.toLowerCase());
+  const limit = Math.min(rows.length, 12);
+  for(let i = 0; i < limit; i++){
+    const cells = rows[i].map(c => String(c || '').trim().toLowerCase());
+    if(cells.some(c => wanted.includes(c))) return i;
+  }
+  return -1;   // nothing recognisable: return nothing rather than guess at 0
+}
+
+/* What the last read looked at. Populated even -- especially -- when nothing
+   was found, because that is when it matters. */
+let LAST_IMPORT_LOOK = [];
+
+function fromCsv(text, label){
+  const all = parseCsv(text);
+  const h0 = headerRowIndex(all);
+  if(h0 < 0){
+    /* Record the widest row as the likely header so the panel can show what
+       the sheet actually offers instead of just refusing it. */
+    const widest = all.reduce((a, r) => (r.length > (a ? a.length : 0) ? r : a), null);
+    if(widest) LAST_IMPORT_LOOK.push({
+      sheet: label,
+      columns: widest.map(c => String(c || '').trim()).filter(Boolean).slice(0, 14)
+    });
+    return [];
+  }
+  const rows = all.slice(h0);
+  if(rows.length < 2) return [];
+  const head = rows[0].map(h => String(h || '').trim());
+  const idx = names => {
+    for(const n of names){
+      const i = head.findIndex(h => h.toLowerCase() === n.toLowerCase());
+      if(i >= 0) return i;
+    }
+    return -1;
+  };
+  const iM = idx(IMPORT_COLUMNS.method);
+  const iP = idx(IMPORT_COLUMNS.path);
+  const iB = idx(IMPORT_COLUMNS.base);
+  const iBody = idx(IMPORT_COLUMNS.body);
+  const iName = idx(IMPORT_COLUMNS.name);
+  const iId = idx(IMPORT_COLUMNS.id);
+  const iMod = idx(IMPORT_COLUMNS.module);
+  if(iP < 0) return [];
+  const out = [];
+  for(let r = 1; r < rows.length; r++){
+    const row = rows[r];
+    const p = String(row[iP] || '').trim();
+    if(!p) continue;
+    const base = iB >= 0 ? String(row[iB] || '').trim() : '';
+    const stated = iM >= 0 ? String(row[iM] || '').trim().toUpperCase() : '';
+    /* Only where the file states no method at all. Never overrides one that is
+       given, and what was guessed is recorded so the review can show it -- a
+       wrong verb imports an endpoint that looks right and is not, which is
+       exactly the failure that silently mis-imported 162 endpoints. */
+    const guessed = stated ? '' : inferMethod(p, iBody >= 0 ? row[iBody] : '');
+    const built = makeImported({
+      method: stated || guessed || 'GET',
+      rawUrl: /^https?:/i.test(p) ? p : (base + p),
+      headers: {},
+      body: iBody >= 0 ? String(row[iBody] || '') : '',
+      name: iName >= 0 ? String(row[iName] || '') : '',
+      module: (iMod >= 0 && row[iMod]) ? 'Imported · ' + row[iMod] : 'Imported · ' + label,
+      via: 'csv'
+    });
+    if(built){
+      if(iId >= 0) built.apiId = String(row[iId] || '').trim();
+      if(guessed) built.methodInferred = true;
+      out.push(built);
+    }
+  }
+  return out.filter(Boolean);
+}
+
+/* A verb for a row that names none. Conventional rather than certain, so it is
+   used only in that case and always recorded as a guess. */
+function inferMethod(path, body){
+  const p = String(path || '').toLowerCase();
+  if(/\b(delete|remove)\b/.test(p)) return 'DELETE';
+  if(/\b(update|edit|modify)\b/.test(p)) return 'PUT';
+  if(/\b(status|activate|deactivate|toggle|changestatus)\b/.test(p)) return 'PATCH';
+  if(/\b(create|add|new|register|login|token|submit|apply)\b/.test(p)) return 'POST';
+  if(/\b(getall|getbyid|list|search|fetch|view|report)\b/.test(p)) return 'GET';
+  /* A payload implies a write, but not which one, so this stops at POST. */
+  if(String(body || '').trim().startsWith('{')) return 'POST';
+  return '';
+}
+
+/* Quoted fields may contain commas and escaped quotes, so this cannot be a
+   split on ','. */
+function parseCsv(text){
+  const rows = [];
+  let row = [], cell = '', quoted = false;
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    if(quoted){
+      if(c === '"'){
+        if(text[i + 1] === '"'){ cell += '"'; i++; }
+        else quoted = false;
+      } else cell += c;
+    } else if(c === '"'){ quoted = true; }
+    else if(c === ','){ row.push(cell); cell = ''; }
+    else if(c === '\n'){ row.push(cell); rows.push(row); row = []; cell = ''; }
+    else if(c !== '\r'){ cell += c; }
+  }
+  if(cell || row.length){ row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(c => String(c).trim()));
+}
+
+/* -- xlsx ------------------------------------------------------------------
+   A workbook keeps its text in a shared string table and its sheets reference
+   it by index, so reading a sheet alone returns integers where the words
+   should be. Both parts are needed. */
+/* name -> r:id. The id is what ties a tab to the part holding it; the position
+   does not, because a chart sheet is listed here and has no worksheet part. */
+function xlsxSheetRels(xml){
+  const out = [];
+  const re = /<sheet\b([^>]*)>/g;
+  let m;
+  while((m = re.exec(xml)) !== null){
+    const attrs = m[1];
+    const name = (attrs.match(/\bname="([^"]*)"/) || [])[1];
+    const rid = (attrs.match(/r:id="([^"]*)"/) || [])[1];
+    if(name && rid) out.push({name, rid});
+  }
+  return out;
+}
+
+/* r:id -> part path, from xl/_rels/workbook.xml.rels. */
+function xlsxRelTargets(xml){
+  const out = {};
+  const re = /<Relationship\b([^>]*)>/g;
+  let m;
+  while((m = re.exec(xml)) !== null){
+    const attrs = m[1];
+    const id = (attrs.match(/\bId="([^"]*)"/) || [])[1];
+    const target = (attrs.match(/\bTarget="([^"]*)"/) || [])[1];
+    if(id && target) out[id] = target.replace(/^\/?xl\//, '').replace(/^\.\//, '');
+  }
+  return out;
+}
+
+function xlsxStrings(xml){
+  const out = [];
+  const re = /<si\b[^>]*>([\s\S]*?)<\/si>/g;
+  let m;
+  while((m = re.exec(xml)) !== null){
+    /* An <si> may hold one <t> or several, when the cell has mixed formatting. */
+    out.push((m[1].match(/<t[^>]*>([\s\S]*?)<\/t>/g) || [])
+      .map(t => t.replace(/<[^>]+>/g, ''))
+      .join('')
+      .replace(/&amp;/g, '&').replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'"));
+  }
+  return out;
+}
+
+function xlsxRows(sheetXml, strings){
+  const rows = [];
+  const rowRe = /<row\b[^>]*>([\s\S]*?)<\/row>/g;
+  let rm;
+  while((rm = rowRe.exec(sheetXml)) !== null){
+    const cells = [];
+    const cRe = /<c\b([^>]*)>([\s\S]*?)<\/c>/g;
+    let cm;
+    while((cm = cRe.exec(rm[1])) !== null){
+      const attrs = cm[1], inner = cm[2];
+      /* Column letter decides position: an empty cell emits no <c> at all, so
+         counting would shift every value after a gap. */
+      const ref = (attrs.match(/r="([A-Z]+)\d+"/) || [])[1] || '';
+      let col = 0;
+      for(let i = 0; i < ref.length; i++) col = col * 26 + (ref.charCodeAt(i) - 64);
+      col = Math.max(0, col - 1);
+      const v = (inner.match(/<v[^>]*>([\s\S]*?)<\/v>/) || [])[1];
+      const isInline = /t="inlineStr"/.test(attrs);
+      let val = '';
+      if(isInline){
+        val = (inner.match(/<t[^>]*>([\s\S]*?)<\/t>/) || [])[1] || '';
+      } else if(v !== undefined){
+        val = /t="s"/.test(attrs) ? (strings[parseInt(v, 10)] || '') : v;
+      }
+      cells[col] = String(val)
+        .replace(/&amp;/g, '&').replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+    }
+    for(let i = 0; i < cells.length; i++) if(cells[i] === undefined) cells[i] = '';
+    rows.push(cells);
+  }
+  /* A workbook counts formatted-but-empty rows, so drop them rather than
+     reporting a spec with two hundred blank endpoints. */
+  return rows.filter(r => r.some(c => String(c).trim()));
+}
+
+/* A spec workbook is relational: the endpoint is on one sheet and its payload
+   on another, keyed by API ID. Reading each sheet in isolation recovers
+   neither -- the overview yields endpoints with no body, and the payload sheet
+   has no endpoint column at all. Sheets are identified by their headers and
+   joined, which is the whole reason a workbook is worth uploading. */
+function fromXlsx(sheets, strings, label, names){
+  const parsedAll = sheets.map(xml => xlsxRows(xml, strings));
+  const parsed = parsedAll.filter(r => r.length >= 2);
+  const head = rows => rows[0].map(h => String(h || '').trim().toLowerCase());
+  const findCol = (rows, names) => {
+    const h = head(rows);
+    for(const n of names){ const i = h.indexOf(n.toLowerCase()); if(i >= 0) return i; }
+    return -1;
+  };
+
+  /* Payloads first, so they are in hand when the endpoint sheet is read. */
+  const payloads = {};
+  parsed.forEach(all => {
+    /* Find this sheet's own header before looking for its columns: a payload
+       sheet can carry a title row exactly like an overview sheet. */
+    let start = 0;
+    for(let i = 0; i < Math.min(all.length, 12); i++){
+      const c = all[i].map(x => String(x || '').trim().toLowerCase());
+      if(c.includes('payload type')){ start = i; break; }
+    }
+    const rows = all.slice(start);
+    const iId = findCol(rows, ['API ID']);
+    const iType = findCol(rows, ['Payload Type']);
+    const iJson = findCol(rows, ['Sample JSON','payload','body']);
+    if(iId < 0 || iType < 0 || iJson < 0) return;
+    for(let r = 1; r < rows.length; r++){
+      const id = String(rows[r][iId] || '').trim();
+      const type = String(rows[r][iType] || '').trim().toLowerCase();
+      if(!id || type.indexOf('request') < 0) continue;   // only the request body
+      payloads[id] = String(rows[r][iJson] || '');
+    }
+  });
+
+  const out = [];
+  parsedAll.forEach((rows, i) => {
+    const sheetName = (names && names[i]) ? names[i] : `sheet ${i + 1}`;
+    if(rows.length < 2) return;
+    if(headerRowIndex(rows) < 0){
+      /* Skipped here, so the recorder in fromCsv never sees it -- which is
+         precisely the case the explanation exists for. */
+      const widest = rows.reduce((a, r) => (r.length > (a ? a.length : 0) ? r : a), null);
+      if(widest) LAST_IMPORT_LOOK.push({
+        sheet: sheetName,
+        columns: widest.map(c => String(c || '').trim()).filter(Boolean).slice(0, 14)
+      });
+      return;
+    }
+    const csv = rows.map(r =>
+      r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
+    fromCsv(csv, label).forEach(e => {
+      e.sourceType = 'xlsx';
+      if(!e.samplePayload || !Object.keys(e.samplePayload).length){
+        const raw = payloads[e.apiId];
+        if(raw){
+          try{ e.samplePayload = JSON.parse(raw); }
+          catch(err){ e.samplePayload = {raw: raw.slice(0, 4000)}; }
+        }
+      }
+      out.push(e);
+    });
+  });
+  return out;
+}
+
+/* -- one endpoint, normalised --------------------------------------------- */
+function makeImported({method, rawUrl, headers, body, name, module, via}){
+  /* A url can still carry {{variables}} from the tool it was exported from.
+     Keep the path, drop the unresolvable origin rather than failing. */
+  let url = null;
+  try{ url = new URL(rawUrl); }catch(e){}
+  let path, baseUrl = null;
+  if(url){
+    /* URL percent-encodes a path parameter's braces, so /orders/{id} arrives
+       as /orders/%7Bid%7D. That spelling has already cost this project a
+       phantom endpoint once -- it stops matching the inventory, and every
+       check against it reports "matched no inventory row". Decode it back. */
+    path = decodeURIComponent(url.pathname) + (url.search || '');
+    baseUrl = url.origin;
+  }
+  else {
+    const m = String(rawUrl).match(/(\/[^\s'"]*)$/);
+    if(!m) return null;
+    path = m[1];
+  }
+  /* Credentials never travel. An export from a working session is the file
+     most likely to hold a live token, which is exactly why this is not
+     optional. */
+  const safe = {};
+  let stripped = 0;
+  Object.keys(headers || {}).forEach(k => {
+    if(/^(authorization|cookie|x-api-key|x-auth-token|proxy-authorization)$/i.test(k)){
+      stripped++; return;
+    }
+    safe[k] = headers[k];
+  });
+  let payload = {};
+  if(body){ try{ payload = JSON.parse(body); }catch(e){ payload = {raw: String(body).slice(0, 4000)}; } }
+  return {
+    ref: `${method.toLowerCase()}|${path.toLowerCase()}|imported|${Math.random().toString(36).slice(2, 8)}`,
+    name: name || path.split('/').filter(Boolean).pop() || path,
+    module: module || 'Imported', subModule: null,
+    method, path, baseUrl, owner: null,
+    sourceType: via || 'upload', sourceCollection: null,
+    assertionState: 'global-only', samplePayload: payload,
+    importedHeaders: safe, strippedHeaders: stripped
+  };
+}
+
+/* One endpoint per method+path. A suite tests an endpoint many ways and a
+   report lists one row per result, so the same endpoint arrives dozens of
+   times -- 1059 result rows became 1059 endpoints before this. The console
+   selects an endpoint once and runs the tier's checks against it, so the
+   repetition is noise that buries everything else in the picker.
+
+   Merged, not dropped: a later duplicate contributes its body or headers when
+   the first had none, because losing a payload for being on the second row is
+   a worse bug than the duplication. */
+function dedupeEndpoints(list){
+  const byKey = new Map();
+  for(const e of list){
+    const key = e.method + ' ' + e.path.split('?')[0].toLowerCase();
+    const kept = byKey.get(key);
+    if(!kept){ byKey.set(key, e); continue; }
+    if((!kept.samplePayload || !Object.keys(kept.samplePayload).length) &&
+       e.samplePayload && Object.keys(e.samplePayload).length){
+      kept.samplePayload = e.samplePayload;
+    }
+    if(!Object.keys(kept.importedHeaders || {}).length && e.importedHeaders){
+      kept.importedHeaders = e.importedHeaders;
+    }
+    kept.strippedHeaders = (kept.strippedHeaders || 0) + (e.strippedHeaders || 0);
+    if(!kept.baseUrl && e.baseUrl) kept.baseUrl = e.baseUrl;
+    if(!kept.name && e.name) kept.name = e.name;
+  }
+  return [...byKey.values()];
+}
+
+/* -- the dispatcher -------------------------------------------------------- */
+async function extractFromFile(file){
+  const name = file.name || 'file';
+  const lower = name.toLowerCase();
+  const label = name.replace(/\.[^.]+$/, '');
+  const isZip = /\.(zip|docx|xlsx|pptx)$/.test(lower);
+
+  if(isZip){
+    const entries = await unzip(await file.arrayBuffer());
+    const found = [];
+    const notes = [];
+    let sharedStrings = [], sheetXml = [], sheetRels = [], relTargets = {};
+    for(const e of entries){
+      const en = e.name.toLowerCase();
+      /* A .docx keeps its text in one part; the rest is styling. */
+      /* A workbook is handled after the loop: its sheets are meaningless
+         without the shared string table, so both parts must be in hand. */
+      if(en === 'xl/sharedstrings.xml' || en === 'xl/workbook.xml'
+         || en === 'xl/_rels/workbook.xml.rels'
+         || /^xl\/worksheets\/sheet\d*\.xml$/.test(en)){
+        try{
+          const x = await inflateEntry(e);
+          if(en === 'xl/sharedstrings.xml') sharedStrings = xlsxStrings(x);
+          /* The workbook part is the only place the sheets are named; the
+             worksheet parts are numbered files. Naming them matters when a
+             workbook has a dozen sheets and one has to be pointed at. */
+          else if(en === 'xl/workbook.xml') sheetRels = xlsxSheetRels(x);
+          else if(en === 'xl/_rels/workbook.xml.rels') relTargets = xlsxRelTargets(x);
+          else {
+            /* Keep the part number: a zip lists worksheets in whatever order
+               the writer emitted them -- sheet3, sheet2, sheet1, sheet12 in
+               this workbook -- while workbook.xml names them in tab order.
+               Pairing by position labels every sheet with a neighbour's name,
+               which sends the reader to check the wrong tab. */
+            sheetXml.push({part: e.name.replace(/^xl\//, ''), xml: x});
+          }
+        }catch(err){ notes.push(`${e.name}: ${err.message}`); }
+        continue;
+      }
+      const interesting = /\.(json|bru|txt|md|http|curl|yaml|yml|har)$/.test(en)
+                        || en === 'word/document.xml';
+      if(!interesting) continue;
+      let text;
+      try{ text = await inflateEntry(e); }
+      catch(err){ notes.push(`${e.name}: ${err.message}`); continue; }
+      if(en === 'word/document.xml'){
+        /* Paragraph breaks matter: without them every command in the document
+           runs into the next and none of them parse. */
+        text = text.replace(/<\/w:p>/g, '\n').replace(/<[^>]+>/g, '');
+        found.push(...fromCurlText(text, label));
+      }else{
+        found.push(...extractFromText(text, label, e.name));
+      }
+    }
+    if(sheetXml.length){
+      /* Order and name both come from the relationship map: tab order for the
+         reader, and the right name on the right part. A worksheet the map does
+         not mention still gets read, just unnamed. */
+      const byPart = {};
+      sheetXml.forEach(x => { byPart[x.part] = x.xml; });
+      const ordered = [], names = [], claimed = new Set();
+      sheetRels.forEach(({name, rid}) => {
+        const part = relTargets[rid];
+        if(part && byPart[part] !== undefined){
+          ordered.push(byPart[part]); names.push(name); claimed.add(part);
+        }
+      });
+      sheetXml.forEach(x => {
+        if(!claimed.has(x.part)){ ordered.push(x.xml); names.push(x.part); }
+      });
+      found.push(...fromXlsx(ordered, sharedStrings, label, names));
+    }
+    return {found: dedupeEndpoints(found), notes, kind: 'archive',
+            entries: entries.length};
+  }
+
+  const text = await file.text();
+  return {found: dedupeEndpoints(extractFromText(text, label, name)),
+          notes: [], kind: 'file'};
+}
+
+function extractFromText(text, label, fileName){
+  /* Normalise line endings first. A Bruno export written on Windows uses
+     CRLF, and the block parsers below anchor on a newline -- against CRLF
+     they silently found zero headers, so an endpoint imported looking fine
+     while quietly losing its content type and under-reporting the
+     credential it had just stripped. */
+  text = String(text || '').split('\r\n').join('\n').split('\r').join('\n');
+  const fn = (fileName || '').toLowerCase();
+  if(fn.endsWith('.bru')) return fromBru(text, label, fileName);
+  if(/\.(ya?ml)$/.test(fn)) return fromYamlRequest(text, label, fileName);
+  if(fn.endsWith('.csv'))  return fromCsv(text, label);
+  let doc = null;
+  try{ doc = JSON.parse(text); }catch(e){}
+  if(doc){
+    /* Most confidently identifiable first: a collection guessed at as loose
+       JSON yields nothing useful, and there is no way back from that. */
+    const byShape = fromPostman(doc, label);
+    if(byShape.length) return byShape;
+    const oa = fromOpenApi(doc, label);
+    if(oa.length) return oa;
+    const har = fromHar(doc, label);
+    if(har.length) return har;
+    const loose = fromLooseJson(doc, label);
+    if(loose.length) return loose;
+    return [];
+  }
+  return fromCurlText(text, label);
+}
+
+/* What the last read produced, awaiting confirmation. Nothing reaches STATE
+   until the reader presses the button. */
+let PENDING_IMPORT = [];
+
+function uploadModal(){
+  if(STATE.shared){ toast('This is a shared report — it cannot add endpoints'); return; }
+  PENDING_IMPORT = [];
+  openModal('Upload API definitions',
+    `<div class="up-drop" id="upDrop">
+       <b>&#8593; Choose a file, or drop one here</b>
+       <span class="up-hint">Postman collection &middot; Bruno .bru or .zip export &middot;
+         OpenAPI &middot; .har &middot; .docx &middot; .xlsx &middot; a .txt of cURL commands
+         &middot; any .json list of requests</span>
+     </div>
+     <div id="upOut"></div>
+     <div class="faint" style="font-size:11.5px;margin-top:10px">
+       Whatever is found travels <b>by value</b> with the run and is never written to
+       the repo (DR-2). <code>Authorization</code>, <code>Cookie</code> and API-key
+       headers are stripped as the file is read.
+     </div>`,
+    `<button class="btn" data-close>Cancel</button>
+     <button class="btn btn-primary" id="btnUpSave">Add endpoints</button>`);
+  wireDrop($('#upDrop'), $('#upOut'));
+  $('#btnUpSave').onclick = commitImport;
+}
+
+/* One drop zone, used by both routes. */
+function wireDrop(zone, out){
+  if(!zone) return;
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = UPLOAD_ACCEPT;
+  input.multiple = true;
+  input.style.display = 'none';
+  zone.appendChild(input);
+
+  zone.onclick = e => { if(e.target !== input) input.click(); };
+  input.onchange = () => read([...input.files], out);
+  ['dragenter','dragover'].forEach(t => zone.addEventListener(t, e => {
+    e.preventDefault(); zone.classList.add('over');
+  }));
+  ['dragleave','drop'].forEach(t => zone.addEventListener(t, e => {
+    e.preventDefault(); zone.classList.remove('over');
+  }));
+  zone.addEventListener('drop', e => {
+    const fs = e.dataTransfer && e.dataTransfer.files;
+    if(fs && fs.length) read([...fs], out);
+  });
+}
+
+async function read(files, out){
+  PENDING_IMPORT = [];
+  LAST_IMPORT_LOOK = [];
+  out.innerHTML = `<div class="faint" style="margin-top:12px;font-size:12px">Reading ${files.length} file(s)…</div>`;
+  const notes = [], failed = [];
+  let stripped = 0;
+  for(const f of files){
+    try{
+      const r = await extractFromFile(f);
+      PENDING_IMPORT.push(...r.found);
+      notes.push(...r.notes.map(n => `${f.name}: ${n}`));
+      if(!r.found.length) failed.push(`${f.name} — nothing recognisable in it`);
+    }catch(err){
+      failed.push(`${f.name} — ${err.message}`);
+    }
+  }
+  PENDING_IMPORT.forEach(p => { stripped += p.strippedHeaders || 0; });
+  renderImportReview(out, {stripped, notes, failed});
+}
+
+function renderImportReview(out, info){
+  if(!PENDING_IMPORT.length){
+    /* "Nothing recognisable" is a correct verdict and a useless one on its
+       own: it cannot distinguish the wrong file from a column named something
+       unexpected. Show what was opened and what is needed. */
+    const looked = LAST_IMPORT_LOOK.filter(l => l.columns.length);
+    out.innerHTML = `<div class="up-sum" style="margin-top:12px">
+      <span class="warn">No endpoints found</span></div>
+      ${info.failed.map(f => `<div class="faint" style="font-size:11.5px;margin-top:6px">${esc(f)}</div>`).join('')}
+      ${looked.length ? `
+        <div class="up-diag">
+          <div class="d-h">What the file contained</div>
+          ${looked.slice(0, 6).map(l => `
+            <div class="d-row"><b>${esc(l.sheet)}</b>
+              <span>${l.columns.map(c => esc(c)).join(' · ')}</span></div>`).join('')}
+          <div class="d-h" style="margin-top:9px">What is needed</div>
+          <div class="d-row"><b>a column naming the endpoint</b>
+            <span>${IMPORT_COLUMNS.path.slice(0, 6).map(esc).join(' · ')} …</span></div>
+          <div class="d-row"><b>helpful but optional</b>
+            <span>HTTP Method · Base URL · Request Body</span></div>
+        </div>` : ''}
+      ${info.notes.map(n => `<div class="faint" style="font-size:11.5px;margin-top:4px">${esc(n)}</div>`).join('')}`;
+    return;
+  }
+  const byVia = {};
+  PENDING_IMPORT.forEach(p => { byVia[p.sourceType] = (byVia[p.sourceType]||0)+1; });
+  out.innerHTML = `
+    <div class="up-sum">
+      <span class="good">${PENDING_IMPORT.length} endpoint${PENDING_IMPORT.length===1?'':'s'} found</span>
+      ${Object.keys(byVia).map(k => `<span>${byVia[k]} from ${esc(k)}</span>`).join('')}
+      ${info.stripped ? `<span class="warn">${info.stripped} credential header${info.stripped===1?'':'s'} stripped</span>` : ''}
+    </div>
+    <div class="up-list">${PENDING_IMPORT.map(p => `
+      <div class="up-row">
+        <span class="m${p.methodInferred ? ' guessed' : ''}"
+          ${p.methodInferred ? 'title="method inferred from the path — the file did not state one"' : ''}
+          >${esc(p.method)}${p.methodInferred ? '?' : ''}</span>
+        <span class="src">${esc(p.sourceType)}</span>
+        <span class="p" title="${esc((p.baseUrl||'')+p.path)}">${esc(p.path)}</span>
+        <span class="src">${p.baseUrl ? esc(new URL(p.baseUrl).host) : 'no host'}</span>
+      </div>`).join('')}</div>
+    ${info.failed.map(f => `<div class="faint" style="font-size:11.5px;margin-top:6px">${esc(f)}</div>`).join('')}
+    ${info.notes.map(n => `<div class="faint" style="font-size:11.5px;margin-top:4px">${esc(n)}</div>`).join('')}`;
+}
+
+function commitImport(){
+  if(!PENDING_IMPORT.length){ toast('Nothing to add — upload a file first'); return; }
+  const n = PENDING_IMPORT.length;
+  const stripped = PENDING_IMPORT.reduce((t,p) => t + (p.strippedHeaders||0), 0);
+  pushImportStep({kind: 'add', refs: PENDING_IMPORT.map(p => p.ref),
+                  from: (PENDING_IMPORT[0] || {}).sourceType || ''});
+  PENDING_IMPORT.forEach(p => { STATE.imported.push(p); STATE.selected.add(p.ref); });
+  PENDING_IMPORT = [];
+  DISPLAY_ID = null;
+  afterCatalogueChange(); closeModal();
+  toast(`${n} endpoint${n===1?'':'s'} added` +
+        (stripped ? ` — ${stripped} credential header${stripped===1?'':'s'} stripped` : ''));
+}
+
 function parseCurl(txt){
   if(!txt || !txt.trim()) return null;
   const urlM = txt.match(/(?:--url\s+)?['"]?(https?:\/\/[^\s'"]+)['"]?/);
@@ -5591,14 +7257,25 @@ function parseCurl(txt){
   const dM = txt.match(/(?:-d|--data(?:-raw)?)\s+'([\s\S]*?)'/) || txt.match(/(?:-d|--data(?:-raw)?)\s+"([\s\S]*?)"/);
   const method = (mM ? mM[1] : (dM ? 'POST' : 'GET')).toUpperCase();
   let payload={}; if(dM){ try{ payload=JSON.parse(dM[1]); }catch(e){ payload={raw:dM[1]}; } }
-  const path = url.pathname + (url.search||'');
-  return {
-    ref:`${method.toLowerCase()}|${path.toLowerCase()}|imported|${Date.now().toString(36)}`,
-    name:path.split('/').filter(Boolean).pop() || path,
-    module:'Imported (cURL)', subModule:null, method, path,
-    baseUrl:url.origin, owner:null, sourceType:'curl', sourceCollection:null,
-    assertionState:'global-only', samplePayload:payload
-  };
+  /* -H headers were being dropped on the floor, so a curl import arrived with
+     no content type and reported nothing stripped even when the command
+     carried a bearer token. Collected here and handed to makeImported, which
+     owns the stripping, so both routes cannot disagree about what is a
+     credential. */
+  const headers = {};
+  const hre = /(?:-H|--header)\s+(?:'([^']+)'|"([^"]+)"|(\S+))/g;
+  let hm;
+  while((hm = hre.exec(txt)) !== null){
+    const raw = hm[1] || hm[2] || hm[3] || '';
+    const i = raw.indexOf(':');
+    if(i > 0) headers[raw.slice(0, i).trim()] = raw.slice(i + 1).trim();
+  }
+  const built = makeImported({
+    method, rawUrl: urlM[1], headers,
+    body: dM ? dM[1] : '', name: '',
+    module: 'Imported (cURL)', via: 'curl'
+  });
+  return built;
 }
 
 /* ---------------------------------------------------------------- events -- */
@@ -5634,7 +7311,8 @@ function menuRow(o){
   const tone = o.tone && !o.on ? ` style="color:${cssv(o.tone)}"` : '';
   return `<button class="rail-item${o.on?' active':''}${o.cls?' '+o.cls:''}"
     ${o.view?`data-view="${o.view}"`:''}${o.tab?` data-menu-tab="${o.tab}"`:''}
-    ${o.act?` data-menu-act="${o.act}"`:''}${o.dis?' disabled':''} title="${esc(o.t)}">
+    ${o.act?` data-menu-act="${o.act}"`:''}${o.dis?' disabled':''}
+    title="${esc(o.dis && o.why ? o.why : o.t)}">
     <span class="ri"${tone}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${o.i}</svg></span>
     <span class="lb">${esc(o.t)}</span>
@@ -5676,13 +7354,15 @@ function renderMenu(){
     `<div class="rail-sec"><i class="rs-dot" style="background:${cssv('--blue')}"></i>Report</div>`,
     menuRow({t:'Open Report', i:MENU_ICO.report, view:'analytics', tone:'--blue',
              on:STATE.view==='analytics', dis:!R,
+             why:'No run yet — select APIs and run a batch, and the report opens here.',
              ct:R?(R.summary.counts.FAIL||null):null, bad:true}),
     menuRow({t:'Report History', i:MENU_ICO.history, act:'history', tone:'--cyan',
              ct:loadSnaps().length||null}),
     `<div class="rail-sec"><i class="rs-dot" style="background:${cssv('--purple')}"></i>Actions</div>`,
     menuRow({t:'Import from cURL', i:MENU_ICO.curl, act:'curl', tone:'--purple'}),
     menuRow({t:'Navigator', i:MENU_ICO.nav, act:'nav', tone:'--slate'}),
-    menuRow({t:'Export', i:MENU_ICO.export, act:'export', tone:'--amber', dis:!R}),
+    menuRow({t:'Export', i:MENU_ICO.export, act:'export', tone:'--amber', dis:!R,
+             why:'Nothing to export yet — a run has to produce a result first.'}),
     gaps?`<div class="rail-gap" title="${gaps} request(s) execute but assert nothing (D7)">
       <i class="rs-dot" style="background:${cssv('--purple')}"></i>
       <span class="lb">${gaps} assertion gap${gaps===1?'':'s'}</span></div>`:''
@@ -5743,6 +7423,16 @@ $('#credSel').onchange = e => { STATE.alias=e.target.value; persist();
   if(STATE.view==='cases')  renderCases(); };
 
 /* --- home --- */
+/* The stack survives a reload, so the badge has to reflect it on boot -- not
+   only after the next change. */
+syncRevert();
+$('#btnRevert').onclick = () => {
+  const st = undoImportStep();
+  if(!st) return;
+  afterCatalogueChange();
+  renderMultiSelect(); syncSel();
+  toast(describeStep(st));
+};
 $('#btnConfigureFirst').onclick = () => {
   if(!STATE.selected.size) return;
   STATE.focus=[...STATE.selected][0]; persist(); go('detail');
@@ -5787,6 +7477,8 @@ $('#btnTheme').onkeydown = e => {
   if(e.key===' '||e.key==='Enter'){ e.preventDefault(); toggleTheme(); }
 };
 $('#btnExport').onclick = exportModal;
+const _up = $('#btnUpload'); if(_up) _up.onclick = uploadModal;
+const _br = $('#btnBruno'); if(_br) _br.onclick = exportBrunoModal;
 $$('#personaSeg button').forEach(b=> b.onclick=()=>{
   STATE.persona=b.dataset.persona; persist(); syncPersona();
 });
@@ -6182,10 +7874,14 @@ function buildLayer(){
          flood-color is currentColor so CSS can retint it per mood without the
          filter needing to know anything about moods. */
       '<filter id="botBeam" x="-160%" y="-160%" width="420%" height="420%">' +
-        '<feDropShadow dx="0" dy="0" stdDeviation="1.5" flood-color="currentColor"' +
-          ' flood-opacity=".95"/>' +
-        '<feDropShadow dx="0" dy="0" stdDeviation="4.5" flood-color="currentColor"' +
-          ' flood-opacity=".6"/>' +
+        /* Three stops: a hot core, a tight bloom and a wide wash. Two was
+           enough for a pale slit but not for one that has to look lit. */
+        '<feDropShadow dx="0" dy="0" stdDeviation="0.9" flood-color="currentColor"' +
+          ' flood-opacity="1"/>' +
+        '<feDropShadow dx="0" dy="0" stdDeviation="2.6" flood-color="currentColor"' +
+          ' flood-opacity=".85"/>' +
+        '<feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="currentColor"' +
+          ' flood-opacity=".45"/>' +
       '</filter>' +
     '</defs>';
 
@@ -6199,17 +7895,28 @@ function buildLayer(){
   }
 
   var BOT_LAYERS = [
-    /* repulsor exhaust, furthest back */
-    [-46, '<g class="bot-jets" filter="url(#botGlow)">' +
-            '<path d="M48 176 Q52 186 52 194 Q52 186 56 176 Z" fill="url(#botJet)"/>' +
-            '<path d="M64 176 Q68 186 68 194 Q68 186 72 176 Z" fill="url(#botJet)"/>' +
+    /* Repulsor exhaust. Starts at the sole line, not inside the boot, and sits
+       just behind the legs rather than on the furthest-back layer -- so it
+       reads as thrust coming out from under the shoes instead of from
+       somewhere behind the figure. */
+    [-18, '<g class="bot-jets" filter="url(#botGlow)">' +
+            /* left boot: a bright core with a wider wash around it */
+            '<path d="M43 186 Q50 202 50 214 Q50 202 57 186 Z" fill="url(#botJet)" opacity=".55"/>' +
+            '<path d="M46 186 Q50 197 50 205 Q50 197 54 186 Z" fill="url(#botJet)"/>' +
+            /* right boot */
+            '<path d="M63 186 Q70 202 70 214 Q70 202 77 186 Z" fill="url(#botJet)" opacity=".55"/>' +
+            '<path d="M66 186 Q70 197 70 205 Q70 197 74 186 Z" fill="url(#botJet)"/>' +
+            /* the sole plates themselves glowing, which is what sells the
+               thrust as emitted rather than drawn beneath */
+            '<ellipse cx="50" cy="186" rx="8" ry="2.6" fill="var(--bot-core,#8fe3fb)" opacity=".9"/>' +
+            '<ellipse cx="70" cy="186" rx="8" ry="2.6" fill="var(--bot-core,#8fe3fb)" opacity=".9"/>' +
           '</g>'],
 
     /* sonar rings, behind the figure so they read as coming off it */
     [-30, '<circle class="bot-ring" cx="60" cy="104" r="34" fill="none"' +
-            ' stroke="var(--bot-core,#29a8df)"/>' +
+            ' stroke="var(--bot-signal,#2dd4bf)"/>' +
           '<circle class="bot-ring d2" cx="60" cy="104" r="34" fill="none"' +
-            ' stroke="var(--bot-core,#29a8df)"/>'],
+            ' stroke="var(--bot-signal,#2dd4bf)"/>'],
 
     /* legs and boots */
     [-14, plate('M44 138 h15 v26 l-2 10 h-13 l-2 -10 z', RED) +
@@ -6231,16 +7938,16 @@ function buildLayer(){
             /* upper arm and forearm */
             plate('M17 94 h22 v22 h-22 z', RED) +
             plate('M18 116 h20 v24 q0 4 -4 4 h-12 q-4 0 -4 -4 z', RED) +
-            /* fist */
+            /* Closed glove. Knuckle slits rather than drawn fingers, for the
+               same reason the open hand uses them. */
             plate('M18 142 h20 v11 q0 4 -4 4 h-12 q-4 0 -4 -4 z', RED_D) +
+            '<path d="M23 143.5 v4.5 M28 143.5 v5 M33 143.5 v4.5" stroke="' + INK +
+              '" stroke-width="1.4" stroke-linecap="round" fill="none"/>' +
+            plate('M18 145 q-5 0 -5 4 q0 3.5 3.5 3.5 q4 0 5 -3.5 z', RED_D) +
           '</g>'],
 
     /* torso: red chest, gold segmented abdomen, neck and collar */
-    [0,   /* Neck and collar sit on the torso layer, not the head: the two are
-             at different depths and a neck travelling with the head would
-             drift off the shoulders exactly as the figure turns. */
-          plate('M52 60 h16 v16 h-16 z', RED_D) +
-          plate('M38 72 h44 q4 0 4 6 l-2 30 h-48 l-2 -30 q0 -6 4 -6 z', RED) +
+    [0,   plate('M38 72 h44 q4 0 4 6 l-2 30 h-48 l-2 -30 q0 -6 4 -6 z', RED) +
           /* gold abdomen with segments */
           plate('M42 108 h36 l-3 22 q-15 6 -30 0 z', GOLD) +
           '<path d="M45 116 h30 M46 123 h28" stroke="' + GOLD_D +
@@ -6260,6 +7967,25 @@ function buildLayer(){
               ' filter="url(#botGlow)"/>' +
           '</g>'],
 
+    /* Neck and gorget.
+
+       The neck used to be a 16x16 square on the torso layer. Two things made
+       that read as broken. The head sits 34-46px closer to the camera under a
+       520px perspective, so it renders about 7% larger than anything at body
+       depth -- a neck down there is visibly too small for the head it carries.
+       And a bare rectangle behind a nodding head lets its square corners swing
+       out past the jaw.
+
+       So it sits at an intermediate depth, which makes the scale step
+       gradual instead of abrupt, and a gorget spans the join: the head now
+       nests into a collar rather than balancing on a post. The neck itself is
+       narrower and almost entirely hidden, which is the point -- a join you
+       cannot see cannot look broken. */
+    [18,  plate('M54 58 h12 v16 h-12 z', RED_D) +
+          plate('M45 78 q4 -13 15 -13 q11 0 15 13 z', RED_D) +
+          '<path d="M50 74 q10 5 20 0" stroke="' + GOLD_D +
+            '" stroke-width="1.6" fill="none" stroke-linecap="round"/>'],
+
     /* the waving arm, raised and bent so the wave is actually visible */
     [30,  '<g class="bot-arm-r">' +
             plate('M106 78 q-1 -14 -14 -16 q-13 2 -14 16 l0 14 q14 7 28 0 z', RED) +
@@ -6267,22 +7993,34 @@ function buildLayer(){
             /* upper arm angled out, forearm up */
             plate('M83 92 h20 l4 20 h-20 z', RED) +
             plate('M92 66 h19 v26 h-19 z', RED) +
-            /* gauntlet and open palm */
-            plate('M91 52 h21 v14 h-21 z', RED_D) +
-            '<circle class="bot-palm" cx="101.5" cy="58" r="5"' +
+            /* Open glove. One silhouette with slits cut into it, not four
+               separately outlined fingers: the figure renders at roughly 0.8
+               physical pixels per unit, so a 4-unit finger carrying a 2.2-unit
+               ink outline is almost entirely outline, and four of them side by
+               side collapse into one dark smudge. Slits keep the fingers
+               legible at the size this is actually drawn. */
+            plate('M91 50 h21 v16 h-21 z', RED_D) +
+            plate('M91 51 q0 -15 10.5 -15 q10.5 0 10.5 15 z', RED_D) +
+            '<path d="M96.3 40 v10.5 M101.5 38.5 v12 M106.7 40 v10.5" stroke="' + INK +
+              '" stroke-width="1.5" stroke-linecap="round" fill="none"/>' +
+            /* Thumb on the outer edge. Inboard it would sit at x83-91, which
+               is behind the helmet -- the head is layer 34 and this arm is 30. */
+            plate('M112 53 q6 0 6 5 q0 5 -5 5 q-4 0 -5 -4 z', RED_D) +
+            '<circle class="bot-palm" cx="101.5" cy="58" r="4.4"' +
               ' fill="var(--bot-eye,#e8faff)" stroke="' + INK + '" stroke-width="1.6"' +
               ' filter="url(#botBeam)"/>' +
           '</g>'],
 
     /* helmet shell */
     [34,  '<g class="bot-head">' +
-            /* Helmet silhouette: domed crown, straight temples, jaw drawn in
-               to a blunt chin. */
-            plate('M60 5 q17 0 23 13 l2 17 q1 13 -3 22 l-9 15 q-6 6 -13 7' +
-                  ' q-7 -1 -13 -7 l-9 -15 q-4 -9 -3 -22 l2 -17 q6 -13 23 -13 z', RED) +
-            /* Temple panels: the red flanks the gold rather than ringing it. */
-            plate('M37 26 l-4 6 l1 15 l5 7 l3 -12 z', RED_D) +
-            plate('M83 26 l4 6 l-1 15 l-5 7 l-3 -12 z', RED_D) +
+            /* Rounder and wider than before. The reference helmet is a soft
+               dome, not a faceted shell -- the angularity was what made the
+               previous one read as a generic robot. */
+            plate('M60 4 q19 0 25 14 q3 9 3 20 q0 15 -8 24 q-8 8 -20 8' +
+                  ' q-12 0 -20 -8 q-8 -9 -8 -24 q0 -11 3 -20 q6 -14 25 -14 z', RED) +
+            /* Ear panels, squared off the way the reference draws them. */
+            plate('M34 32 l-5 3 v16 l5 4 z', RED_D) +
+            plate('M86 32 l5 3 v16 l-5 4 z', RED_D) +
             /* crest light -- inside .bot-head so it nods with the head */
             '<path d="M60 10 L60 1" stroke="' + GOLD + '" stroke-width="3.4"' +
               ' stroke-linecap="round"/>' +
@@ -6290,39 +8028,43 @@ function buildLayer(){
               ' stroke="var(--bot-core,#29a8df)" stroke-width="1.6"/>' +
             '<circle class="bot-halo d2" cx="60" cy="-1" r="4" fill="none"' +
               ' stroke="var(--bot-core,#29a8df)" stroke-width="1.6"/>' +
+            /* The status lamp. The suit stays repulsor blue, so this is where
+               the run result shows -- a lamp changing colour is a readout, a
+               character changing colour is a different character. */
             '<circle class="bot-beacon" cx="60" cy="-1" r="3.8"' +
-              ' fill="var(--bot-core,#29a8df)" stroke="' + INK +
+              ' fill="var(--bot-signal,#2dd4bf)" stroke="' + INK +
               '" stroke-width="1.4" filter="url(#botGlow)"/>' +
           '</g>'],
 
     /* faceplate and eyes, furthest forward */
     [46,  '<g class="bot-face">' +
-            /* Faceplate: wide across the brow, faceted cheeks, hard angular
-               jaw drawn to a blunt chin. A rounded plate is the single thing
-               that most stops this reading as the mask. */
-            plate('M60 17 l11 4 l7 9 l-1 14 l-5 11 l-6 8 l-6 4 l-6 -4 l-6 -8' +
-                  ' l-5 -11 l-1 -14 l7 -9 z', GOLD) +
-            /* Red crest: crown to a point between the brows. */
-            plate('M60 5 l6 10 l-2 14 l-4 5 l-4 -5 l-2 -14 z', RED) +
-            /* Brow ridge dipping to a V. This carries the expression -- far
-               more than the eyes do. */
-            plate('M42 33 l9 -4 l9 5 l9 -5 l9 4 l-2 6 l-7 -3 l-9 5 l-9 -5' +
-                  ' l-7 3 z', RED_D) +
-            /* Cheek seams: line survives at this size, shading does not. */
-            '<path d="M48 50 l5 9 M72 50 l-5 9" stroke="' + GOLD_D +
-              '" stroke-width="1.6" fill="none" stroke-linecap="round"/>' +
-            '<g class="bot-eyes" filter="url(#botBeam)">' +
-              /* Swept quadrilaterals, inner ends rising to a point. */
-              '<path class="bot-eye bot-eye-l" d="M44 43 L57 38 L58 44 L45 48 Z"' +
+            /* The faceplate is deliberately narrower than the helmet. That is
+               the whole difference: red has to show at the temples and across
+               the crown, or the head reads as a gold ball with sunglasses on
+               rather than as a mask set into a helmet. The old plate ran
+               x38-82 inside an x32-88 helmet, leaving three units of red. */
+            plate('M60 19 q13 0 17 7 q2 6 2 12 q0 12 -5 19 q-5 8 -14 8' +
+                  ' q-9 0 -14 -8 q-5 -7 -5 -19 q0 -6 2 -12 q4 -7 17 -7 z', GOLD) +
+            /* Brow bar across the top of the plate, in the darker red. */
+            plate('M43 30 q17 -7 34 0 l-1.5 5 q-15.5 -6 -31 0 z', RED_D) +
+            '<g class="bot-eyes" filter="url(#botBeam)"><g class="bot-blink">' +
+              /* Slits, not lenses. These were 11 units tall and nearly
+                 rectangular, which is what read as goggles; the mask has
+                 narrow swept slits that rise towards the centre. */
+              '<path class="bot-eye bot-eye-l" d="M44 36 L57 33 L57 39.5 L44 42.5 Z"' +
                 ' fill="var(--bot-eye,#f2feff)" stroke="' + INK + '" stroke-width="1.3"/>' +
-              '<path class="bot-eye bot-eye-r" d="M76 43 L63 38 L62 44 L75 48 Z"' +
+              '<path class="bot-eye bot-eye-r" d="M76 36 L63 33 L63 39.5 L76 42.5 Z"' +
                 ' fill="var(--bot-eye,#f2feff)" stroke="' + INK + '" stroke-width="1.3"/>' +
-            '</g>' +
-            /* Vented jaw, with real bars. */
-            '<g class="bot-mouth">' +
-              plate('M50 58 h20 l-2 7 h-16 z', GOLD_D) +
-              '<path d="M55 58 v7 M60 58 v7 M65 58 v7" stroke="' + INK +
-                '" stroke-width="1.2" fill="none"/>' +
+            '</g></g>' +
+            /* Cheek seams -- the panel lines that make it plate rather than
+               skin. A line survives at this size where shading does not. */
+            '<path d="M47.5 46 l2.5 6 M72.5 46 l-2.5 6" stroke="' + GOLD_D +
+              '" stroke-width="1.5" fill="none" stroke-linecap="round"/>' +
+            '<path class="bot-mouth" d="M48 50 q12 9 24 0" stroke="' + INK +
+              '" stroke-width="3.4" fill="none" stroke-linecap="round"/>' +
+            '<g class="bot-blush">' +
+              '<ellipse cx="46" cy="47" rx="4.5" ry="2.8" fill="#ff6b81"/>' +
+              '<ellipse cx="74" cy="47" rx="4.5" ry="2.8" fill="#ff6b81"/>' +
             '</g>' +
           '</g>']
   ];
@@ -6362,9 +8104,9 @@ function buildLayer(){
     on(bot, 'pointerenter', function(){ overBot = true;
       if(hideTimer) clearTimeout(hideTimer); });
     on(bot, 'pointerleave', function(){ overBot = false; scheduleHide(); });
-    on(say, 'pointerenter', function(){ overSay = true;
-      if(hideTimer) clearTimeout(hideTimer); });
-    on(say, 'pointerleave', function(){ overSay = false; scheduleHide(); });
+    /* The bubble is click-through so it cannot cover the report, which means
+       it receives no pointer events -- these would never fire. Hovering the
+       figure still holds it open, and the timeout still closes it. */
 
     on(bot, 'click', function(){
       /* Restarting an animation needs the class off, a reflow, then on --
@@ -6373,7 +8115,7 @@ function buildLayer(){
       void bot.offsetWidth;
       bot.classList.add('is-hit', 'is-waving');
       applyMood();
-      bot.classList.remove('has-news');   // read
+      newsRead();
       speak(report(), 11000);
       if(waveTimer) clearTimeout(waveTimer);
       waveTimer = setTimeout(function(){
@@ -6386,7 +8128,7 @@ function buildLayer(){
     /* Fly in, land, and only then greet. Waving while still descending reads
        as a glitch rather than a greeting. */
     var ARRIVAL_MS = 2300;
-    bot.classList.add('is-arriving');
+    bot.classList.add('is-arriving', 'is-greeting');
     setTimeout(function(){
       if(!bot) return;
       bot.classList.remove('is-arriving');
@@ -6394,7 +8136,10 @@ function buildLayer(){
       speak('<b>Hi!</b> I am your QA co-pilot.<br>' +
             '<span class="dim">Click me any time for the run status and anything critical.</span>',
             6500);
-      setTimeout(function(){ if(bot) bot.classList.remove('is-waving'); }, 3200);
+      /* Greeting over: the face stops saying hello and starts reporting. */
+      setTimeout(function(){
+        if(bot) bot.classList.remove('is-waving', 'is-greeting');
+      }, 3200);
     }, ARRIVAL_MS);
   }
 
@@ -6474,6 +8219,48 @@ function buildLayer(){
     return [run.R.runId, run.s.total, c.PASS|0, c.FAIL|0, c.WARN|0].join('|');
   }
 
+/* A finished run arrives while the user is reading something else, and a halo
+   at the edge of vision is easy to miss entirely. So the figure waves -- the
+   one gesture that already means "over here" -- and offers it again a few
+   times at a slow interval, because the first one lands while the user is
+   looking elsewhere.
+
+   It stops on the click that reads the news, and gives up after a handful of
+   attempts either way: a permanent flap in the corner is worse than a missed
+   notification, and one that cannot be dismissed trains people to ignore it. */
+var newsTimer = null;
+var NEWS_GAP_MS = 7000, NEWS_ATTEMPTS = 4;
+
+function announce(){
+  if(!bot) return;
+  if(newsTimer){ clearInterval(newsTimer); newsTimer = null; }
+  var left = NEWS_ATTEMPTS;
+
+  var beckon = function(){
+    if(!bot || !bot.classList.contains('has-news') || left-- <= 0){
+      if(newsTimer){ clearInterval(newsTimer); newsTimer = null; }
+      if(bot) bot.classList.remove('is-announcing');
+      return;
+    }
+    /* Off, reflow, on -- otherwise a repeat inside the cycle does nothing. */
+    bot.classList.remove('is-announcing');
+    void bot.offsetWidth;
+    bot.classList.add('is-announcing');
+    setTimeout(function(){
+      if(bot) bot.classList.remove('is-announcing');
+    }, 3900);   /* 1.3s x 3 */
+  };
+
+  beckon();
+  newsTimer = setInterval(beckon, NEWS_GAP_MS);
+}
+
+/* Reading the news ends the announcement immediately. */
+function newsRead(){
+  if(newsTimer){ clearInterval(newsTimer); newsTimer = null; }
+  if(bot) bot.classList.remove('is-announcing', 'has-news');
+}
+
   function applyMood(){
     if(!bot) return;
     var run = readRun();
@@ -6481,7 +8268,7 @@ function buildLayer(){
     if(sig !== lastSignature){
       lastSignature = sig;
       /* Only a real result is worth announcing. */
-      if(run) bot.classList.add('has-news');
+      if(run){ bot.classList.add('has-news'); announce(); }
     }
     var m = moodFor(readRun());
     bot.classList.remove('mood-ok', 'mood-warn', 'mood-sad');

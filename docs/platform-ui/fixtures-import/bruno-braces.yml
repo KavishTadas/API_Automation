@@ -1,0 +1,17 @@
+﻿meta {
+  name: 1. [GLOB-01] Create Policy - Missing Auth Token (401)
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://uatmcdphcmplatform.omfysgroup.com/api/attendancepolicy
+  body:json {
+{
+    "policyName":  "Global Standard Policy Alpha",
+    "policyDescription":  "Global standard attendance compliance",
+    "policyHeading":  "Punctuality Policy"
+}
+}
+  auth: none
+}
