@@ -123,16 +123,26 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
   ok('toggle exists in the topbar', !!$('#btnTheme'));
   ok('toggle is a labelled switch', $('#btnTheme').getAttribute('role') === 'switch' &&
      !!$('#btnTheme').getAttribute('aria-label'));
-  ok('label reflects the starting theme',
-     $('#themeLbl').textContent.toLowerCase() === (start === 'dark' ? 'dark' : 'light'),
-     `${start} vs "${$('#themeLbl').textContent}"`);
+  // The written label went when the slider became an icon button, so the state
+  // now rides on aria-checked and the icon, and the title carries the action.
+  // Both glyphs have to be present for CSS to have something to switch between.
+  ok('it carries both glyphs to switch between',
+     !!$('#btnTheme .tt-sun') && !!$('#btnTheme .tt-moon'),
+     'one of the icons is missing, so the button cannot show the theme');
+  ok('the title names the action, not the state',
+     /switch to (light|dark) theme/i.test($('#btnTheme').getAttribute('title') || ''),
+     `title is "${$('#btnTheme').getAttribute('title')}"`);
+  const titleBefore = $('#btnTheme').getAttribute('title');
   click($('#btnTheme'));
   await wait(60);
   const flipped = root.getAttribute('data-theme');
   ok('clicking flips the theme', flipped !== start, `${start} -> ${flipped}`);
   ok('aria-checked tracks the theme',
      $('#btnTheme').getAttribute('aria-checked') === String(flipped === 'dark'));
-  ok('label tracks the theme', $('#themeLbl').textContent.toLowerCase() === flipped);
+  ok('the title flips with the theme',
+     $('#btnTheme').getAttribute('title') !== titleBefore &&
+     /switch to (light|dark) theme/i.test($('#btnTheme').getAttribute('title') || ''),
+     `"${titleBefore}" -> "${$('#btnTheme').getAttribute('title')}"`);
   ok('charts survive a theme flip', $('#anBody').children.length > 0 && errs.length === 0,
      errs.join(' | '));
   click($('#btnTheme'));
