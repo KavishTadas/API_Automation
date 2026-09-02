@@ -9,6 +9,11 @@
    Design tokens. Light is the base; dark overrides only colour.
    ============================================================ */
 :root{
+  /* The display face. It was declared on #view-analytics, so the console's own
+     topbar -- which sits outside that element -- resolved var(--serif) to
+     nothing and silently fell back to the body sans. A token two views use
+     cannot belong to one of them. */
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
   --bg:#e7eef8; --rail:#f7fafe; --panel:#ffffff; --panel-2:#eef4fd;
   --panel-hover:#e0eaf9; --line:#bccfe8; --line-soft:#d9e4f3;
   --text:#0a1322; --text-dim:#36465e; --text-faint:#55677f;
@@ -312,7 +317,6 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
   --am500:#b5762a; --am400:#fbbf24; --am300:#fcd34d;
   --pu500:#a855f7; --pu400:#c084fc; --pu300:#d8b4fe;
   --bl400:#60a5fa; --cy400:#22d3ee; --or400:#fb923c;
-  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
   --scroll-thumb:rgba(148,163,184,.28); --scroll-thumb-hi:rgba(148,163,184,.48);
   background:var(--s950); color:var(--s100);
   display:none; flex-direction:column; overflow-y:auto; padding:0;
