@@ -32,6 +32,9 @@ jobs:
     # store or rotate.
     permissions:
       contents: write
+      # main is protected, so the regeneration arrives as a pull request there
+      # rather than as a push. gh pr create needs this.
+      pull-requests: write
 
     env:
       ENV:              uat
@@ -57,6 +60,22 @@ jobs:
       - name: Generate API File
         run: node scripts/generate-api-file.js
 
+      # The console is a committed, generated file and nothing rebuilt it, so
+      # an endpoint could reach the inventory here and still be invisible in
+      # the page a user actually opens. Regenerating it in the same job is what
+      # closes that gap: inventory and console are written from one source, in
+      # one commit, and can never disagree.
+      # 3.11 to match the rest of the workflow. build_unified_console.py and
+      # scan-credentials.py are both standard library only, so there is nothing
+      # to install before they run.
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Rebuild the unified console from the inventory
+        run: python scripts/build_unified_console.py
+
       - name: Upload API File artifact
         uses: actions/upload-artifact@v4
         with:
@@ -71,47 +90,101 @@ jobs:
       # doing it again on every push, unattended. Fails the job rather than
       # committing -- and fails loudly, because a silent skip would look
       # exactly like "nothing changed".
+      # The scan covers every tracked file, not only the two this job writes.
+      # The password that leaked was in a hand-maintained CSV that a
+      # generated-files-only check could never have seen.
       - name: Refuse to commit anything credential-shaped
-        run: |
-          set -euo pipefail
-          FILES="api-docs/API_File.json api-docs/API_File.csv"
-          # A password assignment, or a JWT. An employee code alone is an
-          # identifier, not a secret, and appears legitimately in sample data.
-          PATTERN='(password"?\s*[:=]\s*"?[^",[:space:]]{6,}|eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.)'
-          if grep -IEn "$PATTERN" $FILES ; then
-            echo "::error::A credential-shaped string is present in a file this job would commit."
-            echo "::error::Refusing to publish it. Remove the value and re-run."
-            exit 1
-          fi
-          echo "No credential-shaped string in the generated files."
+        run: python scripts/scan-credentials.py
 
-      - name: Commit the regenerated inventory
+      - name: Stage the regenerated files
+        id: stage
         run: |
           set -euo pipefail
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add api-docs/API_File.json api-docs/API_File.csv
+
+          # The console and the catalogue travel with the inventory. Committing
+          # the inventory alone is what left the page showing an endpoint list
+          # the repository had already moved past.
+          git add api-docs/API_File.json api-docs/API_File.csv \
+                  docs/platform-ui/unified-console.html \
+                  docs/platform-handoff/sample-catalogue.json
 
           # Nothing to do is the normal case: most pushes do not change an
           # endpoint. Committing anyway would fill the history with empty
           # commits and retrigger the workflow on every one.
           if git diff --cached --quiet ; then
-            echo "Inventory unchanged - nothing to commit."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Inventory and console unchanged - nothing to commit."
             exit 0
           fi
+          echo "changed=true" >> "$GITHUB_OUTPUT"
 
-          # [skip ci] is what stops this from retriggering the workflow that
-          # created it. Without it, a commit on a watched branch starts another
-          # run, which commits again.
-          git commit -m "Regenerate the API inventory from collections/ and bruno/ [skip ci]"
+          # [skip ci] stops this from retriggering the workflow that created
+          # it. Without it, a commit on a watched branch starts another run,
+          # which commits again.
+          git commit -m "Regenerate the API inventory and console [skip ci]"
 
+      # develop is not protected, so the commit lands directly.
+      - name: Push to an unprotected branch
+        if: steps.stage.outputs.changed == 'true' && github.ref_name != 'main'
+        run: |
+          set -euo pipefail
           # A rebase rather than a merge: another push landing mid-run should
           # replay this one commit on top, not create a merge bubble.
           if ! git push origin "HEAD:${GITHUB_REF_NAME}" ; then
             git pull --rebase origin "${GITHUB_REF_NAME}"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
-          echo "Inventory committed to ${GITHUB_REF_NAME}."
+          echo "Committed to ${GITHUB_REF_NAME}."
+
+      # main is protected, so a direct push is rejected however the token is
+      # scoped -- branch protection is enforced against GITHUB_TOKEN too. The
+      # regeneration therefore arrives as a pull request for review.
+      #
+      # Known limitation, stated rather than discovered later: a PR opened with
+      # GITHUB_TOKEN does not itself trigger workflows. GitHub blocks that to
+      # prevent recursion, so this PR shows no checks. Its content is
+      # deterministic output of two generators that already ran green in this
+      # job, so there is nothing new for a check to prove -- but if required
+      # checks block the merge, the PR needs a PAT instead of GITHUB_TOKEN.
+      - name: Open a pull request against the protected branch
+        if: steps.stage.outputs.changed == 'true' && github.ref_name == 'main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          BRANCH="bot/regenerate-inventory-${GITHUB_RUN_NUMBER}"
+          git push --force-with-lease origin "HEAD:${BRANCH}"
+
+          # An open PR from a previous run is reused rather than stacked, so a
+          # busy day does not leave a dozen bot PRs saying the same thing.
+          EXISTING=$(gh pr list --base main --head "${BRANCH}" --state open \
+                       --json number --jq '.[0].number // empty')
+          if [ -n "${EXISTING}" ]; then
+            echo "Updated existing PR #${EXISTING}."
+            exit 0
+          fi
+
+          gh pr create --base main --head "${BRANCH}" \
+            --title "Regenerate the API inventory and console" \
+            --body "$(cat <<'BODY'
+          Generated by the API automation workflow from `collections/` and `bruno/`.
+
+          - `api-docs/API_File.json` / `.csv` — the endpoint inventory
+          - `docs/platform-ui/unified-console.html` — rebuilt so the console
+            shows the same endpoints the inventory now holds
+          - `docs/platform-handoff/sample-catalogue.json` — if the build changed it
+
+          `main` is protected, so this arrives as a PR rather than a direct
+          push. The diff is deterministic output of `scripts/generate-api-file.js`
+          and `scripts/build_unified_console.py`; re-running either reproduces it.
+
+          No checks appear here: a PR opened with `GITHUB_TOKEN` does not trigger
+          workflows, by design.
+          BODY
+          )"
+          echo "Opened a pull request from ${BRANCH}."
 
       - name: Setup Python
         uses: actions/setup-python@v5
