@@ -405,8 +405,12 @@ textarea{font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical;
   backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   border-bottom:1px solid var(--s800);padding:8px 18px}
 [data-theme="light"] .enav{background:rgba(255,255,255,.95)}
-.enav-in{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:4px;
-  overflow-x:auto;scrollbar-width:thin}
+/* Wraps rather than scrolls. Eight tabs do not fit a narrow window, and
+   scrolling them put half the report behind a thin scrollbar that is easy to
+   miss entirely -- which reads as "only Overview exists", not as "there is
+   more to the right". A second row costs 30px and keeps every tab reachable. */
+.enav-in{max-width:1280px;margin:0 auto;display:flex;align-items:center;
+  flex-wrap:wrap;gap:4px 4px}
 .nitem{padding:6px 12px;border-radius:8px;font:500 12px var(--mono);color:var(--s300);
   background:none;border:0;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
   transition:all .15s;white-space:nowrap}
@@ -798,6 +802,21 @@ table.pl tr:last-child td{border-bottom:0}
 .ms-item .nm{font-size:12.5px;font-weight:600;flex:1;min-width:0;overflow:hidden;
   text-overflow:ellipsis;white-space:nowrap}
 .ms-item .id{font:500 11px var(--mono);color:var(--text-faint);flex-shrink:0}
+/* Sits quietly until the row is hovered: a delete on every row, at full
+   strength, turns a list into a minefield. It stays reachable by keyboard
+   through the row itself rather than being tabbable 124 times. */
+.row-del{flex-shrink:0;width:22px;height:22px;border:0;border-radius:6px;
+  background:none;color:var(--text-faint);font-size:15px;line-height:1;
+  cursor:pointer;opacity:.45;transition:opacity .12s,background .12s,color .12s}
+/* Faint, not invisible. Hiding it until hover meant it may as well not exist:
+   nothing on screen said the rows could be deleted at all. It stays quiet
+   enough that 124 of them do not read as 124 warnings. */
+.ms-item:hover .row-del,.sc-row:hover .row-del{opacity:1}
+.row-del:disabled{opacity:.18}
+.row-del:hover:not(:disabled){background:rgba(239,68,68,.15);color:#ef4444}
+.row-del:focus-visible{opacity:1;outline:2px solid var(--accent);outline-offset:1px}
+.row-del.locked{cursor:not-allowed}
+.row-del.locked:hover{background:none;color:var(--text-faint)}
 .qr-actions{display:flex;gap:9px;align-items:center;padding:12px 14px;border-top:1px solid var(--line-soft);flex-wrap:wrap}
 .qr-actions .sp{flex:1}
 
@@ -852,6 +871,16 @@ table.pl tr:last-child td{border-bottom:0}
   box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;
   min-width:0;width:100%;position:relative}
 .suite-card:hover{border-color:var(--text-faint)}
+/* The toggle is itself a button, so the suite delete has to be its sibling --
+   a button inside a button is invalid and browsers unnest it. */
+.sc-hrow{display:flex;align-items:stretch;border-bottom:1px solid var(--line)}
+.sc-hrow .sc-h{flex:1;min-width:0;border-bottom:0}
+.suite-del{flex-shrink:0;width:34px;border:0;border-left:1px solid var(--line);
+  background:var(--panel-2);color:var(--text-faint);font-size:17px;line-height:1;
+  cursor:pointer;opacity:.5;transition:opacity .12s,background .12s,color .12s}
+.suite-card:hover .suite-del{opacity:1}
+.suite-del:hover{background:rgba(239,68,68,.15);color:#ef4444}
+.suite-del:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;opacity:1}
 .sc-h{display:flex;align-items:center;gap:11px;padding:var(--pad-card);background:var(--panel-2);
   border-bottom:1px solid var(--line);width:100%;text-align:left;border-top:0;border-left:0;
   border-right:0;font:inherit;color:inherit;cursor:pointer}
@@ -871,7 +900,7 @@ table.pl tr:last-child td{border-bottom:0}
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sc-ico{flex-shrink:0}
 .sc-rows{padding:2px 0;flex:1}
-.sc-row{display:grid;grid-template-columns:54px 64px minmax(0,1fr) minmax(0,auto);
+.sc-row{display:grid;grid-template-columns:54px 64px minmax(0,1fr) minmax(0,auto) 24px;
   align-items:center;gap:11px;padding:var(--pad-row);cursor:pointer;
   border-bottom:1px solid var(--line-soft);transition:background .12s}
 .sc-row:last-child{border-bottom:0}
@@ -1055,6 +1084,11 @@ hr{border:none;border-top:1px solid var(--line-soft);margin:12px 0}
 .toast{position:fixed;bottom:20px;right:20px;background:var(--panel);border:1px solid var(--accent-line);
   border-left:3px solid var(--accent);border-radius:9px;padding:11px 15px;box-shadow:var(--shadow-lg);
   display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;z-index:200;
+  /* An icon and a line of text, nothing to click -- and it sits bottom-right
+     at the top of the stack, over the end of every full-width button. It is
+     shown for 2.6s at a time, so left hit-testable it makes controls under
+     it intermittently dead, which is far harder to report than always dead. */
+  pointer-events:none;
   transform:translateY(150%);transition:transform .28s cubic-bezier(.2,.8,.3,1)}
 .toast.show{transform:translateY(0)}
 .toast svg{width:16px;height:16px;color:var(--accent)}
@@ -1217,11 +1251,30 @@ html[data-fx="on"] .fx-sweep circle{
   position:fixed; right:20px; bottom:16px; width:98px; height:156px;
   z-index:60; cursor:pointer; border:0; padding:0; background:none;
   display:none;
+  /* The figure is narrow and its box is not: most of this rectangle is empty
+     and sits over the report. Clicks pass through it and are re-enabled below
+     on the painted shapes only, so the assistant stays clickable exactly where
+     it is visible and the page beneath is reachable everywhere else. This is
+     the defect behind "the buttons do not respond" -- a full-width button
+     running under this box was dead along its right end. */
+  pointer-events:none;
   perspective:520px; perspective-origin:50% 42%;
   transition:transform .5s cubic-bezier(.22,.61,.36,1);
   touch-action:manipulation;
-  --bot-core:#2dd4bf;
-  --bot-eye:#e8faff;
+  /* Repulsor blue, and it never changes. The arc reactor and the boot
+     thrust are the character; tinting them by run result made a failing
+     run render the figure in magenta, which reads as a different robot
+     rather than as the same one having bad news. The mood lives in the
+     face -- mouth, blush, squint, eye tint -- where it belongs. */
+  --bot-core:#8fe3fb;
+  /* The run result, kept separate from the suit's own colours so a failing
+     run tints the status lamp and the ground ring and nothing else. */
+  --bot-signal:#2dd4bf;
+  /* Lit, not merely pale. A near-white slit reads as a painted-on visor;
+     the blue tint is what makes it read as emitting. Same rule as the
+     reactor and the thrust -- the eyes are repulsor-lit and never take
+     a mood colour. */
+  --bot-eye:#bfeeff;
   --bot-yaw:0deg;
   --bot-pitch:0deg;
 }
@@ -1231,10 +1284,9 @@ html[data-fx="on"] .fx-sweep circle{
    itself never has to know moods exist. */
 #qabot .bot-eyes,
 #qabot .bot-palm{color:#6fd6ff}
-#qabot.mood-warn .bot-eyes,
-#qabot.mood-warn .bot-palm{color:#ffc46b}
-#qabot.mood-sad .bot-eyes,
-#qabot.mood-sad .bot-palm{color:#ff8098}
+/* The glow around the slits stays blue in every mood. The run result moved to
+   the beacon and the ring, which signal by rate and by colour without
+   repainting the character -- see the mood blocks below. */
 
 /* A slow flicker in the beam. Real emitters are never perfectly steady, and a
    constant glow reads as a sticker rather than a light. */
@@ -1261,7 +1313,19 @@ html[data-fx="on"] #qabot{display:block}
   transform:translateZ(var(--z,0));
   transform-style:preserve-3d;
 }
-.bot-layer svg{width:100%;height:100%;display:block;overflow:visible}
+.bot-layer svg{width:100%;height:100%;display:block;overflow:visible;pointer-events:none}
+/* visiblePainted is the SVG default, but must be restated because the button
+   turned pointer events off for the whole subtree. Only drawn pixels answer,
+   so the gaps between the arms and the corners of the box stay transparent. */
+.bot-layer svg path,
+.bot-layer svg rect,
+.bot-layer svg circle,
+.bot-layer svg ellipse{pointer-events:visiblePainted}
+/* Decoration that reaches well outside the figure must not become a click
+   target over the report. */
+#qabot .bot-ring,
+#qabot .bot-halo,
+#qabot .bot-jets *{pointer-events:none}
 
 /* Contact shadow, flat on the ground while the figure turns above it. */
 .bot-ground{
@@ -1302,13 +1366,17 @@ html[data-fx="on"] #qabot{display:block}
   90%{transform:rotate(16deg)}
 }
 .bot-arm-r{transform-origin:92px 84px;transform:rotate(10deg)}
-/* Idle: an occasional small wave. */
-@keyframes botWaveIdle{
-  0%,86%,100%{transform:rotate(10deg)}
-  90%{transform:rotate(22deg)}
-  94%{transform:rotate(12deg)}
+/* The idle wave fired for 8% of a six-second cycle -- a twitch once every six
+   seconds, which is why the figure looked switched off between clicks. It now
+   waves continuously and gently, and the click wave stays bigger and faster so
+   it is still distinguishable from the idle. */
+@keyframes botWaveLoop{
+  0%,100%{transform:rotate(6deg)}
+  25%    {transform:rotate(26deg)}
+  50%    {transform:rotate(8deg)}
+  75%    {transform:rotate(24deg)}
 }
-#qabot .bot-arm-r{animation:botWaveIdle 6s ease-in-out infinite}
+#qabot .bot-arm-r{animation:botWaveLoop 2.4s ease-in-out infinite}
 /* Clicked or greeting: a full, unmistakable wave. */
 #qabot.is-waving .bot-arm-r{animation:botWave 1.5s ease-in-out 2}
 #qabot.is-waving .bot-palm{animation:botPalm 1.5s ease-in-out 2}
@@ -1320,8 +1388,23 @@ html[data-fx="on"] #qabot{display:block}
 .bot-head{transform-origin:60px 48px;animation:botNod 5.4s ease-in-out infinite}
 @keyframes botNod{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
 
-.bot-eyes{animation:botSlit 4.8s ease-in-out infinite}
-@keyframes botSlit{0%,92%,100%{opacity:1}95%{opacity:.2}}
+/* A blink is a lid closing, not a light dimming. The old rule faded opacity
+   to .2 for a seventh of a second, which reads as a flicker in the visor
+   rather than as the figure being awake.
+
+   It lives on its own element inside .bot-eyes because three things transform
+   the eyes -- the blink here, the mood squint on .bot-eyes, and the per-eye
+   mood rotations -- and a CSS animation overrides any static transform on the
+   same element, so sharing one would silently drop the mood. Both eyes are in
+   this group, so they close together by construction. */
+.bot-blink{transform-origin:60px 38px;animation:botBlink 4.2s ease-in-out infinite}
+@keyframes botBlink{
+  0%,88%,100%{transform:scaleY(1)}
+  90.5%      {transform:scaleY(.06)}   /* shut  */
+  93%        {transform:scaleY(1)}     /* open  */
+  95%        {transform:scaleY(.06)}   /* again -- a double blink reads alive */
+  97.5%      {transform:scaleY(1)}
+}
 
 .bot-core-lamp{transform-origin:60px 94px;animation:botCore 2.6s ease-in-out infinite}
 @keyframes botCore{0%,100%{opacity:.82;transform:scale(.93)}50%{opacity:1;transform:scale(1.09)}}
@@ -1345,31 +1428,66 @@ html[data-fx="on"] #qabot{display:block}
    one without reading a number. */
 
 /* happy: slits arch up, everything runs brighter and quicker */
-#qabot.mood-ok{--bot-core:#2dd4bf; --bot-eye:#e8ffff}
+#qabot.mood-ok{--bot-eye:#d6f6ff; --bot-signal:#2dd4bf}
 #qabot.mood-ok .bot-eye-l{transform:rotate(-9deg);transform-origin:50px 43px}
 #qabot.mood-ok .bot-eye-r{transform:rotate(9deg);transform-origin:70px 43px}
-#qabot.mood-ok .bot-mouth{transform:translateY(1px) scaleX(1.1);transform-origin:60px 60px}
+/* The mouth alone cannot carry a mood this small, so passing squints the
+   eyes and brings the blush up with the wider smile. Three signals that agree
+   read instantly; one subtle one does not read at all. */
+#qabot.mood-ok .bot-mouth{transform:scale(1.15,1.3);transform-origin:60px 50px}
+#qabot.mood-ok .bot-eyes{transform:scaleY(.74);transform-origin:60px 38px}
+#qabot .bot-blush{opacity:0;transition:opacity .35s ease}
+#qabot.mood-ok .bot-blush{opacity:.85}
 #qabot.mood-ok .bot-3d{animation-duration:3s, 9s}
 #qabot.mood-ok .bot-core-lamp{animation-duration:2.1s}
 
 /* warning: amber, and the hover settles */
-#qabot.mood-warn{--bot-core:#e0a63a; --bot-eye:#fff3d6}
+#qabot.mood-warn{--bot-eye:#bfeeff; --bot-signal:#e0a63a}
+/* Warnings are neither pass nor fail, so the mouth flattens to a line
+   rather than picking a side. */
+#qabot.mood-warn .bot-mouth{transform:scale(.95,.9);transform-origin:60px 50px}
 #qabot.mood-warn .bot-jets{animation-duration:.7s;opacity:.8}
 
 /* failing: the wave stops, the head hangs, the thrusters gutter */
-#qabot.mood-sad{--bot-core:#f43f5e; --bot-eye:#ffdbe2}
+#qabot.mood-sad{--bot-eye:#bfeeff; --bot-signal:#f43f5e}
 #qabot.mood-sad .bot-arm-r{animation:none;transform:rotate(-4deg)}
 #qabot.mood-sad .bot-eye-l{transform:rotate(15deg);transform-origin:50px 43px}
 #qabot.mood-sad .bot-eye-r{transform:rotate(-15deg);transform-origin:70px 43px}
-#qabot.mood-sad .bot-eyes{animation:none;opacity:.75}
+/* Still blinking -- a figure that stops entirely reads as broken rather than
+   as unhappy -- but slower, and dimmer. */
+#qabot.mood-sad .bot-eyes{opacity:.75}
+#qabot.mood-sad .bot-blink{animation-duration:6.5s}
 /* A stroked seam bows rather than flips: rotating a line 180 degrees moves
    it without changing its shape. */
-#qabot.mood-sad .bot-mouth{transform:translateY(6px) scaleY(-1);transform-origin:60px 62px}
+/* It keeps smiling. The mouth used to flip to a frown on a failing run, which
+   is how the figure spent most of its life scowling -- the suite rarely runs
+   completely clean, so the "unhappy" state was effectively the default and the
+   assistant read as broken rather than as informative.
+
+   Nothing is lost by this, because the mouth was never where the truth lived:
+   the eye tint, the ring speed, the beacon, the aria-label and -- above all --
+   what it actually says when clicked all still report the real result. A
+   smaller, quieter smile here, and the run state stays legible everywhere it
+   was already legible. */
+#qabot.mood-sad .bot-mouth{transform:scale(.88,.8);transform-origin:60px 50px}
 #qabot.mood-sad .bot-head{animation:none;transform:rotate(0) translateY(5px)}
 #qabot.mood-sad .bot-jets{animation-duration:.22s;opacity:.45;transform:scaleY(.5)}
 #qabot.mood-sad .bot-core-lamp{animation-duration:1s}
 #qabot.mood-sad .bot-3d{animation-duration:6s, 14s}
 #qabot.mood-sad .bot-ring{animation-duration:5.5s;opacity:.45}
+
+/* The arrival is a greeting, not a verdict. It flies in, lands and says hello
+   with a smile whatever the last run did, then takes the run's mood the moment
+   the greeting is over. These come after the mood blocks deliberately: same
+   specificity, so source order decides, and the greeting wins for its two and
+   a half seconds.
+
+   The mood class itself is never touched, so the aria-label, the beacon and
+   everything a screen reader is told stay accurate throughout -- only the face
+   says hello. */
+#qabot.is-greeting .bot-mouth{transform:scale(1.15,1.3);transform-origin:60px 50px}
+#qabot.is-greeting .bot-eyes{transform:scaleY(.74);transform-origin:60px 38px}
+#qabot.is-greeting .bot-blush{opacity:.85}
 /* even when it is clicked, a failing run gets a half-hearted wave */
 #qabot.mood-sad.is-waving .bot-arm-r{animation:botWave 2.4s ease-in-out 1;opacity:.85}
 
@@ -1479,6 +1597,31 @@ html[data-fx="on"] #qabot{display:block}
 }
 .bot-halo{opacity:0}
 
+/* Announcing a result.
+
+   The arm already waves continuously, so a merely larger wave does not read as
+   news -- it reads as the same idle. The announcement therefore swings much
+   wider, crosses the rest position hard, and hops the whole figure. Motion
+   across a boundary is what the eye catches at the edge of vision; amplitude
+   alone is not. */
+@keyframes botAnnounceWave{
+  0%,100%{transform:rotate(6deg)}
+  10%    {transform:rotate(-14deg)}
+  25%    {transform:rotate(44deg)}
+  40%    {transform:rotate(-10deg)}
+  55%    {transform:rotate(40deg)}
+  70%    {transform:rotate(-6deg)}
+  85%    {transform:rotate(34deg)}
+}
+@keyframes botHop{
+  0%,100%{transform:translateY(0)}
+  18%    {transform:translateY(-10px)}
+  38%    {transform:translateY(0)}
+  54%    {transform:translateY(-6px)}
+  72%    {transform:translateY(0)}
+}
+#qabot.is-announcing .bot-arm-r{animation:botAnnounceWave 1.3s ease-in-out 3}
+#qabot.is-announcing .bot-3d{animation:botHop 1.3s ease-in-out 3}
 #qabot.has-news .bot-beacon{animation:botBeaconNews .82s ease-in-out infinite}
 @keyframes botBeaconNews{
   0%,100%{opacity:.75;transform:scale(.9)}
@@ -1524,7 +1667,10 @@ html[data-fx="on"] #qabot{display:block}
   background:#fff; color:#0f1a22; border-color:#d6e0e8;
   box-shadow:0 10px 26px rgba(15,26,34,.14);
 }
-#qasay.on{opacity:1;transform:none;pointer-events:auto}
+/* Click-through even when shown. At up to 330px it covers a third of a card,
+   and a panel that eats clicks is worse than one that closes a little sooner
+   -- hovering the figure and the timeout both still hold it open. */
+#qasay.on{opacity:1;transform:none}
 #qasay b{color:var(--accent, #2dd4bf);font-weight:700}
 #qasay b.bad{color:var(--ro400, #fb7185)}
 #qasay b.good{color:var(--em400, #34d399)}
@@ -1548,8 +1694,9 @@ html[data-fx="on"] #qabot{display:block}
   #qabot.is-arriving,#qabot.is-arriving .bot-jets,#qabot.is-arriving .bot-ground{
     animation:none; transform:none; opacity:1}
   #qabot .bot-3d,#qabot .bot-ground,#qabot .bot-arm-r,#qabot .bot-arm-l,
-  #qabot .bot-head,#qabot .bot-eyes,#qabot .bot-core-lamp,#qabot .bot-jets,
-  #qabot .bot-ring,#qabot .bot-beacon,#qabot .bot-halo{animation:none}
+  #qabot .bot-head,#qabot .bot-eyes,#qabot .bot-blink,#qabot .bot-core-lamp,#qabot .bot-jets,
+  #qabot .bot-ring,#qabot .bot-beacon,#qabot .bot-halo,
+  #qabot.is-announcing .bot-arm-r,#qabot.is-announcing .bot-3d{animation:none}
   /* The beacon still has to be able to signal, so it holds bright rather
      than flashing. */
   #qabot.has-news .bot-beacon{opacity:1}
@@ -2211,6 +2358,8 @@ html[data-fx="off"] .tg-pulse{animation:none;opacity:.5}
       <button class="btn btn-sm" id="btnUpload">&#8593; Upload file</button>
       <button class="btn btn-sm" id="btnBruno">&#8595; Export Bruno</button>
       <button class="btn btn-sm" id="btnSelGaps">Only assertion gaps</button>
+      <button class="btn btn-sm" id="btnRevert" disabled>&#8630; Undo
+        <span class="pill" id="revertBadge">0</span></button>
       <span class="sp"></span>
       <button class="btn btn-sm" id="btnOpenNav">☰ Navigator <span class="pill" id="navBadge">0</span></button>
     </div>
@@ -2618,6 +2767,10 @@ function describeStep(st){
     const n = (st.refs || []).length;
     return `${n} endpoint${n === 1 ? '' : 's'}${st.from ? ' from ' + st.from : ''} removed again`;
   }
+  if(st.kind === 'removeMany'){
+    const n = (st.endpoints || []).length;
+    return `${st.suite || 'Suite'} restored — ${n} endpoint${n === 1 ? '' : 's'}`;
+  }
   return `${(st.endpoint && (st.endpoint.name || st.endpoint.path)) || 'endpoint'} restored`;
 }
 
@@ -2631,6 +2784,8 @@ function undoImportStep(){
     drop.forEach(r => { STATE.selected.delete(r); delete STATE.providers[r]; });
   }else if(st.kind === 'remove' && st.endpoint){
     STATE.imported.push(st.endpoint);
+  }else if(st.kind === 'removeMany' && st.endpoints){
+    st.endpoints.forEach(a => STATE.imported.push(a));
   }
   DISPLAY_ID = null;
   return st;
@@ -2649,6 +2804,21 @@ function removeImported(ref){
   return true;
 }
 
+/* Delete a whole imported suite. A bad upload arrives as a suite, not as an
+   endpoint -- nine of them accounted for 79 duplicate rows here -- so removing
+   it one row at a time is the wrong unit of work. One undo step covers the
+   whole suite, so a mis-click costs one click to reverse, which is why this
+   needs no confirmation dialog. */
+function removeImportedSuite(mod){
+  const gone = STATE.imported.filter(a => a.module === mod);
+  if(!gone.length) return 0;
+  STATE.imported = STATE.imported.filter(a => a.module !== mod);
+  gone.forEach(a => { STATE.selected.delete(a.ref); delete STATE.providers[a.ref]; });
+  pushImportStep({kind: 'removeMany', endpoints: gone, suite: mod});
+  DISPLAY_ID = null;
+  return gone.length;
+}
+
 /* The catalogue changed: save it, then redraw every view that counts endpoints.
    renderSuitesGrid only exists once the suites view has been built. */
 function afterCatalogueChange(){
@@ -2664,6 +2834,38 @@ function syncRevert(){
   b.title = n ? 'Undo the last change to the endpoint list'
               : 'Nothing to revert — the list matches the repository';
 }
+/* Delete, per endpoint. removeImported() and its undo stack have existed
+   since imports landed but nothing ever called them, so the only way to undo a
+   bad upload was to clear the browser's storage.
+
+   Only an imported endpoint can actually go. One that came from the repository
+   would be back on the next reload, and worse, an existing run holds results
+   keyed by its ref -- dropping it from allApis() turns every one of those into
+   "matched no inventory row". So the button is present on every row and says
+   which of the two it is, rather than being absent on most of them. */
+function delBtn(a){
+  const mine = isImported(a.ref);
+  return `<button class="row-del${mine?'':' locked'}" data-del="${esc(a.ref)}"
+    ${mine?'':'disabled'} tabindex="-1"
+    title="${mine ? 'Remove this endpoint (undoable)'
+                  : 'Committed to the repository — it would return on the next reload. Remove it in the collection and let CI regenerate.'}"
+    aria-label="Remove ${esc(a.method + ' ' + a.path)}">&times;</button>`;
+}
+
+/* One handler for both endpoint lists. Stops the click reaching the row, which
+   would otherwise open the endpoint that is being deleted. */
+function wireDelete(host){
+  if(!host) return;
+  host.querySelectorAll('[data-del]').forEach(b => b.onclick = ev => {
+    ev.preventDefault(); ev.stopPropagation();
+    const a = apiByRef(b.dataset.del);
+    if(!a || !removeImported(b.dataset.del)) return;
+    afterCatalogueChange();
+    renderMultiSelect(); syncSel();
+    toast(`Removed ${a.method} ${a.path} — Undo restores it`);
+  });
+}
+
 function apiByRef(ref){ return allApis().find(a=>a.ref===ref) || null; }
 
 function toast(msg){
@@ -3155,9 +3357,11 @@ function renderMultiSelect(){
         ${sourceBadge(a)}
         ${a.assertionState==='not-asserted'?'<span class="pill gap">no assert</span>':''}
         <span class="id">${esc(displayId(a))}</span>
+        ${delBtn(a)}
       </label>`).join('')}
     </div>`;
   }).join('');
+  wireDelete(box);
   box.querySelectorAll('[data-chk]').forEach(cb=> cb.onchange=()=>{
     cb.checked ? STATE.selected.add(cb.dataset.chk) : STATE.selected.delete(cb.dataset.chk);
     persist(); syncSel(); renderMultiSelect();
@@ -3211,6 +3415,7 @@ function renderSuitesGrid(){
     const gaps=list.filter(a=>a.assertionState==='not-asserted').length;
     const collapsed = STATE.closedSuites.includes(mod) && !q;
     return `<article class="suite-card${collapsed?' collapsed':''}" data-suite="${esc(mod)}">
+      <div class="sc-hrow">
       <button class="sc-h" data-toggle="${esc(mod)}" aria-expanded="${!collapsed}"
         title="${collapsed?'Show':'Hide'} the ${list.length} endpoint(s) in ${esc(mod)}">
         <svg class="sc-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -3222,16 +3427,32 @@ function renderSuitesGrid(){
         </span>
         <span class="pill${gaps?' partial':''}">${list.length} API${list.length===1?'':'s'}</span>
       </button>
+      ${list.every(a=>isImported(a.ref))
+        ? `<button class="suite-del" data-del-suite="${esc(mod)}"
+             title="Remove all ${list.length} endpoints in ${esc(mod)} (undoable)"
+             aria-label="Remove the suite ${esc(mod)}">&times;</button>`
+        : ''}
+      </div>
       <div class="sc-rows">${list.map(a=>`
         <div class="sc-row" data-open="${esc(a.ref)}" role="button" tabindex="0">
           <span class="m ${esc(a.method)}">${hl(a.method,q)}</span>
           <span class="id">${hl(displayId(a),q)}</span>
           <span class="nm">${hl(a.name||a.subModule||a.path,q)}</span>
           <span class="pa" title="${esc(a.path)}">${hl(a.path,q)}</span>
+          ${delBtn(a)}
         </div>`).join('')}</div>
     </article>`;
   }).join('');
 
+  wireDelete(grid);
+  grid.querySelectorAll('[data-del-suite]').forEach(b => b.onclick = ev => {
+    ev.preventDefault(); ev.stopPropagation();
+    const mod = b.dataset.delSuite;
+    const n = removeImportedSuite(mod);
+    if(!n) return;
+    afterCatalogueChange(); renderMultiSelect(); syncSel();
+    toast(`Removed ${mod} — ${n} endpoint${n===1?'':'s'}. Undo restores them.`);
+  });
   grid.querySelectorAll('[data-toggle]').forEach(h=> h.onclick=()=>{
     const mod=h.dataset.toggle, at=STATE.closedSuites.indexOf(mod);
     at<0 ? STATE.closedSuites.push(mod) : STATE.closedSuites.splice(at,1);
@@ -3258,10 +3479,20 @@ function syncSel(){
   $('#btnRunLabel').textContent = `Run Selected Batch (${n})`;
   $('#btnRun').disabled = n===0 || STATE.running;
   $('#btnConfigureFirst').disabled = n===0;
+  /* A disabled control that does not say why reads as broken -- which is how
+     these were reported. The reason is always one of two, and both are things
+     the user can act on. */
+  const pick = (sel, why) => { const b=$(sel); if(b) b.title = b.disabled ? why : ''; };
+  pick('#btnRun', STATE.running
+        ? 'A batch is already running.'
+        : 'Select at least one API in the grid above, then run.');
+  pick('#btnConfigureFirst', 'Select at least one API to configure it.');
   $('#navBadge').textContent = allApis().length;
   const has=!!STATE.result;
   $('#btnViewReportHome').disabled = !has;
   const vr=$('#btnViewReport'); if(vr) vr.disabled = !hasResultFor(STATE.focus);
+  pick('#btnViewReportHome', 'No run yet — run a batch and the report opens here.');
+  pick('#btnViewReport', 'This API has no result in the current run.');
 }
 
 function hasResultFor(ref){
@@ -4850,10 +5081,27 @@ function tabPayloads(R){
           <b style="font-size:11.5px">Request body</b>
           <button class="btn btn-sm" data-curl-ref="${esc(a.apiRef)}">Copy cURL</button>
         </div>
-        <pre>${esc(JSON.stringify(api.samplePayload||{},null,2))}</pre>
+        ${payloadBlock(api)}
       </div></div>`;}).join('')}</div>`;
 }
 function labelRef(ref){ const a=apiByRef(ref); return a? label(a) : ref; }
+
+/* An empty payload was printed as `{}`, which claims the request sends an
+   empty JSON object. Two very different things produce it, and only one is a
+   problem: a GET legitimately sends nothing, while a POST with no captured
+   body means the importer never saw one. Printing the same `{}` for both is
+   what made a correct report look broken. */
+const BODYLESS = {GET:1, HEAD:1, DELETE:1, OPTIONS:1};
+function payloadBlock(api){
+  const p = api.samplePayload;
+  const empty = !p || (typeof p === 'object' && !Object.keys(p).length);
+  if(!empty) return `<pre>${esc(JSON.stringify(p,null,2))}</pre>`;
+  if(BODYLESS[api.method])
+    return `<div class="empty">No request body — ${esc(api.method)} sends none.</div>`;
+  return `<div class="empty">No body recorded for this ${esc(api.method)}.
+    The source collection did not carry one, so the request goes out with an
+    empty body.</div>`;
+}
 
 function tabPerf(R){
   const timed = R.apis.flatMap(a=>a.results.filter(r=>r.executed && r.durationMs>1)
@@ -6065,6 +6313,24 @@ async function inflateEntry(entry){
    Each knows one shape. Tried in order of how confidently a file can be
    identified, so a Postman collection is never guessed at as loose JSON. */
 
+/* Postman stores a body under a different key per mode. Reading only `raw`
+   dropped every form-encoded and GraphQL request silently -- they imported
+   with an empty payload and the report showed `{}`, which reads as "this
+   endpoint sends nothing" rather than "the importer could not see it". */
+function postmanBody(b){
+  if(!b) return '';
+  if(b.mode === 'raw')        return b.raw || '';
+  if(b.mode === 'graphql')    return JSON.stringify(b.graphql || {});
+  if(b.mode === 'formdata' || b.mode === 'urlencoded'){
+    const rows = b[b.mode] || [];
+    const obj = {};
+    rows.forEach(f => { if(f && f.key && !f.disabled) obj[f.key] = f.value != null ? f.value : ''; });
+    return Object.keys(obj).length ? JSON.stringify(obj) : '';
+  }
+  if(b.mode === 'file')       return '';
+  return b.raw || '';
+}
+
 function fromPostman(doc, label){
   if(!doc || !Array.isArray(doc.item)) return [];
   const out = [];
@@ -6079,7 +6345,7 @@ function fromPostman(doc, label){
       method: (r.method || 'GET').toUpperCase(),
       rawUrl,
       headers,
-      body: (r.body && r.body.raw) || '',
+      body: postmanBody(r.body),
       name: it.name || '',
       module: 'Imported · ' + (doc.info && doc.info.name || label),
       via: 'postman'
@@ -6903,7 +7169,8 @@ function menuRow(o){
   const tone = o.tone && !o.on ? ` style="color:${cssv(o.tone)}"` : '';
   return `<button class="rail-item${o.on?' active':''}${o.cls?' '+o.cls:''}"
     ${o.view?`data-view="${o.view}"`:''}${o.tab?` data-menu-tab="${o.tab}"`:''}
-    ${o.act?` data-menu-act="${o.act}"`:''}${o.dis?' disabled':''} title="${esc(o.t)}">
+    ${o.act?` data-menu-act="${o.act}"`:''}${o.dis?' disabled':''}
+    title="${esc(o.dis && o.why ? o.why : o.t)}">
     <span class="ri"${tone}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${o.i}</svg></span>
     <span class="lb">${esc(o.t)}</span>
@@ -6945,13 +7212,15 @@ function renderMenu(){
     `<div class="rail-sec"><i class="rs-dot" style="background:${cssv('--blue')}"></i>Report</div>`,
     menuRow({t:'Open Report', i:MENU_ICO.report, view:'analytics', tone:'--blue',
              on:STATE.view==='analytics', dis:!R,
+             why:'No run yet — select APIs and run a batch, and the report opens here.',
              ct:R?(R.summary.counts.FAIL||null):null, bad:true}),
     menuRow({t:'Report History', i:MENU_ICO.history, act:'history', tone:'--cyan',
              ct:loadSnaps().length||null}),
     `<div class="rail-sec"><i class="rs-dot" style="background:${cssv('--purple')}"></i>Actions</div>`,
     menuRow({t:'Import from cURL', i:MENU_ICO.curl, act:'curl', tone:'--purple'}),
     menuRow({t:'Navigator', i:MENU_ICO.nav, act:'nav', tone:'--slate'}),
-    menuRow({t:'Export', i:MENU_ICO.export, act:'export', tone:'--amber', dis:!R}),
+    menuRow({t:'Export', i:MENU_ICO.export, act:'export', tone:'--amber', dis:!R,
+             why:'Nothing to export yet — a run has to produce a result first.'}),
     gaps?`<div class="rail-gap" title="${gaps} request(s) execute but assert nothing (D7)">
       <i class="rs-dot" style="background:${cssv('--purple')}"></i>
       <span class="lb">${gaps} assertion gap${gaps===1?'':'s'}</span></div>`:''
@@ -7012,6 +7281,16 @@ $('#credSel').onchange = e => { STATE.alias=e.target.value; persist();
   if(STATE.view==='cases')  renderCases(); };
 
 /* --- home --- */
+/* The stack survives a reload, so the badge has to reflect it on boot -- not
+   only after the next change. */
+syncRevert();
+$('#btnRevert').onclick = () => {
+  const st = undoImportStep();
+  if(!st) return;
+  afterCatalogueChange();
+  renderMultiSelect(); syncSel();
+  toast(describeStep(st));
+};
 $('#btnConfigureFirst').onclick = () => {
   if(!STATE.selected.size) return;
   STATE.focus=[...STATE.selected][0]; persist(); go('detail');
@@ -7453,10 +7732,14 @@ function buildLayer(){
          flood-color is currentColor so CSS can retint it per mood without the
          filter needing to know anything about moods. */
       '<filter id="botBeam" x="-160%" y="-160%" width="420%" height="420%">' +
-        '<feDropShadow dx="0" dy="0" stdDeviation="1.5" flood-color="currentColor"' +
-          ' flood-opacity=".95"/>' +
-        '<feDropShadow dx="0" dy="0" stdDeviation="4.5" flood-color="currentColor"' +
-          ' flood-opacity=".6"/>' +
+        /* Three stops: a hot core, a tight bloom and a wide wash. Two was
+           enough for a pale slit but not for one that has to look lit. */
+        '<feDropShadow dx="0" dy="0" stdDeviation="0.9" flood-color="currentColor"' +
+          ' flood-opacity="1"/>' +
+        '<feDropShadow dx="0" dy="0" stdDeviation="2.6" flood-color="currentColor"' +
+          ' flood-opacity=".85"/>' +
+        '<feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="currentColor"' +
+          ' flood-opacity=".45"/>' +
       '</filter>' +
     '</defs>';
 
@@ -7489,9 +7772,9 @@ function buildLayer(){
 
     /* sonar rings, behind the figure so they read as coming off it */
     [-30, '<circle class="bot-ring" cx="60" cy="104" r="34" fill="none"' +
-            ' stroke="var(--bot-core,#29a8df)"/>' +
+            ' stroke="var(--bot-signal,#2dd4bf)"/>' +
           '<circle class="bot-ring d2" cx="60" cy="104" r="34" fill="none"' +
-            ' stroke="var(--bot-core,#29a8df)"/>'],
+            ' stroke="var(--bot-signal,#2dd4bf)"/>'],
 
     /* legs and boots */
     [-14, plate('M44 138 h15 v26 l-2 10 h-13 l-2 -10 z', RED) +
@@ -7513,16 +7796,16 @@ function buildLayer(){
             /* upper arm and forearm */
             plate('M17 94 h22 v22 h-22 z', RED) +
             plate('M18 116 h20 v24 q0 4 -4 4 h-12 q-4 0 -4 -4 z', RED) +
-            /* fist */
+            /* Closed glove. Knuckle slits rather than drawn fingers, for the
+               same reason the open hand uses them. */
             plate('M18 142 h20 v11 q0 4 -4 4 h-12 q-4 0 -4 -4 z', RED_D) +
+            '<path d="M23 143.5 v4.5 M28 143.5 v5 M33 143.5 v4.5" stroke="' + INK +
+              '" stroke-width="1.4" stroke-linecap="round" fill="none"/>' +
+            plate('M18 145 q-5 0 -5 4 q0 3.5 3.5 3.5 q4 0 5 -3.5 z', RED_D) +
           '</g>'],
 
     /* torso: red chest, gold segmented abdomen, neck and collar */
-    [0,   /* Neck and collar sit on the torso layer, not the head: the two are
-             at different depths and a neck travelling with the head would
-             drift off the shoulders exactly as the figure turns. */
-          plate('M52 60 h16 v16 h-16 z', RED_D) +
-          plate('M38 72 h44 q4 0 4 6 l-2 30 h-48 l-2 -30 q0 -6 4 -6 z', RED) +
+    [0,   plate('M38 72 h44 q4 0 4 6 l-2 30 h-48 l-2 -30 q0 -6 4 -6 z', RED) +
           /* gold abdomen with segments */
           plate('M42 108 h36 l-3 22 q-15 6 -30 0 z', GOLD) +
           '<path d="M45 116 h30 M46 123 h28" stroke="' + GOLD_D +
@@ -7542,6 +7825,25 @@ function buildLayer(){
               ' filter="url(#botGlow)"/>' +
           '</g>'],
 
+    /* Neck and gorget.
+
+       The neck used to be a 16x16 square on the torso layer. Two things made
+       that read as broken. The head sits 34-46px closer to the camera under a
+       520px perspective, so it renders about 7% larger than anything at body
+       depth -- a neck down there is visibly too small for the head it carries.
+       And a bare rectangle behind a nodding head lets its square corners swing
+       out past the jaw.
+
+       So it sits at an intermediate depth, which makes the scale step
+       gradual instead of abrupt, and a gorget spans the join: the head now
+       nests into a collar rather than balancing on a post. The neck itself is
+       narrower and almost entirely hidden, which is the point -- a join you
+       cannot see cannot look broken. */
+    [18,  plate('M54 58 h12 v16 h-12 z', RED_D) +
+          plate('M45 78 q4 -13 15 -13 q11 0 15 13 z', RED_D) +
+          '<path d="M50 74 q10 5 20 0" stroke="' + GOLD_D +
+            '" stroke-width="1.6" fill="none" stroke-linecap="round"/>'],
+
     /* the waving arm, raised and bent so the wave is actually visible */
     [30,  '<g class="bot-arm-r">' +
             plate('M106 78 q-1 -14 -14 -16 q-13 2 -14 16 l0 14 q14 7 28 0 z', RED) +
@@ -7549,9 +7851,20 @@ function buildLayer(){
             /* upper arm angled out, forearm up */
             plate('M83 92 h20 l4 20 h-20 z', RED) +
             plate('M92 66 h19 v26 h-19 z', RED) +
-            /* gauntlet and open palm */
-            plate('M91 52 h21 v14 h-21 z', RED_D) +
-            '<circle class="bot-palm" cx="101.5" cy="58" r="5"' +
+            /* Open glove. One silhouette with slits cut into it, not four
+               separately outlined fingers: the figure renders at roughly 0.8
+               physical pixels per unit, so a 4-unit finger carrying a 2.2-unit
+               ink outline is almost entirely outline, and four of them side by
+               side collapse into one dark smudge. Slits keep the fingers
+               legible at the size this is actually drawn. */
+            plate('M91 50 h21 v16 h-21 z', RED_D) +
+            plate('M91 51 q0 -15 10.5 -15 q10.5 0 10.5 15 z', RED_D) +
+            '<path d="M96.3 40 v10.5 M101.5 38.5 v12 M106.7 40 v10.5" stroke="' + INK +
+              '" stroke-width="1.5" stroke-linecap="round" fill="none"/>' +
+            /* Thumb on the outer edge. Inboard it would sit at x83-91, which
+               is behind the helmet -- the head is layer 34 and this arm is 30. */
+            plate('M112 53 q6 0 6 5 q0 5 -5 5 q-4 0 -5 -4 z', RED_D) +
+            '<circle class="bot-palm" cx="101.5" cy="58" r="4.4"' +
               ' fill="var(--bot-eye,#e8faff)" stroke="' + INK + '" stroke-width="1.6"' +
               ' filter="url(#botBeam)"/>' +
           '</g>'],
@@ -7573,38 +7886,44 @@ function buildLayer(){
               ' stroke="var(--bot-core,#29a8df)" stroke-width="1.6"/>' +
             '<circle class="bot-halo d2" cx="60" cy="-1" r="4" fill="none"' +
               ' stroke="var(--bot-core,#29a8df)" stroke-width="1.6"/>' +
+            /* The status lamp. The suit stays repulsor blue, so this is where
+               the run result shows -- a lamp changing colour is a readout, a
+               character changing colour is a different character. */
             '<circle class="bot-beacon" cx="60" cy="-1" r="3.8"' +
-              ' fill="var(--bot-core,#29a8df)" stroke="' + INK +
+              ' fill="var(--bot-signal,#2dd4bf)" stroke="' + INK +
               '" stroke-width="1.4" filter="url(#botGlow)"/>' +
           '</g>'],
 
     /* faceplate and eyes, furthest forward */
     [46,  '<g class="bot-face">' +
-            /* One large, smooth gold plate from brow to chin. The reference
-               has no faceting and no crest -- that was the single biggest
-               reason the old mask did not read as the cartoon. */
-            plate('M60 15 q16 0 20 10 q2 8 2 16 q0 13 -6 20 q-6 7 -16 7' +
-                  ' q-10 0 -16 -7 q-6 -7 -6 -20 q0 -8 2 -16 q4 -10 20 -10 z', GOLD) +
-            /* A shallow red brow curving across the top, not a pointed crest. */
-            plate('M40 25 q20 -11 40 0 q-4 -12 -20 -12 q-16 0 -20 12 z', RED) +
-            /* The brow line itself: one stroke, dipping slightly at centre.
-               At this size a drawn line carries the expression and shading
-               does not. */
-            '<path d="M44 34 q16 -5 32 0" stroke="' + GOLD_D +
-              '" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
-            '<g class="bot-eyes" filter="url(#botBeam)">' +
-              /* Big, bright and slanted -- in the reference the eyes are the
-                 first thing you see, so they are drawn larger than the old
-                 slits and squared rather than swept to a point. */
-              '<path class="bot-eye bot-eye-l" d="M43 40 L57 36 L57 47 L44 49 Z"' +
-                ' fill="var(--bot-eye,#f2feff)" stroke="' + INK + '" stroke-width="1.4"/>' +
-              '<path class="bot-eye bot-eye-r" d="M77 40 L63 36 L63 47 L76 49 Z"' +
-                ' fill="var(--bot-eye,#f2feff)" stroke="' + INK + '" stroke-width="1.4"/>' +
+            /* The faceplate is deliberately narrower than the helmet. That is
+               the whole difference: red has to show at the temples and across
+               the crown, or the head reads as a gold ball with sunglasses on
+               rather than as a mask set into a helmet. The old plate ran
+               x38-82 inside an x32-88 helmet, leaving three units of red. */
+            plate('M60 19 q13 0 17 7 q2 6 2 12 q0 12 -5 19 q-5 8 -14 8' +
+                  ' q-9 0 -14 -8 q-5 -7 -5 -19 q0 -6 2 -12 q4 -7 17 -7 z', GOLD) +
+            /* Brow bar across the top of the plate, in the darker red. */
+            plate('M43 30 q17 -7 34 0 l-1.5 5 q-15.5 -6 -31 0 z', RED_D) +
+            '<g class="bot-eyes" filter="url(#botBeam)"><g class="bot-blink">' +
+              /* Slits, not lenses. These were 11 units tall and nearly
+                 rectangular, which is what read as goggles; the mask has
+                 narrow swept slits that rise towards the centre. */
+              '<path class="bot-eye bot-eye-l" d="M44 36 L57 33 L57 39.5 L44 42.5 Z"' +
+                ' fill="var(--bot-eye,#f2feff)" stroke="' + INK + '" stroke-width="1.3"/>' +
+              '<path class="bot-eye bot-eye-r" d="M76 36 L63 33 L63 39.5 L76 42.5 Z"' +
+                ' fill="var(--bot-eye,#f2feff)" stroke="' + INK + '" stroke-width="1.3"/>' +
+            '</g></g>' +
+            /* Cheek seams -- the panel lines that make it plate rather than
+               skin. A line survives at this size where shading does not. */
+            '<path d="M47.5 46 l2.5 6 M72.5 46 l-2.5 6" stroke="' + GOLD_D +
+              '" stroke-width="1.5" fill="none" stroke-linecap="round"/>' +
+            '<path class="bot-mouth" d="M48 50 q12 9 24 0" stroke="' + INK +
+              '" stroke-width="3.4" fill="none" stroke-linecap="round"/>' +
+            '<g class="bot-blush">' +
+              '<ellipse cx="46" cy="47" rx="4.5" ry="2.8" fill="#ff6b81"/>' +
+              '<ellipse cx="74" cy="47" rx="4.5" ry="2.8" fill="#ff6b81"/>' +
             '</g>' +
-            /* A single shallow jaw seam. The reference chibi has no vent bars;
-               drawing them added noise at the size this renders. */
-            '<path class="bot-mouth" d="M50 60 q10 5 20 0" stroke="' + GOLD_D +
-              '" stroke-width="2" fill="none" stroke-linecap="round"/>' +
           '</g>']
   ];
 
@@ -7643,9 +7962,9 @@ function buildLayer(){
     on(bot, 'pointerenter', function(){ overBot = true;
       if(hideTimer) clearTimeout(hideTimer); });
     on(bot, 'pointerleave', function(){ overBot = false; scheduleHide(); });
-    on(say, 'pointerenter', function(){ overSay = true;
-      if(hideTimer) clearTimeout(hideTimer); });
-    on(say, 'pointerleave', function(){ overSay = false; scheduleHide(); });
+    /* The bubble is click-through so it cannot cover the report, which means
+       it receives no pointer events -- these would never fire. Hovering the
+       figure still holds it open, and the timeout still closes it. */
 
     on(bot, 'click', function(){
       /* Restarting an animation needs the class off, a reflow, then on --
@@ -7654,7 +7973,7 @@ function buildLayer(){
       void bot.offsetWidth;
       bot.classList.add('is-hit', 'is-waving');
       applyMood();
-      bot.classList.remove('has-news');   // read
+      newsRead();
       speak(report(), 11000);
       if(waveTimer) clearTimeout(waveTimer);
       waveTimer = setTimeout(function(){
@@ -7667,7 +7986,7 @@ function buildLayer(){
     /* Fly in, land, and only then greet. Waving while still descending reads
        as a glitch rather than a greeting. */
     var ARRIVAL_MS = 2300;
-    bot.classList.add('is-arriving');
+    bot.classList.add('is-arriving', 'is-greeting');
     setTimeout(function(){
       if(!bot) return;
       bot.classList.remove('is-arriving');
@@ -7675,7 +7994,10 @@ function buildLayer(){
       speak('<b>Hi!</b> I am your QA co-pilot.<br>' +
             '<span class="dim">Click me any time for the run status and anything critical.</span>',
             6500);
-      setTimeout(function(){ if(bot) bot.classList.remove('is-waving'); }, 3200);
+      /* Greeting over: the face stops saying hello and starts reporting. */
+      setTimeout(function(){
+        if(bot) bot.classList.remove('is-waving', 'is-greeting');
+      }, 3200);
     }, ARRIVAL_MS);
   }
 
@@ -7755,6 +8077,48 @@ function buildLayer(){
     return [run.R.runId, run.s.total, c.PASS|0, c.FAIL|0, c.WARN|0].join('|');
   }
 
+/* A finished run arrives while the user is reading something else, and a halo
+   at the edge of vision is easy to miss entirely. So the figure waves -- the
+   one gesture that already means "over here" -- and offers it again a few
+   times at a slow interval, because the first one lands while the user is
+   looking elsewhere.
+
+   It stops on the click that reads the news, and gives up after a handful of
+   attempts either way: a permanent flap in the corner is worse than a missed
+   notification, and one that cannot be dismissed trains people to ignore it. */
+var newsTimer = null;
+var NEWS_GAP_MS = 7000, NEWS_ATTEMPTS = 4;
+
+function announce(){
+  if(!bot) return;
+  if(newsTimer){ clearInterval(newsTimer); newsTimer = null; }
+  var left = NEWS_ATTEMPTS;
+
+  var beckon = function(){
+    if(!bot || !bot.classList.contains('has-news') || left-- <= 0){
+      if(newsTimer){ clearInterval(newsTimer); newsTimer = null; }
+      if(bot) bot.classList.remove('is-announcing');
+      return;
+    }
+    /* Off, reflow, on -- otherwise a repeat inside the cycle does nothing. */
+    bot.classList.remove('is-announcing');
+    void bot.offsetWidth;
+    bot.classList.add('is-announcing');
+    setTimeout(function(){
+      if(bot) bot.classList.remove('is-announcing');
+    }, 3900);   /* 1.3s x 3 */
+  };
+
+  beckon();
+  newsTimer = setInterval(beckon, NEWS_GAP_MS);
+}
+
+/* Reading the news ends the announcement immediately. */
+function newsRead(){
+  if(newsTimer){ clearInterval(newsTimer); newsTimer = null; }
+  if(bot) bot.classList.remove('is-announcing', 'has-news');
+}
+
   function applyMood(){
     if(!bot) return;
     var run = readRun();
@@ -7762,7 +8126,7 @@ function buildLayer(){
     if(sig !== lastSignature){
       lastSignature = sig;
       /* Only a real result is worth announcing. */
-      if(run) bot.classList.add('has-news');
+      if(run){ bot.classList.add('has-news'); announce(); }
     }
     var m = moodFor(readRun());
     bot.classList.remove('mood-ok', 'mood-warn', 'mood-sad');

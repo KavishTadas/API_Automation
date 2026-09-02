@@ -207,6 +207,67 @@ function fileOf(name) {
      String(w.eval('SEED.generatedAt')));
 
   console.log('\nit fails honestly:');
+  console.log('\nevery Postman body mode is read, not just raw:');
+  // Reading only body.raw dropped form-encoded and GraphQL requests silently:
+  // they imported with an empty payload, and an empty payload renders as a
+  // request that sends nothing. A body the importer cannot see must never be
+  // indistinguishable from a body that does not exist.
+  const modes = [
+    ['raw',        { mode: 'raw', raw: '{"a":1}' },                            'a'],
+    ['urlencoded', { mode: 'urlencoded', urlencoded: [{ key: 'a', value: '1' }] }, 'a'],
+    ['formdata',   { mode: 'formdata', formdata: [{ key: 'a', value: '1' }] },     'a'],
+    ['graphql',    { mode: 'graphql', graphql: { query: '{me}' } },             'query']
+  ];
+  for (const [name, body, key] of modes) {
+    w.__pb = body;
+    const got = w.eval('postmanBody(__pb)');
+    ok('  ' + name + ' yields a body', !!got && got.includes(key),
+       'got ' + JSON.stringify(got));
+  }
+  ok('  a field unticked in Postman is not sent',
+     !w.eval('postmanBody({mode:"formdata",formdata:[{key:"a",value:"1",disabled:true}]})'),
+     'a disabled form field still reached the payload');
+
+  console.log('\nan import can be undone from the page, not just from devtools:');
+  // removeImported() and its undo stack shipped with imports and nothing ever
+  // called them: no delete control existed on any row, and #btnRevert was not
+  // in the markup at all. The only way to undo a bad upload was clearing
+  // browser storage.
+  w.__d = { info: { name: 'Dupes' }, item: [
+    { name: 'a', request: { method: 'GET',  url: { raw: 'https://h.com/api/a' } } },
+    { name: 'b', request: { method: 'POST', url: { raw: 'https://h.com/api/b' } } }
+  ] };
+  w.eval('STATE.imported = fromPostman(__d, "dupes"); renderMultiSelect(); syncSel();');
+  const total = w.eval('allApis().length');
+  const rows = [...w.document.querySelectorAll('#msBox [data-del]')];
+  ok('every row offers a delete', rows.length === total,
+     rows.length + ' buttons for ' + total + ' rows');
+  ok('only imported rows can actually be removed',
+     rows.filter(b => !b.disabled).length === 2,
+     rows.filter(b => !b.disabled).length + ' enabled; a repo endpoint would return on reload');
+  ok('a locked row says why', /repositor/i.test((rows.find(b => b.disabled) || {}).title || ''),
+     'a disabled control with no reason reads as broken');
+
+  w.eval('removeImported(STATE.imported[0].ref)');
+  ok('deleting removes exactly one', w.eval('allApis().length') === total - 1,
+     'got ' + w.eval('allApis().length'));
+  w.eval('undoImportStep()');
+  ok('undo puts it back', w.eval('allApis().length') === total,
+     'got ' + w.eval('allApis().length'));
+
+  // A bad upload arrives as a suite, so that is the unit that has to be
+  // undoable in one step -- otherwise reversing a 12-endpoint mistake costs
+  // twelve clicks and the undo stack caps at 20.
+  const mod = w.eval('STATE.imported[0].module');
+  w.__m = mod;
+  const removed = w.eval('removeImportedSuite(__m)');
+  ok('a whole imported suite goes at once', removed === 2 && w.eval('allApis().length') === total - 2,
+     'removed ' + removed);
+  ok('and comes back in a single undo', (() => {
+     w.eval('undoImportStep()');
+     return w.eval('allApis().length') === total;
+  })(), 'restoring the suite took more than one step');
+
   w.__f = { name: 'junk.bin', text: async () => 'not a request in sight',
             arrayBuffer: async () => new Uint8Array([1, 2, 3]).buffer };
   const empty = await w.eval('extractFromFile(__f)');
