@@ -1,5 +1,10 @@
 node_modules/
 .env
+# Any hand-made copy of .env carries the same live credentials it does.
+# Two such backups already existed untracked; `git add -A` would have
+# committed EMP_PASSWORD and POSTMAN_API_KEY with them.
+.env.bak*
+.env.*.bak
 reports/
 __pycache__/
 **/__pycache__/

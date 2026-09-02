@@ -282,6 +282,18 @@ jobs:
       - name: Lint OpenAPI spec
         run: npm run lint:spec
 
+      # RCA-001: every host in this estate answers with the nginx build number.
+      # The fix is one directive on infrastructure this repository does not
+      # contain, so this reports rather than blocks -- a gate that fails from
+      # the day it lands gets switched off, not fixed. Drop
+      # continue-on-error once ops has applied server_tokens off and the
+      # step passes; that is the moment it starts earning its place.
+      - name: Check response header hygiene
+        id: header-hygiene
+        continue-on-error: true
+        run: |
+          python scripts/regression/verify-response-header-hygiene.py             | tee -a "$GITHUB_STEP_SUMMARY"
+
       - name: Run API tests
         id: run-tests
         env:

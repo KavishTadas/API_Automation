@@ -243,3 +243,28 @@ how "invalid input is stored" is observed.
 - `attendance-management/API_Documentation_Template.xlsx` is quarantined on purpose
   (`excel_adapter.py:19` — "must not be read from"). Kept deliberately.
 - `scripts/project-audit.js` is named in `.gitignore` but does not exist.
+
+## 15. Every host discloses its nginx build -- OPS ACTION REQUIRED
+
+`Server: nginx/1.18.0 (Ubuntu)` is returned by all four origins, to any client,
+on any path, with or without credentials. `test_no_server_version_disclosure`
+fails on it 44 times, which is 4 real findings fanned out by host-level
+attribution -- not 44 defects.
+
+It is **not** a UI-specific failure, though it was reported as one. The CLI
+baselines already carry it (43 and 44 FAIL) and a plain `curl` reproduces it.
+
+The fix is `server_tokens off;` in the `http` block of each host's nginx.conf.
+That is infrastructure this repository does not contain, so it cannot be
+committed here -- only verified from here:
+
+    python scripts/regression/verify-response-header-hygiene.py
+
+Full analysis, the nginx config, UI-path verification steps and the hardening
+list: `docs/rca/RCA-001-server-version-disclosure.md`.
+
+**When ops applies the fix**, delete `continue-on-error: true` from the *Check
+response header hygiene* step in `.github/workflows/api-tests.yml`. It reports
+rather than blocks today only because every host currently fails it.
+
+Related and still open: no host sends `Strict-Transport-Security`.
