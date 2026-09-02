@@ -10,7 +10,7 @@
   ""token"": ""<jwt-token>""
 }","{
   ""token"": ""<jwt-token>""
-}","Produces authToken for downstream APIs","KavishTadas <kavish.tadas@omfysgroup.com>","post|/auth/token|auth|login","Source: bruno/auth/login.bru; No saved response example in source file; Parsed from Bruno file"
+}","Produces authToken for downstream APIs","Parth Divekar <parthdivekar987@gmail.com>","post|/auth/token|auth|login","Source: bruno/auth/login.bru; No saved response example in source file; Parsed from Bruno file"
 "2","Employee Auth API","TC01 - Valid credentials return JWT token","public","TC01 - Status is 200; TC01 - Full response matches OpenAPI LoginResponse; TC01 - Token is three-part JWT; TC01 - empCode and username returned; TC01 - roles is non-empty array","{{authBaseUrl}}","/auth/token","POST","headers: Content-Type=application/json","{""empCode"": ""{{empCode}}"", ""password"": ""{{empPassword}}""}","{
   ""empCode"": ""<empCode>"",
   ""password"": ""<empPassword>""
