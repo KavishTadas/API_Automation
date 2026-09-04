@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>HCM API Test Console &amp; Enterprise Analytics</title>
+<title>API Testing Console</title>
 <style>
 /* ============================================================
    Design tokens. Light is the base; dark overrides only colour.
@@ -196,9 +196,9 @@ button,input,select,textarea{font:inherit;color:inherit}
 /* The same band as the report masthead, so the console and the report read as
    one product rather than two. Values are not repeated: .mast-name below is
    defined once and used by both. */
-.topbar{display:flex;align-items:center;gap:14px;padding:10px 20px;border-bottom:1px solid var(--line);
+.topbar{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line);
   background:linear-gradient(103deg,#08152c 0%,#132f5e 44%,#0d2246 72%,#0a1932 100%);
-  flex-shrink:0;flex-wrap:wrap;position:relative;overflow:hidden}
+  flex-shrink:0;flex-wrap:wrap;position:relative}
 .topbar::after{content:'';position:absolute;inset:0;pointer-events:none;
   background:
     radial-gradient(circle at 86% 12%,rgba(96,165,250,.26) 0%,transparent 58%),
@@ -222,6 +222,44 @@ button,input,select,textarea{font:inherit;color:inherit}
 .brand h1{margin:0;font:700 clamp(19px,2.1vw,27px)/1.15 var(--serif);letter-spacing:-.015em}
 .brand .sub{color:var(--text-dim);font-size:12.5px;margin-top:3px}
 .tb-sp{flex:1}
+/* Sits the pair a touch away from the name it qualifies, and keeps them
+   together when the row wraps rather than letting one drop alone. */
+.topbar .brand{margin-right:10px}
+.topbar .field{flex-shrink:0}
+/* No plate. Vector means the ground shows through, so the mark sits on the band
+   rather than on a white card stuck to it -- which is what was asked for, and
+   what the JPEG could not do. Depth comes from the drop shadow and the sphere
+   lighting inside the SVG, not from a container. */
+/* Sits on the title line, hard right. Placed immediately after the flexible
+   spacer so the spacer's free width falls between the controls and the mark --
+   which is what pins it to the right edge of that first row rather than letting
+   it trail the persona buttons onto the second. */
+/* A white card, deliberately.
+
+   The mark is supplied as a JPEG on white. Keying that white out means deciding
+   which pixels are "background", and at the circle's antialiased edge and
+   inside the swirl there is no clean answer -- an earlier attempt did exactly
+   that and chewed the artwork. A brand mark is not ours to key, recolour or
+   redraw, so it is carried whole and the header makes room for it. Generous
+   padding and a soft lift make the card read as a deliberate device rather
+   than as a transparency bug. */
+.scope-note{margin:0 0 14px;padding:9px 13px;border-radius:8px;font-size:12.5px;
+  background:var(--accent-bg, rgba(45,212,191,.10));
+  border:1px solid var(--accent-line, rgba(45,212,191,.30));color:var(--text-dim)}
+.scope-note b{color:var(--text)}
+.brandmark{flex-shrink:0;display:inline-flex;align-items:center;
+  align-self:center;margin-left:6px;margin-right:2.5cm;
+  /* Sits on the title's optical line. The row centres its items against the
+     brand block -- title plus subtitle -- so a purely centred mark rides high
+     against the title alone; 0.5cm dropped it, 0.4cm of that is taken back. */
+  margin-top:0.1cm;
+  background:#fff;border-radius:10px;padding:8px 14px;
+  box-shadow:0 2px 6px rgba(0,0,0,.30), 0 0 0 1px rgba(255,255,255,.14)}
+.brandmark img{display:block;height:46px;width:auto}
+[data-theme="light"] .brandmark{box-shadow:0 1px 3px rgba(15,40,90,.20)}
+/* Below the controls' own wrap point the mark is the first thing to go: it is
+   decoration, and the row's job is the controls. */
+@media (max-width:860px){ .brandmark{display:none} }
 .field{display:flex;align-items:center;gap:6px}
 .field label{font-size:11px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
 select,input[type=text],input[type=search],textarea{background:var(--panel-2);border:1px solid var(--line);
@@ -1783,7 +1821,10 @@ html[data-fx="on"] #qabot{display:block}
 /* Click-through even when shown. At up to 330px it covers a third of a card,
    and a panel that eats clicks is worse than one that closes a little sooner
    -- hovering the figure and the timeout both still hold it open. */
-#qasay.on{opacity:1;transform:none}
+/* Takes pointer events only while shown, so it can be hovered to hold it open.
+   Clicking it dismisses it -- see the handler -- so it can still never trap a
+   click over the report. */
+#qasay.on{opacity:1;transform:none;pointer-events:auto;cursor:pointer}
 #qasay b{color:var(--accent, #2dd4bf);font-weight:700}
 #qasay b.bad{color:var(--ro400, #fb7185)}
 #qasay b.good{color:var(--em400, #34d399)}
@@ -2413,8 +2454,12 @@ html[data-fx="off"] .tg-pulse{animation:none;opacity:.5}
 <!-- ===================== RAIL ===================== -->
 <nav class="rail" id="rail">
   <div class="rail-brand">
-    <div class="rail-logo">HCM</div>
-    <div class="rail-name"><b>API Test Console</b><span>QA Platform</span></div>
+    <!-- The badge said HCM: the product it tests, not this tool. When the rail
+         is collapsed to 60px the badge is the only thing left, so it has to
+         stand for the console itself. The name matches the masthead exactly --
+         one product should not introduce itself by two names. -->
+    <div class="rail-logo" title="API Testing Console">API</div>
+    <div class="rail-name"><b>API Testing Console</b><span>API Automation</span></div>
   </div>
   <div class="rail-scroll" id="railMenu"></div>
   <div class="rail-foot">
@@ -2433,7 +2478,12 @@ html[data-fx="off"] .tg-pulse{animation:none;opacity:.5}
       <h1><span class="mast-name"><span class="t">API Testing Console</span></span></h1>
       <div class="sub" id="brandSub">Catalogue v— · 0 APIs · UAT</div>
     </div>
-    <div class="tb-sp"></div>
+    <!-- The flexible spacer used to sit here, directly after the brand, which
+         pushed every control to the far edge and left the environment and the
+         credential alias marooned across an empty band from the name they
+         qualify. They belong with it: they say which environment and which
+         identity this console is pointed at. The spacer moves below them, so
+         they sit beside the heading and only the view controls go right. -->
     <div class="field">
       <label for="envSel">Env</label>
       <select id="envSel"></select>
@@ -2442,6 +2492,11 @@ html[data-fx="off"] .tg-pulse{animation:none;opacity:.5}
       <label for="credSel">Credential alias</label>
       <select id="credSel"></select>
     </div>
+    <div class="tb-sp"></div>
+    <!-- The supplied artwork, inlined unmodified. Decorative: the band already
+         says OMFYS in words, so a screen reader gains nothing from hearing it
+         a second time. -->
+    <span class="brandmark" aria-hidden="true"><img src="__LOGO__" alt="" decoding="async"></span>
     <div class="seg" id="personaSeg" role="group" aria-label="Stakeholder view">
       <button data-persona="exec" title="Quality gate, trend, sign-off — no raw logs">👔 Exec</button>
       <button data-persona="dev" title="Failures, status codes, cURL reproducers">💻 Dev</button>
@@ -2657,7 +2712,7 @@ const PRISTINE = '<!doctype html>\n' + document.documentElement.outerHTML;
 const STATE = {
   view:'home', tab:'overview', persona:'qa',
   env:SEED.environments[0] || 'UAT',
-  alias:SEED.credentialAliases[0] || '',
+  alias:'',                 // '' = all services; a real alias narrows the console
   selected:new Set(),
   focus:null,
   result:null,
@@ -2843,6 +2898,16 @@ function label(a){ return a.method+' '+a.path; }
 function subLabel(a){ return a.module + (a.subModule && a.subModule!==a.module ? ' › '+a.subModule : ''); }
 
 function allApis(){ return SEED.apis.concat(STATE.imported); }
+
+/* Everything the selected credential can reach.
+
+   allApis() stays the full set on purpose: apiByRef() has to resolve a ref the
+   current scope excludes -- a report can hold results for endpoints that are no
+   longer listed -- and the auth issuers have to be findable whatever is
+   selected. So lookups use allApis(); anything that counts, lists or selects
+   uses this. A badge reading 44 while the list beneath shows 6 is the bug this
+   exists to prevent. */
+function scopedApis(){ return allApis().filter(inScope); }
 
 function isImported(ref){ return STATE.imported.some(a => a.ref === ref); }
 
@@ -3151,7 +3216,14 @@ function manifestFor(refs){
     environment: STATE.env,
     requestedTiers: ['global_contract'],
     apis: refs.map(ref => {
-      const entry = {credentialAlias: aliasForManifest(STATE.alias)};
+      /* The credential an endpoint actually needs is its own service's, which
+         is only the same as the selected one while the console is narrowed. On
+         "All services" the selection says nothing, so each endpoint resolves
+         its own -- and that is the more correct behaviour regardless: sending
+         one alias for every endpoint was always wrong for the service it did
+         not belong to. */
+      const own = serviceOf(apiByRef(ref)) || STATE.alias || SEED.credentialAliases[0] || '';
+      const entry = {credentialAlias: aliasForManifest(own)};
       /* STATE.providers is only written when an endpoint is opened in Configure,
          so a batch of 44 selected from the list carried a provider for the few
          that had been opened and nothing for the rest. That run reported 124
@@ -3241,11 +3313,17 @@ function runBatch(refs, salt){
 
       // Auth bootstrap: Attendance needs Login_Auth_UAT_API. Alias must be registered.
       const needsAuth = /attendance/i.test(api.module||'');
-      const aliasOk = SEED.credentialAliases.includes(STATE.alias);
+      /* On "All services" the selector names no single credential, so each
+         endpoint resolves its own -- the same rule the manifest uses. Testing
+         STATE.alias directly would read the empty selection as an unregistered
+         credential and block every attendance check on a token failure that
+         never happened. */
+      const useAlias = STATE.alias || serviceOf(api) || '';
+      const aliasOk = SEED.credentialAliases.includes(useAlias);
       if(needsAuth && !aliasOk){
         anyBlocked = anyBlocked || ref;
         results.push(base(tc,ref,'SKIPPED_NO_TOKEN',
-          `(BLOCKED: auth provider failed) — did not get token: credentialAlias '${STATE.alias||'<none>'}' is not registered`,
+          `(BLOCKED: auth provider failed) — did not get token: credentialAlias '${useAlias||'<none>'}' is not registered`,
           0.3, false, prov, {blockedBy: SEED.authProviderRef || null}));
         return;
       }
@@ -3449,9 +3527,15 @@ function hostForModule(a){
 function renderTopbar(){
   const envSel=$('#envSel'), credSel=$('#credSel');
   envSel.innerHTML = SEED.environments.map(e=>`<option${e===STATE.env?' selected':''}>${esc(e)}</option>`).join('');
-  credSel.innerHTML = SEED.credentialAliases.map(a=>`<option${a===STATE.alias?' selected':''}>${esc(a)}</option>`).join('');
+  /* "All services" first, and the default. Narrowing to one credential is a
+     deliberate act; opening the console and finding two endpoints already
+     hidden, with nothing saying why, is not. It also gives a way back -- with
+     only the two real aliases there was no selection that meant "everything". */
+  credSel.innerHTML =
+    `<option value=""${STATE.alias?'':' selected'}>All services</option>` +
+    SEED.credentialAliases.map(a=>`<option${a===STATE.alias?' selected':''}>${esc(a)}</option>`).join('');
   $('#brandSub').textContent =
-    `Catalogue v${SEED.catalogueVersion} · ${allApis().length} APIs · ${SEED.environments.join(', ')}`;
+    `Catalogue v${SEED.catalogueVersion} · ${scopedApis().length} APIs · ${SEED.environments.join(', ')}`;
 }
 
 /* Display index. The catalogue ref is an opaque join key and must never be
@@ -3466,10 +3550,44 @@ function displayId(a){
   return DISPLAY_ID.get(a.ref) || (a.displayId || 'API-NEW');
 }
 
+/* Which service an endpoint belongs to.
+
+   Nothing in the catalogue states this, but the host does: the aliases name a
+   service and each service answers on its own host. Derived rather than
+   hand-listed, so a new endpoint lands in the right service the moment its
+   host is known, with nothing to maintain.
+
+   The auth hosts belong to no service and return null. That is the load-bearing
+   case: every run needs a token, so the issuer has to survive the filter
+   whichever service is selected -- hiding it would leave the batch unable to
+   authenticate and every check blocked. */
+function serviceOf(api){
+  const host = String((api && api.baseUrl) || '').toLowerCase();
+  if(!host || /uat-mcdp-be|auth/.test(host)) return null;
+  const hit = SEED.credentialAliases.find(alias => {
+    const word = String(alias).toLowerCase().split('_')[0];   // ATTENDANCE_SVC_UAT_01 -> attendance
+    return word && host.includes(word.slice(0, 4));           // devmcdphcm... has no 'leave'
+  });
+  if(hit) return hit;
+  /* Leave is served from the dev host, attendance from the uat platform host.
+     Neither hostname contains its service name, so the two are told apart by
+     which host they are on rather than by a substring that is not there. */
+  if(/^https?:\/\/dev/.test(host)) return SEED.credentialAliases.find(a => /leave/i.test(a)) || null;
+  return SEED.credentialAliases.find(a => /attendance/i.test(a)) || null;
+}
+
+/* Shown for the selected credential? Auth endpoints always are. */
+function inScope(api){
+  if(!STATE.alias) return true;                 // All services
+  const svc = serviceOf(api);
+  return svc === null || svc === STATE.alias;   // auth issuers are always in
+}
+
 function moduleGroups(filter){
   const q=(filter||'').toLowerCase().trim();
   const m=new Map();
   allApis().forEach(a=>{
+    if(!inScope(a)) return;
     if(q && !(a.path+' '+a.module+' '+a.method+' '+(a.name||'')+' '+displayId(a)).toLowerCase().includes(q)) return;
     if(!m.has(a.module)) m.set(a.module, []);
     m.get(a.module).push(a);
@@ -3478,7 +3596,7 @@ function moduleGroups(filter){
 }
 
 function renderStrip(){
-  const apis=allApis(), mods=new Set(apis.map(a=>a.module));
+  const apis=scopedApis(), mods=new Set(apis.map(a=>a.module));
   const gaps=apis.filter(a=>a.assertionState==='not-asserted').length;
   const R=STATE.result;
   $('#strip').innerHTML=[
@@ -3619,9 +3737,9 @@ function hl(text, q){
 function renderSuitesGrid(){
   const q=($('#apiSearch').value||'').trim();
   const m=moduleGroups(q);
-  const total=allApis().length;
+  const total=scopedApis().length;
   const shown=[...m.values()].reduce((n,l)=>n+l.length,0);
-  const allSuites=new Set(allApis().map(a=>a.module)).size;
+  const allSuites=new Set(scopedApis().map(a=>a.module)).size;
 
   $('#apiSearchClear').hidden = !q;
   $('#suiteMatchHint').innerHTML = q
@@ -3723,7 +3841,7 @@ function syncSel(){
         ? 'A batch is already running.'
         : 'Select at least one API in the grid above, then run.');
   pick('#btnConfigureFirst', 'Select at least one API to configure it.');
-  $('#navBadge').textContent = allApis().length;
+  $('#navBadge').textContent = scopedApis().length;
   const imp = STATE.imported.length, ci = $('#btnClearImported');
   if(ci){
     ci.disabled = !imp;
@@ -4099,7 +4217,7 @@ function wireCaseCards(host, api, prev){
 function renderCases(){
   const q=($('#caseSearch').value||'').toLowerCase().trim();
   const R=STATE.result;
-  const apis=allApis().filter(a=>{
+  const apis=scopedApis().filter(a=>{
     if(!q) return true;
     const hay=(a.path+' '+a.module+' '+a.method+' '+(a.name||'')+' '+displayId(a)).toLowerCase();
     if(hay.includes(q)) return true;
@@ -4108,8 +4226,8 @@ function renderCases(){
   const checks=orderedChecks().length;
 
   $('#caseHint').innerHTML = q
-    ? `<b>${apis.length}</b> of ${allApis().length} endpoints match “${esc(q)}”`
-    : `<b>${allApis().length}</b> endpoints × <b>${checks}</b> global checks · ${
+    ? `<b>${apis.length}</b> of ${scopedApis().length} endpoints match “${esc(q)}”`
+    : `<b>${scopedApis().length}</b> endpoints × <b>${checks}</b> global checks · ${
         R?'states from the last run':'states predicted by the catalogue'}`;
 
   const body=$('#caseBody');
@@ -4225,9 +4343,41 @@ function renderDetail(){
 /* ========================================================================
    RENDER — ANALYTICS
    ======================================================================== */
+/* The report, narrowed to the selected credential.
+
+   The console lists only the endpoints that credential can reach, so a report
+   still showing all of them contradicts the screen you ran from. Filtering the
+   rows is the easy half; the hard half is that R.summary was computed over the
+   whole run, so keeping it would leave every headline number describing a
+   different set of endpoints than the table beneath it. It is recomputed with
+   summarise(), the same function that built the original, so the pass rate,
+   the counts and the denominator all describe exactly what is shown.
+
+   A run that is entirely in scope is returned untouched -- no copy, no
+   recompute, and the common case costs nothing. */
+function scopeRun(R){
+  if(!R || !Array.isArray(R.apis)) return R;
+  const keep = R.apis.filter(a => {
+    const api = apiByRef(a.apiRef);
+    return !api || inScope(api);          // unknown refs stay: see resultApi()
+  });
+  if(keep.length === R.apis.length) return R;
+  const flat = keep.flatMap(a => a.results || []);
+  return Object.assign({}, R, {apis: keep, summary: summarise(flat), scoped: true});
+}
+
+/* Says so, rather than letting a smaller number look like a worse run. */
+function scopeBanner(R){
+  if(!R || !R.scoped) return '';
+  const total = (STATE.result && STATE.result.apis) ? STATE.result.apis.length : 0;
+  return `<div class="scope-note">Showing the <b>${esc(STATE.alias)}</b> endpoints only —
+    ${R.apis.length} of ${total} from this run. Every figure below is recomputed over
+    that subset; switch the credential alias in the console to widen it.</div>`;
+}
+
 function renderAnalytics(){
   const body=$('#anBody'), mast=$('#anMast');
-  const R=STATE.result;
+  let R=STATE.result;
 
   if(!R){
     mast.innerHTML='';
@@ -4248,7 +4398,8 @@ function renderAnalytics(){
     seedSampleHistory(true);
     persist();
   }
-  mast.innerHTML = masthead(R) + snapshotBanner(R);
+  R = scopeRun(R);
+  mast.innerHTML = masthead(R) + snapshotBanner(R) + scopeBanner(R);
   renderTabs(R);
 
   const fn = {overview:tabOverview, defects:tabDefects, suites:tabSuites, behaviors:tabBehaviors,
@@ -4571,11 +4722,19 @@ const svg=(d,cls)=>`<svg class="rico${cls?' '+cls:''}" viewBox="0 0 24 24" fill=
 /* Tab bar — labels, icon colours and badge as the source dashboard carried them. */
 const TABS=[
   {k:'overview',   t:'Overview',              i:'dash',     c:''},
-  {k:'defects',    t:'Categories',            i:'tags',     c:'var(--am400)', badge:R=>R.summary.counts.FAIL||0},
-  {k:'suites',     t:'Suites',                i:'layers',   c:'var(--bl400)', suffix:R=>` (${ranEndpoints(R)}/${allApis().length})`},
+  /* "Categories" named how the tab groups its contents, not what it holds.
+     Someone hunting a failure and its cause has no reason to open a tab called
+     Categories, which is why the table of failures was reported as missing
+     while it sat one click away. The badge already carries the FAIL count. */
+  {k:'defects',    t:'Defects & Root Cause',  i:'tags',     c:'var(--am400)', badge:R=>R.summary.counts.FAIL||0},
+  {k:'suites',     t:'Suites',                i:'layers',   c:'var(--bl400)', suffix:R=>` (${ranEndpoints(R)}/${scopedApis().length})`},
   {k:'behaviors',  t:'Behaviors (BDD)',       i:'branch',   c:'var(--pu400)', p:'qa,dev'},
   {k:'timeline',   t:'Timeline',              i:'gantt',    c:'var(--em400)', p:'qa,dev,devops'},
-  {k:'payloads',   t:'API Infra & Payloads',  i:'cpu',      c:'var(--cy400)', p:'qa,dev'},
+  /* DevOps was excluded from a tab named "API Infra", which holds the host,
+     the credential alias, the resolved URL and the request body of every
+     endpoint -- the response detail behind a failure, and the one audience that
+     most needs it. */
+  {k:'payloads',   t:'API Infra & Payloads',  i:'cpu',      c:'var(--cy400)', p:'qa,dev,devops'},
   {k:'perf',       t:'Performance & SLA',     i:'zap',      c:'var(--am400)', p:'qa,dev,devops,exec'},
   {k:'compliance', t:'Compliance Rules',      i:'checks',   c:'var(--t400)',  p:'qa,devops,exec'},
   {k:'json',       t:'Config & JSON',         i:'filecode', c:'var(--s400)',  p:'dev,devops'}
@@ -4795,13 +4954,13 @@ function kpiRow(R){
     <div class="estat">
       <div class="estat-h"><span>Executed This Run</span><span class="estat-ic ic-blue">${svg(ICO.check2)}</span></div>
       <div class="estat-v"><span class="estat-n">${ranEndpoints(R)}</span>
-        <span class="estat-sub">of ${allApis().length} endpoints &middot; ${mods.size} suite${mods.size===1?'':'s'}</span></div>
+        <span class="estat-sub">of ${scopedApis().length} endpoints &middot; ${mods.size} suite${mods.size===1?'':'s'}</span></div>
       <div class="estat-f"><span><b>${distinctChecks(R)}</b> contract checks per endpoint</span>
         <span class="t">${R.summary.total} result rows</span></div>
       <div class="estat-f" style="margin-top:4px"><span><b>${assertedChecks(R)}</b> asserted</span>
         <span class="t">${(R.summary.total-assertedChecks(R))} skipped &mdash; not applicable</span></div>
-      ${ranEndpoints(R) < allApis().length ? `<div class="estat-sub amber" style="margin-top:8px;line-height:1.45">
-        ${allApis().length - ranEndpoints(R)} endpoint${allApis().length-ranEndpoints(R)===1?'':'s'}
+      ${ranEndpoints(R) < scopedApis().length ? `<div class="estat-sub amber" style="margin-top:8px;line-height:1.45">
+        ${scopedApis().length - ranEndpoints(R)} endpoint${scopedApis().length-ranEndpoints(R)===1?'':'s'}
         in the catalogue were not part of this run
       </div>` : ''}
     </div>
@@ -5028,7 +5187,6 @@ function signOff(R){
         <b style="color:var(--em400)">100% pass</b> and still not be clean — WARN and blocked
         results sit outside the denominator, so both are always shown together.</p>
     </div>
-    ${c.FAIL?`<button class="ebtn ebtn-full" data-goto="defects">Review Root Causes &amp; Fixes</button>`:''}
   </div>`;
 }
 
@@ -5133,9 +5291,20 @@ function tabOverview(R){
       <span class="eqg-tag warn">Blocked</span>
       <span style="font:400 11.5px ui-monospace,monospace;color:var(--s300)">${esc(R.statusReason)}</span>
     </div></div>`:''}
-  <div class="ecard" style="margin-top:20px">
-    <p class="eso-p" style="color:var(--s400)">${esc(R.applicabilityNote)}</p>
-  </div>`;
+  <!-- Every persona that can open the Defects tab gets a way to reach it from
+       the foot of the Overview. It used to live inside the sign-off panel,
+       which is gated to exec and qa, so dev and devops scrolled to the bottom
+       of a failing run and found nothing to click. -->
+  ${(R.summary.counts.FAIL||0) ? `<div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+    <button class="ebtn ebtn-danger" data-goto="defects">${svg(ICO.flame)}
+      Review Root Causes &amp; Fixes (${R.summary.counts.FAIL})</button>
+    <button class="ebtn ebtn-ghost" data-goto="payloads">Inspect API responses</button>
+  </div>` : ''}
+
+  ${(R.summary.counts.NOT_APPLICABLE||0) ? `<div class="ecard" style="margin-top:20px">
+    <p class="eso-p" style="color:var(--s400)">
+      <b style="color:var(--s300)">Note</b> &middot; ${esc(R.applicabilityNote)}</p>
+  </div>` : ''}`;
 }
 
 /* The contract rules this page can actually verify, checked against the run. */
@@ -7508,8 +7677,8 @@ function renderMenu(){
   const host=$('#railMenu');
   if(!host||typeof host.querySelectorAll!=='function') return;   // headless contract harness
   const R=STATE.result;
-  const gaps=allApis().filter(a=>a.assertionState==='not-asserted').length;
-  const mods=new Set(allApis().map(a=>a.module)).size;
+  const gaps=scopedApis().filter(a=>a.assertionState==='not-asserted').length;
+  const mods=new Set(scopedApis().map(a=>a.module)).size;
   const onHome=STATE.view==='home';
   if(STATE.shared){
     /* Viewer build: the report, and the ability to take a copy of it. */
@@ -7533,7 +7702,7 @@ function renderMenu(){
   host.innerHTML=[
     `<div class="rail-sec"><i class="rs-dot" style="background:${cssv('--accent')}"></i>Workbench</div>`,
     menuRow({t:'Suites & APIs', i:MENU_ICO.suites, act:'suites', tone:'--accent',
-             on:onHome, ct:`${mods}/${allApis().length}`}),
+             on:onHome, ct:`${mods}/${scopedApis().length}`}),
     menuRow({t:'Test Cases', i:MENU_ICO.cases, act:'cases', tone:'--amber',
              on:STATE.view==='cases', ct:SEED.globalTestCases.length}),
     `<div class="rail-sec"><i class="rs-dot" style="background:${cssv('--blue')}"></i>Report</div>`,
@@ -7597,15 +7766,32 @@ $('#apiSearch').oninput = () => { renderMultiSelect(); renderSuitesGrid(); };
 $('#apiSearch').onkeydown = e => { if(e.key==='Escape') clearSearch(); };
 $('#apiSearchClear').onclick = clearSearch;
 $('#caseSearch').oninput = renderCases;
-$('#btnSelAll').onclick = () => { allApis().forEach(a=>STATE.selected.add(a.ref)); persist(); renderHome(); };
+$('#btnSelAll').onclick = () => { scopedApis().forEach(a=>STATE.selected.add(a.ref)); persist(); renderHome(); };
 $('#btnSelNone').onclick = () => { STATE.selected.clear(); persist(); renderHome(); };
 $('#btnSelGaps').onclick = () => { STATE.selected.clear();
-  allApis().filter(a=>a.assertionState==='not-asserted').forEach(a=>STATE.selected.add(a.ref));
+  scopedApis().filter(a=>a.assertionState==='not-asserted').forEach(a=>STATE.selected.add(a.ref));
   persist(); renderHome(); toast('Selected every endpoint with no assertions'); };
 $('#envSel').onchange = e => { STATE.env=e.target.value; persist(); renderStrip(); };
-$('#credSel').onchange = e => { STATE.alias=e.target.value; persist();
-  if(STATE.view==='detail') renderDetail();
-  if(STATE.view==='cases')  renderCases(); };
+$('#credSel').onchange = e => {
+  STATE.alias = e.target.value;
+  /* The alias decides which endpoints are in scope, so everything that lists or
+     counts them has to be redrawn -- not just the view in front of you. A
+     selection made under the old alias is dropped for anything now out of
+     scope, because running an endpoint this credential cannot reach would
+     report a authorisation failure that is really a configuration mistake. */
+  [...STATE.selected].forEach(ref => {
+    const api = apiByRef(ref);
+    if(api && !inScope(api)) STATE.selected.delete(ref);
+  });
+  persist();
+  renderTopbar(); renderStrip(); renderMultiSelect(); syncSel(); renderMenu();
+  if(typeof renderSuitesGrid === 'function' && $('#suitesGrid')) renderSuitesGrid();
+  if(STATE.view === 'detail')    renderDetail();
+  if(STATE.view === 'cases')     renderCases();
+  if(STATE.view === 'analytics') renderAnalytics();
+  const n = [...moduleGroups('').values()].reduce((s, v) => s + v.length, 0);
+  toast(`${STATE.alias} — ${n} endpoint${n === 1 ? '' : 's'} in scope`);
+};
 
 /* --- home --- */
 /* The stack survives a reload, so the badge has to reflect it on boot -- not
@@ -8321,9 +8507,20 @@ function buildLayer(){
     on(bot, 'pointerenter', function(){ overBot = true;
       if(hideTimer) clearTimeout(hideTimer); });
     on(bot, 'pointerleave', function(){ overBot = false; scheduleHide(); });
-    /* The bubble is click-through so it cannot cover the report, which means
-       it receives no pointer events -- these would never fire. Hovering the
-       figure still holds it open, and the timeout still closes it. */
+    /* Hovering the bubble holds it open too. Reading a six-line report while
+       keeping the pointer inside a 98px figure is a needle to thread, and the
+       bubble closing as you move onto it is the specific thing that made it
+       feel broken.
+
+       It was click-through until now, so that it could never eat a click meant
+       for the report underneath. Taking pointer events back reintroduces that
+       risk, so a click on the bubble dismisses it: the click is spent, but the
+       thing you were reaching for is uncovered and one more click away, which
+       is the ordinary behaviour of any popover. */
+    on(say, 'pointerenter', function(){ overSay = true;
+      if(hideTimer) clearTimeout(hideTimer); });
+    on(say, 'pointerleave', function(){ overSay = false; scheduleHide(); });
+    on(say, 'click', function(){ overSay = false; hideSay(); });
 
     on(bot, 'click', function(){
       /* Restarting an animation needs the class off, a reflow, then on --

@@ -393,9 +393,18 @@ function boot(html, opts) {
   ok('painted pixels still answer, so the bot stays clickable',
      /\.bot-layer svg path[\s\S]{0,160}pointer-events:\s*visiblePainted/.test(botCss),
      'nothing re-enables hit-testing, so the bot itself would be unclickable');
-  ok('the speech bubble never takes a click',
-     !/#qasay\.on\{[^}]*pointer-events:\s*auto/.test(botCss),
-     'a 330px panel at z-index 61 would eat clicks whenever it is shown');
+  // The bubble takes pointer events now, so it can be hovered while it is read
+  // -- keeping the pointer inside a 98px figure to finish six lines of text was
+  // the specific thing that made it feel broken. The original guarantee is
+  // kept, but by a different mechanism: it dismisses on click instead of being
+  // inert, so it can still never trap a click meant for the report.
+  const pageJs = [...a.d.querySelectorAll('script')].map(s => s.textContent).join('\n');
+  ok('the bubble can be hovered to hold it open',
+     /#qasay\.on\{[^}]*pointer-events:\s*auto/.test(botCss),
+     'the bubble is inert, so moving onto it to read closes it');
+  ok('and clicking it dismisses rather than traps',
+     /on\(say, 'click'[\s\S]{0,80}hideSay\(\)/.test(pageJs),
+     'no click handler: the bubble could cover the report with no way past it');
   ok('the toast is click-through while it is shown',
      /\.toast\{[^}]*pointer-events:\s*none/.test(botCss),
      'a z-index 200 panel bottom-right kills controls under it for 2.6s at a time');

@@ -328,6 +328,33 @@ def main() -> int:
     if "__SEED__" not in template:
         sys.exit("template lost its __SEED__ placeholder")
 
+    # The console is one self-contained file -- opened from disk, shared as a
+    # standalone report -- so the logo travels inside it. The source stays a
+    # real image anyone can view and replace; only the build turns it into
+    # bytes, which keeps a 25KB base64 blob out of a hand-edited template.
+    #
+    # The .png is the supplied .jpg with its white ground made transparent and
+    # the near-black wordmark lightened, by scripts/prepare-logo.py. A JPEG has
+    # no alpha, so on a dark band it can only ever be a white card.
+    # The console is one self-contained file -- opened from disk, shared as a
+    # standalone report -- so the logo travels inside it. The supplied artwork
+    # is inlined byte for byte: a brand mark is not ours to key, recolour or
+    # redraw, and an earlier attempt to make its white ground transparent
+    # damaged the swirl and the circle's dark edge. It is carried on a white
+    # card instead, which is how a light-ground mark belongs on a dark header.
+    logo = UI / "assets" / "omfys-logo.jpg"
+    if logo.exists():
+        import base64
+        data = base64.b64encode(logo.read_bytes()).decode("ascii")
+        template = template.replace("__LOGO__", "data:image/jpeg;base64," + data)
+        print(f"  logo inlined from {logo.relative_to(ROOT)} ({len(data) // 1024} KB base64)")
+    else:
+        # Cosmetic, so it degrades rather than failing the build -- but loudly,
+        # because a silently missing logo looks like a styling bug.
+        template = template.replace("__LOGO__", "")
+        print(f"  NOTE: {logo.relative_to(ROOT)} is missing; console ships without it")
+
+
     OUT.write_text(template.replace("__SEED__", blob), encoding="utf-8")
 
     print(f"wrote {OUT.relative_to(ROOT)}  ({OUT.stat().st_size/1024:.0f} KB)")
