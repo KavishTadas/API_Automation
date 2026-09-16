@@ -1003,6 +1003,40 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
      $$('#railMenu .rail-item').filter(b => !b.disabled && typeof b.onclick !== 'function')
        .map(b => b.dataset.menuAct || b.dataset.view).join(',') || 'none');
 
+  console.log('\nnot-applicable reasons:');
+  goReport();
+  await wait(90);
+  $$('#anTabs .nitem').find(t => t.dataset.tab === 'behaviors').click();
+  await wait(90);
+  const naRows = $$('#anBody .bdd-row[data-state="NOT_APPLICABLE"]');
+  ok('Behaviors renders NOT_APPLICABLE rows', naRows.length > 0, naRows.length + '');
+  ok('every NOT_APPLICABLE row names its cause',
+     naRows.every(r => r.querySelector('.na-cause') && r.dataset.cause),
+     naRows.filter(r => !r.querySelector('.na-cause')).length + ' without a cause');
+  ok('every NOT_APPLICABLE row states its reason',
+     naRows.every(r => (r.querySelector('.bdd-why') || {}).textContent && /Reason: \S/.test(r.querySelector('.bdd-why').textContent)),
+     naRows.filter(r => !r.querySelector('.bdd-why')).length + ' without a reason');
+  ok('every cause tag explains itself on hover',
+     naRows.every(r => (r.querySelector('.na-cause').getAttribute('title') || '').length > 20));
+  ok('PASS rows carry no reason line',
+     $$('#anBody .bdd-row[data-state="PASS"]').every(r => !r.querySelector('.bdd-why')));
+  const feats = $$('#anBody .bdd-feat');
+  ok('every endpoint in Behaviors is its own panel with a header',
+     feats.length > 0 && feats.every(f => f.querySelector('.bdd-feat-h .path') && f.querySelector('.bdd-feat-h .m')),
+     feats.length + ' panels');
+  ok('every endpoint panel carries a per-endpoint verdict count',
+     feats.every(f => /\d+ pass/.test(f.querySelector('.bdd-feat-h .cnt').textContent)));
+  ok('story rows live inside their endpoint panel, never loose',
+     $$('#anBody .bdd-row').every(r => r.closest('.bdd-feat')));
+  const strip = $('#anBody .na-strip');
+  ok('a why-strip summarises the causes', !!strip);
+  ok('strip counts sum to the counted NOT_APPLICABLE rows',
+     strip && $$('#anBody .na-strip .na-cause').reduce((n, t) => n + (+t.dataset.n), 0)
+       === naRows.filter(r => r.dataset.cause !== 'Measured on another API').length,
+     strip && $$('#anBody .na-strip .na-cause').map(t => t.textContent.trim()).join(' | '));
+  ok('strip separates input deficiencies from genuine not-applicables',
+     strip && /input deficienc/i.test(strip.textContent));
+
   console.log('\nnavigator:');
   goHome();
   await wait(40);

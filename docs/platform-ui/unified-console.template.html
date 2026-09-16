@@ -1093,6 +1093,26 @@ table.pl tr:last-child td{border-bottom:0}
 .tc-id{font:500 10.5px var(--mono);color:var(--text-faint);margin-top:3px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tc-d{font-size:12px;color:var(--text-dim);margin:7px 0 0;line-height:1.55}
+/* Behaviors tab: one panel per endpoint so the feature line stands apart from
+   its story rows instead of reading as one more row in the same column. */
+.bdd-epic{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px;
+  padding:6px 0 8px;margin-bottom:8px;border-bottom:1px solid var(--line-soft);
+  text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim)}
+.bdd-epic b{color:var(--text);text-transform:none;letter-spacing:0;font-size:13.5px}
+.bdd-feat{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;
+  background:var(--panel);margin:0 0 12px 12px;overflow:hidden}
+.bdd-feat.bad{border-left-color:var(--rose)}
+.bdd-feat.warn{border-left-color:var(--amber)}
+.bdd-feat-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 12px;
+  background:var(--panel-2);border-bottom:1px solid var(--line-soft)}
+.bdd-feat-h .m{font-size:11px;padding:3px 8px}
+.bdd-feat-h .path{font:650 13px var(--mono);color:var(--text);letter-spacing:.01em}
+.bdd-feat-h .cnt{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;font:600 10.5px var(--mono);color:var(--text-faint)}
+.bdd-feat-h .cnt i{font-style:normal;padding:2px 7px;border-radius:99px;border:1px solid var(--line-soft);background:var(--panel)}
+.bdd-feat-h .cnt i.p{color:var(--accent)} .bdd-feat-h .cnt i.f{color:var(--rose)}
+.bdd-feat-h .cnt i.w{color:var(--amber)} .bdd-feat-h .cnt i.n{color:var(--slate)}
+.bdd-feat-b{padding:6px 12px 8px 14px}
+.bdd-row+.bdd-row{border-top:1px dashed var(--line-soft)}
 .tc-f{display:flex;align-items:center;gap:6px;margin-top:9px;flex-wrap:wrap}
 .tag{font:600 10px var(--sans);padding:2px 7px;border-radius:99px;
   border:1px solid var(--line);color:var(--text-faint);white-space:nowrap}
@@ -3919,21 +3939,29 @@ function tcNum(id){
    catalogue's prediction, else PLANNED. */
 function checkState(api, tc, prev){
   const last = prev && prev.results.find(r=>r.testId===tc.id);
-  if(last) return {state:last.state, r:last};
+  if(last) return {state:last.state, r:last, why:(last.reason||'').trim(), predicted:false};
   const plan = planFor(api.ref);
   const pred = plan && plan.global ? plan.global[tc.id] : null;
-  return {state: pred ? pred.state : 'PLANNED', r:null};
+  /* No run yet: the catalogue's prediction is all there is, and its reason
+     is worth showing — a predicted NOT_APPLICABLE with no reason is a
+     catalogue gap the reader should see, not hide. */
+  return {state: pred ? pred.state : 'PLANNED', r:null,
+          why: pred ? (pred.reason||'').trim() : '', predicted: !!pred};
 }
 
 function tcCard(api, tc, prev, n){
-  const {state, r} = checkState(api, tc, prev);
+  const {state, r, why, predicted} = checkState(api, tc, prev);
+  const cause = naCause(r || (state==='NOT_APPLICABLE' ? {state, reason:why} : null), api);
   return `<article class="tc open" data-tc="${esc(tc.id)}" role="button" tabindex="0"
     title="Open the request, response, severity and priority for this check">
     <div class="tc-n">${esc(n)}</div>
     <div class="tc-b">
       <h4 class="tc-t">${esc(tc.title)}</h4>
       <div class="tc-id">${esc(tc.id.split('::').pop())}</div>
-      ${r && r.reason ? `<p class="tc-d">${esc(r.reason)}</p>` : ''}
+      ${why ? `<p class="tc-d">${predicted?'Predicted by the catalogue: ':''}${esc(why)}</p>`
+        : (cause ? `<p class="tc-d">${esc(cause.hint)}</p>` : '')}
+      ${cause ? `<div class="tc-f" style="margin-top:6px"><span class="tag na-cause" data-cause="${esc(cause.k)}" title="${esc(cause.hint)}"
+          style="color:${cssv(cause.tone)};border-color:${cssv(cause.tone)}">${esc(cause.k)}</span></div>` : ''}
       <div class="tc-f">
         <span class="tag" style="color:${cssv(TC_TONE(tc.category))};
           border-color:${cssv(TC_TONE(tc.category))}">${esc(tc.category)}</span>
@@ -4958,7 +4986,7 @@ function kpiRow(R){
       <div class="estat-f"><span><b>${distinctChecks(R)}</b> contract checks per endpoint</span>
         <span class="t">${R.summary.total} result rows</span></div>
       <div class="estat-f" style="margin-top:4px"><span><b>${assertedChecks(R)}</b> asserted</span>
-        <span class="t">${(R.summary.total-assertedChecks(R))} skipped &mdash; not applicable</span></div>
+        <span class="t" title="${esc(naBreakdown(R).filter(x=>x.n).map(x=>x.cause.k+': '+x.n).join(' · ') || 'no NOT_APPLICABLE rows')}">${(R.summary.total-assertedChecks(R))} skipped &mdash; not applicable</span></div>
       ${ranEndpoints(R) < scopedApis().length ? `<div class="estat-sub amber" style="margin-top:8px;line-height:1.45">
         ${scopedApis().length - ranEndpoints(R)} endpoint${scopedApis().length-ranEndpoints(R)===1?'':'s'}
         in the catalogue were not part of this run
@@ -5477,26 +5505,56 @@ function tabBehaviors(R){
     if(!tree.has(api.module)) tree.set(api.module, new Map());
     tree.get(api.module).set(a.apiRef, a.results);
   });
+  const na=naBreakdown(R);
+  const naTotal=na.reduce((n,x)=>n+x.n,0);
+  const naRef=na.reduce((n,x)=>n+x.referenced,0);
+  const fixable=na.filter(x=>x.cause.fix).reduce((n,x)=>n+x.n,0);
   return `<div class="card"><div class="card-h"><h3>Behaviors — Epic › Feature › Story</h3></div>
+  ${(naTotal||naRef)?`<div class="na-strip" style="padding:10px 16px;border-bottom:1px solid var(--line);font-size:11.5px">
+    <div class="row" style="flex-wrap:wrap;gap:6px 10px">
+      <span class="dim" style="font-weight:650">Not applicable — why (${naTotal})</span>
+      ${na.filter(x=>x.n).map(x=>`<span class="tag na-cause" data-cause="${esc(x.cause.k)}" data-n="${x.n}" title="${esc(x.cause.hint)}"
+        style="color:${cssv(x.cause.tone)};border-color:${cssv(x.cause.tone)}">${esc(x.cause.k)} ${x.n}</span>`).join('')}
+      ${naRef?`<span class="faint" title="${esc(NA_CAUSES.find(c=>c.k==='Measured on another API').hint)}">+ ${naRef} row${naRef===1?'':'s'} reference a host-level result measured on another API (not counted)</span>`:''}
+    </div>
+    <div class="faint" style="margin-top:5px;line-height:1.5">${fixable
+      ? `<b>${fixable}</b> of these are input deficiencies or reporting gaps — declaring the missing metadata on the endpoint makes the check applicable. The rest are genuinely not applicable and no change to the definition would alter them.`
+      : 'None of these are input deficiencies — each check is genuinely not applicable to its endpoint as defined.'}
+      Every NOT_APPLICABLE row below states its reason.</div>
+  </div>`:''}
   <div class="card-b">${[...tree.entries()].map(([mod, feats])=>`
     <div class="sect">
-      <div class="row" style="font-weight:700;font-size:12.5px;margin-bottom:6px">
+      <div class="bdd-epic">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-6l-2-2H5a2 2 0 0 0-2 2z"/></svg>
-        @Epic: ${esc(mod)}
+        @Epic: <b>${esc(mod)}</b>
+        <span class="faint" style="font-weight:500;text-transform:none;letter-spacing:0">${feats.size} endpoint${feats.size===1?'':'s'}</span>
       </div>
       ${[...feats.entries()].map(([ref, rs])=>{
-        const api=resultApi(ref); const s=summarise(rs);
-        return `<div style="margin-left:20px;margin-bottom:9px">
-          <div class="row" style="font-size:12px;font-weight:650">
+        const api=resultApi(ref); const s=summarise(rs); const c=s.counts;
+        const tone = c.FAIL ? 'bad' : (c.WARN||c.SKIPPED_NO_TOKEN) ? 'warn' : '';
+        return `<div class="bdd-feat ${tone}" data-ref="${esc(ref)}">
+          <div class="bdd-feat-h">
             <span class="m ${esc(api.method)}">${esc(api.method)}</span>
-            <span class="mono">${esc(api.path)}</span>
+            <span class="path">${esc(api.path)}</span>
             ${s.clean?'<span class="pill ok">clean</span>':`<span class="pill partial">${esc(s.cleanBlockers.join(' '))}</span>`}
+            <span class="cnt" title="per-endpoint verdicts (host-referencing rows not counted)">
+              <i class="p">${c.PASS||0} pass</i>${c.FAIL?`<i class="f">${c.FAIL} fail</i>`:''}${c.WARN?`<i class="w">${c.WARN} warn</i>`:''}${c.SKIPPED_NO_TOKEN?`<i class="w">${c.SKIPPED_NO_TOKEN} skipped</i>`:''}${c.NOT_APPLICABLE?`<i class="n">${c.NOT_APPLICABLE} n/a</i>`:''}
+            </span>
           </div>
-          <div style="margin-left:16px;margin-top:4px">${rs.map(r=>`
-            <div class="row" style="font-size:11.5px;padding:2px 0">
-              <span class="st st-${esc(r.state)}">${esc(r.state)}</span>
-              <span class="dim">@Story: ${esc(titleFor(r.testId))}</span>
-            </div>`).join('')}</div>
+          <div class="bdd-feat-b">${rs.map(r=>{
+            const cause=naCause(r, api);
+            const why=(r.reason||'').trim();
+            const showWhy = why && r.state!=='PASS';
+            return `
+            <div class="bdd-row" data-state="${esc(r.state)}"${cause?` data-cause="${esc(cause.k)}"`:''} style="font-size:11.5px;padding:2px 0">
+              <div class="row">
+                <span class="st st-${esc(r.state)}">${esc(r.state)}</span>
+                <span class="dim">@Story: ${esc(titleFor(r.testId))}</span>
+                ${cause?`<span class="tag na-cause" title="${esc(cause.hint)}" style="color:${cssv(cause.tone)};border-color:${cssv(cause.tone)}">${esc(cause.k)}</span>`:''}
+              </div>
+              ${showWhy?`<div class="bdd-why faint" style="margin-left:26px;font-size:11px;line-height:1.5">${cause?'Reason: ':''}${esc(why)}</div>`
+                : (cause?`<div class="bdd-why faint" style="margin-left:26px;font-size:11px;line-height:1.5">${esc(cause.hint)}</div>`:'')}
+            </div>`;}).join('')}</div>
         </div>`;}).join('')}
     </div>`).join('')}</div></div>`;
 }
@@ -5505,6 +5563,67 @@ function titleFor(testId){
   if(tc) return tc.title;
   if(testId.endsWith('<no-assertions>')) return 'Request executed — collection defines no assertions';
   return testId.split('::').pop();
+}
+
+/* Why a check reported NOT_APPLICABLE. The engine and the catalogue both write
+   a free-text reason; a reader wants to know whether that reason is an input
+   deficiency they can fix on the endpoint definition, or a genuine
+   not-applicable that no change to the metadata would alter. The cause is
+   derived from the reason text (and the method, for body-based probes) so a
+   real harness run and a simulated one classify the same way. */
+const NA_CAUSES=[
+  {k:'Input deficiency', tone:'--amber', fix:true,
+   hint:'the endpoint definition lacks metadata this check needs — declare it in the API file and the check becomes applicable',
+   re:/not declared|no content type|expected status|required metadata|metadata is absent|no sample|missing/i},
+  {k:'No input to exercise', tone:'--slate', fix:false,
+   hint:'the operation carries no request body, so a body-based probe has nothing to send',
+   re:/takes no request body|no request body|no body/i},
+  {k:'Feature disabled', tone:'--slate', fix:false,
+   hint:'the behaviour under test is switched off for this service, so there is nothing to observe',
+   re:/opt-in|disabled|not enabled|switched off/i},
+  {k:'Not secured', tone:'--slate', fix:false,
+   hint:'the operation is open by design, so a token-state check has nothing to reject',
+   re:/not secured|no token state|anonymous by design|unauthenticated by design/i},
+  {k:'Ambiguous route', tone:'--slate', fix:false,
+   hint:'the path takes variables, so a mutated route cannot be told apart from a valid one',
+   re:/path variables|ambiguous/i},
+  {k:'Measured on another API', tone:'--blue', fix:false,
+   hint:'a host-level probe runs once per host; another API in the batch carried it and this row references that result',
+   re:/reported against another API|measured elsewhere|carried by/i},
+  {k:'No host carrier', tone:'--amber', fix:true,
+   hint:'no API in this batch was eligible to carry the host-level probe, so the host went unmeasured',
+   re:/no API in this batch can carry/i}
+];
+const NA_UNCLASSIFIED={k:'Reason not supplied', tone:'--rose', fix:true,
+  hint:'the engine reported NOT_APPLICABLE without saying why — this is a reporting gap, not a verdict'};
+const NA_OTHER={k:'Other', tone:'--slate', fix:false,
+  hint:'the reason does not match a known cause; read it as written'};
+function naCause(r, api){
+  if(!r || r.state!=='NOT_APPLICABLE') return null;
+  const why=(r.reason||'').trim();
+  if(!why) return NA_UNCLASSIFIED;
+  let c=NA_CAUSES.find(x=>x.re.test(why)) || NA_OTHER;
+  /* A POST/PUT/PATCH with no request body is not "nothing to send" — it is a
+     sample payload the definition failed to declare. */
+  if(c.k==='No input to exercise' && api && /^(POST|PUT|PATCH)$/i.test(api.method||''))
+    c=NA_CAUSES[0];
+  return c;
+}
+/* Rows that merely reference a host-level result measured on another API are
+   excluded from summary.counts (see summarise), so they are reported here with
+   counted:false — listed, because the reader still sees them as
+   NOT_APPLICABLE rows, but never added to the headline number, which must
+   agree with the KPI tiles. */
+function naBreakdown(R){
+  const m=new Map();
+  R.apis.forEach(a=>{ const api=resultApi(a.apiRef); a.results.forEach(r=>{
+    const c=naCause(r, api); if(!c) return;
+    const e=m.get(c.k)||{n:0, referenced:0};
+    if(r.referencesHostResult) e.referenced++; else e.n++;
+    m.set(c.k, e);
+  });});
+  const all=NA_CAUSES.concat([NA_OTHER, NA_UNCLASSIFIED]);
+  return all.filter(c=>m.has(c.k)).map(c=>({cause:c, n:m.get(c.k).n, referenced:m.get(c.k).referenced}));
 }
 
 function tabTimeline(R){
@@ -8254,8 +8373,13 @@ function buildLayer(){
   /* Each entry is one depth layer: [z-offset, svg body]. They share a viewBox
      so the parts register exactly; only the depth differs.
 
-     Flat comic fills with a heavy black outline on every plate -- no gradients.
-     The outline is what makes the figure read as drawn rather than rendered. */
+     Each plate is a metallic gradient (lit from the upper left, falling to a
+     shadowed lower right) under a specular sheen, with a thinner ink outline
+     than the flat comic version had. The outline still keeps every plate
+     legible at 0.8px per unit; the gradient and the sheen are what make it
+     read as a lit, curved surface rather than a coloured shape. Panel seams
+     are drawn as lines because at this size a line survives where shading
+     does not. */
   var BOT_DEFS =
     '<defs>' +
       '<radialGradient id="botCore" cx=".42" cy=".38">' +
@@ -8286,15 +8410,66 @@ function buildLayer(){
         '<feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="currentColor"' +
           ' flood-opacity=".45"/>' +
       '</filter>' +
+      /* Brushed-metal fills. One gradient per palette colour, all lit from
+         the same upper-left key light so the plates agree with each other.
+         objectBoundingBox units mean every plate gets its own highlight,
+         however large or small it is. */
+      metal('botMetalRed',  '#ff6b6e', '#e62429', '#8f1116') +
+      metal('botMetalRedD', '#d94a4e', '#a8161c', '#5e0a0d') +
+      metal('botMetalGold', '#fff1a6', '#f5c518', '#b07f04') +
+      metal('botMetalGoldD','#f3d05c', '#d09b06', '#8a6403') +
+      /* Specular: a soft white hot-spot near the top-left of a plate. */
+      '<radialGradient id="botSpec" cx=".32" cy=".22" r=".6">' +
+        '<stop offset="0" stop-color="#ffffff" stop-opacity=".55"/>' +
+        '<stop offset=".45" stop-color="#ffffff" stop-opacity=".12"/>' +
+        '<stop offset="1" stop-color="#ffffff" stop-opacity="0"/>' +
+      '</radialGradient>' +
+      /* Rim light: a cool edge on the side facing the reactor and the
+         thrust, which ties the lights to the body they light. */
+      '<linearGradient id="botRim" x1="0" y1="1" x2="0" y2="0">' +
+        '<stop offset="0" stop-color="var(--bot-core,#8fe3fb)" stop-opacity=".55"/>' +
+        '<stop offset="1" stop-color="var(--bot-core,#8fe3fb)" stop-opacity="0"/>' +
+      '</linearGradient>' +
+      /* Ambient bloom behind the reactor, so the chest plates around it pick
+         up its light instead of sitting flat beside a lamp. */
+      '<radialGradient id="botCoreBloom" cx=".5" cy=".5" r=".5">' +
+        '<stop offset="0" stop-color="var(--bot-core,#8fe3fb)" stop-opacity=".4"/>' +
+        '<stop offset=".6" stop-color="var(--bot-core,#8fe3fb)" stop-opacity=".08"/>' +
+        '<stop offset="1" stop-color="var(--bot-core,#8fe3fb)" stop-opacity="0"/>' +
+      '</radialGradient>' +
     '</defs>';
+
+  function metal(id, hi, mid, lo){
+    return '<linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1">' +
+             '<stop offset="0" stop-color="' + hi + '"/>' +
+             '<stop offset=".42" stop-color="' + mid + '"/>' +
+             '<stop offset="1" stop-color="' + lo + '"/>' +
+           '</linearGradient>';
+  }
 
   /* One place for the palette, so a plate cannot drift out of the set. */
   var RED = '#e62429', RED_D = '#a8161c', GOLD = '#f5c518', GOLD_D = '#d09b06',
-      INK = '#141414', LW = '2.2';
+      INK = '#1a0b0c', LW = '1.6';
+  /* Flat colour -> its brushed-metal gradient. Callers keep naming the
+     palette colour; the lookup is the only place that knows about fills. */
+  var METAL = {};
+  METAL[RED] = 'url(#botMetalRed)';   METAL[RED_D] = 'url(#botMetalRedD)';
+  METAL[GOLD] = 'url(#botMetalGold)'; METAL[GOLD_D] = 'url(#botMetalGoldD)';
 
   function plate(d, fill){
-    return '<path d="' + d + '" fill="' + fill + '" stroke="' + INK +
+    return '<path d="' + d + '" fill="' + (METAL[fill] || fill) + '" stroke="' + INK +
            '" stroke-width="' + LW + '" stroke-linejoin="round"/>';
+  }
+  /* A specular sheen over a plate: the same outline, filled with the
+     hot-spot gradient and no stroke, so it never thickens the ink. */
+  function sheen(d, op){
+    return '<path d="' + d + '" fill="url(#botSpec)" opacity="' + (op || 1) +
+           '" pointer-events="none"/>';
+  }
+  /* Panel seam: a thin dark line that reads as a join between plates. */
+  function seam(d){
+    return '<path d="' + d + '" stroke="' + INK + '" stroke-opacity=".55"' +
+           ' stroke-width="1" fill="none" stroke-linecap="round"/>';
   }
 
   var BOT_LAYERS = [
@@ -8327,11 +8502,20 @@ function buildLayer(){
           /* knee plates */
           plate('M44 150 h15 v7 h-15 z', RED_D) +
           plate('M61 150 h15 v7 h-15 z', RED_D) +
+          seam('M51.5 150 v7 M68.5 150 v7') +
           /* boots */
           plate('M40 172 h20 v9 q0 4 -5 4 h-11 q-4 0 -4 -4 z', RED) +
           plate('M60 172 h20 v9 q0 4 -4 4 h-11 q-5 0 -5 -4 z', RED) +
           plate('M41 179 h18 v3 h-18 z', GOLD_D) +
-          plate('M61 179 h18 v3 h-18 z', GOLD_D)],
+          plate('M61 179 h18 v3 h-18 z', GOLD_D) +
+          sheen('M44 138 h15 v26 l-2 10 h-13 l-2 -10 z', .8) +
+          sheen('M61 138 h15 v26 l-2 10 h-13 l-2 -10 z', .8) +
+          sheen('M40 172 h20 v9 q0 4 -5 4 h-11 q-4 0 -4 -4 z', .7) +
+          sheen('M60 172 h20 v9 q0 4 -4 4 h-11 q-5 0 -5 -4 z', .7) +
+          /* shin seams and a rim of thrust light along the lower edges */
+          seam('M51.5 158 v13 M68.5 158 v13') +
+          '<path d="M42 170 h17 M61 170 h17" stroke="url(#botRim)" stroke-width="2.2"' +
+            ' stroke-linecap="round" fill="none" opacity=".7"/>'],
 
     /* the resting arm, behind the torso */
     [-6,  '<g class="bot-arm-l">' +
@@ -8341,12 +8525,16 @@ function buildLayer(){
             /* upper arm and forearm */
             plate('M17 94 h22 v22 h-22 z', RED) +
             plate('M18 116 h20 v24 q0 4 -4 4 h-12 q-4 0 -4 -4 z', RED) +
+            plate('M18 137 h20 v4 h-20 z', GOLD_D) +
             /* Closed glove. Knuckle slits rather than drawn fingers, for the
                same reason the open hand uses them. */
             plate('M18 142 h20 v11 q0 4 -4 4 h-12 q-4 0 -4 -4 z', RED_D) +
             '<path d="M23 143.5 v4.5 M28 143.5 v5 M33 143.5 v4.5" stroke="' + INK +
               '" stroke-width="1.4" stroke-linecap="round" fill="none"/>' +
             plate('M18 145 q-5 0 -5 4 q0 3.5 3.5 3.5 q4 0 5 -3.5 z', RED_D) +
+            sheen('M14 78 q1 -14 14 -16 q13 2 14 16 l0 14 q-14 7 -28 0 z') +
+            sheen('M18 116 h20 v24 q0 4 -4 4 h-12 q-4 0 -4 -4 z', .7) +
+            seam('M28 96 v18') +
           '</g>'],
 
     /* torso: red chest, gold segmented abdomen, neck and collar */
@@ -8357,14 +8545,27 @@ function buildLayer(){
             '" stroke-width="1.8" fill="none"/>' +
           /* hip belt */
           plate('M42 128 h36 v10 q-18 6 -36 0 z', RED) +
+          plate('M55 129 h10 v8 q-5 2 -10 0 z', GOLD_D) +
           /* chest highlight plates */
           plate('M44 76 h14 v10 h-14 z', RED_D) +
-          plate('M62 76 h14 v10 h-14 z', RED_D)],
+          plate('M62 76 h14 v10 h-14 z', RED_D) +
+          /* Pectoral seams meeting above the core, and a sternum line: the
+             chest reads as several plates rather than one red slab. */
+          seam('M40 90 q10 -3 16 2 M80 90 q-10 -3 -16 2') +
+          seam('M60 106 v20') +
+          sheen('M38 72 h44 q4 0 4 6 l-2 30 h-48 l-2 -30 q0 -6 4 -6 z') +
+          sheen('M42 108 h36 l-3 22 q-15 6 -30 0 z', .6) +
+          /* the reactor's light on the plates around it */
+          '<circle cx="60" cy="94" r="17" fill="url(#botCoreBloom)" opacity=".7" pointer-events="none"/>'],
 
     /* arc reactor, proud of the chest */
     [16,  '<g class="bot-core">' +
-            '<circle cx="60" cy="94" r="11" fill="' + GOLD + '" stroke="' + INK +
+            '<circle cx="60" cy="94" r="11" fill="url(#botMetalGold)" stroke="' + INK +
               '" stroke-width="' + LW + '"/>' +
+            /* bezel: a tight inner ring, which is what makes a lamp housing
+               read as machined rather than painted on */
+            '<circle cx="60" cy="94" r="9.4" fill="none" stroke="' + GOLD_D +
+              '" stroke-width="1"/>' +
             '<circle class="bot-core-lamp" cx="60" cy="94" r="7.6"' +
               ' fill="url(#botCore)" stroke="' + INK + '" stroke-width="1.4"' +
               ' filter="url(#botGlow)"/>' +
@@ -8396,6 +8597,10 @@ function buildLayer(){
             /* upper arm angled out, forearm up */
             plate('M83 92 h20 l4 20 h-20 z', RED) +
             plate('M92 66 h19 v26 h-19 z', RED) +
+            plate('M92 66 h19 v4 h-19 z', GOLD_D) +
+            sheen('M106 78 q-1 -14 -14 -16 q-13 2 -14 16 l0 14 q14 7 28 0 z') +
+            sheen('M92 66 h19 v26 h-19 z', .7) +
+            seam('M101.5 70 v18') +
             /* Open glove. One silhouette with slits cut into it, not four
                separately outlined fingers: the figure renders at roughly 0.8
                physical pixels per unit, so a 4-unit finger carrying a 2.2-unit
@@ -8421,6 +8626,15 @@ function buildLayer(){
                previous one read as a generic robot. */
             plate('M60 4 q19 0 25 14 q3 9 3 20 q0 15 -8 24 q-8 8 -20 8' +
                   ' q-12 0 -20 -8 q-8 -9 -8 -24 q0 -11 3 -20 q6 -14 25 -14 z', RED) +
+            /* Dome sheen and a crown seam running down the centre line. */
+            sheen('M60 4 q19 0 25 14 q3 9 3 20 q0 15 -8 24 q-8 8 -20 8' +
+                  ' q-12 0 -20 -8 q-8 -9 -8 -24 q0 -11 3 -20 q6 -14 25 -14 z') +
+            seam('M60 6 v10') +
+            /* temple vents: three short slots each side, the detail that
+               makes a helmet read as engineered rather than moulded */
+            seam('M37 40 h4 M37 44 h4 M37 48 h4 M79 40 h4 M79 44 h4 M79 48 h4') +
+            /* jaw seam where the faceplate meets the shell */
+            seam('M46 62 q14 9 28 0') +
             /* Ear panels, squared off the way the reference draws them. */
             plate('M34 32 l-5 3 v16 l5 4 z', RED_D) +
             plate('M86 32 l5 3 v16 l-5 4 z', RED_D) +
@@ -8450,6 +8664,10 @@ function buildLayer(){
                   ' q-9 0 -14 -8 q-5 -7 -5 -19 q0 -6 2 -12 q4 -7 17 -7 z', GOLD) +
             /* Brow bar across the top of the plate, in the darker red. */
             plate('M43 30 q17 -7 34 0 l-1.5 5 q-15.5 -6 -31 0 z', RED_D) +
+            sheen('M60 19 q13 0 17 7 q2 6 2 12 q0 12 -5 19 q-5 8 -14 8' +
+                  ' q-9 0 -14 -8 q-5 -7 -5 -19 q0 -6 2 -12 q4 -7 17 -7 z', .55) +
+            /* chin vent below the mouth */
+            seam('M55 57 h10') +
             '<g class="bot-eyes" filter="url(#botBeam)"><g class="bot-blink">' +
               /* Slits, not lenses. These were 11 units tall and nearly
                  rectangular, which is what read as goggles; the mask has

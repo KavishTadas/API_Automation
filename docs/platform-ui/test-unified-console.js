@@ -56,10 +56,10 @@ const sandbox = {
 };
 sandbox.globalThis = sandbox;
 vm.createContext(sandbox);
-vm.runInContext(code + '\n;globalThis.__x = {runBatch, summarise, SEED, STATES, DENOM, STATE, SLA_MS, apiByRef};', sandbox);
+vm.runInContext(code + '\n;globalThis.__x = {runBatch, summarise, SEED, STATES, DENOM, STATE, SLA_MS, apiByRef, naCause, naBreakdown};', sandbox);
 
 const X = sandbox.__x;
-const { runBatch, summarise, SEED, STATES, DENOM, STATE, SLA_MS, apiByRef } = X;
+const { runBatch, summarise, SEED, STATES, DENOM, STATE, SLA_MS, apiByRef, naCause, naBreakdown } = X;
 
 /* ---- assertions ---- */
 let failures = 0;
@@ -98,6 +98,30 @@ ok('clean === (cleanBlockers empty)',
 
 ok('NOT_APPLICABLE never counts as a blocker',
    !R.summary.cleanBlockers.includes('NOT_APPLICABLE'));
+
+/* A NOT_APPLICABLE without a reason tells the reader nothing; every one must
+   say why, and the why must classify as an input deficiency or a genuine
+   not-applicable so the two are never confused. */
+const na = flat.filter(r => r.state === 'NOT_APPLICABLE');
+ok('every NOT_APPLICABLE result states its reason',
+   na.length > 0 && na.every(r => (r.reason || '').trim().length > 0),
+   na.filter(r => !(r.reason || '').trim()).map(r => r.testId).slice(0, 3).join(' | '));
+ok('every NOT_APPLICABLE reason classifies to a named cause',
+   na.every(r => { const c = naCause(r, apiByRef(r.apiRef)); return c && c.k !== 'Other' && c.k !== 'Reason not supplied'; }),
+   [...new Set(na.map(r => { const c = naCause(r, apiByRef(r.apiRef)); return (c && c.k) + ' <- ' + r.reason; }))]
+     .filter(x => /^(Other|Reason not supplied)/.test(x)).slice(0, 3).join(' | '));
+ok('naCause is null for anything other than NOT_APPLICABLE',
+   flat.filter(r => r.state !== 'NOT_APPLICABLE').every(r => naCause(r, apiByRef(r.apiRef)) === null));
+ok('a missing reason is reported as a gap, not hidden',
+   naCause({state:'NOT_APPLICABLE', reason:''}, null).k === 'Reason not supplied');
+ok('a body-less POST is an input deficiency, not "nothing to send"',
+   naCause({state:'NOT_APPLICABLE', reason:'takes no request body to oversize'}, {method:'POST'}).k === 'Input deficiency' &&
+   naCause({state:'NOT_APPLICABLE', reason:'takes no request body to oversize'}, {method:'GET'}).k === 'No input to exercise');
+ok('breakdown counted rows equal summary.counts.NOT_APPLICABLE',
+   naBreakdown(R).reduce((n, x) => n + x.n, 0) === R.summary.counts.NOT_APPLICABLE,
+   naBreakdown(R).reduce((n, x) => n + x.n, 0) + ' vs ' + R.summary.counts.NOT_APPLICABLE);
+ok('breakdown referenced rows equal summary.referencedHostResults',
+   naBreakdown(R).reduce((n, x) => n + x.referenced, 0) === R.summary.referencedHostResults);
 
 const counted = flat.filter(r => !r.referencesHostResult);
 ok('summary.total counts only non-referencing results',
