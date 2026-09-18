@@ -22,7 +22,7 @@ cases:
   subModule: Create Threshold
   access: private
   purpose: Create Threshold
-  basePath: '{{attendanceBaseUrl}}'
+  basePath: '{{baseUrl}}'
   endpointPath: /api/attendance/status-threshold/create
   method: POST
   requestParameters: 'headers: Authorization=Bearer {{token}}; Content-Type=application/json'
@@ -109,6 +109,6 @@ cases:
   - category: Non-Functional
     description: 'Source: collections/Attendance_Threshold_API.json; No saved response example in source
       file'
-  assertionState: not-asserted
+  assertionState: asserted
   sourceType: newman
   sourceCollection: collections/Attendance_Threshold_API.json

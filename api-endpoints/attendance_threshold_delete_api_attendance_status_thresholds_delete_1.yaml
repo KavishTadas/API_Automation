@@ -22,7 +22,7 @@ cases:
   subModule: Delete Threshold
   access: private
   purpose: Delete Threshold
-  basePath: '{{attendanceBaseUrl}}'
+  basePath: '{{baseUrl}}'
   endpointPath: /api/attendance/status-thresholds/delete/1
   method: DELETE
   requestParameters: 'headers: Authorization=Bearer {{token}}'
@@ -36,6 +36,6 @@ cases:
   - category: Non-Functional
     description: 'Source: collections/Attendance_Threshold_API.json; No saved response example in source
       file'
-  assertionState: not-asserted
+  assertionState: asserted
   sourceType: newman
   sourceCollection: collections/Attendance_Threshold_API.json

@@ -27,7 +27,7 @@ API = json.loads(r"""{
   "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/attendance/late-early-policies/getById/5",
   "HTTP Method": "GET",
-  "Request Parameters": "headers: Authorization=Bearer <JWT_TOKEN>",
+  "Request Parameters": "headers: Authorization=Bearer {{authToken}}",
   "Request Body Schema": "",
   "Response (example/200)": "",
   "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Request Body": "",
   "Example Request Payload": "",
   "Example Response Payload": "",
-  "Dependent APIs / Services": "",
+  "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
   "Comments": "Source: collections/Late_Early_Policy_API.json; No saved response example in source file"
 }""")
 

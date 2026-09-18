@@ -22,19 +22,22 @@ cases:
   subModule: getAll
   access: private
   purpose: getAll
-  basePath: '{{attendanceBaseUrl}}'
+  basePath: '{{baseURL}}'
   endpointPath: /api/attendance/late-early-policies/getAll
   method: GET
-  requestParameters: 'query: page=0; size=10; sort=policyId,desc | headers: Authorization=Bearer <JWT_TOKEN>'
+  requestParameters: 'query: page=0; size=10; sort=policyId,desc | headers: Authorization=Bearer {{authToken}}'
   requestBodySchema: null
   responseExample: null
-  owner: KavishTadas <kavish.tadas@omfysgroup.com>
+  owner: Parth Divekar <parthdivekar987@gmail.com>
   canonicalRef: get|/api/attendance/late-early-policies/getall|latearly-policy|getall
   samplePayloads: []
   rules:
+  - category: Dependency
+    description: Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token
+      for authToken
   - category: Non-Functional
     description: 'Source: collections/Late_Early_Policy_API.json; No saved response example in source
       file'
-  assertionState: not-asserted
+  assertionState: asserted
   sourceType: newman
   sourceCollection: collections/Late_Early_Policy_API.json

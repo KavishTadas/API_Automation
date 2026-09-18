@@ -22,18 +22,21 @@ cases:
   subModule: WeekOffGetAll
   access: private
   purpose: WeekOffGetAll
-  basePath: '{{attendanceBaseUrl}}'
+  basePath: '{{baseURL}}'
   endpointPath: /api/attendance/week-offs/getAll
   method: GET
-  requestParameters: 'query: page=0; size=10; sort=weekOffName,asc | headers: Authorization=Bearer YOUR_JWT_TOKEN'
+  requestParameters: 'query: page=0; size=10; sort=weekOffName,asc | headers: Authorization=Bearer {{authToken}}'
   requestBodySchema: null
   responseExample: null
-  owner: KavishTadas <kavish.tadas@omfysgroup.com>
+  owner: Parth Divekar <parthdivekar987@gmail.com>
   canonicalRef: get|/api/attendance/week-offs/getall|attenedance-july2026|weekoffgetall
   samplePayloads: []
   rules:
+  - category: Dependency
+    description: Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token
+      for authToken
   - category: Non-Functional
     description: 'Source: collections/Weekoff_Policy_API.json; No saved response example in source file'
-  assertionState: not-asserted
+  assertionState: asserted
   sourceType: newman
   sourceCollection: collections/Weekoff_Policy_API.json

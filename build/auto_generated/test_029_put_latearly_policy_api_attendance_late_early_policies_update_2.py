@@ -27,7 +27,7 @@ API = json.loads(r"""{
   "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/attendance/late-early-policies/update/2",
   "HTTP Method": "PUT",
-  "Request Parameters": "headers: Authorization=Bearer <JWT_TOKEN>; Content-Type=application/json",
+  "Request Parameters": "headers: Authorization=Bearer {{authToken}}; Content-Type=application/json",
   "Request Body Schema": "{\"policyCode\":\"string\",\"policyName\":\"string\",\"description\":\"string\",\"templateMode\":\"string\",\"templateStatus\":\"string\",\"eventCountMinutes\":\"number\",\"graceMinutes\":\"number\",\"graceEvent\":\"number\",\"allowedEvent\":\"number\",\"deductionType\":\"string\",\"leaveDeductDays\":\"number\",\"leaveTypeId\":\"number\",\"fineAmount\":\"null\",\"effectiveFrom\":\"string\",\"effectiveTo\":\"null\",\"isDefault\":\"string\",\"remarks\":\"string\",\"deductionPriorities\":[{\"priorityOrder\":\"number\",\"leaveTypeId\":\"number\",\"isActive\":\"string\"}],\"assignments\":[{\"employeeId\":\"number\",\"effectiveFrom\":\"string\",\"effectiveTo\":\"null\",\"isActive\":\"string\"}]}",
   "Response (example/200)": "",
   "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Request Body": "{\n    \"policyCode\": \"LEP001\",\n    \"policyName\": \"Updated Late/Early Policy\",\n    \"description\": \"Updated Policy\",\n    \"templateMode\": \"DEFAULT\",\n    \"templateStatus\": \"PUBLISHED\",\n    \"eventCountMinutes\": 5,\n    \"graceMinutes\": 20,\n    \"graceEvent\": 2,\n    \"allowedEvent\": 3,\n    \"deductionType\": \"LEAVE\",\n    \"leaveDeductDays\": 1,\n    \"leaveTypeId\": 1,\n    \"fineAmount\": null,\n    \"effectiveFrom\": \"2026-08-01\",\n    \"effectiveTo\": null,\n    \"isDefault\": \"N\",\n    \"remarks\": \"Updated Policy\",\n    \"deductionPriorities\": [\n        {\n            \"priorityOrder\": 3,\n            \"leaveTypeId\": 1,\n            \"isActive\": \"Y\"\n        }\n    ],\n    \"assignments\": [\n        {\n            \"employeeId\": 3844,\n            \"effectiveFrom\": \"2026-08-01\",\n            \"effectiveTo\": null,\n            \"isActive\": \"Y\"\n        }\n    ]\n}",
   "Example Request Payload": "{\n  \"policyCode\": \"LEP001\",\n  \"policyName\": \"Updated Late/Early Policy\",\n  \"description\": \"Updated Policy\",\n  \"templateMode\": \"DEFAULT\",\n  \"templateStatus\": \"PUBLISHED\",\n  \"eventCountMinutes\": 5,\n  \"graceMinutes\": 20,\n  \"graceEvent\": 2,\n  \"allowedEvent\": 3,\n  \"deductionType\": \"LEAVE\",\n  \"leaveDeductDays\": 1,\n  \"leaveTypeId\": 1,\n  \"fineAmount\": null,\n  \"effectiveFrom\": \"2026-08-01\",\n  \"effectiveTo\": null,\n  \"isDefault\": \"N\",\n  \"remarks\": \"Updated Policy\",\n  \"deductionPriorities\": [\n    {\n      \"priorityOrder\": 3,\n      \"leaveTypeId\": 1,\n      \"isActive\": \"Y\"\n    }\n  ],\n  \"assignments\": [\n    {\n      \"employeeId\": 3844,\n      \"effectiveFrom\": \"2026-08-01\",\n      \"effectiveTo\": null,\n      \"isActive\": \"Y\"\n    }\n  ]\n}",
   "Example Response Payload": "",
-  "Dependent APIs / Services": "",
+  "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
   "Comments": "Source: collections/Late_Early_Policy_API.json; No saved response example in source file"
 }""")
 

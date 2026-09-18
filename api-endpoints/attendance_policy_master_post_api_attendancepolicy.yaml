@@ -22,7 +22,7 @@ cases:
   subModule: Create New Policy
   access: private
   purpose: Create New Policy
-  basePath: '{{attendanceBaseUrl}}'
+  basePath: '{{baseURL}}'
   endpointPath: /api/attendancepolicy
   method: POST
   requestParameters: 'headers: Authorization=Bearer {{authToken}}'
@@ -34,14 +34,14 @@ cases:
   - payloadType: Request Body
     json: |-
       {
-          "policyName": "Late Coming",
+          "policyName": "Late Coming {{uniqueAlpha}}",
           "policyHeading":"Late Coming Policy Heading",
           "policyDescription":"Late Coming Policy Description"
       }
   - payloadType: Example Request Payload
     json: |-
       {
-        "policyName": "Late Coming",
+        "policyName": "Late Coming <uniqueAlpha>",
         "policyHeading": "Late Coming Policy Heading",
         "policyDescription": "Late Coming Policy Description"
       }
@@ -52,6 +52,6 @@ cases:
   - category: Non-Functional
     description: 'Source: collections/Attendance_Management_API.json; No saved response example in source
       file'
-  assertionState: not-asserted
+  assertionState: asserted
   sourceType: newman
   sourceCollection: collections/Attendance_Management_API.json

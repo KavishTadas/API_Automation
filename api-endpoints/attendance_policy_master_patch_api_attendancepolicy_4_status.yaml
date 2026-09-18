@@ -22,7 +22,7 @@ cases:
   subModule: Activate Deactivate
   access: private
   purpose: Activate Deactivate
-  basePath: '{{attendanceBaseUrl}}'
+  basePath: '{{baseURL}}'
   endpointPath: /api/attendancepolicy/4/status
   method: PATCH
   requestParameters: 'query: action=ACTIVATE | headers: Authorization=Bearer {{authToken}}'
@@ -38,6 +38,6 @@ cases:
   - category: Non-Functional
     description: 'Source: collections/Attendance_Management_API.json; No saved response example in source
       file'
-  assertionState: not-asserted
+  assertionState: asserted
   sourceType: newman
   sourceCollection: collections/Attendance_Management_API.json

@@ -32,8 +32,8 @@ API = json.loads(r"""{
   "Response (example/200)": "",
   "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
   "API Identifier": "post|/api/attendancepolicy|attendance policy master|create new policy",
-  "Request Body": "{\n    \"policyName\": \"Late Coming\",\n    \"policyHeading\":\"Late Coming Policy Heading\",\n    \"policyDescription\":\"Late Coming Policy Description\"\n}",
-  "Example Request Payload": "{\n  \"policyName\": \"Late Coming\",\n  \"policyHeading\": \"Late Coming Policy Heading\",\n  \"policyDescription\": \"Late Coming Policy Description\"\n}",
+  "Request Body": "{\n    \"policyName\": \"Late Coming {{uniqueAlpha}}\",\n    \"policyHeading\":\"Late Coming Policy Heading\",\n    \"policyDescription\":\"Late Coming Policy Description\"\n}",
+  "Example Request Payload": "{\n  \"policyName\": \"Late Coming <uniqueAlpha>\",\n  \"policyHeading\": \"Late Coming Policy Heading\",\n  \"policyDescription\": \"Late Coming Policy Description\"\n}",
   "Example Response Payload": "",
   "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
   "Comments": "Source: collections/Attendance_Management_API.json; No saved response example in source file"

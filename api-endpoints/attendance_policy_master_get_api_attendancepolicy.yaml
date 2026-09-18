@@ -22,7 +22,7 @@ cases:
   subModule: Get All Policies
   access: private
   purpose: Get All Policies
-  basePath: '{{attendanceBaseUrl}}'
+  basePath: '{{baseURL}}'
   endpointPath: /api/attendancepolicy
   method: GET
   requestParameters: 'headers: Authorization=Bearer {{authToken}}'
@@ -38,6 +38,6 @@ cases:
   - category: Non-Functional
     description: 'Source: collections/Attendance_Management_API.json; No saved response example in source
       file'
-  assertionState: not-asserted
+  assertionState: asserted
   sourceType: newman
   sourceCollection: collections/Attendance_Management_API.json

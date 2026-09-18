@@ -47,6 +47,6 @@ cases:
   - category: Non-Functional
     description: 'Source: bruno/users/get-profile.bru; No saved response example in source file; Parsed
       from Bruno file'
-  assertionState: asserted-not-executed
+  assertionState: asserted
   sourceType: bruno
   sourceCollection: bruno/users/get-profile.bru

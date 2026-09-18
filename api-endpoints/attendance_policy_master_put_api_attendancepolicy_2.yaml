@@ -22,7 +22,7 @@ cases:
   subModule: Update Policy By Id
   access: private
   purpose: Update Policy By Id
-  basePath: '{{attendanceBaseUrl}}'
+  basePath: '{{baseURL}}'
   endpointPath: /api/attendancepolicy/2
   method: PUT
   requestParameters: 'headers: Authorization=Bearer {{authToken}}'
@@ -52,6 +52,6 @@ cases:
   - category: Non-Functional
     description: 'Source: collections/Attendance_Management_API.json; No saved response example in source
       file'
-  assertionState: not-asserted
+  assertionState: asserted
   sourceType: newman
   sourceCollection: collections/Attendance_Management_API.json

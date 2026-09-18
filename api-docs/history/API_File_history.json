@@ -239,5 +239,139 @@
     "newApis": [],
     "refreshedCount": 45,
     "missingApis": []
+  },
+  {
+    "version": 18,
+    "timestamp": "20260916_150806",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260916_150806.json",
+    "previousCsv": "api-docs/history/API_File_20260916_150806.csv",
+    "newApis": [],
+    "refreshedCount": 45,
+    "missingApis": []
+  },
+  {
+    "version": 19,
+    "timestamp": "20260916_151722",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260916_151722.json",
+    "previousCsv": "api-docs/history/API_File_20260916_151722.csv",
+    "newApis": [],
+    "refreshedCount": 45,
+    "missingApis": []
+  },
+  {
+    "version": 20,
+    "timestamp": "20260918_102342",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260918_102342.json",
+    "previousCsv": "api-docs/history/API_File_20260918_102342.csv",
+    "newApis": [
+      "pipeline-check - GET - /api/attendance/holiday-templates/getAll - E2E Pipeline Probe"
+    ],
+    "refreshedCount": 45,
+    "missingApis": []
+  },
+  {
+    "version": 21,
+    "timestamp": "20260918_102437",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260918_102437.json",
+    "previousCsv": "api-docs/history/API_File_20260918_102437.csv",
+    "newApis": [],
+    "refreshedCount": 45,
+    "missingApis": [
+      "pipeline-check - GET - /api/attendance/holiday-templates/getAll - E2E Pipeline Probe"
+    ]
+  },
+  {
+    "version": 22,
+    "timestamp": "20260918_143727",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260918_143727.json",
+    "previousCsv": "api-docs/history/API_File_20260918_143727.csv",
+    "newApis": [],
+    "refreshedCount": 45,
+    "missingApis": []
+  },
+  {
+    "version": 23,
+    "timestamp": "20260918_144235",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260918_144235.json",
+    "previousCsv": "api-docs/history/API_File_20260918_144235.csv",
+    "newApis": [
+      "ci-proof - GET - /api/attendance/holiday-templates/getAll - CI Pipeline Proof"
+    ],
+    "refreshedCount": 45,
+    "missingApis": []
+  },
+  {
+    "version": 24,
+    "timestamp": "20260918_144333",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260918_144333.json",
+    "previousCsv": "api-docs/history/API_File_20260918_144333.csv",
+    "newApis": [],
+    "refreshedCount": 45,
+    "missingApis": [
+      "ci-proof - GET - /api/attendance/holiday-templates/getAll - CI Pipeline Proof"
+    ]
+  },
+  {
+    "version": 25,
+    "timestamp": "20260918_150748",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260918_150748.json",
+    "previousCsv": "api-docs/history/API_File_20260918_150748.csv",
+    "newApis": [
+      "ci-proof - GET - /api/attendance/status-threshold/getAll - Pipeline Proof Probe"
+    ],
+    "refreshedCount": 45,
+    "missingApis": []
+  },
+  {
+    "version": 26,
+    "timestamp": "20260918_150806",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260918_150806.json",
+    "previousCsv": "api-docs/history/API_File_20260918_150806.csv",
+    "newApis": [],
+    "refreshedCount": 45,
+    "missingApis": [
+      "ci-proof - GET - /api/attendance/status-threshold/getAll - Pipeline Proof Probe"
+    ]
+  },
+  {
+    "version": 27,
+    "timestamp": "20260918_155105",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260918_155105.json",
+    "previousCsv": "api-docs/history/API_File_20260918_155105.csv",
+    "newApis": [
+      "Bruno - GET - /api/attendance/holiday-templates/getById/82 - Holiday Template By Id 82"
+    ],
+    "refreshedCount": 45,
+    "missingApis": []
+  },
+  {
+    "version": 28,
+    "timestamp": "20260918_155229",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260918_155229.json",
+    "previousCsv": "api-docs/history/API_File_20260918_155229.csv",
+    "newApis": [],
+    "refreshedCount": 46,
+    "missingApis": []
+  },
+  {
+    "version": 29,
+    "timestamp": "20260918_155304",
+    "reason": "API File regenerated from collections and Bruno files",
+    "previousJson": "api-docs/history/API_File_20260918_155304.json",
+    "previousCsv": "api-docs/history/API_File_20260918_155304.csv",
+    "newApis": [],
+    "refreshedCount": 46,
+    "missingApis": []
   }
 ]

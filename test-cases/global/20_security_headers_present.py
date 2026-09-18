@@ -24,6 +24,11 @@ def test_security_headers_present(
     measured once per host and referenced from the other APIs on it.
     """
     api_row = _require_runnable(operation_case, global_contract_context)
+    # Declared host-level in catalogue.HOST_LEVEL_TESTS and described so above,
+    # but it ran once per API -- so one server setting surfaced as one failure
+    # for every endpoint behind that server (42 in the 2026-09-17 run). The
+    # finding is unchanged; only its multiplicity was wrong.
+    _require_host_representative(operation_case)
     response = _bootstrap_or_request(operation_case, global_contract_context, api_row)
 
     headers = {key.lower(): value for key, value in response.headers.items()}

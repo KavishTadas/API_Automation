@@ -22,7 +22,7 @@ cases:
   subModule: Update Threshold
   access: private
   purpose: Update Threshold
-  basePath: '{{attendanceBaseUrl}}'
+  basePath: '{{baseUrl}}'
   endpointPath: /api/attendance/status-threshold/update/1
   method: PUT
   requestParameters: 'headers: Authorization=Bearer {{token}}; Content-Type=application/json'
@@ -75,6 +75,6 @@ cases:
   - category: Non-Functional
     description: 'Source: collections/Attendance_Threshold_API.json; No saved response example in source
       file'
-  assertionState: not-asserted
+  assertionState: asserted
   sourceType: newman
   sourceCollection: collections/Attendance_Threshold_API.json

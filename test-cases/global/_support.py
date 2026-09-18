@@ -21,6 +21,7 @@ would otherwise skip exactly the names the checks rely on most.
 from __future__ import annotations
 
 
+import atexit
 import json
 
 
@@ -39,7 +40,7 @@ from dataclasses import dataclass, field
 from functools import lru_cache
 
 
-from typing import Any
+from typing import Any, Callable
 
 
 from urllib.parse import urlsplit
@@ -58,7 +59,11 @@ from jsonschema import Draft202012Validator
 
 
 from tests.api_runtime._api_test_helpers import (
+    RUN_UNIQUE_ALPHA,
+    _parse_request_parameters,
+    _resolve_path_parameters,
     _resolve_templates,
+    _unresolved_path_parameters,
     load_runtime_config,
     perform_api_request,
 )
@@ -659,11 +664,61 @@ def _host_representative_cases() -> dict[str, OperationCase]:
     ``measuredBy`` are derived from this, so the two can never name different
     cases for the same host.
     """
-    representatives: dict[str, OperationCase] = {}
+    # First *callable* case per host, falling back to the first case at all.
+    #
+    # It used to be the first case, full stop. On the main UAT host that was
+    # DELETE /holiday-templates/delete/{holidayTemplateId}, which has no id to
+    # substitute, so it never sent a request: every host-level check reported
+    # NOT_APPLICABLE for it, and the other 36 APIs on that host were marked
+    # "reported against" a measurement that did not exist. The host's
+    # version-disclosure failure did not appear anywhere in the run. A host that
+    # is referenced but unmeasured is worse than one measured 36 times over,
+    # because it reads as covered.
+    #
+    # Among callable cases a read-only one is preferred, because the
+    # representative's own request is what the host-level checks replay: the
+    # burst check sends it several times in a row. Once the first callable case
+    # on UAT turned out to be DELETE /status-thresholds/delete/1, that meant a
+    # burst of DELETEs against a shared environment -- harmless only because
+    # record 1 happened not to exist.
+    safe: dict[str, OperationCase] = {}
+    callable_: dict[str, OperationCase] = {}
+    fallback: dict[str, OperationCase] = {}
     for case in _build_operation_cases():
-        if case.host and case.host not in representatives:
-            representatives[case.host] = case
-    return representatives
+        if not case.host:
+            continue
+        fallback.setdefault(case.host, case)
+        if not _is_callable(case):
+            continue
+        callable_.setdefault(case.host, case)
+        if case.method.upper() in ("GET", "HEAD"):
+            safe.setdefault(case.host, case)
+    return {
+        host: safe.get(host) or callable_.get(host) or first
+        for host, first in fallback.items()
+    }
+
+
+def _is_callable(case: OperationCase) -> bool:
+    """Whether this case can send a request at all, judged before anything runs.
+
+    Only the reasons knowable from the definition: no inventory row, a manifest
+    ref that did not resolve, or a path parameter with no value to put in it.
+    Whether the server then answers 200 or 401 is the check's business, not the
+    representative's.
+    """
+    row = case.api_row
+    if row is None or case.unresolved_reason:
+        return False
+    endpoint = str(row.get("Endpoint / Path", "") or case.path)
+    supplied = {
+        name: value
+        for name, value in _parse_request_parameters(
+            str(row.get("Request Parameters", "") or "")
+        )["path_variables"].items()
+        if value
+    }
+    return not _unresolved_path_parameters(_resolve_path_parameters(endpoint, supplied))
 
 
 @lru_cache(maxsize=1)
@@ -816,9 +871,27 @@ def _timed_request(
     return response, (time.perf_counter() - started_at) * 1000
 
 
+#: One context per process. "Session" scope does not mean one instance here:
+#: every check does ``from _support import *``, so this fixture is registered
+#: once per check module as well as in conftest, and pytest caches each
+#: registration separately. The bootstrap therefore ran once per check file --
+#: 28 times over the full catalogue.
+#:
+#: That was not merely wasteful. The bootstrap issues each endpoint's request,
+#: so a create went out once per copy: the first answered 201 and the rest 409,
+#: and whichever copy the reporting check happened to hold decided what the run
+#: claimed to have seen. POST /api/attendancepolicy reported "no success
+#: response was observed (observed [409])" while the row it had just made sat
+#: in UAT.
+_CONTEXT: "GlobalContractContext | None" = None
+
+
 @pytest.fixture(scope="session")
 def global_contract_context(request: pytest.FixtureRequest) -> GlobalContractContext:
     """Load both contracts and shared runtime credentials for the suite."""
+    global _CONTEXT
+    if _CONTEXT is not None:
+        return _CONTEXT
     resolver = _resolver()
     sources = resolver.sources
     runtime_config = load_runtime_config()
@@ -975,8 +1048,11 @@ def global_contract_context(request: pytest.FixtureRequest) -> GlobalContractCon
         response_samples[operation_key] = tuple(samples)
 
     _register_gateway_classifications(request, operation_cases, bootstrap_responses)
+    _register_created_resource_cleanup(
+        request, operation_cases, bootstrap_responses, _config_for
+    )
 
-    return GlobalContractContext(
+    _CONTEXT = GlobalContractContext(
         sources=sources,
         runtime_config=runtime_config,
         bootstrap_responses=bootstrap_responses,
@@ -984,6 +1060,139 @@ def global_contract_context(request: pytest.FixtureRequest) -> GlobalContractCon
         bootstrap_durations_ms=bootstrap_durations_ms,
         auth_results=auth_results,
     )
+    return _CONTEXT
+
+
+#: How a resource this suite created is removed again, keyed by the create
+#: endpoint's path: (delete path template, the response fields that may carry
+#: the new id).
+#:
+#: Explicit rather than derived. Turning ``POST /x`` into ``DELETE /x/{id}`` is
+#: a REST convention this API does not follow everywhere -- holiday templates
+#: delete at ``/delete/{id}`` -- and a wrong guess either 404s harmlessly or
+#: aims a DELETE at something that was never ours. Only the first is acceptable,
+#: so the mapping is written down one endpoint at a time.
+CREATED_RESOURCE_CLEANUP: dict[str, dict[str, Any]] = {
+    "/api/attendancepolicy": {
+        "list": "/api/attendancepolicy",
+        "delete": "/api/attendancepolicy/{id}",
+        "idFields": ("policyId", "id"),
+        "nameField": "policyName",
+    },
+}
+
+
+def _rows_carrying_run_token(
+    api_row: dict[str, Any],
+    config: dict[str, str],
+    spec: dict[str, Any],
+) -> list[str]:
+    """Ids of rows in this collection whose name carries this run's token."""
+    listing_row = {
+        **api_row,
+        "HTTP Method": "GET",
+        "Endpoint / Path": spec["list"],
+        "Request Body": "",
+    }
+    try:
+        response = perform_api_request(listing_row, config)
+        payload = response.json()
+    except BaseException:            # noqa: BLE001 - tidy-up never fails a run
+        return []
+
+    rows = payload.get("data") if isinstance(payload, dict) else payload
+    if not isinstance(rows, list):
+        return []
+
+    found: list[str] = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        if RUN_UNIQUE_ALPHA not in str(row.get(spec["nameField"], "")):
+            continue
+        for field in spec["idFields"]:
+            value = row.get(field)
+            if value not in (None, ""):
+                found.append(str(value))
+                break
+    return found
+
+
+def _register_created_resource_cleanup(
+    request: pytest.FixtureRequest,
+    operation_cases: tuple[OperationCase, ...],
+    bootstrap_responses: dict[tuple[str, str], httpx.Response],
+    config_for: "Callable[[OperationCase], dict[str, str]]",
+) -> None:
+    """Remove rows this run created on the target environment.
+
+    A create can only be exercised against its success path if its payload is
+    unique per run: the fixed sample was consumed by the first run that ever
+    succeeded, and every run since collided with it. Uniqueness solves that and
+    buys a new problem -- one row per run, for ever, in a shared environment.
+    So whatever the suite creates, the suite removes.
+
+    Rows are found by this run's token rather than by the id the create
+    returned, because on this API the id is not there to read: the create
+    persists the row and then answers 409 naming the row it just wrote. Keying
+    on the response would leak a row on exactly the runs that made one.
+
+    The token is minted once per process and appears nowhere a person would
+    type, so it can only ever select this run's own rows. That provenance is
+    what makes matching acceptable here; a name *pattern* would eventually
+    match something somebody made by hand.
+
+    Best effort, and never fails the run: every check has already reported by
+    the time this executes, and turning a tidy-up error red would invent a
+    defect.
+    """
+    # pytest's prepend import mode imports this module once per check file, so
+    # registration happens several times over. The config object is the one
+    # thing all of those copies share.
+    if getattr(request.config, "_created_resource_cleanup_registered", False):
+        return
+    request.config._created_resource_cleanup_registered = True
+
+    planned: list[tuple[dict[str, Any], dict[str, str], dict[str, Any]]] = []
+    seen: set[str] = set()
+    for operation_case in operation_cases:
+        if operation_case.method.upper() != "POST" or operation_case.api_row is None:
+            continue
+        spec = CREATED_RESOURCE_CLEANUP.get(operation_case.path.rstrip("/"))
+        if spec is None or operation_case.path in seen:
+            continue
+        seen.add(operation_case.path)
+        planned.append(
+            (dict(operation_case.api_row), config_for(operation_case), spec)
+        )
+
+    if not planned:
+        return
+
+    def remove_them() -> None:
+        for api_row, config, spec in planned:
+            for created_id in _rows_carrying_run_token(api_row, config, spec):
+                path = str(spec["delete"]).replace("{id}", created_id)
+                row = {
+                    **api_row,
+                    "HTTP Method": "DELETE",
+                    "Endpoint / Path": path,
+                    "Request Body": "",
+                }
+                try:
+                    response = perform_api_request(row, config)
+                except BaseException as error:   # noqa: BLE001
+                    print(f"cleanup: DELETE {path} raised {type(error).__name__}")
+                    continue
+                print(f"cleanup: DELETE {path} -> {response.status_code}")
+
+    # atexit rather than request.addfinalizer: the finalizer registered on the
+    # session fixture's request was never called here -- verified by having it
+    # write a file, which never appeared -- so every run leaked its row. atexit
+    # is LIFO and the pooled client registers its own close when it is first
+    # built, which is necessarily before this, so the client is still open when
+    # this runs.
+    atexit.register(remove_them)
 
 
 def _register_gateway_classifications(

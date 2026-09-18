@@ -40,7 +40,7 @@ cases:
       "token": "<jwt-token>",
       "username": "<username>"
     }
-  owner: KavishTadas <kavish.tadas@omfysgroup.com>
+  owner: Parth Divekar <parthdivekar987@gmail.com>
   canonicalRef: post|/auth/token|employee auth api|tc01 - valid credentials return jwt token
   samplePayloads:
   - payloadType: Request Body
@@ -86,7 +86,7 @@ cases:
     {
       "token": "<jwt-token>"
     }
-  owner: KavishTadas <kavish.tadas@omfysgroup.com>
+  owner: Parth Divekar <parthdivekar987@gmail.com>
   canonicalRef: post|/auth/token|employee auth api|tc02 - invalid empcode returns 400
   samplePayloads:
   - payloadType: Request Body
@@ -125,7 +125,7 @@ cases:
     {
       "token": "<jwt-token>"
     }
-  owner: KavishTadas <kavish.tadas@omfysgroup.com>
+  owner: Parth Divekar <parthdivekar987@gmail.com>
   canonicalRef: post|/auth/token|employee auth api|tc03 - missing password returns 400
   samplePayloads:
   - payloadType: Request Body

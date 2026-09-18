@@ -24,9 +24,13 @@ from __future__ import annotations
 
 import atexit
 import csv
+import datetime as _dt
 import json
 import os
+import random as _random
 import re
+import time as _time
+import uuid as _uuid
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
@@ -690,11 +694,77 @@ def _auth_token(context: dict[str, str]) -> str:
     return ""
 
 
+#: Fresh on every run, stable for the life of the process. A create whose body
+#: carries this is unique per run -- which is what lets its success path be
+#: exercised more than once -- and stable *within* the run, so the row it
+#: creates can be found again and removed.
+RUN_UNIQUE_TOKEN = (
+    _dt.datetime.now().strftime("%Y%m%d%H%M%S") + "-" + _uuid.uuid4().hex[:6]
+)
+
+
+def _alphabetic(token: str) -> str:
+    """The same token written with letters only.
+
+    Not decoration: ``POST /api/attendancepolicy`` answers
+    ``policyName: Policy name must contain only alphabetic characters and
+    spaces``, so a timestamp or a uuid is a 400 there, and a create that cannot
+    be spelled cannot be exercised at all. Digits map to A-J and everything
+    else is dropped, which keeps the value both legal and reversible by eye
+    when it shows up in a record someone is looking at.
+    """
+    return "".join(
+        chr(ord("A") + int(ch)) if ch.isdigit() else ch
+        for ch in token
+        if ch.isalnum()
+    ).upper()
+
+
+#: The same run token, legal anywhere only letters are accepted.
+RUN_UNIQUE_ALPHA = _alphabetic(RUN_UNIQUE_TOKEN)
+
+
+def _postman_dynamic_value(key: str) -> str | None:
+    """Resolve the Postman dynamic variables a collection may already use.
+
+    These are Postman's own spelling rather than an invention here, so one
+    collection body works unchanged in Newman and in this engine. A token only
+    this engine understood would put its own literal text on the wire whenever
+    the same collection ran under Newman, creating a record named after the
+    placeholder -- a worse failure than the one it set out to fix, because it
+    looks like data.
+
+    ``$guid`` is deliberately run-stable rather than per-use: Postman mints a
+    new one on every reference, but a create and the cleanup that removes it
+    need to agree on the value, and nothing here uses two in one body.
+    """
+    if key == "$guid":
+        return RUN_UNIQUE_TOKEN
+    if key == "$timestamp":
+        return str(int(_time.time()))
+    if key == "$randomInt":
+        return str(_random.randint(0, 1000))
+    # Not a Postman dynamic variable, so it carries no `$`: a collection
+    # defines it in a pre-request script as an ordinary variable, and both
+    # tools then read the same `{{uniqueAlpha}}`.
+    if key == "uniqueAlpha":
+        return RUN_UNIQUE_ALPHA
+    return None
+
+
 def _resolve_templates(value: str, context: dict[str, str]) -> str:
     text = "" if value is None else str(value)
 
     def replace(match: re.Match[str]) -> str:
         key = match.group(1).strip()
+
+        # Ahead of the context lookup: a collection that spells a dynamic
+        # variable must not fall through to "unresolved" and skip the request,
+        # which would be reported as missing configuration.
+        dynamic = _postman_dynamic_value(key)
+        if dynamic is not None:
+            return dynamic
+
         canonical_key = _canonical_env_key(key)
 
         # Canonical snake-case values are explicit runtime overrides. Check

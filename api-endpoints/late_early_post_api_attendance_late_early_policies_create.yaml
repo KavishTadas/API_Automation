@@ -22,13 +22,13 @@ cases:
   subModule: create
   access: private
   purpose: create
-  basePath: '{{attendanceBaseUrl}}'
+  basePath: '{{baseURL}}'
   endpointPath: /api/attendance/late-early-policies/create
   method: POST
-  requestParameters: 'headers: Authorization=Bearer YOUR_JWT_TOKEN; Content-Type=application/json'
+  requestParameters: 'headers: Authorization=Bearer {{authToken}}; Content-Type=application/json'
   requestBodySchema: '{"policyCode":"null","policyName":"string","description":"string","templateMode":"string","eventCountMinutes":"number","graceMinutes":"number","graceEvent":"number","allowedEvent":"number","deductionType":"string","leaveDeductDays":"number","leaveTypeId":"number","fineAmount":"null","effectiveFrom":"string","effectiveTo":"string","isDefault":"string","isActive":"string","remarks":"string","deductionPriorities":[{"priorityOrder":"number","leaveTypeId":"number","isActive":"string"}],"assignments":[{"employeeId":"number","departmentId":"number","designationId":"number","effectiveFrom":"string","effectiveTo":"string","isActive":"string"}]}'
   responseExample: null
-  owner: KavishTadas <kavish.tadas@omfysgroup.com>
+  owner: Parth Divekar <parthdivekar987@gmail.com>
   canonicalRef: post|/api/attendance/late-early-policies/create|latearly-policy|create
   samplePayloads:
   - payloadType: Request Body
@@ -89,9 +89,12 @@ cases:
         ]
       }
   rules:
+  - category: Dependency
+    description: Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token
+      for authToken
   - category: Non-Functional
     description: 'Source: collections/Late_Early_Policy_API.json; No saved response example in source
       file'
-  assertionState: not-asserted
+  assertionState: asserted
   sourceType: newman
   sourceCollection: collections/Late_Early_Policy_API.json

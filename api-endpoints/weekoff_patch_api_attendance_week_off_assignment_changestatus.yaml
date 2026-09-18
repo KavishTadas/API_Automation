@@ -29,13 +29,13 @@ cases:
         "assignmentId": 1,
         "status": "N"
     }'
-  basePath: '{{attendanceBaseUrl}}'
+  basePath: '{{baseURL}}'
   endpointPath: /api/attendance/week-off-assignment/changeStatus
   method: PATCH
-  requestParameters: 'headers: Authorization=Bearer <TOKEN>; Content-Type=application/json'
+  requestParameters: 'headers: Authorization=Bearer {{authToken}}; Content-Type=application/json'
   requestBodySchema: '{"assignmentId":"number","status":"string"}'
   responseExample: null
-  owner: KavishTadas <kavish.tadas@omfysgroup.com>
+  owner: Parth Divekar <parthdivekar987@gmail.com>
   canonicalRef: patch|/api/attendance/week-off-assignment/changestatus|attenedance-july2026|week-off-assignment/changestatus
   samplePayloads:
   - payloadType: Request Body
@@ -51,8 +51,11 @@ cases:
         "status": "N"
       }
   rules:
+  - category: Dependency
+    description: Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token
+      for authToken
   - category: Non-Functional
     description: 'Source: collections/Weekoff_Policy_API.json; No saved response example in source file'
-  assertionState: not-asserted
+  assertionState: asserted
   sourceType: newman
   sourceCollection: collections/Weekoff_Policy_API.json

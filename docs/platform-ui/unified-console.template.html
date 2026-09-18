@@ -5335,15 +5335,30 @@ function contractRules(R){
 
 /* One classifier, used by the pill counts, the filter and the table alike,
    so a pill can never claim a count the table does not show. */
+/* The catalogue already states each global check's category; the name
+   patterns below were a guess made before it did, and every check they did not
+   anticipate fell through to 'functional'. That is how a web server announcing
+   its version was filed as a functional defect -- sending the reader to the API
+   code for something nginx does. Catalogue first, patterns only as a fallback
+   for checks it does not describe. */
+let CATALOGUE_CATEGORY = null;
+function catalogueCategory(testId){
+  if(!CATALOGUE_CATEGORY){
+    CATALOGUE_CATEGORY = new Map((SEED.globalTestCases||[]).map(tc => [tc.id, tc.category]));
+  }
+  return CATALOGUE_CATEGORY.get(testId) || null;
+}
+
 function defectCat(r){
   const t=r.testId;
+  if(catalogueCategory(t)==='security')        return 'security';
   if(/credential_leakage|401_without/.test(t)) return 'security';
   if(/schema|content_type/.test(t))            return 'schema';
   if(/status_code/.test(t))                    return 'product';
   return 'functional';
 }
 const CAT_META={
-  security  :['Security / credential exposure','--rose'],
+  security  :['Security','--rose'],
   schema    :['Contract breach (OpenAPI)','--amber'],
   product   :['Product defect (status mismatch)','--rose'],
   functional:['Functional defect','--purple']
@@ -5378,7 +5393,7 @@ function tabDefects(R){
   const n = k => fails.filter(x=>defectCat(x.r)===k).length;
   const bar = filterBar('Filter', 'catFilter', [
     {k:'all',        label:'All classified defects', n:fails.length+blocked.length+gaps.length},
-    {k:'security',   label:'Security / BOLA',        n:n('security'),   tone:'--rose'},
+    {k:'security',   label:'Security',        n:n('security'),   tone:'--rose'},
     {k:'schema',     label:'OpenAPI contract',       n:n('schema'),     tone:'--amber'},
     {k:'product',    label:'Product defect',         n:n('product'),    tone:'--rose'},
     {k:'functional', label:'Functional',             n:n('functional'), tone:'--purple'},

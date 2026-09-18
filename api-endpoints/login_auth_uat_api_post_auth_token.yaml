@@ -11,7 +11,8 @@ slug: login_auth_uat_api_post_auth_token
 module: Login Auth UAT API
 method: POST
 endpointPath: /auth/token
-environments: []
+environments:
+- UAT
 version: null
 credentialAlias: null
 metadata:

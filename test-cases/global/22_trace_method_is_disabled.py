@@ -25,6 +25,11 @@ def test_trace_method_is_disabled(
     check exists precisely because it should be refused.
     """
     api_row = _require_runnable(operation_case, global_contract_context)
+    # Declared host-level in catalogue.HOST_LEVEL_TESTS and described so above,
+    # but it ran once per API -- so one server setting surfaced as one failure
+    # for every endpoint behind that server (42 in the 2026-09-17 run). The
+    # finding is unchanged; only its multiplicity was wrong.
+    _require_host_representative(operation_case)
 
     response = perform_api_request(
         {**api_row, "HTTP Method": "TRACE", "Request Body": ""},

@@ -27,7 +27,7 @@ API = json.loads(r"""{
   "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/attendance/week-off-assignment/changeStatus",
   "HTTP Method": "PATCH",
-  "Request Parameters": "headers: Authorization=Bearer <TOKEN>; Content-Type=application/json",
+  "Request Parameters": "headers: Authorization=Bearer {{authToken}}; Content-Type=application/json",
   "Request Body Schema": "{\"assignmentId\":\"number\",\"status\":\"string\"}",
   "Response (example/200)": "",
   "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Request Body": "{\n    \"assignmentId\": 3,\n    \"status\": \"N\"\n}",
   "Example Request Payload": "{\n  \"assignmentId\": 3,\n  \"status\": \"N\"\n}",
   "Example Response Payload": "",
-  "Dependent APIs / Services": "",
+  "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
   "Comments": "Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
 }""")
 

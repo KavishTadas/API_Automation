@@ -27,7 +27,7 @@ API = json.loads(r"""{
   "Base URL": "{{baseURL}}",
   "Endpoint / Path": "/api/attendance/week-off-assignment/getByWeekOff",
   "HTTP Method": "POST",
-  "Request Parameters": "query: page=0; size=10; sort=employeeId,asc | headers: Authorization=Bearer <YOUR_JWT_TOKEN>; Content-Type=application/json",
+  "Request Parameters": "query: page=0; size=10; sort=employeeId,asc | headers: Authorization=Bearer {{authToken}}; Content-Type=application/json",
   "Request Body Schema": "{\"weekOffId\":\"number\"}",
   "Response (example/200)": "",
   "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
@@ -35,7 +35,7 @@ API = json.loads(r"""{
   "Request Body": "{\n    \"weekOffId\": 1\n}",
   "Example Request Payload": "{\n  \"weekOffId\": 1\n}",
   "Example Response Payload": "",
-  "Dependent APIs / Services": "",
+  "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
   "Comments": "Source: collections/Weekoff_Policy_API.json; No saved response example in source file"
 }""")
 
