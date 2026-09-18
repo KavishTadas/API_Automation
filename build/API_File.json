@@ -878,5 +878,25 @@
     "Example Response Payload": "",
     "Dependent APIs / Services": "",
     "Comments": "Source: collections/Holiday_Template_API.json; No saved response example in source file"
+  },
+  {
+    "Sr. No": "46",
+    "Module Name": "Bruno",
+    "Sub-Module Name": "Holiday Template By Id 82",
+    "Access": "private",
+    "Functional Purpose": "Status is 200",
+    "Base URL": "{{attendanceBaseUrl}}",
+    "Endpoint / Path": "/api/attendance/holiday-templates/getById/82",
+    "HTTP Method": "GET",
+    "Request Parameters": "auth: bearer token={{authToken}}",
+    "Request Body Schema": "",
+    "Response (example/200)": "Expected status(es): 200",
+    "Owner / Developer": "Parth Divekar <parthdivekar987@gmail.com>",
+    "API Identifier": "get|/api/attendance/holiday-templates/getbyid/82|bruno|holiday template by id 82",
+    "Request Body": "",
+    "Example Request Payload": "",
+    "Example Response Payload": "",
+    "Dependent APIs / Services": "Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token for authToken",
+    "Comments": "Source: bruno/Holiday Template By Id 82.bru; No saved response example in source file; Parsed from Bruno file"
   }
 ]

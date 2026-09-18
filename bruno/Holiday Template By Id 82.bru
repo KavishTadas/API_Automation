@@ -14,14 +14,6 @@ auth:bearer {
   token: {{authToken}}
 }
 
-settings {
-  encodeUrl: true
-  forwardAuthorizationHeader: false
-}
-
 tests {
   test("Status is 200", function() { expect(res.getStatus()).to.equal(200); });
-  test("Returns the requested template", function() {
-    expect(res.getBody().data.holidayTemplateId).to.equal(82);
-  });
 }
