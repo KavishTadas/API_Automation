@@ -16,7 +16,13 @@
 
 aliases:
   # File is Holiday_Template_API.json; "Copy" is a Postman export artifact.
-  "holiday template apis copy": holiday-template
+  #
+  # "holiday" rather than "holiday-template": this module owns the longest
+  # endpoint in the tree (DELETE .../delete/{holidayTemplateId}), and with the
+  # longer alias its case path landed exactly on MAX_PATH_LENGTH, so generation
+  # aborted. Dropping "-template" buys ~10 characters of headroom. The word is
+  # not lost -- it is still in every endpoint path underneath.
+  "holiday template apis copy": holiday
 
   # File is Weekoff_Policy_API.json. The internal name is both misspelled
   # ("Attenedance") and date-stamped. Verified: all 7 requests in that

@@ -7,33 +7,34 @@
 #
 # canonicalRef is contract-visible. Do not normalise it, do not fix its
 # spelling -- the harness, run manifest and result document all key on it.
-slug: holiday_template_get_api_attendance_holiday_templates_getall
+slug: holiday_delete_api_attendance_holiday_templates_delete_by_holidaytemplateid
 module: Holiday Template APIs Copy
-method: GET
-endpointPath: /api/attendance/holiday-templates/getAll
+method: DELETE
+endpointPath: /api/attendance/holiday-templates/delete/{holidayTemplateId}
 environments:
 - UAT
 version: null
 credentialAlias: null
 metadata: null
 cases:
-- apiId: '28'
+- apiId: '45'
   module: Holiday Template APIs Copy
-  subModule: Get All
+  subModule: Delete
   access: private
-  purpose: Get All
-  basePath: '{{attendanceBaseUrl}}'
-  endpointPath: /api/attendance/holiday-templates/getAll
-  method: GET
-  requestParameters: 'query: page=0; size=10 | headers: Authorization=Bearer {{jwtToken}}'
+  purpose: Delete
+  basePath: '{{baseURL}}'
+  endpointPath: /api/attendance/holiday-templates/delete/{holidayTemplateId}
+  method: DELETE
+  requestParameters: 'path variables: holidayTemplateId=999999 | headers: Authorization=Bearer {{jwtToken}}'
   requestBodySchema: null
   responseExample: null
-  owner: KavishTadas <kavish.tadas@omfysgroup.com>
-  canonicalRef: get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all
+  owner: Parth Divekar <parthdivekar987@gmail.com>
+  canonicalRef: delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis
+    copy|delete
   samplePayloads: []
   rules:
   - category: Non-Functional
     description: 'Source: collections/Holiday_Template_API.json; No saved response example in source file'
-  assertionState: not-asserted
+  assertionState: asserted
   sourceType: newman
   sourceCollection: collections/Holiday_Template_API.json

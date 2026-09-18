@@ -1,6 +1,6 @@
 # PUT /api/attendance/holiday-templates/update/{holidayTemplateId}
 
-Suite: `holiday_template` · endpoint slug: `holiday_template_put_api_attendance_holiday_templates_update_by_holidaytemplateid`
+Suite: `holiday` · endpoint slug: `holiday_put_api_attendance_holiday_templates_update_by_holidaytemplateid`
 
 Endpoint-specific test cases go here: **one Python file per case**, named
 `<NN>_<case_title>.py`. Hand-authored, never written by a tool.
@@ -23,7 +23,7 @@ its own ref and runs only when that ref is in the manifest.
 
 - **Update**
   - `caseRef`: `put|/api/attendance/holiday-templates/update/{holidaytemplateid}|holiday template apis copy|update`
-  - assertion state: `not-asserted` — currently in `collections/Holiday_Template_API.json`
+  - assertion state: `asserted` — currently in `collections/Holiday_Template_API.json`
 
 ## Adding a case
 

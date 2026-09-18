@@ -1,6 +1,6 @@
-# POST /api/attendance/holiday-templates/create
+# GET /api/attendance/holiday-templates/getById/19
 
-Suite: `holiday_template` · endpoint slug: `holiday_template_post_api_attendance_holiday_templates_create`
+Suite: `holiday` · endpoint slug: `holiday_get_api_attendance_holiday_templates_getbyid_19`
 
 Endpoint-specific test cases go here: **one Python file per case**, named
 `<NN>_<case_title>.py`. Hand-authored, never written by a tool.
@@ -11,7 +11,7 @@ This endpoint carries **1** case(s), so a file here must say which one it
 tests. Declare it at module level:
 
 ```python
-caseRef = "post|/api/attendance/holiday-templates/create|holiday template apis copy|create"
+caseRef = "get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id"
 ```
 
 `caseRef` must be one of the `canonicalRef` values below, byte-identical. Omit it
@@ -21,9 +21,9 @@ its own ref and runs only when that ref is in the manifest.
 
 ## Cases on this endpoint
 
-- **Create**
-  - `caseRef`: `post|/api/attendance/holiday-templates/create|holiday template apis copy|create`
-  - assertion state: `not-asserted` — currently in `collections/Holiday_Template_API.json`
+- **Get By Id**
+  - `caseRef`: `get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id`
+  - assertion state: `asserted` — currently in `collections/Holiday_Template_API.json`
 
 ## Adding a case
 

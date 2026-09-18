@@ -7,7 +7,7 @@
 #
 # canonicalRef is contract-visible. Do not normalise it, do not fix its
 # spelling -- the harness, run manifest and result document all key on it.
-slug: holiday_template_post_api_attendance_holiday_templates_create
+slug: holiday_post_api_attendance_holiday_templates_create
 module: Holiday Template APIs Copy
 method: POST
 endpointPath: /api/attendance/holiday-templates/create
@@ -22,13 +22,13 @@ cases:
   subModule: Create
   access: private
   purpose: Create
-  basePath: '{{attendanceBaseUrl}}'
+  basePath: '{{baseURL}}'
   endpointPath: /api/attendance/holiday-templates/create
   method: POST
   requestParameters: 'headers: Authorization=Bearer {{jwtToken}}; Content-Type=application/json'
   requestBodySchema: '{"templateCode":"string","templateName":"string","description":"string","effectiveFrom":"string","effectiveTo":"string","optionModel":"string","templateMode":"string","isDefault":"string","isActive":"string","templateStatus":"string","remarks":"string","holidays":[{"holidayName":"string","occasion":"string","holidayDate":"string","isOptional":"string","isHalfDay":"string","remarks":"string"}],"assignments":[{"employeeId":"number","effectiveFrom":"string","effectiveTo":"string","isActive":"string"}]}'
   responseExample: null
-  owner: KavishTadas <kavish.tadas@omfysgroup.com>
+  owner: Parth Divekar <parthdivekar987@gmail.com>
   canonicalRef: post|/api/attendance/holiday-templates/create|holiday template apis copy|create
   samplePayloads:
   - payloadType: Request Body
@@ -100,6 +100,6 @@ cases:
   rules:
   - category: Non-Functional
     description: 'Source: collections/Holiday_Template_API.json; No saved response example in source file'
-  assertionState: not-asserted
+  assertionState: asserted
   sourceType: newman
   sourceCollection: collections/Holiday_Template_API.json

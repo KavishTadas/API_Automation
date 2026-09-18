@@ -7,7 +7,7 @@
 #
 # canonicalRef is contract-visible. Do not normalise it, do not fix its
 # spelling -- the harness, run manifest and result document all key on it.
-slug: holiday_template_get_api_attendance_holiday_templates_getbyid_19
+slug: holiday_get_api_attendance_holiday_templates_getbyid_19
 module: Holiday Template APIs Copy
 method: GET
 endpointPath: /api/attendance/holiday-templates/getById/19
@@ -22,18 +22,18 @@ cases:
   subModule: Get By Id
   access: private
   purpose: Get By Id
-  basePath: '{{attendanceBaseUrl}}'
+  basePath: '{{baseURL}}'
   endpointPath: /api/attendance/holiday-templates/getById/19
   method: GET
   requestParameters: 'headers: Authorization=Bearer {{jwtToken}}'
   requestBodySchema: null
   responseExample: null
-  owner: KavishTadas <kavish.tadas@omfysgroup.com>
+  owner: Parth Divekar <parthdivekar987@gmail.com>
   canonicalRef: get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id
   samplePayloads: []
   rules:
   - category: Non-Functional
     description: 'Source: collections/Holiday_Template_API.json; No saved response example in source file'
-  assertionState: not-asserted
+  assertionState: asserted
   sourceType: newman
   sourceCollection: collections/Holiday_Template_API.json

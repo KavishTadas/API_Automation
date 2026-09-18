@@ -1,6 +1,6 @@
-# DELETE /api/attendance/holiday-templates/delete/{holidayTemplateId}
+# PATCH /api/attendance/holiday-templates/19/status
 
-Suite: `holiday_template` · endpoint slug: `holiday_template_delete_api_attendance_holiday_templates_delete_by_holidaytemplateid`
+Suite: `holiday` · endpoint slug: `holiday_patch_api_attendance_holiday_templates_19_status`
 
 Endpoint-specific test cases go here: **one Python file per case**, named
 `<NN>_<case_title>.py`. Hand-authored, never written by a tool.
@@ -11,7 +11,7 @@ This endpoint carries **1** case(s), so a file here must say which one it
 tests. Declare it at module level:
 
 ```python
-caseRef = "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete"
+caseRef = "patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status"
 ```
 
 `caseRef` must be one of the `canonicalRef` values below, byte-identical. Omit it
@@ -21,9 +21,9 @@ its own ref and runs only when that ref is in the manifest.
 
 ## Cases on this endpoint
 
-- **Delete**
-  - `caseRef`: `delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete`
-  - assertion state: `not-asserted` — currently in `collections/Holiday_Template_API.json`
+- **Change Status**
+  - `caseRef`: `patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status`
+  - assertion state: `asserted` — currently in `collections/Holiday_Template_API.json`
 
 ## Adding a case
 

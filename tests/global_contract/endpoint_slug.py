@@ -23,8 +23,8 @@ Two things must stop generation rather than be worked around:
   back to an endpoint, and the truncated forms collide with each other. The fix
   is an entry in ``api-endpoints/module-aliases.yaml``.
 
-``MAX_SLUG_LENGTH`` is 85. The longest real slug today is 84
-(``holiday_template_delete_api_attendance_holiday_templates_delete_by_holidaytemplateid``),
+``MAX_SLUG_LENGTH`` is 85. The longest real slug today is 75
+(``holiday_delete_api_attendance_holiday_templates_delete_by_holidaytemplateid``),
 so the ceiling fails loudly on something genuinely new rather than on the
 existing tree. It is not 60: the path alone accounts for 59 characters there, so
 no module alias could ever satisfy 60 -- see PHASE2_REPORT.md.

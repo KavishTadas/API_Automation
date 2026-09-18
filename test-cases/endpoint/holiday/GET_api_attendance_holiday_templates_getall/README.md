@@ -1,6 +1,6 @@
 # GET /api/attendance/holiday-templates/getAll
 
-Suite: `holiday_template` · endpoint slug: `holiday_template_get_api_attendance_holiday_templates_getall`
+Suite: `holiday` · endpoint slug: `holiday_get_api_attendance_holiday_templates_getall`
 
 Endpoint-specific test cases go here: **one Python file per case**, named
 `<NN>_<case_title>.py`. Hand-authored, never written by a tool.
@@ -23,7 +23,7 @@ its own ref and runs only when that ref is in the manifest.
 
 - **Get All**
   - `caseRef`: `get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all`
-  - assertion state: `not-asserted` — currently in `collections/Holiday_Template_API.json`
+  - assertion state: `asserted` — currently in `collections/Holiday_Template_API.json`
 
 ## Adding a case
 

@@ -7,7 +7,7 @@
 #
 # canonicalRef is contract-visible. Do not normalise it, do not fix its
 # spelling -- the harness, run manifest and result document all key on it.
-slug: holiday_template_patch_api_attendance_holiday_templates_19_status
+slug: holiday_patch_api_attendance_holiday_templates_19_status
 module: Holiday Template APIs Copy
 method: PATCH
 endpointPath: /api/attendance/holiday-templates/19/status
@@ -22,13 +22,13 @@ cases:
   subModule: Change Status
   access: private
   purpose: Change Status
-  basePath: '{{attendanceBaseUrl}}'
+  basePath: '{{baseURL}}'
   endpointPath: /api/attendance/holiday-templates/19/status
   method: PATCH
   requestParameters: 'headers: Authorization=Bearer {{jwtToken}}; Content-Type=application/json'
   requestBodySchema: '{"isActive":"string"}'
   responseExample: null
-  owner: KavishTadas <kavish.tadas@omfysgroup.com>
+  owner: Parth Divekar <parthdivekar987@gmail.com>
   canonicalRef: patch|/api/attendance/holiday-templates/19/status|holiday template apis copy|change status
   samplePayloads:
   - payloadType: Request Body
@@ -44,6 +44,6 @@ cases:
   rules:
   - category: Non-Functional
     description: 'Source: collections/Holiday_Template_API.json; No saved response example in source file'
-  assertionState: not-asserted
+  assertionState: asserted
   sourceType: newman
   sourceCollection: collections/Holiday_Template_API.json
