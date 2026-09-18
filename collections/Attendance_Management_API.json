@@ -27,7 +27,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"policyName\": \"Late Coming\",\r\n    \"policyHeading\":\"Late Coming Policy Heading\",\r\n    \"policyDescription\":\"Late Coming Policy Description\"\r\n}",
+              "raw": "{\r\n    \"policyName\": \"Late Coming {{uniqueAlpha}}\",\r\n    \"policyHeading\":\"Late Coming Policy Heading\",\r\n    \"policyDescription\":\"Late Coming Policy Description\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
