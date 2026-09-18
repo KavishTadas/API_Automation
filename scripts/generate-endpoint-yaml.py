@@ -41,7 +41,12 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT_DIR))
 
 from tests.global_contract.catalogue import build_catalogue  # noqa: E402
-from tests.global_contract.endpoint_slug import build_slug_map, load_aliases  # noqa: E402
+from tests.global_contract.endpoint_slug import (  # noqa: E402
+    MAX_SLUG_LENGTH,
+    build_slug_map,
+    load_aliases,
+    slugify,
+)
 
 API_FILE = ROOT_DIR / "api-docs" / "API_File.json"
 OPENAPI = ROOT_DIR / "openapi" / "openapi.yaml"
@@ -326,13 +331,134 @@ def rows_from_endpoints() -> list[dict[str, str]]:
     return rows
 
 
+
+#: Continuation indent for a reported line, so skip messages line up.
+NEWLINE_INDENT = chr(10) + "      "
+
+def _prospective_case_path(module: str, method: str, path: str,
+                           aliases: dict[str, str]) -> Path:
+    """Where this endpoint's cases would live, without creating anything."""
+    root = (CASES_LOGIN_DIR if module.strip().lower() in LOGIN_MODULES
+            else CASES_DIR / suite_name(module, aliases))
+    return root / endpoint_dirname(method, path)
+
+
+def promote_inventory_only_refs(
+    inventory_rows: list[dict[str, Any]],
+    known: set[str],
+    aliases: dict[str, str],
+    catalogued_operations: dict[tuple[str, str], set[str]] | None = None,
+) -> tuple[list[dict[str, Any]], list[str], list[str]]:
+    """Catalogue entries for refs the catalogue does not have yet.
+
+    Returns (entries, skipped, warnings). Skipping is deliberate and reported:
+    an uploaded file may not break generation for endpoints it has nothing to
+    do with.
+    """
+    # An endpoint the catalogue already has is not a new endpoint. Promoting a
+    # second ref for it was not hypothetical harm: bruno/auth/login.bru made
+    # POST /auth/token a third time, which broke the repo's own invariant that
+    # only the two login modules issue that endpoint, and would have run every
+    # check on it once more. Reported, not silently dropped.
+    catalogued_operations = catalogued_operations or {}
+    by_operation = {}
+    entries: list[dict[str, Any]] = []
+    skipped: list[str] = []
+    warnings: list[str] = []
+
+    for row in inventory_rows:
+        ref = str(row.get("API Identifier", "")).strip()
+        module = str(row.get("Module Name", "")).strip()
+        method = str(row.get("HTTP Method", "")).strip().upper()
+        path = str(row.get("Endpoint / Path", "")).strip()
+        if ref and method and path:
+            by_operation.setdefault((method, path), set()).add(module.lower())
+        if not ref or ref in known or not method or not path:
+            continue
+
+        if (method, path) in catalogued_operations:
+            owner = ", ".join(sorted(catalogued_operations[(method, path)]))
+            skipped.append(
+                f"{ref}"
+                + NEWLINE_INDENT
+                + f"{method} {path} is already covered by {owner}"
+                + NEWLINE_INDENT
+                + "promoting it would add a second ref for one endpoint, so"
+                + " every check on it would run and count twice"
+            )
+            continue
+
+        slug = slugify(module, method, path, aliases)
+        if len(slug) > MAX_SLUG_LENGTH:
+            skipped.append(
+                f"{ref}\n      slug is {len(slug)} chars, ceiling {MAX_SLUG_LENGTH}"
+                f"\n      add a module alias for {module!r} in "
+                f"api-endpoints/module-aliases.yaml"
+            )
+            continue
+
+        case_path = _prospective_case_path(module, method, path, aliases)
+        full = len(str(case_path)) + CASE_FILENAME_BUDGET
+        if full > MAX_PATH_LENGTH:
+            skipped.append(
+                f"{ref}\n      case path would be {full} chars, ceiling "
+                f"{MAX_PATH_LENGTH}\n      shorten the suite with a module alias for "
+                f"{module!r}"
+            )
+            continue
+
+        entries.append({
+            "ref": ref,
+            "displayId": None,
+            "name": str(row.get("Sub-Module Name", "")) or None,
+            "module": module or None,
+            "method": method,
+            "path": path,
+        })
+        known.add(ref)
+
+    for (method, path), modules in by_operation.items():
+        if len(modules) > 1:
+            warnings.append(
+                f"{method} {path} arrives under {len(modules)} module names "
+                f"({', '.join(sorted(modules))}); each becomes its own ref, so "
+                f"every check on it runs and counts once per module"
+            )
+
+    return entries, skipped, warnings
+
+
 def build_documents() -> tuple[dict[str, OrderedDict], dict[str, str]]:
     catalogue = build_catalogue()
-    apis = catalogue["apis"]
-    ref_to_slug = build_slug_map(apis, load_aliases())  # raises on collision/length
+    apis = list(catalogue["apis"])
+    aliases = load_aliases()
+    inventory_rows = json.loads(API_FILE.read_text(encoding="utf-8"))
+
+    # The inventory is the only place a newly added collection or .bru file
+    # appears. Without this the catalogue is both the input and the output of
+    # this pipeline and nothing new can ever enter it.
+    catalogued_operations: dict[tuple[str, str], set[str]] = {}
+    for a in apis:
+        key = (str(a.get("method", "")).upper(), str(a.get("path", "")))
+        catalogued_operations.setdefault(key, set()).add(str(a.get("module") or "?"))
+
+    promoted, skipped, warnings = promote_inventory_only_refs(
+        inventory_rows, {str(a["ref"]) for a in apis}, aliases, catalogued_operations
+    )
+    apis.extend(promoted)
+    for line in warnings:
+        print(f"WARNING: {line}")
+    if skipped:
+        print(f"SKIPPED {len(skipped)} new endpoint(s) from the inventory:")
+        for line in skipped:
+            print(f"    {line}")
+    if promoted:
+        print(f"promoted {len(promoted)} endpoint(s) from the inventory")
+
+    ref_to_slug = build_slug_map(apis, aliases)  # raises on collision/length
     inventory = {
         str(r.get("API Identifier", "")): r
-        for r in json.loads(API_FILE.read_text(encoding="utf-8"))
+        for r in inventory_rows
     }
     extensions = load_openapi_extensions()
 
