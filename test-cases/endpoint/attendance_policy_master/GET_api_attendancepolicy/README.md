@@ -23,7 +23,7 @@ its own ref and runs only when that ref is in the manifest.
 
 - **Get All Policies**
   - `caseRef`: `get|/api/attendancepolicy|attendance policy master|get all policies`
-  - assertion state: `not-asserted` — currently in `collections/Attendance_Management_API.json`
+  - assertion state: `asserted` — currently in `collections/Attendance_Management_API.json`
 
 ## Adding a case
 

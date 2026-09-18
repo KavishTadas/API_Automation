@@ -23,7 +23,7 @@ its own ref and runs only when that ref is in the manifest.
 
 - **getById/1**
   - `caseRef`: `get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1`
-  - assertion state: `not-asserted` — currently in `collections/Late_Early_Policy_API.json`
+  - assertion state: `asserted` — currently in `collections/Late_Early_Policy_API.json`
 
 ## Adding a case
 

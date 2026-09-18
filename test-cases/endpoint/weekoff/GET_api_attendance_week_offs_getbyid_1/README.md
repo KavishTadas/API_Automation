@@ -23,7 +23,7 @@ its own ref and runs only when that ref is in the manifest.
 
 - **WeekOffGetById**
   - `caseRef`: `get|/api/attendance/week-offs/getbyid/1|attenedance-july2026|weekoffgetbyid`
-  - assertion state: `not-asserted` — currently in `collections/Weekoff_Policy_API.json`
+  - assertion state: `asserted` — currently in `collections/Weekoff_Policy_API.json`
 
 ## Adding a case
 

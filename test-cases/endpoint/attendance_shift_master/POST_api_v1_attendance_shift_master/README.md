@@ -23,10 +23,10 @@ its own ref and runs only when that ref is in the manifest.
 
 - **Create CUSTOM Shift (FIXED Type)**
   - `caseRef`: `post|/api/v1/attendance/shift/master|attendance shift master|create custom shift (fixed type)`
-  - assertion state: `not-asserted` — currently in `collections/Attendance_Management_API.json`
+  - assertion state: `asserted` — currently in `collections/Attendance_Management_API.json`
 - **Create New Shift**
   - `caseRef`: `post|/api/v1/attendance/shift/master|attendance shift master|create new shift`
-  - assertion state: `not-asserted` — currently in `collections/Attendance_Management_API.json`
+  - assertion state: `asserted` — currently in `collections/Attendance_Management_API.json`
 
 ## Adding a case
 

@@ -23,7 +23,7 @@ its own ref and runs only when that ref is in the manifest.
 
 - **Change Status**
   - `caseRef`: `patch|/api/attendance/status-threshold/1/status|attendance status threshold api|change status`
-  - assertion state: `not-asserted` — currently in `collections/Attendance_Threshold_API.json`
+  - assertion state: `asserted` — currently in `collections/Attendance_Threshold_API.json`
 
 ## Adding a case
 

@@ -23,7 +23,7 @@ its own ref and runs only when that ref is in the manifest.
 
 - **Get profile**
   - `caseRef`: `get|/users/me|users|get profile`
-  - assertion state: `asserted-not-executed` — currently in `bruno/users/get-profile.bru`
+  - assertion state: `asserted` — currently in `bruno/users/get-profile.bru`
 
 ## Adding a case
 

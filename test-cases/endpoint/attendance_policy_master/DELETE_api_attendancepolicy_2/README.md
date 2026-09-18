@@ -23,7 +23,7 @@ its own ref and runs only when that ref is in the manifest.
 
 - **Delete Policy By Id**
   - `caseRef`: `delete|/api/attendancepolicy/2|attendance policy master|delete policy by id`
-  - assertion state: `not-asserted` — currently in `collections/Attendance_Management_API.json`
+  - assertion state: `asserted` — currently in `collections/Attendance_Management_API.json`
 
 ## Adding a case
 

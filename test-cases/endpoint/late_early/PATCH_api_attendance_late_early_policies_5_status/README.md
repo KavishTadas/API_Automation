@@ -23,7 +23,7 @@ its own ref and runs only when that ref is in the manifest.
 
 - **ChangeStatus**
   - `caseRef`: `patch|/api/attendance/late-early-policies/5/status|latearly-policy|changestatus`
-  - assertion state: `not-asserted` — currently in `collections/Late_Early_Policy_API.json`
+  - assertion state: `asserted` — currently in `collections/Late_Early_Policy_API.json`
 
 ## Adding a case
 

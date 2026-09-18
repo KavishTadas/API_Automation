@@ -23,7 +23,7 @@ its own ref and runs only when that ref is in the manifest.
 
 - **Get By Id**
   - `caseRef`: `get|/api/v1/attendance/shift/master/7|attendance shift master|get by id`
-  - assertion state: `not-asserted` — currently in `collections/Attendance_Management_API.json`
+  - assertion state: `asserted` — currently in `collections/Attendance_Management_API.json`
 
 ## Adding a case
 

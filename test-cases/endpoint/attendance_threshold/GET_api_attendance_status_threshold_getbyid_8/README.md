@@ -23,7 +23,7 @@ its own ref and runs only when that ref is in the manifest.
 
 - **Get By Id**
   - `caseRef`: `get|/api/attendance/status-threshold/getbyid/8|attendance status threshold api|get by id`
-  - assertion state: `not-asserted` — currently in `collections/Attendance_Threshold_API.json`
+  - assertion state: `asserted` — currently in `collections/Attendance_Threshold_API.json`
 
 ## Adding a case
 

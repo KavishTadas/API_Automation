@@ -23,7 +23,7 @@ its own ref and runs only when that ref is in the manifest.
 
 - **Activate Deactivate**
   - `caseRef`: `patch|/api/attendancepolicy/4/status|attendance policy master|activate deactivate`
-  - assertion state: `not-asserted` — currently in `collections/Attendance_Management_API.json`
+  - assertion state: `asserted` — currently in `collections/Attendance_Management_API.json`
 
 ## Adding a case
 

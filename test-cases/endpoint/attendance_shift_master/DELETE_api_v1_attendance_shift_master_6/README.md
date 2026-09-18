@@ -23,7 +23,7 @@ its own ref and runs only when that ref is in the manifest.
 
 - **Delete Shift**
   - `caseRef`: `delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift`
-  - assertion state: `not-asserted` — currently in `collections/Attendance_Management_API.json`
+  - assertion state: `asserted` — currently in `collections/Attendance_Management_API.json`
 
 ## Adding a case
 

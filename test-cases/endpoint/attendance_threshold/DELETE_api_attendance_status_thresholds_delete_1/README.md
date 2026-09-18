@@ -23,7 +23,7 @@ its own ref and runs only when that ref is in the manifest.
 
 - **Delete Threshold**
   - `caseRef`: `delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold`
-  - assertion state: `not-asserted` — currently in `collections/Attendance_Threshold_API.json`
+  - assertion state: `asserted` — currently in `collections/Attendance_Threshold_API.json`
 
 ## Adding a case
 

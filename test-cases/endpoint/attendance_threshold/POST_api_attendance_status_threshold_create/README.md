@@ -23,7 +23,7 @@ its own ref and runs only when that ref is in the manifest.
 
 - **Create Threshold**
   - `caseRef`: `post|/api/attendance/status-threshold/create|attendance status threshold api|create threshold`
-  - assertion state: `not-asserted` — currently in `collections/Attendance_Threshold_API.json`
+  - assertion state: `asserted` — currently in `collections/Attendance_Threshold_API.json`
 
 ## Adding a case
 

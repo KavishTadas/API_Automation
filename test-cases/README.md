@@ -22,7 +22,7 @@ The suite directory is the **aliased** module from `api-endpoints/module-aliases
 never the raw Postman `info.name`. Four collections carry an internal name that
 disagrees with their filename — one misspelled and date-stamped
 (`Attenedance-july2026` → `weekoff`), one carrying a Postman "Copy" suffix
-(`Holiday Template APIs Copy` → `holiday_template`). Those must not become directory
+(`Holiday Template APIs Copy` → `holiday`). Those must not become directory
 names anyone navigates by.
 
 | Suite | Endpoints |
@@ -30,7 +30,7 @@ names anyone navigates by.
 | `attendance_policy_master` | 6 |
 | `attendance_shift_master` | 6 |
 | `attendance_threshold` | 6 |
-| `holiday_template` | 6 |
+| `holiday` | 6 |
 | `weekoff` | 7 |
 | `late_early` | 5 |
 | `leave_api` | 1 |
@@ -43,7 +43,7 @@ names anyone navigates by.
 `{holidayTemplateId}` → `by_holidaytemplateid`. For example:
 
 ```
-test-cases/endpoint/holiday_template/DELETE_api_attendance_holiday_templates_delete_by_holidaytemplateid/
+test-cases/endpoint/holiday/DELETE_api_attendance_holidays_delete_by_holidaytemplateid/
 ```
 
 ## Why login/ carries a module prefix

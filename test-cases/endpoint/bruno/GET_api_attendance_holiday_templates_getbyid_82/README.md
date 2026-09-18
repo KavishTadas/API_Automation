@@ -1,6 +1,6 @@
-# POST /api/attendancepolicy
+# GET /api/attendance/holiday-templates/getById/82
 
-Suite: `attendance_policy_master` · endpoint slug: `attendance_policy_master_post_api_attendancepolicy`
+Suite: `bruno` · endpoint slug: `bruno_get_api_attendance_holiday_templates_getbyid_82`
 
 Endpoint-specific test cases go here: **one Python file per case**, named
 `<NN>_<case_title>.py`. Hand-authored, never written by a tool.
@@ -11,7 +11,7 @@ This endpoint carries **1** case(s), so a file here must say which one it
 tests. Declare it at module level:
 
 ```python
-caseRef = "post|/api/attendancepolicy|attendance policy master|create new policy"
+caseRef = "get|/api/attendance/holiday-templates/getbyid/82|bruno|holiday template by id 82"
 ```
 
 `caseRef` must be one of the `canonicalRef` values below, byte-identical. Omit it
@@ -21,9 +21,9 @@ its own ref and runs only when that ref is in the manifest.
 
 ## Cases on this endpoint
 
-- **Create New Policy**
-  - `caseRef`: `post|/api/attendancepolicy|attendance policy master|create new policy`
-  - assertion state: `asserted` — currently in `collections/Attendance_Management_API.json`
+- **Holiday Template By Id 82**
+  - `caseRef`: `get|/api/attendance/holiday-templates/getbyid/82|bruno|holiday template by id 82`
+  - assertion state: `None` — currently in `unknown`
 
 ## Adding a case
 
