@@ -17,21 +17,27 @@ version: null
 credentialAlias: null
 metadata: null
 cases:
-- apiId: null
-  module: null
-  subModule: null
-  access: null
-  purpose: null
-  basePath: null
-  endpointPath: null
-  method: null
-  requestParameters: null
+- apiId: '46'
+  module: Bruno
+  subModule: Holiday Template By Id 82
+  access: private
+  purpose: Status is 200
+  basePath: '{{attendanceBaseUrl}}'
+  endpointPath: /api/attendance/holiday-templates/getById/82
+  method: GET
+  requestParameters: 'auth: bearer token={{authToken}}'
   requestBodySchema: null
-  responseExample: null
-  owner: null
+  responseExample: 'Expected status(es): 200'
+  owner: Parth Divekar <parthdivekar987@gmail.com>
   canonicalRef: get|/api/attendance/holiday-templates/getbyid/82|bruno|holiday template by id 82
   samplePayloads: []
-  rules: []
-  assertionState: unknown
+  rules:
+  - category: Dependency
+    description: Requires authToken from Employee Auth API; Depends on Employee Auth API POST /auth/token
+      for authToken
+  - category: Non-Functional
+    description: 'Source: bruno/Holiday Template By Id 82.bru; No saved response example in source file;
+      Parsed from Bruno file'
+  assertionState: asserted-not-executed
   sourceType: bruno
   sourceCollection: bruno/Holiday Template By Id 82.bru
