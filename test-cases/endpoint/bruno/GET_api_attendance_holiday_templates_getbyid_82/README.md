@@ -21,9 +21,9 @@ its own ref and runs only when that ref is in the manifest.
 
 ## Cases on this endpoint
 
-- **Holiday Template By Id 82**
+- **None**
   - `caseRef`: `get|/api/attendance/holiday-templates/getbyid/82|bruno|holiday template by id 82`
-  - assertion state: `None` — currently in `unknown`
+  - assertion state: `unknown` — currently in `bruno/Holiday Template By Id 82.bru`
 
 ## Adding a case
 
