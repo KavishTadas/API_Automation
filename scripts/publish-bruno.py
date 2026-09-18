@@ -34,6 +34,21 @@ BRANCH = "ui-console"
 #: without them is a request the console does not know about.
 GENERATORS = (
     ("node", "scripts/generate-api-file.js"),
+    # Twice, and the first one is not redundant. generate-endpoint-yaml.py
+    # decides what to prune and what to promote from the catalogue, and the
+    # catalogue is read out of build/API_File.json -- which the *other*
+    # generator writes. Left stale, it still lists an endpoint whose .bru was
+    # just deleted, so the deletion took two runs to converge and a newly added
+    # request was skipped as a duplicate of the endpoint that was on its way
+    # out. Rebuilding first makes one run enough.
+    (sys.executable, "scripts/generate-generic-tests.py"),
+    (sys.executable, "scripts/generate-endpoint-yaml.py"),
+    (sys.executable, "scripts/generate-generic-tests.py"),
+    # A second pass. Pruning removes the definition, but the catalogue is read
+    # from build/API_File.json, so the removal is only visible once that file
+    # has been rewritten -- which the step above just did. Without this, a
+    # deleted .bru left its definition behind until somebody happened to run
+    # the generators again.
     (sys.executable, "scripts/generate-endpoint-yaml.py"),
     (sys.executable, "scripts/generate-generic-tests.py"),
     (sys.executable, "scripts/build_unified_console.py"),
@@ -95,7 +110,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"     {name} failed:\n{proc.stdout}\n{proc.stderr}")
             return 1
         for line in (proc.stdout or "").splitlines():
-            if line.startswith(("promoted", "SKIPPED", "WARNING")) or "refs ->" in line:
+            keep = ("promoted", "PRUNED", "SKIPPED", "WARNING")
+            if line.startswith(keep) or "refs ->" in line:
                 print(f"     {line}")
 
     print("2/4  staging")

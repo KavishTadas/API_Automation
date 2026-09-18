@@ -86,11 +86,27 @@ jobs:
       # console built. Without these two steps the console was rebuilt from
       # whatever build/API_File.json happened to be committed, so an endpoint
       # could reach the inventory in this job and never appear in the page.
+      # Before the converter, not only after. It decides what to prune and
+      # promote from the catalogue, which is read out of build/API_File.json --
+      # written by the step below. Left stale it still lists an endpoint whose
+      # source file was just deleted, and convergence takes two runs.
+      - name: Rebuild the derived inventory before deciding
+        run: python scripts/generate-generic-tests.py
+
       - name: Convert the inventory into endpoint definitions
         run: python scripts/generate-endpoint-yaml.py
 
       - name: Rebuild the derived inventory from those definitions
         run: python scripts/generate-generic-tests.py
+
+      # A second pass. Pruning removes a definition whose source file is gone,
+      # but the catalogue is read from build/API_File.json, so that removal is
+      # only visible once the step above has rewritten it. Without this, a
+      # deleted .bru keeps its endpoint until some later run happens to notice.
+      - name: Converge after pruning
+        run: |
+          python scripts/generate-endpoint-yaml.py
+          python scripts/generate-generic-tests.py
 
       - name: Rebuild the unified console from the inventory
         run: python scripts/build_unified_console.py
