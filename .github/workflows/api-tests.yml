@@ -65,13 +65,32 @@ jobs:
       # the page a user actually opens. Regenerating it in the same job is what
       # closes that gap: inventory and console are written from one source, in
       # one commit, and can never disagree.
-      # 3.11 to match the rest of the workflow. build_unified_console.py and
-      # scan-credentials.py are both standard library only, so there is nothing
-      # to install before they run.
+      # 3.11 to match the rest of the workflow.
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.11"
+          cache: pip
+
+      # generate-endpoint-yaml.py needs PyYAML, and reaches httpx, pytest and
+      # allure through tests.global_contract.catalogue. build_unified_console.py
+      # and scan-credentials.py are still standard library only; this install is
+      # for the converter, not for them.
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r dev-requirements.txt
+
+      # The chain, in the only order that works: the inventory becomes endpoint
+      # definitions, those become build/API_File.json, and only then is the
+      # console built. Without these two steps the console was rebuilt from
+      # whatever build/API_File.json happened to be committed, so an endpoint
+      # could reach the inventory in this job and never appear in the page.
+      - name: Convert the inventory into endpoint definitions
+        run: python scripts/generate-endpoint-yaml.py
+
+      - name: Rebuild the derived inventory from those definitions
+        run: python scripts/generate-generic-tests.py
 
       - name: Rebuild the unified console from the inventory
         run: python scripts/build_unified_console.py
@@ -106,7 +125,11 @@ jobs:
           # The console and the catalogue travel with the inventory. Committing
           # the inventory alone is what left the page showing an endpoint list
           # the repository had already moved past.
+          # api-endpoints/ and build/API_File.json are tracked generated files.
+          # Leaving them out would mean the next run rebuilds the console from a
+          # stale build/API_File.json and quietly undoes this one.
           git add api-docs/API_File.json api-docs/API_File.csv \
+                  api-endpoints/ build/API_File.json \
                   docs/platform-ui/unified-console.html \
                   docs/platform-handoff/sample-catalogue.json
 
