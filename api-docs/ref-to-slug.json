@@ -1,8 +1,8 @@
 {
   "generatedBy": "scripts/generate-endpoint-yaml.py",
-  "refCount": 45,
-  "endpointCount": 41,
-  "caseCount": 45,
+  "refCount": 44,
+  "endpointCount": 40,
+  "caseCount": 44,
   "refToSlug": {
     "delete|/api/attendance/holiday-templates/delete/{holidaytemplateid}|holiday template apis copy|delete": "holiday_delete_api_attendance_holiday_templates_delete_by_holidaytemplateid",
     "delete|/api/attendance/status-thresholds/delete/1|attendance status threshold api|delete threshold": "attendance_threshold_delete_api_attendance_status_thresholds_delete_1",
@@ -10,7 +10,6 @@
     "delete|/api/v1/attendance/shift/master/6|attendance shift master|delete shift": "attendance_shift_master_delete_api_v1_attendance_shift_master_6",
     "get|/api/attendance/holiday-templates/getall|holiday template apis copy|get all": "holiday_get_api_attendance_holiday_templates_getall",
     "get|/api/attendance/holiday-templates/getbyid/19|holiday template apis copy|get by id": "holiday_get_api_attendance_holiday_templates_getbyid_19",
-    "get|/api/attendance/holiday-templates/getbyid/82|bruno|holiday template by id 82": "bruno_get_api_attendance_holiday_templates_getbyid_82",
     "get|/api/attendance/late-early-policies/getall|latearly-policy|getall": "late_early_get_api_attendance_late_early_policies_getall",
     "get|/api/attendance/late-early-policies/getbyid/5|latearly-policy|getbyid/1": "late_early_get_api_attendance_late_early_policies_getbyid_5",
     "get|/api/attendance/status-threshold/getall|attendance status threshold api|get all": "attendance_threshold_get_api_attendance_status_threshold_getall",
@@ -69,7 +68,6 @@
     "attendance_threshold_patch_api_attendance_status_threshold_1_status": "test-cases/endpoint/attendance_threshold/PATCH_api_attendance_status_threshold_1_status",
     "attendance_threshold_post_api_attendance_status_threshold_create": "test-cases/endpoint/attendance_threshold/POST_api_attendance_status_threshold_create",
     "attendance_threshold_put_api_attendance_status_threshold_update_1": "test-cases/endpoint/attendance_threshold/PUT_api_attendance_status_threshold_update_1",
-    "bruno_get_api_attendance_holiday_templates_getbyid_82": "test-cases/endpoint/bruno/GET_api_attendance_holiday_templates_getbyid_82",
     "employee_auth_api_post_auth_token": "test-cases/login/employee_auth_api_POST_auth_token",
     "holiday_delete_api_attendance_holiday_templates_delete_by_holidaytemplateid": "test-cases/endpoint/holiday/DELETE_api_attendance_holiday_templates_delete_by_holidaytemplateid",
     "holiday_get_api_attendance_holiday_templates_getall": "test-cases/endpoint/holiday/GET_api_attendance_holiday_templates_getall",

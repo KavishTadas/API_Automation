@@ -47,7 +47,9 @@ STAGED = (
     "api-docs/API_File.json",
     "api-docs/API_File.csv",
     "api-endpoints/",
+    "api-docs/ref-to-slug.json",
     "build/API_File.json",
+    "build/auto_generated/",
     "docs/platform-ui/unified-console.html",
     "docs/platform-handoff/sample-catalogue.json",
     "test-cases/endpoint/",
@@ -96,18 +98,25 @@ def main(argv: list[str] | None = None) -> int:
             if line.startswith(("promoted", "SKIPPED", "WARNING")) or "refs ->" in line:
                 print(f"     {line}")
 
-    print("2/4  scanning for credentials")
-    if run([sys.executable, "scripts/scan-credentials.py"], capture=True).returncode != 0:
-        print("     REFUSED: something credential-shaped is staged for commit.")
-        print("     Use {{authToken}} / {{empPassword}}, never a literal value.")
-        return 1
-    print("     clean")
-
-    print("3/4  committing")
+    print("2/4  staging")
     git("add", "--", *STAGED)
     if not git("diff", "--cached", "--name-only"):
         print("     nothing changed - no commit made")
         return 0
+
+    # Staged first, deliberately. The scanner walks `git ls-files` by default,
+    # and a brand-new .bru is untracked until it is added -- so scanning before
+    # staging is exactly blind to the file most likely to carry a pasted token.
+    print("3/4  scanning what is staged")
+    if run([sys.executable, "scripts/scan-credentials.py", "--staged"],
+           capture=True).returncode != 0:
+        run(["git", "reset", "--quiet", "HEAD", "--"], capture=True)
+        print("     REFUSED: something credential-shaped is staged. Nothing committed.")
+        print("     Use {{authToken}} / {{empPassword}}, never a literal value.")
+        return 1
+    print("     clean")
+
+    print("    committing")
 
     added = [p for p in git("diff", "--cached", "--name-only").splitlines()
              if p.startswith("bruno/") and p.endswith(".bru")]
@@ -123,7 +132,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     if added:
         body += "\n" + "\n".join(f"  {p}" for p in added) + "\n"
-    run(["git", "commit", "-m", subject, "-m", body], capture=True)
+    committed = run(["git", "commit", "-m", subject, "-m", body], capture=True)
+    if committed.returncode != 0:
+        print("     commit refused:")
+        print((committed.stdout or "") + (committed.stderr or ""))
+        return 1
     print(f"     {git('log', '-1', '--format=%h %s')}")
 
     if args.no_push:

@@ -407,6 +407,11 @@ def promote_inventory_only_refs(
             )
             continue
 
+        # Record it before the next row is judged. Without this, two *new*
+        # inventory rows for one operation under different module names both
+        # pass the duplicate check and produce exactly the second ref this
+        # guard exists to prevent.
+        catalogued_operations.setdefault((method, path), set()).add(module or "?")
         entries.append({
             "ref": ref,
             "displayId": None,
@@ -428,10 +433,90 @@ def promote_inventory_only_refs(
     return entries, skipped, warnings
 
 
+
+def _recorded_sources(document: dict) -> list[str]:
+    """Source files this endpoint was generated from, as recorded per case."""
+    out = []
+    for case in document.get("cases") or []:
+        source = str(case.get("sourceCollection") or "").strip()
+        if source:
+            out.append(source)
+    return out
+
+
+def prune_orphaned_endpoints() -> tuple[list[str], list[str]]:
+    """Delete generated endpoint files whose source file no longer exists.
+
+    Returns (removed, kept_with_cases). Reads the files on disk rather than the
+    catalogue: the catalogue is built from these files, so it can never report
+    one of them as stale.
+    """
+    removed: list[str] = []
+    warned: list[str] = []
+
+    for path in sorted(ENDPOINT_DIR.glob("*.yaml")):
+        if path.name == "module-aliases.yaml":
+            continue
+        try:
+            document = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+        except yaml.YAMLError:
+            continue
+
+        sources = _recorded_sources(document)
+        if not sources:
+            continue                      # hand-written: not ours to delete
+        if any((ROOT_DIR / source).exists() for source in sources):
+            continue                      # at least one source still there
+
+        aliases = load_aliases()
+        module = str(document.get("module") or "")
+        suite = suite_name(module, aliases)
+        endpoint = endpoint_dirname(str(document.get("method") or ""),
+                                    str(document.get("endpointPath") or ""))
+        case_dir = (CASES_LOGIN_DIR if module.strip().lower() in LOGIN_MODULES
+                    else CASES_DIR / suite) / endpoint
+
+        path.unlink()
+        removed.append(f"{path.name}  (source gone: {', '.join(sorted(set(sources)))})")
+
+        if case_dir.exists():
+            leftovers = [p for p in case_dir.iterdir() if p.name != "README.md"]
+            if leftovers:
+                warned.append(
+                    f"{case_dir.relative_to(ROOT_DIR)} kept: "
+                    f"{len(leftovers)} authored file(s) still there"
+                )
+            else:
+                readme = case_dir / "README.md"
+                if readme.exists():
+                    readme.unlink()
+                case_dir.rmdir()
+                if not any(case_dir.parent.iterdir()):
+                    case_dir.parent.rmdir()
+
+    return removed, warned
+
+
 def build_documents() -> tuple[dict[str, OrderedDict], dict[str, str]]:
+    removed, warned = prune_orphaned_endpoints()
+    for line in removed:
+        print(f"PRUNED {line}")
+    for line in warned:
+        print(f"WARNING: {line}")
+
     catalogue = build_catalogue()
     apis = list(catalogue["apis"])
     aliases = load_aliases()
+
+    # The catalogue is derived from build/API_File.json, which still describes
+    # what was just pruned. Dropping those refs here stops this run writing the
+    # files straight back; the next generate-generic-tests.py clears build/.
+    if removed:
+        live_sources = {
+            str(r.get("API Identifier", "")): str(r.get("Comments", ""))
+            for r in json.loads(API_FILE.read_text(encoding="utf-8"))
+        }
+        apis = [a for a in apis if str(a["ref"]) in live_sources]
     inventory_rows = json.loads(API_FILE.read_text(encoding="utf-8"))
 
     # The inventory is the only place a newly added collection or .bru file

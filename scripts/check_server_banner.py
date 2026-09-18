@@ -18,9 +18,10 @@ Two places are checked, because server_tokens governs both:
 The pattern is the contract check's own (``\\d+\\.\\d+``), so a host this script
 calls clean is one that check will pass.
 
-Exit status is 0 when every host is clean, 1 when any host discloses a version,
-2 when a host could not be reached -- unreachable is not clean, and reporting it
-as clean would say the fix worked on a server nobody checked.
+Exit status is 0 when every host is clean, 1 when a host could not be reached,
+and 2 when any host still discloses a version. Unreachable is not clean -- it
+would claim the fix worked on a server nobody checked -- but it ranks below a
+disclosure, which is a verified finding rather than an unknown.
 """
 
 from __future__ import annotations
@@ -66,15 +67,19 @@ def main(argv: list[str]) -> int:
     for host in hosts:
         verdict, header, footer = check(host)
         print(f"{host:38s} {verdict:12s} {header:28s} {footer or '-'}")
-        worst = max(worst, {"CLEAN": 0, "DISCLOSES": 1, "UNREACHABLE": 2}[verdict])
+        # DISCLOSES outranks UNREACHABLE: a host that is provably still
+        # exposing its version is the finding, and letting an unreachable
+        # neighbour outrank it would report exit 2 ("not verified") for a
+        # run that verified a failure.
+        worst = max(worst, {"CLEAN": 0, "UNREACHABLE": 1, "DISCLOSES": 2}[verdict])
 
     print()
     if worst == 0:
         print("All hosts clean. The version-disclosure check will pass.")
     elif worst == 1:
-        print("Still disclosing. See docs/rca/nginx-server-tokens.conf.")
-    else:
         print("At least one host could not be reached, so it was not verified.")
+    else:
+        print("Still disclosing. See docs/rca/nginx-server-tokens.conf.")
     return worst
 
 
