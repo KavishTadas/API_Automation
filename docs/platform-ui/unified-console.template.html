@@ -1431,7 +1431,8 @@ html[data-fx="on"] .fx-sweep circle{
   pointer-events:none;
   perspective:520px; perspective-origin:50% 42%;
   transition:transform .5s cubic-bezier(.22,.61,.36,1);
-  touch-action:manipulation;
+  /* none, not manipulation: a touch on the figure is a drag, never a scroll. */
+  touch-action:none;
   /* Repulsor blue, and it never changes. The arc reactor and the boot
      thrust are the character; tinting them by run result made a failing
      run render the figure in magenta, which reads as a different robot
@@ -1448,6 +1449,10 @@ html[data-fx="on"] .fx-sweep circle{
   --bot-eye:#bfeeff;
   --bot-yaw:0deg;
   --bot-pitch:0deg;
+  /* Flight, written by the drag: roll is the heading (head-first into the
+     direction of travel), speed is 0..1 and sets the length of the trail. */
+  --bot-roll:0deg;
+  --bot-speed:0;
 }
 /* The eye slits and the palm repulsor emit rather than merely being pale, so
    both carry the beam filter -- whose flood-color follows `color`. Setting it
@@ -1468,6 +1473,13 @@ html[data-fx="on"] .fx-sweep circle{
 #qabot .bot-palm{animation:botBeamPulse 2.4s ease-in-out infinite}
 #qabot.mood-sad .bot-palm{animation-duration:1.1s;opacity:.85}
 html[data-fx="on"] #qabot{display:block}
+/* Draggable. The corner it lands in is also where a page's own controls live,
+   so the figure can be carried anywhere and it remembers where it was left.
+   While it is being carried the easing that softens a hover would lag the
+   pointer, so it is off for the duration. */
+#qabot .bot-layer svg *{cursor:grab}
+#qabot.is-dragging{transition:none}
+#qabot.is-dragging .bot-layer svg *{cursor:grabbing}
 #qabot:focus-visible{outline:2px solid var(--accent);outline-offset:8px;border-radius:16px}
 
 .bot-3d{
@@ -1758,6 +1770,79 @@ html[data-fx="on"] #qabot{display:block}
   animation:botTouchdown 2.3s ease-out both;
 }
 
+/* -- carried: it flies --------------------------------------------------
+   Being dragged is flight, so the thrusters open the way they do on arrival
+   and the contact shadow goes: nothing is on the ground. The face is held
+   square to the screen for the whole trip -- no orbit, no pointer tracking --
+   because a figure that turns to look at the hand carrying it reads as
+   struggling, and one that keeps eye contact reads as coming along. */
+@keyframes botCarryJets{
+  0%,100%{opacity:.95;transform:scaleY(2.6)}
+  50%    {opacity:1;  transform:scaleY(3.1)}
+}
+/* Head-first into the direction of travel, the way a flier banks: the whole
+   figure rolls to the heading the drag is writing, and leans a little into
+   the screen. Yaw stays at zero, so the face never leaves the reader. */
+#qabot.is-dragging .bot-3d{
+  animation:none;
+  transform:rotateZ(var(--bot-roll)) rotateX(-8deg) rotateY(0deg);
+  transition:transform .16s ease-out;
+}
+#qabot.is-dragging .bot-jets{
+  animation:botCarryJets .32s ease-in-out infinite;
+  transform-origin:60px 176px;
+}
+#qabot.is-dragging .bot-ground{animation:none;opacity:0}
+/* Arms swept back along the body -- the pose that says speed. The head
+   stops nodding and holds its line. */
+#qabot.is-dragging .bot-arm-r{animation:none;transform:rotate(150deg);transition:transform .3s ease-out}
+#qabot.is-dragging .bot-arm-l{animation:none;transform:rotate(-150deg);transition:transform .3s ease-out}
+#qabot.is-dragging .bot-head{animation:none;transform:none}
+/* Thrust trail from the boots. Lives inside the 3D box so it rolls with the
+   figure and always streams from the feet, away from the heading. Longer the
+   faster it goes; gone the moment it lands. */
+.bot-trail{
+  position:absolute; left:0; top:100%; width:100%;
+  height:calc(30px + var(--bot-speed) * 150px);
+  opacity:0; pointer-events:none;
+  transform:translateY(-14px);
+  transition:opacity .22s ease-out, height .12s ease-out;
+}
+.bot-trail::before,.bot-trail::after{
+  content:""; position:absolute; top:0; width:12px; height:100%;
+  border-radius:0 0 10px 10px;
+  background:linear-gradient(to bottom,
+    #ffffff 0%, var(--bot-core) 18%, rgba(143,227,251,.55) 50%, rgba(143,227,251,0) 100%);
+  box-shadow:0 0 14px 3px rgba(143,227,251,.45);
+  filter:blur(.6px);
+}
+.bot-trail::before{left:35.5%}
+.bot-trail::after{left:53%}
+#qabot.is-dragging .bot-trail{opacity:1}
+#qabot.is-landing .bot-trail{opacity:0;transition:opacity .35s ease-out}
+
+/* Let go: the thrust cuts back and the shockwave marks the contact. */
+@keyframes botCarryLandJets{
+  0%  {opacity:1; transform:scaleY(2.6)}
+  40% {opacity:1; transform:scaleY(1.2)}
+  70% {opacity:.7;transform:scaleY(.7)}
+  100%{opacity:.9;transform:scaleY(1)}
+}
+@keyframes botCarryLand{
+  0%  {opacity:0;  transform:translateX(-50%) rotateX(78deg) scale(.2)}
+  45% {opacity:.6; transform:translateX(-50%) rotateX(78deg) scale(1.9)}
+  100%{opacity:0;  transform:translateX(-50%) rotateX(78deg) scale(3)}
+}
+#qabot.is-landing .bot-jets{animation:botCarryLandJets .6s ease-out both;transform-origin:60px 176px}
+#qabot.is-landing .bot-ground{animation:botCarryLand .6s ease-out both}
+/* Rights itself before the idle hover takes over, so it never snaps upright. */
+#qabot.is-landing .bot-3d{
+  animation:none;
+  transform:rotateZ(0deg) rotateX(0deg) rotateY(0deg);
+  transition:transform .55s cubic-bezier(.22,.61,.36,1);
+}
+#qabot.is-landing .bot-arm-r,#qabot.is-landing .bot-arm-l{transition:transform .45s ease-out}
+
 /* -- the crest beacon ------------------------------------------------------
    Idles dim and slow. Goes bright, fast and haloed only when there is
    something unread, so the signal keeps its meaning. */
@@ -1845,6 +1930,9 @@ html[data-fx="on"] #qabot{display:block}
    Clicking it dismisses it -- see the handler -- so it can still never trap a
    click over the report. */
 #qasay.on{opacity:1;transform:none;pointer-events:auto;cursor:pointer}
+/* Parked near the left edge the bubble has no room on the figure's left, so
+   it opens to the right and the tail moves to the corner nearest the figure. */
+#qasay.flip{border-radius:13px 13px 13px 3px;transform-origin:0 100%}
 #qasay b{color:var(--accent, #2dd4bf);font-weight:700}
 #qasay b.bad{color:var(--ro400, #fb7185)}
 #qasay b.good{color:var(--em400, #34d399)}
@@ -1867,6 +1955,8 @@ html[data-fx="on"] #qabot{display:block}
   html[data-fx="on"] .fx-tilt{transition:none;transform:none}
   #qabot.is-arriving,#qabot.is-arriving .bot-jets,#qabot.is-arriving .bot-ground{
     animation:none; transform:none; opacity:1}
+  #qabot.is-dragging .bot-jets{animation:none;transform:scaleY(2.6)}
+  #qabot.is-landing .bot-jets,#qabot.is-landing .bot-ground{animation:none}
   #qabot .bot-3d,#qabot .bot-ground,#qabot .bot-arm-r,#qabot .bot-arm-l,
   #qabot .bot-head,#qabot .bot-eyes,#qabot .bot-blink,#qabot .bot-core-lamp,#qabot .bot-jets,
   #qabot .bot-ring,#qabot .bot-beacon,#qabot .bot-halo,
@@ -8699,6 +8789,7 @@ function buildLayer(){
     }
     /* The contact shadow is not part of the figure: it stays flat on the
        ground while everything above it turns. */
+    html += '<span class="bot-trail"></span>';
     html += '<span class="bot-ground"></span>';
     return html + '</span>';
   }
@@ -8711,7 +8802,7 @@ function buildLayer(){
     bot = document.createElement('button');
     bot.id = 'qabot';
     bot.type = 'button';
-    bot.setAttribute('aria-label', 'QA assistant — read the run summary');
+    bot.setAttribute('aria-label', 'QA assistant — click to read the run summary, drag to move');
     bot.innerHTML = botMarkup();
 
     say = document.createElement('div');
@@ -8741,6 +8832,9 @@ function buildLayer(){
     on(say, 'click', function(){ overSay = false; hideSay(); });
 
     on(bot, 'click', function(){
+      /* Letting go after a drag also fires click; that release is a drop, not
+         a request to read the report. */
+      if(dragged){ dragged = false; return; }
       /* Restarting an animation needs the class off, a reflow, then on --
          otherwise a second click inside the cycle does nothing visible. */
       bot.classList.remove('is-hit', 'is-waving');
@@ -8755,6 +8849,7 @@ function buildLayer(){
       }, 3200);
     });
 
+    makeDraggable();
     applyMood();
 
     /* Fly in, land, and only then greet. Waving while still descending reads
@@ -8773,6 +8868,174 @@ function buildLayer(){
         if(bot) bot.classList.remove('is-waving', 'is-greeting');
       }, 3200);
     }, ARRIVAL_MS);
+  }
+
+  /* -- carrying the figure ---------------------------------------------------
+     The figure is fixed to the bottom-right by default, which is also where
+     a page's own controls tend to sit; a mascot that cannot be moved off a
+     button is a defect, however charming. So it can be dragged anywhere in
+     the viewport, it stays inside it on resize, and the spot it was left in
+     survives a reload. The bubble follows and picks the side with room. */
+  var dragged = false;
+  var POS_KEY = 'hcm-bot-pos';
+
+  function viewport(){
+    return {w: window.innerWidth || document.documentElement.clientWidth || 1280,
+            h: window.innerHeight || document.documentElement.clientHeight || 800};
+  }
+
+  /* Absolute left/top replaces the default right/bottom anchoring the first
+     time the figure moves; from then on every position goes through here. */
+  function placeBot(x, y){
+    if(!bot) return;
+    var v = viewport(), w = bot.offsetWidth || 98, h = bot.offsetHeight || 156;
+    x = Math.max(0, Math.min(v.w - w, x));
+    y = Math.max(0, Math.min(v.h - h, y));
+    bot.style.right = 'auto'; bot.style.bottom = 'auto';
+    bot.style.left = x + 'px'; bot.style.top = y + 'px';
+    placeSay(x, y, w, h);
+  }
+
+  /* The bubble sits to the figure's left at shoulder height, as it always
+     did; when the figure is near the left edge it opens to the right instead. */
+  function placeSay(x, y, w, h){
+    if(!say) return;
+    var v = viewport();
+    var bottom = v.h - (y + h) + 64;
+    say.style.bottom = Math.max(8, Math.min(v.h - 60, bottom)) + 'px';
+    say.style.top = 'auto';
+    if(x > 240){
+      say.classList.remove('flip');
+      say.style.left = 'auto';
+      say.style.right = (v.w - x + 8) + 'px';
+    }else{
+      say.classList.add('flip');
+      say.style.right = 'auto';
+      say.style.left = (x + w + 8) + 'px';
+    }
+  }
+
+  function savedPos(){
+    try{
+      var raw = localStorage.getItem(POS_KEY);
+      if(!raw) return null;
+      var p = JSON.parse(raw);
+      return (typeof p.x === 'number' && typeof p.y === 'number') ? p : null;
+    }catch(e){ return null; }
+  }
+
+  /* Heading and speed, from the pointer. The roll is eased toward the heading
+     along the shorter way round, so a reversal is a turn and never a spin;
+     speed decays on its own so the trail draws in when the hand pauses. */
+  var flight = {roll:0, speed:0, last:null, timer:null};
+  function flyToward(x, y, t){
+    var f = flight;
+    if(f.last){
+      var dt = Math.max(8, t - f.last.t);
+      var vx = (x - f.last.x) / dt, vy = (y - f.last.y) / dt;
+      var sp = Math.sqrt(vx * vx + vy * vy);           /* px per ms */
+      if(sp > 0.04){
+        var heading = Math.atan2(vy, vx) * 180 / Math.PI + 90;
+        var d = ((heading - f.roll) % 360 + 540) % 360 - 180;
+        f.roll += d * 0.35;
+      }
+      f.speed = Math.min(1, f.speed * 0.55 + (sp / 1.4) * 0.45);
+      writeFlight();
+    }
+    f.last = {x:x, y:y, t:t};
+  }
+  function writeFlight(){
+    if(!bot) return;
+    bot.style.setProperty('--bot-roll', flight.roll.toFixed(1) + 'deg');
+    bot.style.setProperty('--bot-speed', flight.speed.toFixed(2));
+  }
+  function startFlight(){
+    flight.roll = 0; flight.speed = 0; flight.last = null;
+    writeFlight();
+    if(flight.timer) clearInterval(flight.timer);
+    flight.timer = setInterval(function(){
+      if(flight.speed > 0.01){ flight.speed *= 0.82; writeFlight(); }
+    }, 60);
+  }
+  function endFlight(){
+    if(flight.timer){ clearInterval(flight.timer); flight.timer = null; }
+    flight.roll = 0; flight.speed = 0; flight.last = null;
+    writeFlight();
+  }
+
+  function makeDraggable(){
+    if(!bot) return;
+    var start = null, DRAG_PX = 4;
+
+    var restore = savedPos();
+    if(restore) placeBot(restore.x, restore.y);
+
+    on(bot, 'pointerdown', function(e){
+      if(e.button !== undefined && e.button !== 0) return;
+      var r = bot.getBoundingClientRect();
+      start = {px:e.clientX, py:e.clientY, x:r.left, y:r.top, moving:false, id:e.pointerId};
+    });
+
+    on(window, 'pointermove', function(e){
+      if(!start || (start.id !== undefined && e.pointerId !== start.id)) return;
+      var dx = e.clientX - start.px, dy = e.clientY - start.py;
+      if(!start.moving){
+        if(Math.abs(dx) < DRAG_PX && Math.abs(dy) < DRAG_PX) return;
+        start.moving = true;
+        bot.classList.remove('is-landing', 'is-tracking');
+        bot.classList.add('is-dragging');
+        /* Square to the screen for the trip; faceReader() stands down below. */
+        if(faceTimer) clearTimeout(faceTimer);
+        bot.style.setProperty('--bot-yaw', '0deg');
+        bot.style.setProperty('--bot-pitch', '0deg');
+        hideSay();
+        startFlight();
+        try{ bot.setPointerCapture(start.id); }catch(err){}
+      }
+      placeBot(start.x + dx, start.y + dy);
+      flyToward(e.clientX, e.clientY, e.timeStamp || Date.now());
+      if(e.preventDefault) e.preventDefault();
+    }, {passive:false});
+
+    function release(e){
+      if(!start) return;
+      if(start.moving){
+        dragged = true;
+        bot.classList.remove('is-dragging');
+        endFlight();
+        /* Off, reflow, on -- a second drop inside the cycle must replay it. */
+        bot.classList.remove('is-landing');
+        void bot.offsetWidth;
+        bot.classList.add('is-landing');
+        setTimeout(function(){ if(bot) bot.classList.remove('is-landing'); }, 650);
+        var r = bot.getBoundingClientRect();
+        remember(POS_KEY, JSON.stringify({x:Math.round(r.left), y:Math.round(r.top)}));
+        try{ bot.releasePointerCapture(start.id); }catch(err){}
+      }
+      start = null;
+    }
+    on(window, 'pointerup', release);
+    on(window, 'pointercancel', release);
+
+    /* A figure parked at the old bottom-right of a wider window would be off
+       screen in a narrower one. */
+    on(window, 'resize', function(){
+      if(!bot.style.left) return;
+      placeBot(parseFloat(bot.style.left) || 0, parseFloat(bot.style.top) || 0);
+    });
+
+    /* Keyboard: the arrow keys nudge it, so the spot is reachable without a
+       pointer too. */
+    on(bot, 'keydown', function(e){
+      var step = e.shiftKey ? 40 : 10, r = bot.getBoundingClientRect(), k = e.key;
+      var dx = k === 'ArrowLeft' ? -step : k === 'ArrowRight' ? step : 0;
+      var dy = k === 'ArrowUp' ? -step : k === 'ArrowDown' ? step : 0;
+      if(!dx && !dy) return;
+      e.preventDefault();
+      placeBot(r.left + dx, r.top + dy);
+      r = bot.getBoundingClientRect();
+      remember(POS_KEY, JSON.stringify({x:Math.round(r.left), y:Math.round(r.top)}));
+    });
   }
 
   function hideSay(){
@@ -8974,6 +9237,8 @@ function newsRead(){
      degrees the construction starts to show. */
   function faceReader(ev){
     if(!FX_ON || !bot) return;
+    /* Carried: the face stays on the reader, not on the hand. */
+    if(bot.classList.contains('is-dragging')) return;
     var box = bot.getBoundingClientRect ? bot.getBoundingClientRect() : null;
     var vw = window.innerWidth || 1200, vh = window.innerHeight || 800;
     /* No layout to measure: the bot is pinned to the bottom-right corner, so
